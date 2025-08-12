@@ -1,0 +1,277 @@
+Package: binutils
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 109
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Version: 2.40-2
+Provides: binutils-gold, elf-binutils
+Depends: binutils-common (= 2.40-2), libbinutils (= 2.40-2), binutils-x86-64-linux-gnu (= 2.40-2)
+Suggests: binutils-doc (>= 2.40-2)
+Conflicts: binutils-mingw-w64-i686 (<< 2.23.52.20130612-1+3), binutils-mingw-w64-x86-64 (<< 2.23.52.20130612-1+3), binutils-multiarch (<< 2.27-8), modutils (<< 2.4.19-1)
+Description: GNU assembler, linker and binary utilities
+ The programs in this package are used to assemble, link and manipulate
+ binary and object files.  They may be used in conjunction with a compiler
+ and various libraries to build programs.
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: binutils-common
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 15021
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: binutils
+Version: 2.40-2
+Replaces: binutils (<< 2.38.50.20220527-2), binutils-multiarch (<< 2.38.50.20220527-2)
+Breaks: binutils (<< 2.38.50.20220527-2), binutils-multiarch (<< 2.38.50.20220527-2)
+Conffiles:
+ /etc/gprofng.rc d8f321679d2ce58b1399e4e6de17fcc9
+Description: Common files for the GNU assembler, linker and binary utilities
+ This package contains the localization files used by binutils packages for
+ various target architectures and parts of the binutils documentation. It is
+ not useful on its own.
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libbinutils
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 2469
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: binutils
+Version: 2.40-2
+Replaces: binutils (<< 2.29-6)
+Depends: libc6 (>= 2.34), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.0), binutils-common (= 2.40-2)
+Breaks: binutils (<< 2.29-6)
+Description: GNU binary utilities (private shared library)
+ This package includes the private shared libraries libbfd and libopcodes.
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libzstd1
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 785
+Maintainer: RPM packaging team <team+pkg-rpm@tracker.debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: libzstd
+Version: 1.5.4+dfsg2-5
+Depends: libc6 (>= 2.34)
+Description: fast lossless compression algorithm
+ Zstd, short for Zstandard, is a fast lossless compression algorithm, targeting
+ real-time compression scenarios at zlib-level compression ratio.
+ .
+ This package contains the shared library.
+Homepage: https://github.com/facebook/zstd
+
+Package: zlib1g
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 168
+Maintainer: Mark Brown <broonie@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: zlib
+Version: 1:1.2.13.dfsg-1
+Provides: libz1
+Depends: libc6 (>= 2.14)
+Breaks: libxml2 (<< 2.7.6.dfsg-2), texlive-binaries (<< 2009-12)
+Conflicts: zlib1 (<= 1:1.0.4-7)
+Description: compression library - runtime
+ zlib is a library implementing the deflate compression method found
+ in gzip and PKZIP.  This package includes the shared library.
+Homepage: http://zlib.net/
+
+Package: libc6
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 12996
+Maintainer: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: glibc
+Version: 2.36-9+deb12u10
+Replaces: libc6-amd64
+Depends: libgcc-s1
+Recommends: libidn2-0 (>= 2.0.5~)
+Suggests: glibc-doc, debconf | debconf-2.0, libc-l10n, locales, libnss-nis, libnss-nisplus
+Breaks: aide (<< 0.17.3-4+b3), busybox (<< 1.30.1-6), chrony (<< 4.2-3~), fakechroot (<< 2.19-3.5), firefox (<< 91~), firefox-esr (<< 91~), gnumach-image-1.8-486 (<< 2:1.8+git20210923~), gnumach-image-1.8-486-dbg (<< 2:1.8+git20210923~), gnumach-image-1.8-xen-486 (<< 2:1.8+git20210923~), gnumach-image-1.8-xen-486-dbg (<< 2:1.8+git20210923~), hurd (<< 1:0.9.git20220301-2), ioquake3 (<< 1.36+u20200211.f2c61c1~dfsg-2~), iraf-fitsutil (<< 2018.07.06-4), libgegl-0.4-0 (<< 0.4.18), libtirpc1 (<< 0.2.3), locales (<< 2.36), locales-all (<< 2.36), macs (<< 2.2.7.1-3~), nocache (<< 1.1-1~), nscd (<< 2.36), openarena (<< 0.8.8+dfsg-4~), openssh-server (<< 1:8.1p1-5), python3-iptables (<< 1.0.0-2), r-cran-later (<< 0.7.5+dfsg-2), tinydns (<< 1:1.05-14), valgrind (<< 1:3.19.0-1~), wcc (<< 0.0.2+dfsg-3)
+Conffiles:
+ /etc/ld.so.conf.d/x86_64-linux-gnu.conf d4e7a7b88a71b5ffd9e2644e71a0cfab
+Description: GNU C Library: Shared libraries
+ Contains the standard libraries that are used by nearly all programs on
+ the system. This package includes shared versions of the standard C library
+ and the standard math library, as well as many others.
+Homepage: https://www.gnu.org/software/libc/libc.html
+
+Package: libgcc-s1
+Protected: yes
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 140
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: gcc-12
+Version: 12.2.0-14+deb12u1
+Replaces: libgcc1 (<< 1:10)
+Provides: libgcc1 (= 1:12.2.0-14+deb12u1)
+Depends: gcc-12-base (= 12.2.0-14+deb12u1), libc6 (>= 2.35)
+Description: GCC support library
+ Shared version of the support library, a library of internal subroutines
+ that GCC uses to overcome shortcomings of particular machines, or
+ special needs for some languages.
+Homepage: http://gcc.gnu.org/
+Important: yes
+
+
+Package: binutils-x86-64-linux-gnu
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 11428
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: allowed
+Source: binutils
+Version: 2.40-2
+Replaces: binutils (<< 2.29-6), binutils-dev (<< 2.38.50.20220609-2)
+Depends: binutils-common (= 2.40-2), libbinutils (= 2.40-2), libc6 (>= 2.36), libctf-nobfd0 (>= 2.36), libctf0 (>= 2.36), libgcc-s1 (>= 4.2), libgprofng0 (>= 2.40-2), libjansson4 (>= 2.14), libstdc++6 (>= 5), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.1.4)
+Suggests: binutils-doc (= 2.40-2)
+Breaks: binutils (<< 2.29-6), binutils-dev (<< 2.38.50.20220609-2)
+Description: GNU binary utilities, for x86-64-linux-gnu target
+ This package provides GNU assembler, linker and binary utilities
+ for the x86-64-linux-gnu target.
+ .
+ You don't need this package unless you plan to cross-compile programs
+ for x86-64-linux-gnu and x86-64-linux-gnu is not your native platform.
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libctf-nobfd0
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 301
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: binutils
+Version: 2.40-2
+Replaces: libbinutils (<< 2.33.50.20191128-1~)
+Depends: libc6 (>= 2.14), zlib1g (>= 1:1.2.0)
+Breaks: libbinutils (<< 2.33.50.20191128-1~)
+Description: Compact C Type Format library (runtime, no BFD dependency)
+ This package includes the libctf-nobfd shared library.  The Compact C Type
+ Format (CTF) is a way of representing information about a binary program
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libctf0
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 232
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: binutils
+Version: 2.40-2
+Depends: libbinutils (= 2.40-2), libc6 (>= 2.33), zlib1g (>= 1:1.2.0)
+Description: Compact C Type Format library (runtime, BFD dependency)
+ This package includes the libctf shared library.  The Compact C Type
+ Format (CTF) is a way of representing information about a binary program
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libgprofng0
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 3958
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: binutils
+Version: 2.40-2
+Depends: libbinutils (= 2.40-2), libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 5.2), zlib1g (>= 1:1.1.4)
+Description: GNU Next Generation profiler (runtime library)
+ Gprofng is the GNU Next Generation profiler for analyzing the performance
+ of Linux applications.  Gprofng allows you to:
+ .
+  - Profile C / C++ / Java / Scala applications without needing to recompile
+  - Profile multi-threaded applications
+  - Analyze and compare multiple experiments
+  - Use time-based sampling and / or hardware event counters
+ .
+ This package includes the libgprofng shared library.
+Homepage: https://www.gnu.org/software/binutils/
+
+Package: libstdc++6
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 2686
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: gcc-12
+Version: 12.2.0-14+deb12u1
+Replaces: libstdc++6-12-dbg (<< 4.9.0-3)
+Depends: gcc-12-base (= 12.2.0-14+deb12u1), libc6 (>= 2.36), libgcc-s1 (>= 4.2)
+Breaks: gcc-4.3 (<< 4.3.6-1), gcc-4.4 (<< 4.4.6-4), gcc-4.5 (<< 4.5.3-2)
+Conflicts: scim (<< 1.4.2-1)
+Description: GNU Standard C++ Library v3
+ This package contains an additional runtime library for C++ programs
+ built with the GNU compiler.
+ .
+ libstdc++-v3 is a complete rewrite from the previous libstdc++-v2, which
+ was included up to g++-2.95. The first version of libstdc++-v3 appeared
+ in g++-3.0.
+Homepage: http://gcc.gnu.org/
+
+Package: gcc-12-base
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 100
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: gcc-12
+Version: 12.2.0-14+deb12u1
+Breaks: gnat (<< 7)
+Description: GCC, the GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC).
+Homepage: http://gcc.gnu.org/
+
+Package: libjansson4
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 101
+Maintainer: Alessandro Ghedini <ghedo@debian.org>
+Architecture: amd64
+Multi-Arch: same
+Source: jansson
+Version: 2.14-2
+Depends: libc6 (>= 2.14)
+Description: C library for encoding, decoding and manipulating JSON data
+ Jansson is a C library for encoding, decoding and manipulating JSON data.
+ .
+ It features:
+  * Simple and intuitive API and data model
+  * Comprehensive documentation
+  * No dependencies on other libraries
+  * Full Unicode support (UTF-8)
+  * Extensive test suite
+Homepage: http://www.digip.org/jansson/
+

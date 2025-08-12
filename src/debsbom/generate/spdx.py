@@ -1,0 +1,218 @@
+# Copyright (C) 2025 Siemens
+#
+# SPDX-License-Identifier: MIT
+
+from datetime import datetime
+from importlib.metadata import version
+import spdx_tools.spdx.model.actor as spdx_actor
+import spdx_tools.spdx.model.document as spdx_document
+from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
+import spdx_tools.spdx.model.package as spdx_package
+import spdx_tools.spdx.model.relationship as spdx_relationship
+from typing import Callable, List, Tuple
+from urllib.parse import urlparse, urlunparse
+from uuid import uuid4
+
+from ..dpkg.package import BinaryPackage
+from ..sbom import (
+    SPDX_REF_PREFIX,
+    SPDX_REF_DOCUMENT,
+    SUPPLIER_PATTERN,
+    SPDX_REFERENCE_TYPE_PURL,
+    SPDX_SUPPLIER_ORG_CUE,
+    SBOMType,
+)
+
+
+def spdx_bom(
+    packages: List[BinaryPackage],
+    distro_name: str,
+    distro_supplier: str | None = None,
+    distro_version: str | None = None,
+    namespace: Tuple | None = None,  # 6 item tuple representing an URL
+    timestamp: datetime | None = None,
+    progress_cb: Callable[[int, int, str], None] | None = None,
+) -> spdx_document.Document:
+    "Return a valid SPDX SBOM."
+
+    if distro_supplier is None:
+        supplier = None
+    else:
+        supplier = spdx_actor.Actor(
+            actor_type=spdx_actor.ActorType.ORGANIZATION,
+            name=distro_supplier,
+        )
+
+    data = []
+    # create an entry for the distribution
+    distro_ref = SPDX_REF_PREFIX + distro_name
+    distro_package = spdx_package.Package(
+        spdx_id=distro_ref,
+        name=distro_name,
+        download_location=SpdxNoAssertion(),
+        version=distro_version,
+        primary_package_purpose=spdx_package.PackagePurpose.OPERATING_SYSTEM,
+        supplier=supplier,
+        files_analyzed=False,
+        license_concluded=SpdxNoAssertion(),
+        license_declared=SpdxNoAssertion(),
+        copyright_text=SpdxNoAssertion(),
+    )
+
+    data.append(distro_package)
+
+    # progress tracking
+    num_steps = len(packages) * 2
+    cur_step = 0
+
+    # track which source package ids we already added to
+    # prevent duplicate entries
+    source_package_ids = []
+    for package in packages:
+        if progress_cb:
+            progress_cb(cur_step, num_steps, package.name)
+        cur_step += 1
+
+        match = SUPPLIER_PATTERN.match(package.maintainer)
+        supplier_name = match["supplier_name"]
+        supplier_email = match["supplier_email"]
+        if any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
+            supplier = spdx_actor.Actor(
+                actor_type=spdx_actor.ActorType.ORGANIZATION,
+                name=supplier_name,
+                email=supplier_email,
+            )
+        else:
+            supplier = spdx_actor.Actor(
+                actor_type=spdx_actor.ActorType.PERSON,
+                name=supplier_name,
+                email=supplier_email,
+            )
+
+        entry = spdx_package.Package(
+            spdx_id=package.bom_ref(SBOMType.SPDX),
+            name=package.name,
+            download_location=SpdxNoAssertion(),
+            version=str(package.version),
+            supplier=supplier,
+            files_analyzed=False,
+            # TODO: it should be possible to conclude license/copyright
+            # information, we could look e.g. in /usr/share/doc/*/copyright
+            license_concluded=SpdxNoAssertion(),
+            license_declared=SpdxNoAssertion(),
+            copyright_text=SpdxNoAssertion(),
+            summary=package.description,
+            external_references=[
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                    reference_type=SPDX_REFERENCE_TYPE_PURL,
+                    locator=package.purl().to_string(),
+                )
+            ],
+            primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
+        )
+        if package.homepage:
+            url = urlparse(package.homepage)
+            url = url._replace(netloc=url.netloc.lower())
+            entry.homepage = urlunparse(url)
+        data.append(entry)
+
+        if package.source:
+            spdx_id = package.source.bom_ref(SBOMType.SPDX)
+            if spdx_id not in source_package_ids:
+                source_package_ids.append(spdx_id)
+                src_entry = spdx_package.Package(
+                    spdx_id=spdx_id,
+                    name=package.source.name,
+                    version=str(package.source.version),
+                    supplier=supplier,
+                    files_analyzed=False,
+                    license_concluded=SpdxNoAssertion(),
+                    license_declared=SpdxNoAssertion(),
+                    download_location=SpdxNoAssertion(),
+                    copyright_text=SpdxNoAssertion(),
+                    summary="Debian source code package '{}'".format(package.source.name),
+                    external_references=[
+                        spdx_package.ExternalPackageRef(
+                            category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                            reference_type=SPDX_REFERENCE_TYPE_PURL,
+                            locator=package.source.purl().to_string(),
+                        )
+                    ],
+                    primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
+                )
+                data.append(src_entry)
+
+    relationships = []
+    # after we have found all packages we can start to resolve dependencies
+    package_names = [package.name for package in packages]
+    for package in packages:
+        if progress_cb:
+            progress_cb(cur_step, num_steps, package.name)
+        cur_step += 1
+
+        relationships.append(
+            spdx_relationship.Relationship(
+                spdx_element_id=package.bom_ref(SBOMType.SPDX),
+                relationship_type=spdx_relationship.RelationshipType.PACKAGE_OF,
+                related_spdx_element_id=distro_ref,
+            )
+        )
+        if package.depends:
+            for dep in package.depends:
+                if dep.name in package_names:
+                    relationship = spdx_relationship.Relationship(
+                        spdx_element_id=package.bom_ref(SBOMType.SPDX),
+                        relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
+                        related_spdx_element_id=dep.bom_ref(SBOMType.SPDX),
+                    )
+                    relationships.append(relationship)
+                else:
+                    # this might happen if we have optional dependencies
+                    pass
+        if package.source:
+            relationship = spdx_relationship.Relationship(
+                spdx_element_id=package.source.bom_ref(SBOMType.SPDX),
+                relationship_type=spdx_relationship.RelationshipType.GENERATES,
+                related_spdx_element_id=package.bom_ref(SBOMType.SPDX),
+            )
+            relationships.append(relationship)
+
+    relationships.append(
+        spdx_relationship.Relationship(
+            spdx_element_id=SPDX_REF_DOCUMENT,
+            relationship_type=spdx_relationship.RelationshipType.DESCRIBES,
+            related_spdx_element_id=distro_ref,
+        )
+    )
+
+    if namespace is None:
+        namespace = urlparse(
+            "https://spdx.org/spdxdocs/debsbom-{}-{}".format(
+                version("debsbom"),
+                uuid4(),
+            )
+        )
+
+    if timestamp is None:
+        timestamp = datetime.now()
+
+    creation_info = spdx_document.CreationInfo(
+        spdx_version="SPDX-2.3",
+        spdx_id=SPDX_REF_DOCUMENT,
+        name=distro_name,
+        document_namespace=urlunparse(namespace),
+        creators=[
+            spdx_actor.Actor(
+                actor_type=spdx_actor.ActorType.TOOL,
+                name="debsbom-{}".format(version("debsbom")),
+            )
+        ],
+        created=timestamp,
+    )
+    document = spdx_document.Document(
+        creation_info=creation_info,
+        packages=data,
+        relationships=relationships,
+    )
+    return document

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "debsbom"
+version = "0.0.1"
+dependencies = [
+  "cyclonedx-python-lib>=11.0.0",
+  "packageurl-python>=0.16.0",
+  "spdx-tools>=0.8.3",
+  "python-debian>=0.1.49",
+]
+requires-python = ">=3.11"
+authors = [
+  { name="Christoph Steiger", email="christoph.steiger@siemens.com" },
+]
+maintainers = [
+  { name="Christoph Steiger", email="christoph.steiger@siemens.com" },
+  { name="Gernot Hillier", email="gernot.hillier@siemens.com" },
+]
+description = "Generate SBOMs for Debian-based distributions."
+readme = "README.md"
+license = "MIT"
+classifiers = [
+  "Intended Audience :: Developers",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: System :: Operating System Kernels :: Linux" ,
+  "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=6.0",
+  "black",
+]
+
+[project.scripts]
+debsbom = "debsbom.cli:main"
+
+[tool.black]
+line-length = 100
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]

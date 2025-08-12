@@ -1,0 +1,60 @@
+Package: r-recommended
+Version: 4.2.2.20221110-2
+Priority: optional
+Section: gnu-r
+Source: r-base
+Maintainer: Dirk Eddelbuettel <edd@debian.org>
+Installed-Size: 12.3 kB
+Depends: r-base-core (>= 4.2.2.20221110-2), r-cran-boot (>= 1.2.19), r-cran-cluster (>= 1.9.6-2), r-cran-foreign (>= 0.7-2), r-cran-kernsmooth (>= 2.2.14), r-cran-lattice (>= 0.10.11), r-cran-mgcv (>= 1.1.5), r-cran-nlme (>= 3.1.52), r-cran-rpart (>= 3.1.20), r-cran-survival (>= 2.13.2-1), r-cran-mass, r-cran-class, r-cran-nnet, r-cran-spatial, r-cran-codetools, r-cran-matrix
+Homepage: http://www.R-project.org/
+Tag: devel::lang:r, field::statistics, role::dummy, role::metapackage,
+ suite::gnu
+Download-Size: 2,580 B
+APT-Sources: http://deb.debian.org/debian bookworm/main amd64 Packages
+Description: GNU R collection of recommended packages [metapackage]
+ R is a system for statistical computation and graphics.  It consists
+ of a language plus a run-time environment with graphics, a debugger,
+ access to certain system functions, and the ability to run programs
+ stored in script files.
+ .
+ The design of R has been heavily influenced by two existing languages:
+ Becker, Chambers & Wilks' S and Sussman's Scheme.  Whereas the
+ resulting language is very similar in appearance to S, the underlying
+ implementation and semantics are derived from Scheme.
+ .
+ The core of R is an interpreted computer language which allows
+ branching and looping as well as modular programming using functions.
+ Most of the user-visible functions in R are written in R.  It is
+ possible for the user to interface to procedures written in the
+ C, C++, or FORTRAN languages for efficiency, and many of R's core
+ functions do so.  The R distribution contains functionality for a
+ large number of statistical procedures and underlying applied math
+ computations.  There is also a large set of functions which provide
+ a flexible graphical environment for creating various kinds of data
+ presentations.
+ .
+ Additionally, several thousand extension "packages" are available from
+ CRAN, the Comprehensive R Archive Network, many also as Debian packages,
+ named 'r-cran-<name>'.
+ .
+ This Debian package is now a metapackage that depends on a set of
+ packages that are recommended by the upstream R core team as part of a
+ complete R distribution, and distributed along with the source of R
+ itself, as well as directly via the CRAN network of mirrors. This set
+ comprises the following packages (listed in their upstream names):
+  - KernSmooth: Functions for kernel smoothing for Wand & Jones (1995)
+  - Matrix: Classes and methods for dense and sparse matrices and
+    operations on them using Lapack and SuiteSparse
+  - MASS, class, nnet and spatial: packages from Venables and Ripley,
+    `Modern Applied Statistics with S' (4th edition).
+  - boot: Bootstrap R (S-Plus) Functions from the book "Bootstrap Methods
+    and Their Applications" by A.C. Davison and D.V. Hinkley (1997).
+  - cluster: Functions for clustering (by Rousseeuw et al.)
+  - codetools: Code analysis tools for R
+  - foreign: Read data stored by Minitab, S, SAS, SPSS, Stata, ...
+  - lattice: Implementation of Trellis (R) graphics
+  - mgcv: Multiple smoothing parameter estimation and GAMs by GCV
+  - nlme: Linear and nonlinear mixed effects models
+  - rpart: Recursive partitioning and regression trees
+  - survival: Survival analysis, including penalised likelihood.
+

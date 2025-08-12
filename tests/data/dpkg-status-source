@@ -1,0 +1,20 @@
+Package: apt-utils
+Status: install ok installed
+Priority: important
+Section: admin
+Installed-Size: 1037
+Maintainer: APT Development Team <deity@lists.debian.org>
+Architecture: amd64
+Source: apt
+Version: 2.6.1
+Depends: apt (= 2.6.1), libapt-pkg6.0 (>= 2.6.1), libc6 (>= 2.34), libdb5.3, libgcc-s1 (>= 3.0), libstdc++6 (>= 11)
+Description: package management related utility programs
+ This package contains some less used commandline utilities related
+ to package management with APT.
+ .
+  * apt-extracttemplates is used by debconf to prompt for configuration
+    questions before installation.
+  * apt-ftparchive is used to create Packages and other index files
+    needed to publish an archive of Debian packages
+  * apt-sortpkgs is a Packages/Sources file normalizer.
+
