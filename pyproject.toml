@@ -10,6 +10,7 @@ dependencies = [
   "packageurl-python>=0.16.0",
   "spdx-tools>=0.8.3",
   "python-debian>=0.1.49",
+  "requests>=2.25.1",
 ]
 requires-python = ">=3.11"
 authors = [
