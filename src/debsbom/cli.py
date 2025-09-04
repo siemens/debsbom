@@ -11,8 +11,11 @@ import sys
 import traceback
 from uuid import UUID
 from urllib.parse import urlparse
+from pathlib import Path
 
 from .generate import Debsbom, SBOMType
+from .download import PackageDownloader, PackageResolver
+from .snapshot import client as sdlclient
 
 
 def progress_cb(i: int, n: int, name: str):
@@ -116,15 +119,65 @@ class GenerateCmd:
             default=None,
         )
         parser.add_argument(
-            "--progress",
-            help="report progress",
-            action="store_true",
-        )
-        parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
         )
+
+
+class DownloadCmd:
+    """
+    Processes a SBOM and downloads the referenced packages
+    """
+
+    @staticmethod
+    def human_readable_bytes(size):
+        if size < 1024 * 1024:
+            return f"{int(size / 1024):d} KiB"
+        elif size < 1024 * 1024 * 1024:
+            return f"{int(size / 1024 / 1024):d} MiB"
+        else:
+            return f"{size / 1024 / 1024 / 1024:.2f} GiB"
+
+    @staticmethod
+    def run(args):
+        resolver = PackageResolver.create(Path(args.bomfile))
+        sdl = sdlclient.SnapshotDataLake()
+        downloader = PackageDownloader(args.outdir)
+
+        pkgs = []
+        local_pkgs = []
+        if args.sources:
+            pkgs.extend(resolver.sources())
+
+        if args.binaries:
+            pkgs.extend(resolver.binaries())
+
+        print("resolving upstream packages")
+        for idx, pkg in enumerate(pkgs):
+            if args.progress:
+                progress_cb(idx, len(pkgs), pkg.name)
+            try:
+                files = list(resolver.resolve(sdl, pkg))
+            except sdlclient.NotFoundOnSnapshotError:
+                local_pkgs.append(pkg)
+            downloader.register(files)
+
+        nfiles, nbytes = downloader.stat()
+        print(f"downloading ({nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)})")
+        downloader.download(progress_cb=progress_cb if args.progress else None)
+
+        for p in local_pkgs:
+            print(f"not found upstream: {p.name}@{p.version}")
+
+    @staticmethod
+    def setup_parser(parser):
+        parser.add_argument("bomfile", help="sbom file to process")
+        parser.add_argument(
+            "--outdir", default="downloads", help="directory to store downloaded files"
+        )
+        parser.add_argument("--sources", help="download source packages", action="store_true")
+        parser.add_argument("--binaries", help="download binary packages", action="store_true")
 
 
 def main():
@@ -136,15 +189,23 @@ def main():
         "--version", action="version", version="%(prog)s {}".format(version("debsbom"))
     )
     parser.add_argument("-v", "--verbose", action="count", default=0, help="be more verbose")
+    parser.add_argument(
+        "--progress",
+        help="report progress",
+        action="store_true",
+    )
     subparser = parser.add_subparsers(help="sub command help", dest="cmd")
     GenerateCmd.setup_parser(
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
+    DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
     args = parser.parse_args()
 
     try:
         if args.cmd == "generate":
             GenerateCmd.run(args)
+        elif args.cmd == "download":
+            DownloadCmd.run(args)
     except Exception as e:
         print("debsbom: error: {}".format(e))
         if args.verbose >= 1:
