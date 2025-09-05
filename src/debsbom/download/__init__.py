@@ -2,5 +2,5 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .download import PackageResolver
+from .download import PackageResolver, PackageResolverCache, PersistentResolverCache
 from .download import PackageDownloader
