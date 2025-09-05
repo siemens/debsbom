@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 from pathlib import Path
 import requests
 
+from .dpkg import package
 from .generate import Debsbom, SBOMType
 from .download import PackageDownloader, PackageResolver, PersistentResolverCache
 from .snapshot import client as sdlclient
@@ -141,6 +142,16 @@ class DownloadCmd:
             return f"{size / 1024 / 1024 / 1024:.2f} GiB"
 
     @staticmethod
+    def _check_for_dsc(p, files):
+        """
+        all source packages should have a .dsc file. Warn if it is missing
+        """
+        if isinstance(p, package.SourcePackage) and not any(
+            f.filename == p.dscfile() for f in files
+        ):
+            print(f"no .dsc file found for {p.name}@{p.version}", file=sys.stderr)
+
+    @staticmethod
     def run(args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
@@ -164,6 +175,7 @@ class DownloadCmd:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
                 files = list(resolver.resolve(sdl, pkg, cache))
+                DownloadCmd._check_for_dsc(pkg, files)
             except sdlclient.NotFoundOnSnapshotError:
                 local_pkgs.append(pkg)
             downloader.register(files)

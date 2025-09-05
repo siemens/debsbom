@@ -109,6 +109,15 @@ class SourcePackage(Package):
             "pkg:deb/debian/{}@{}?arch=source".format(self.name, self.version)
         )
 
+    def dscfile(self) -> str:
+        """Return the name of the .dsc file"""
+        # TODO: find where this filename format is specified
+        if self.version.debian_revision:
+            version_wo_epoch = f"{self.version.upstream_version}-{self.version.debian_revision}"
+        else:
+            version_wo_epoch = self.version.upstream_version
+        return f"{self.name}_{version_wo_epoch}.dsc"
+
 
 @dataclass(init=False)
 class BinaryPackage(Package):
