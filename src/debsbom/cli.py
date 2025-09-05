@@ -168,8 +168,11 @@ class DownloadCmd:
                 local_pkgs.append(pkg)
             downloader.register(files)
 
-        nfiles, nbytes = downloader.stat()
-        print(f"downloading ({nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)})")
+        nfiles, nbytes, cfiles, cbytes = downloader.stat()
+        print(
+            f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
+            f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
+        )
         list(downloader.download(progress_cb=progress_cb if args.progress else None))
 
         for p in local_pkgs:

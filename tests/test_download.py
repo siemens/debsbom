@@ -59,7 +59,7 @@ def test_download(tmpdir):
         architecture=None,
     )
     dl.register([test_file])
-    assert dl.stat() == (1, 2757)
+    assert dl.stat() == (1, 2757, 0, 0)
     mock_cb = mock.Mock()
     downloaded = list(dl.download(mock_cb))
     mock_cb.assert_called_once_with(0, 1, test_file.filename)
