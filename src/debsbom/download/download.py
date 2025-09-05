@@ -7,11 +7,12 @@ import dataclasses
 from functools import reduce
 import hashlib
 import json
-import re
 import sys
 from typing import Generator, Tuple, Type
 from pathlib import Path
 from urllib.request import urlretrieve
+from packageurl import PackageURL
+
 from ..dpkg import package
 from ..snapshot import client as sdlclient
 
@@ -74,9 +75,6 @@ class PersistentResolverCache(PackageResolverCache):
 
 
 class PackageResolver:
-    def __init__(self):
-        self.purl_regex = re.compile(r"pkg:deb\/debian\/(.*)@(.*)[?]arch=(.*)$")
-
     @abstractmethod
     def debian_pkgs(self) -> Generator:
         """
@@ -91,14 +89,22 @@ class PackageResolver:
         return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
     def package_from_purl(self, purl: str) -> Tuple[str, str, str]:
-        parts = self.purl_regex.fullmatch(purl)
-        if not parts:
+        purl = PackageURL.from_string(purl)
+        if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)
-        if parts[3] == "source":
-            return package.SourcePackage(parts[1], parts[2])
+        if purl.qualifiers.get("arch") == "source":
+            return package.SourcePackage(purl.name, purl.version)
         else:
             return package.BinaryPackage(
-                parts[1], None, None, parts[3], None, parts[2], None, None, None
+                name=purl.name,
+                section=None,
+                maintainer=None,
+                architecture=purl.qualifiers.get("arch"),
+                source=None,
+                version=purl.version,
+                depends=None,
+                description=None,
+                homepage=None,
             )
 
     @staticmethod
