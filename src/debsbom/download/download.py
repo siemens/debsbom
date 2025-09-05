@@ -3,15 +3,74 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
+import dataclasses
 from functools import reduce
 import hashlib
-import os
+import json
 import re
+import sys
 from typing import Generator, Tuple, Type
 from pathlib import Path
 from urllib.request import urlretrieve
 from ..dpkg import package
 from ..snapshot import client as sdlclient
+
+
+class PackageResolverCache:
+    """
+    Maps packages to RemoteFile instances to avoid expensive calls to the upstream mirror.
+    This dummy implementation can be used to not cache.
+    """
+
+    def lookup(
+        self, p: package.SourcePackage | package.BinaryPackage
+    ) -> list["sdlclient.RemoteFile"] | None:
+        return None
+
+    def insert(
+        self, p: package.SourcePackage | package.BinaryPackage, files: list["sdlclient.RemoteFile"]
+    ) -> None:
+        pass
+
+
+class PersistentResolverCache(PackageResolverCache):
+    """
+    Trivial implementation of a file-backed cache. Each cache entry is stored as individual file
+    in the cachedir.
+    """
+
+    def __init__(self, cachedir: Path):
+        self.cachedir = cachedir
+        cachedir.mkdir(exist_ok=True)
+
+    @staticmethod
+    def _package_hash(p: package.SourcePackage | package.BinaryPackage) -> str:
+        return hashlib.sha256(
+            json.dumps({"name": p.name, "version": p.version}, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+
+    def _entry_path(self, hash: str) -> Path:
+        return self.cachedir / f"{hash}.json"
+
+    def lookup(
+        self, p: package.SourcePackage | package.BinaryPackage
+    ) -> list["sdlclient.RemoteFile"] | None:
+        hash = self._package_hash(p)
+        entry = self._entry_path(hash)
+        if not entry.is_file():
+            return None
+        with open(entry, "r") as f:
+            data = json.load(f)
+        return [sdlclient.RemoteFile(**d) for d in data]
+
+    def insert(
+        self, p: package.SourcePackage | package.BinaryPackage, files: list["sdlclient.RemoteFile"]
+    ) -> None:
+        hash = self._package_hash(p)
+        entry = self._entry_path(hash)
+        with open(entry.with_suffix(".tmp"), "w") as f:
+            json.dump([dataclasses.asdict(rf) for rf in files], f)
+        entry.with_suffix(".tmp").rename(entry)
 
 
 class PackageResolver:
@@ -44,17 +103,27 @@ class PackageResolver:
 
     @staticmethod
     def resolve(
-        sdl: sdlclient.SnapshotDataLake, p: package.SourcePackage | package.BinaryPackage
-    ) -> Generator["sdlclient.RemoteFile", None, None]:
+        sdl: sdlclient.SnapshotDataLake,
+        p: package.SourcePackage | package.BinaryPackage,
+        cache: PackageResolverCache = PackageResolverCache(),
+    ) -> list["sdlclient.RemoteFile"]:
         """
         Resolve a local package to references on the upstream snapshot mirror
         """
+        cached_files = cache.lookup(p)
+        if cached_files:
+            return cached_files
+
+        # Determine which type of package and fetch files
         if isinstance(p, package.SourcePackage):
-            return sdlclient.SourcePackage(sdl, p.name, p.version).srcfiles()
-        elif isinstance(p, package.BinaryPackage):
-            return sdlclient.BinaryPackage(sdl, p.name, p.version, None, None).files(
+            files = sdlclient.SourcePackage(sdl, p.name, p.version).srcfiles()
+        else:
+            files = sdlclient.BinaryPackage(sdl, p.name, p.version, None, None).files(
                 arch=p.architecture
             )
+        files_list = list(files)
+        cache.insert(p, files_list)
+        return files_list
 
     @staticmethod
     def create(filename: Path) -> Type["PackageResolver"]:

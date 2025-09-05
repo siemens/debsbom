@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 from pathlib import Path
 
 from .generate import Debsbom, SBOMType
-from .download import PackageDownloader, PackageResolver
+from .download import PackageDownloader, PackageResolver, PersistentResolverCache
 from .snapshot import client as sdlclient
 
 
@@ -141,6 +141,9 @@ class DownloadCmd:
 
     @staticmethod
     def run(args):
+        outdir = Path(args.outdir)
+        outdir.mkdir(exist_ok=True)
+        cache = PersistentResolverCache(outdir / ".cache")
         resolver = PackageResolver.create(Path(args.bomfile))
         sdl = sdlclient.SnapshotDataLake()
         downloader = PackageDownloader(args.outdir)
@@ -158,7 +161,7 @@ class DownloadCmd:
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(resolver.resolve(sdl, pkg))
+                files = list(resolver.resolve(sdl, pkg, cache))
             except sdlclient.NotFoundOnSnapshotError:
                 local_pkgs.append(pkg)
             downloader.register(files)
