@@ -1,0 +1,30 @@
+# Copyright (C) 2025 Siemens
+#
+# SPDX-License-Identifier: MIT
+
+name: Lint Python Code
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black
+    - name: Check code formatting with black
+      run: |
+        black --check --diff $(git ls-files '*.py')
