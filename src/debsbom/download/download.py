@@ -46,7 +46,7 @@ class PersistentResolverCache(PackageResolverCache):
     @staticmethod
     def _package_hash(p: package.SourcePackage | package.BinaryPackage) -> str:
         return hashlib.sha256(
-            json.dumps({"name": p.name, "version": p.version}, sort_keys=True).encode("utf-8")
+            json.dumps(p.purl().to_string(), sort_keys=True).encode("utf-8")
         ).hexdigest()
 
     def _entry_path(self, hash: str) -> Path:
