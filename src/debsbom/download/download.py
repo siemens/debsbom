@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
+from collections import namedtuple
 import dataclasses
 from functools import reduce
 import hashlib
@@ -154,6 +155,8 @@ class PackageResolver:
 
 
 class PackageDownloader:
+    StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
+
     def __init__(
         self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
     ):
@@ -165,12 +168,14 @@ class PackageDownloader:
     def register(self, files: list["sdlclient.RemoteFile"]):
         self.to_download.extend(list(files))
 
-    def stat(self):
+    def stat(self) -> Type["StatisticsType"]:
         """
-        Returns a tuple (files to download, total size)
+        Returns a tuple (files to download, total size, cached files, cached bytes)
         """
         nbytes = reduce(lambda acc, x: acc + x.size, self.to_download, 0)
-        return (len(self.to_download), nbytes)
+        cfiles = list(filter(lambda f: Path(self.dldir / f.filename).is_file(), self.to_download))
+        cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
+        return self.StatisticsType(len(self.to_download), nbytes, len(cfiles), cbytes)
 
     def download(self, progress_cb) -> Iterator[Path]:
         """
