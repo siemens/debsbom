@@ -56,7 +56,7 @@ def cyclonedx_bom(
             type=cdx_component.ComponentType.LIBRARY,
             bom_ref=refs[ref],
             supplier=supplier,
-            version=package.version,
+            version=str(package.version),
             description=package.description,
             purl=package.purl(),
         )

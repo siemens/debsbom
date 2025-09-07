@@ -16,12 +16,16 @@ from ..sbom import CDX_REF_PREFIX, SBOMType, SPDX_REF_PREFIX
 SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
 
 
-@dataclass
+@dataclass(init=False)
 class SourcePackage:
     """Representation of a Debian Source package."""
 
     name: str
     version: Version | None
+
+    def __init__(self, name: str, version: str | Version):
+        self.name = name
+        self.version = Version(version)
 
     def purl(self) -> PackageURL:
         """Return the PURL of the package."""
@@ -81,7 +85,7 @@ class Dependency:
         return Dependency.from_pkg_relations(PkgRelation.parse_relations(line))
 
 
-@dataclass
+@dataclass(init=False)
 class BinaryPackage:
     """Incomplete representation of a debian binary package."""
 
@@ -94,6 +98,28 @@ class BinaryPackage:
     depends: List[Dependency]
     description: str
     homepage: str
+
+    def __init__(
+        self,
+        name: str,
+        section: str,
+        maintainer: str,
+        architecture: str,
+        source: SourcePackage,
+        version: str | Version,
+        depends: List[Dependency],
+        description: str,
+        homepage: str,
+    ):
+        self.name = name
+        self.section = section
+        self.maintainer = maintainer
+        self.architecture = architecture
+        self.source = source
+        self.version = Version(version)
+        self.depends = depends
+        self.description = description
+        self.homepage = homepage
 
     def purl(self) -> PackageURL:
         """Return the PURL of the package."""
