@@ -177,7 +177,7 @@ class PackageDownloader:
         cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
         return self.StatisticsType(len(self.to_download), nbytes, len(cfiles), cbytes)
 
-    def download(self, progress_cb) -> Iterator[Path]:
+    def download(self, progress_cb=None) -> Iterator[Path]:
         """
         Download all files and yield the file paths to the on-disk
         object. Files that are already there are not downloaded again,
