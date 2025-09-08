@@ -7,11 +7,13 @@ import dataclasses
 from functools import reduce
 import hashlib
 import json
+import shutil
 import sys
 from typing import Generator, Tuple, Type
 from pathlib import Path
 from urllib.request import urlretrieve
 from packageurl import PackageURL
+import requests
 
 from ..dpkg import package
 from ..snapshot import client as sdlclient
@@ -152,10 +154,13 @@ class PackageResolver:
 
 
 class PackageDownloader:
-    def __init__(self, outdir: Path | str = "downloads"):
+    def __init__(
+        self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
+    ):
         self.dldir = Path(outdir)
         self.dldir.mkdir(exist_ok=True)
         self.to_download: list["sdlclient.RemoteFile"] = []
+        self.rs = session
 
     def register(self, files: list["sdlclient.RemoteFile"]):
         self.to_download.extend(list(files))
@@ -180,5 +185,8 @@ class PackageDownloader:
                 else:
                     print(f"Checksum mismatch on {f.filename}. Download again.", file=sys.stderr)
             fdst = target.with_suffix(target.suffix + ".tmp")
-            urlretrieve(f.downloadurl, fdst)
+            with self.rs.get(f.downloadurl, stream=True) as r:
+                r.raise_for_status()
+                with open(fdst, "wb") as f:
+                    shutil.copyfileobj(r.raw, f)
             fdst.rename(target)

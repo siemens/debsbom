@@ -12,6 +12,7 @@ import traceback
 from uuid import UUID
 from urllib.parse import urlparse
 from pathlib import Path
+import requests
 
 from .generate import Debsbom, SBOMType
 from .download import PackageDownloader, PackageResolver, PersistentResolverCache
@@ -145,8 +146,9 @@ class DownloadCmd:
         outdir.mkdir(exist_ok=True)
         cache = PersistentResolverCache(outdir / ".cache")
         resolver = PackageResolver.create(Path(args.bomfile))
-        sdl = sdlclient.SnapshotDataLake()
-        downloader = PackageDownloader(args.outdir)
+        rs = requests.Session()
+        sdl = sdlclient.SnapshotDataLake(session=rs)
+        downloader = PackageDownloader(args.outdir, session=rs)
 
         pkgs = []
         local_pkgs = []
