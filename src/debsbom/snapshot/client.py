@@ -33,7 +33,7 @@ class Package:
 
     def versions(self):
         try:
-            r = requests.get(self.sdl.url + f"/mr/package/{self.name}/")
+            r = self.sdl.rs.get(self.sdl.url + f"/mr/package/{self.name}/")
         except RequestException as e:
             raise SnapshotDataLakeError(e)
         for v in r.json().get("result", []):
@@ -55,7 +55,7 @@ class SourcePackage:
         All files associated with the source package
         """
         try:
-            r = requests.get(
+            r = self.sdl.rs.get(
                 self.sdl.url + f"/mr/package/{self.name}/{self.version}" "/srcfiles?fileinfo=1"
             )
             if r.status_code == 404:
@@ -78,7 +78,7 @@ class SourcePackage:
         All binary packages created from this source package
         """
         try:
-            r = requests.get(
+            r = self.sdl.rs.get(
                 self.sdl.url + f"/mr/package/{self.name}/{self.version}" "/binpackages"
             )
             data = r.json()
@@ -121,7 +121,7 @@ class BinaryPackage:
             # resolve via binary only
             api = self.sdl.url + f"/mr/binary/{self.binname}/{self.binversion}/binfiles?fileinfo=1"
         try:
-            r = requests.get(api)
+            r = self.sdl.rs.get(api)
             if r.status_code == 404:
                 raise NotFoundOnSnapshotError()
             data = r.json()
@@ -170,12 +170,16 @@ class SnapshotDataLake:
     Snapshot instance to query against
     """
 
-    def __init__(self, url="https://snapshot.debian.org"):
+    def __init__(
+        self, url="https://snapshot.debian.org", session: requests.Session = requests.Session()
+    ):
         self.url = url
+        # reuse the same connection for all requests
+        self.rs = session
 
     def packages(self) -> Generator[Package, None, None]:
         try:
-            r = requests.get(self.url + "/mr/package/")
+            r = self.rs.get(self.url + "/mr/package/")
             data = r.json()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
@@ -184,7 +188,7 @@ class SnapshotDataLake:
 
     def fileinfo(self, hash):
         try:
-            r = requests.get(self.url + f"/mr/file/{hash}/info")
+            r = self.rs.get(self.url + f"/mr/file/{hash}/info")
             data = r.json()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
