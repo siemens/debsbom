@@ -225,7 +225,7 @@ class MergeCmd:
         local_pkgs = []
         for idx, pkg in enumerate(pkgs):
             if args.progress:
-                progress_cb(idx, len(pkgs), pkg.name)
+                progress_cb(idx, len(pkgs), f"{pkg.name}@{pkg.version}")
             try:
                 merger.merge(pkg)
             except DscFileNotFoundError:
