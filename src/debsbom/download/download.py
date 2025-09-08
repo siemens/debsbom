@@ -164,6 +164,7 @@ class PackageDownloader:
         self.dldir.mkdir(exist_ok=True)
         self.to_download: list["sdlclient.RemoteFile"] = []
         self.rs = session
+        self.known_hashes = {}
 
     def register(self, files: list["sdlclient.RemoteFile"]):
         self.to_download.extend(list(files))
@@ -172,10 +173,11 @@ class PackageDownloader:
         """
         Returns a tuple (files to download, total size, cached files, cached bytes)
         """
-        nbytes = reduce(lambda acc, x: acc + x.size, self.to_download, 0)
-        cfiles = list(filter(lambda f: Path(self.dldir / f.filename).is_file(), self.to_download))
+        unique_dl = list({v.hash: v for v in self.to_download}.values())
+        nbytes = reduce(lambda acc, x: acc + x.size, unique_dl, 0)
+        cfiles = list(filter(lambda f: Path(self.dldir / f.filename).is_file(), unique_dl))
         cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
-        return self.StatisticsType(len(self.to_download), nbytes, len(cfiles), cbytes)
+        return self.StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
     def download(self, progress_cb=None) -> Iterator[Path]:
         """
@@ -187,19 +189,32 @@ class PackageDownloader:
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
             target = Path(self.dldir / f.filename)
+            # check if we have the file under the exact filename
             if target.is_file():
                 with open(target, "rb") as fd:
                     digest = hashlib.file_digest(fd, "sha1")
                 if digest.hexdigest() == f.hash:
+                    self.known_hashes[f.hash] = f.filename
                     yield target
                     continue
                 else:
                     print(f"Checksum mismatch on {f.filename}. Download again.", file=sys.stderr)
+                    self.known_hashes.pop(f.hash, None)
+                    target.unlink()
+            # check if we have a file with the same hash and link to it
+            o_filename = self.known_hashes.get(f.hash)
+            if o_filename:
+                o_path = Path(self.dldir / o_filename).resolve()
+                target.symlink_to(o_path.relative_to(self.dldir.resolve()))
+                yield target
+                continue
+
             fdst = target.with_suffix(target.suffix + ".tmp")
             with self.rs.get(f.downloadurl, stream=True) as r:
                 r.raise_for_status()
-                with open(fdst, "wb") as f:
-                    shutil.copyfileobj(r.raw, f)
+                with open(fdst, "wb") as fp:
+                    shutil.copyfileobj(r.raw, fp)
             fdst.rename(target)
+            self.known_hashes[f.hash] = f.filename
             yield target
         self.to_download = []
