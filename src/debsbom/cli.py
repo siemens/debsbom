@@ -16,7 +16,14 @@ import requests
 
 from .dpkg import package
 from .generate import Debsbom, SBOMType
-from .download import PackageDownloader, PackageResolver, PersistentResolverCache
+from .download import (
+    PackageDownloader,
+    PackageResolver,
+    PersistentResolverCache,
+    Compression,
+    SourceArchiveMerger,
+    DscFileNotFoundError,
+)
 from .snapshot import client as sdlclient
 
 
@@ -200,6 +207,49 @@ class DownloadCmd:
         parser.add_argument("--binaries", help="download binary packages", action="store_true")
 
 
+class MergeCmd:
+    """
+    Processes an SBOM and merges the .orig and .debian tarballs. The tarballs have to be
+    downloaded first.
+    """
+
+    @staticmethod
+    def run(args):
+        pkgdir = Path(args.pkgdir)
+        outdir = Path(args.outdir or args.pkgdir)
+        compress = Compression.from_tool(args.compress if args.compress != "no" else None)
+        resolver = PackageResolver.create(Path(args.bomfile))
+        merger = SourceArchiveMerger(pkgdir, outdir, compress)
+        pkgs = list(resolver.sources())
+
+        local_pkgs = []
+        for idx, pkg in enumerate(pkgs):
+            if args.progress:
+                progress_cb(idx, len(pkgs), pkg.name)
+            try:
+                merger.merge(pkg)
+            except DscFileNotFoundError:
+                local_pkgs.append(pkg)
+        for p in local_pkgs:
+            print(f"dsc file not found: {p.name}@{p.version}")
+
+    @staticmethod
+    def setup_parser(parser):
+        parser.add_argument("bomfile", help="sbom file to process")
+        parser.add_argument(
+            "--pkgdir", default="downloads", help="directory with downloaded packages"
+        )
+        parser.add_argument(
+            "--outdir", default="downloads", help="directory to store the merged files"
+        )
+        parser.add_argument(
+            "--compress",
+            help="compress merged tarballs (default: gzip)",
+            choices=["no"] + [c.tool for c in Compression.formats()],
+            default="gzip",
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="debsbom",
@@ -219,6 +269,9 @@ def main():
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
     DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
+    MergeCmd.setup_parser(
+        subparser.add_parser("source-merge", help="merge referenced source packages")
+    )
     args = parser.parse_args()
 
     try:
@@ -226,6 +279,8 @@ def main():
             GenerateCmd.run(args)
         elif args.cmd == "download":
             DownloadCmd.run(args)
+        elif args.cmd == "source-merge":
+            MergeCmd.run(args)
     except Exception as e:
         print("debsbom: error: {}".format(e))
         if args.verbose >= 1:
