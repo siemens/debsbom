@@ -61,7 +61,13 @@ class PersistentResolverCache(PackageResolverCache):
         if not entry.is_file():
             return None
         with open(entry, "r") as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.decoder.JSONDecodeError:
+                print(
+                    f"cache file {entry.name} ({p.name}@{p.version}) is corrupted", file=sys.stderr
+                )
+                return None
         return [sdlclient.RemoteFile(**d) for d in data]
 
     def insert(
