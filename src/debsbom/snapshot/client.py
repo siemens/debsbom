@@ -56,7 +56,8 @@ class SourcePackage:
 
     def srcfiles(self) -> Generator["RemoteFile", None, None]:
         """
-        All files associated with the source package
+        All files associated with the source package. Returns multiple RemoteFile
+        instances for a single hash in case the file is known under multiple names.
         """
         try:
             r = self.sdl.rs.get(
@@ -71,11 +72,10 @@ class SourcePackage:
         fileinfo = data.get("fileinfo")
         for s in data.get("result", []):
             hash = s["hash"]
-            # TODO: this might be ambiguous if the same file is uploaded
-            # under different names. On a debian mirror this case is not expected
-            rf = RemoteFile.fromfileinfo(self.sdl, hash, fileinfo[hash][0])
-            rf.architecture = "source"
-            yield rf
+            for res in fileinfo[hash]:
+                rf = RemoteFile.fromfileinfo(self.sdl, hash, res)
+                rf.architecture = "source"
+                yield rf
 
     def binpackages(self) -> Generator["BinaryPackage", None, None]:
         """
@@ -115,6 +115,9 @@ class BinaryPackage:
         If we have information about the source package as well, we precisely resolve the binary package
         including the original path on the debian mirror. If not, we just resolve the file.
         The difference is only in the metadata, the file itself is the same in both cases.
+
+        Returns multiple RemoteFile instances for a single hash in case the file is known under
+        multiple names.
         """
         if self.srcname and self.srcversion:
             # resolve via source package
@@ -136,11 +139,12 @@ class BinaryPackage:
         fileinfo = data.get("fileinfo")
         for f in data.get("result"):
             hash = f["hash"]
-            rf = RemoteFile.fromfileinfo(self.sdl, hash, fileinfo[hash][0])
-            rf.architecture = f["architecture"]
-            if arch and arch != rf.architecture:
-                continue
-            yield rf
+            for res in fileinfo[hash]:
+                rf = RemoteFile.fromfileinfo(self.sdl, hash, res)
+                rf.architecture = f["architecture"]
+                if arch and arch != rf.architecture:
+                    continue
+                yield rf
 
 
 @dataclass
