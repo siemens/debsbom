@@ -190,3 +190,4 @@ class PackageDownloader:
                 with open(fdst, "wb") as f:
                     shutil.copyfileobj(r.raw, f)
             fdst.rename(target)
+        self.to_download = []
