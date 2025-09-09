@@ -170,7 +170,7 @@ class DownloadCmd:
 
         nfiles, nbytes = downloader.stat()
         print(f"downloading ({nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)})")
-        downloader.download(progress_cb=progress_cb if args.progress else None)
+        list(downloader.download(progress_cb=progress_cb if args.progress else None))
 
         for p in local_pkgs:
             print(f"not found upstream: {p.name}@{p.version}")
