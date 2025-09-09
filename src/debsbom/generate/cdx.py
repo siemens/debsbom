@@ -10,39 +10,18 @@ import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
 from datetime import datetime
 from sortedcontainers import SortedSet
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Tuple
 from uuid import UUID, uuid4
 
-from ..dpkg.package import BinaryPackage
+from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, SBOMType
 
 
-def cyclonedx_bom(
-    packages: List[BinaryPackage],
-    distro_name: str,
-    distro_supplier: str | None = None,
-    distro_version: str | None = None,
-    serial_number: UUID | None = None,
-    timestamp: datetime | None = None,
-    progress_cb: Callable[[int, int, str], None] | None = None,
-) -> cdx_bom.Bom:
-    """Return a valid CycloneDX SBOM."""
-    data = SortedSet([])
-    dependencies = SortedSet([])
-
-    # progress tracking
-    num_steps = len(packages) * 2
-    cur_step = 0
-
-    # bom refs need to be unique so store them there with the
-    # string representation as key
-    refs = {}
-
-    for package in packages:
-        if progress_cb:
-            progress_cb(cur_step, num_steps, package.name)
-        cur_step += 1
-
+def cdx_package_repr(
+    package: Package, refs: Dict[str, cdx_bom_ref.BomRef]
+) -> cdx_component.Component | None:
+    """Get the CDX representation of a Package."""
+    if isinstance(package, BinaryPackage):
         ref = package.bom_ref(SBOMType.CycloneDX)
         refs[ref] = cdx_bom_ref.BomRef(ref)
 
@@ -68,18 +47,53 @@ def cyclonedx_bom(
                     comment="homepage",
                 ),
             )
-        data.add(entry)
+        return entry
+    elif isinstance(package, SourcePackage):
+        # TODO: we are missing source packages here
+        # Figure out how do properly represent them and the source<->binary relationship,
+        # see https://github.com/CycloneDX/specification/issues/612#issuecomment-2958815330
+        return None
 
-    # TODO: we are missing source packages here
-    # Figure out how do properly represent them and the source<->binary relationship,
-    # see https://github.com/CycloneDX/specification/issues/612#issuecomment-2958815330
+
+def cyclonedx_bom(
+    packages: List[Package],
+    distro_name: str,
+    distro_supplier: str | None = None,
+    distro_version: str | None = None,
+    serial_number: UUID | None = None,
+    timestamp: datetime | None = None,
+    progress_cb: Callable[[int, int, str], None] | None = None,
+) -> cdx_bom.Bom:
+    """Return a valid CycloneDX SBOM."""
+    data = SortedSet([])
+    dependencies = SortedSet([])
+
+    binary_packages = [p for p in packages if isinstance(p, BinaryPackage)]
+
+    # progress tracking
+    num_steps = len(packages) + len(binary_packages)
+    cur_step = 0
+
+    # bom refs need to be unique so store them there with the
+    # string representation as key
+    refs = {}
+
+    for package in packages:
+        if progress_cb:
+            progress_cb(cur_step, num_steps, package.name)
+        cur_step += 1
+
+        entry = cdx_package_repr(package, refs)
+        if entry is None:
+            continue
+        data.add(entry)
 
     distro_bom_ref = CDX_REF_PREFIX + distro_name
     refs[distro_bom_ref] = cdx_bom_ref.BomRef(distro_bom_ref)
 
     distro_dependencies = []
     # after we have found all packages we can start to resolve dependencies
-    for package in packages:
+    for package in binary_packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
