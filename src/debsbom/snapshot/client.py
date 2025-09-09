@@ -7,6 +7,7 @@
 from dataclasses import dataclass
 from typing import Generator, Type
 import requests
+from datetime import datetime
 from requests.exceptions import RequestException
 
 
@@ -161,7 +162,7 @@ class RemoteFile:
             fileinfo["size"],
             fileinfo["archive_name"],
             fileinfo["path"],
-            fileinfo["first_seen"],
+            int(datetime.fromisoformat(fileinfo["first_seen"]).timestamp()),
             sdl.url + f"/file/{hash}/{fileinfo['name']}",
         )
 
