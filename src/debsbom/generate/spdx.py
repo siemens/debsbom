@@ -13,7 +13,7 @@ from typing import Callable, List, Tuple
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
-from ..dpkg.package import BinaryPackage
+from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import (
     SPDX_REF_PREFIX,
     SPDX_REF_DOCUMENT,
@@ -24,8 +24,77 @@ from ..sbom import (
 )
 
 
+def spdx_package_repr(package: Package) -> spdx_package.Package:
+    """Get the SPDX representation of a Package."""
+    match = SUPPLIER_PATTERN.match(package.maintainer)
+    supplier_name = match["supplier_name"]
+    supplier_email = match["supplier_email"]
+    if any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
+        supplier = spdx_actor.Actor(
+            actor_type=spdx_actor.ActorType.ORGANIZATION,
+            name=supplier_name,
+            email=supplier_email,
+        )
+    else:
+        supplier = spdx_actor.Actor(
+            actor_type=spdx_actor.ActorType.PERSON,
+            name=supplier_name,
+            email=supplier_email,
+        )
+    if isinstance(package, BinaryPackage):
+        spdx_pkg = spdx_package.Package(
+            spdx_id=package.bom_ref(SBOMType.SPDX),
+            name=package.name,
+            download_location=SpdxNoAssertion(),
+            version=str(package.version),
+            supplier=supplier,
+            files_analyzed=False,
+            # TODO: it should be possible to conclude license/copyright
+            # information, we could look e.g. in /usr/share/doc/*/copyright
+            license_concluded=SpdxNoAssertion(),
+            license_declared=SpdxNoAssertion(),
+            copyright_text=SpdxNoAssertion(),
+            summary=package.description,
+            external_references=[
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                    reference_type=SPDX_REFERENCE_TYPE_PURL,
+                    locator=package.purl().to_string(),
+                )
+            ],
+            primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
+        )
+        if package.homepage:
+            url = urlparse(package.homepage)
+            url = url._replace(netloc=url.netloc.lower())
+            spdx_pkg.homepage = urlunparse(url)
+        return spdx_pkg
+    elif isinstance(package, SourcePackage):
+        spdx_pkg = spdx_package.Package(
+            spdx_id=package.bom_ref(SBOMType.SPDX),
+            name=package.name,
+            version=str(package.version),
+            supplier=supplier,
+            files_analyzed=False,
+            license_concluded=SpdxNoAssertion(),
+            license_declared=SpdxNoAssertion(),
+            download_location=SpdxNoAssertion(),
+            copyright_text=SpdxNoAssertion(),
+            summary="Debian source code package '{}'".format(package.name),
+            external_references=[
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                    reference_type=SPDX_REFERENCE_TYPE_PURL,
+                    locator=package.purl().to_string(),
+                )
+            ],
+            primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
+        )
+        return spdx_pkg
+
+
 def spdx_bom(
-    packages: List[BinaryPackage],
+    packages: List[Package],
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
@@ -61,92 +130,24 @@ def spdx_bom(
 
     data.append(distro_package)
 
+    binary_packages = [p for p in packages if isinstance(p, BinaryPackage)]
+
     # progress tracking
-    num_steps = len(packages) * 2
+    num_steps = len(packages) + len(binary_packages)
     cur_step = 0
 
-    # track which source package ids we already added to
-    # prevent duplicate entries
-    source_package_ids = []
     for package in packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        match = SUPPLIER_PATTERN.match(package.maintainer)
-        supplier_name = match["supplier_name"]
-        supplier_email = match["supplier_email"]
-        if any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
-            supplier = spdx_actor.Actor(
-                actor_type=spdx_actor.ActorType.ORGANIZATION,
-                name=supplier_name,
-                email=supplier_email,
-            )
-        else:
-            supplier = spdx_actor.Actor(
-                actor_type=spdx_actor.ActorType.PERSON,
-                name=supplier_name,
-                email=supplier_email,
-            )
-
-        entry = spdx_package.Package(
-            spdx_id=package.bom_ref(SBOMType.SPDX),
-            name=package.name,
-            download_location=SpdxNoAssertion(),
-            version=str(package.version),
-            supplier=supplier,
-            files_analyzed=False,
-            # TODO: it should be possible to conclude license/copyright
-            # information, we could look e.g. in /usr/share/doc/*/copyright
-            license_concluded=SpdxNoAssertion(),
-            license_declared=SpdxNoAssertion(),
-            copyright_text=SpdxNoAssertion(),
-            summary=package.description,
-            external_references=[
-                spdx_package.ExternalPackageRef(
-                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
-                    reference_type=SPDX_REFERENCE_TYPE_PURL,
-                    locator=package.purl().to_string(),
-                )
-            ],
-            primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
-        )
-        if package.homepage:
-            url = urlparse(package.homepage)
-            url = url._replace(netloc=url.netloc.lower())
-            entry.homepage = urlunparse(url)
+        entry = spdx_package_repr(package)
         data.append(entry)
-
-        if package.source:
-            spdx_id = package.source.bom_ref(SBOMType.SPDX)
-            if spdx_id not in source_package_ids:
-                source_package_ids.append(spdx_id)
-                src_entry = spdx_package.Package(
-                    spdx_id=spdx_id,
-                    name=package.source.name,
-                    version=str(package.source.version),
-                    supplier=supplier,
-                    files_analyzed=False,
-                    license_concluded=SpdxNoAssertion(),
-                    license_declared=SpdxNoAssertion(),
-                    download_location=SpdxNoAssertion(),
-                    copyright_text=SpdxNoAssertion(),
-                    summary="Debian source code package '{}'".format(package.source.name),
-                    external_references=[
-                        spdx_package.ExternalPackageRef(
-                            category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
-                            reference_type=SPDX_REFERENCE_TYPE_PURL,
-                            locator=package.source.purl().to_string(),
-                        )
-                    ],
-                    primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
-                )
-                data.append(src_entry)
 
     relationships = []
     # after we have found all packages we can start to resolve dependencies
-    package_names = [package.name for package in packages]
-    for package in packages:
+    package_names = [package.name for package in binary_packages]
+    for package in binary_packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1

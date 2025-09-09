@@ -2,54 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 from packageurl import PackageURL
 import re
 from typing import Iterator, List, Tuple, Type
-import functools
 
 from ..sbom import CDX_REF_PREFIX, SBOMType, SPDX_REF_PREFIX
 
 # SPDX IDs only allow alphanumeric, '.' and '-'
 SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
-
-
-@dataclass(init=False)
-class SourcePackage:
-    """Representation of a Debian Source package."""
-
-    name: str
-    version: Version | None
-
-    def __init__(self, name: str, version: str | Version):
-        self.name = name
-        self.version = Version(version)
-
-    def purl(self) -> PackageURL:
-        """Return the PURL of the package."""
-        return PackageURL.from_string(
-            "pkg:deb/debian/{}@{}?arch=source".format(self.name, self.version)
-        )
-
-    def bom_ref(self, sbom_type: SBOMType) -> str:
-        """Return a unique BOM reference."""
-        if sbom_type == SBOMType.CycloneDX:
-            return CDX_REF_PREFIX + "{}-srcpkg".format(self.name)
-        elif sbom_type == SBOMType.SPDX:
-            return SPDX_REF_PREFIX + "{}-srcpkg".format(re.sub(SPDX_ID_RE, ".", self.name))
-
-    @functools.cache
-    def parse(s: str) -> Type["SourcePackage"]:
-        split = s.split(" ")
-        name = split[0]
-        try:
-            version = " ".join(split[1:]).strip("()")
-        except IndexError:
-            version = None
-
-        return SourcePackage(name=name, version=version)
 
 
 @dataclass
@@ -86,15 +50,89 @@ class Dependency:
 
 
 @dataclass(init=False)
-class BinaryPackage:
-    """Incomplete representation of a debian binary package."""
+class Package(ABC):
+    """Base class for binary and source packages."""
 
     name: str
-    section: str
+    version: Version
+
+    def __init__(self, name: str, version: str | Version):
+        self.name = name
+        self.version = Version(version)
+
+    @classmethod
+    def parse_status_file(cls, status_file: str) -> Iterator[Type["Package"]]:
+        """Parse a dpkg status file."""
+        with open(status_file, "r") as status_file:
+            # track which source package ids we already added to
+            # prevent duplicate entries
+            source_packages = []
+            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
+                pdepends = package.relations["depends"]
+                if pdepends:
+                    dependencies = Dependency.from_pkg_relations(pdepends)
+                else:
+                    dependencies = None
+
+                spkg = SourcePackage(
+                    name=package.source,
+                    version=package.source_version,
+                    maintainer=package.get("Maintainer"),
+                )
+                bpkg = BinaryPackage(
+                    name=package.get("Package"),
+                    section=package.get("Section"),
+                    maintainer=package.get("Maintainer"),
+                    architecture=package.get("Architecture"),
+                    source=spkg,
+                    version=package.get("Version"),
+                    depends=dependencies,
+                    description=package.get("Description"),
+                    homepage=package.get("Homepage"),
+                )
+                yield bpkg
+                if spkg.name not in source_packages:
+                    source_packages.append(spkg.name)
+                    yield spkg
+
+    @abstractmethod
+    def purl(self) -> PackageURL:
+        raise NotImplementedError
+
+
+@dataclass(init=False)
+class SourcePackage(Package):
+    """Representation of a Debian Source package."""
+
+    maintainer: str | None = None
+
+    def __init__(self, name: str, version: str | Version, maintainer: str | None = None):
+        self.name = name
+        self.version = Version(version)
+        self.maintainer = maintainer
+
+    def purl(self) -> PackageURL:
+        """Return the PURL of the package."""
+        return PackageURL.from_string(
+            "pkg:deb/debian/{}@{}?arch=source".format(self.name, self.version)
+        )
+
+    def bom_ref(self, sbom_type: SBOMType) -> str:
+        """Return a unique BOM reference."""
+        if sbom_type == SBOMType.CycloneDX:
+            return CDX_REF_PREFIX + "{}-srcpkg".format(self.name)
+        elif sbom_type == SBOMType.SPDX:
+            return SPDX_REF_PREFIX + "{}-srcpkg".format(re.sub(SPDX_ID_RE, ".", self.name))
+
+
+@dataclass(init=False)
+class BinaryPackage(Package):
+    """Incomplete representation of a Debian binary package."""
+
     maintainer: str
+    section: str
     architecture: str
     source: SourcePackage
-    version: Version
     depends: List[Dependency]
     description: str
     homepage: str
@@ -134,27 +172,3 @@ class BinaryPackage:
             return CDX_REF_PREFIX + self.name
         elif sbom_type == SBOMType.SPDX:
             return SPDX_REF_PREFIX + re.sub(SPDX_ID_RE, ".", self.name)
-
-    @classmethod
-    def parse_status_file(cls, status_file: str) -> Iterator[Type["BinaryPackage"]]:
-        """Parse a dpkg status file."""
-        with open(status_file, "r") as status_file:
-            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
-                pdepends = package.relations["depends"]
-                if pdepends:
-                    dependencies = Dependency.from_pkg_relations(pdepends)
-                else:
-                    dependencies = None
-
-                bpkg = BinaryPackage(
-                    name=package.get("Package"),
-                    section=package.get("Section"),
-                    maintainer=package.get("Maintainer"),
-                    architecture=package.get("Architecture"),
-                    source=SourcePackage(name=package.source, version=package.source_version),
-                    version=package.get("Version"),
-                    depends=dependencies,
-                    description=package.get("Description"),
-                    homepage=package.get("Homepage"),
-                )
-                yield bpkg

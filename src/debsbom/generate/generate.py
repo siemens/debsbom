@@ -10,7 +10,7 @@ from pathlib import Path
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
-from ..dpkg.package import BinaryPackage
+from ..dpkg.package import Package
 from ..sbom import SBOMType
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
@@ -56,9 +56,7 @@ class Debsbom:
         """
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
-        self.packages = list(
-            BinaryPackage.parse_status_file(Path(self.root) / "var/lib/dpkg/status")
-        )
+        self.packages = list(Package.parse_status_file(Path(self.root) / "var/lib/dpkg/status"))
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
