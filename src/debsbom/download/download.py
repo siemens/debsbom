@@ -114,6 +114,7 @@ class PackageResolver:
                 source=None,
                 version=purl.version,
                 depends=None,
+                built_using=None,
                 description=None,
                 homepage=None,
             )
