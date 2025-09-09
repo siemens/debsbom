@@ -35,6 +35,8 @@ class Package:
     def versions(self):
         try:
             r = self.sdl.rs.get(self.sdl.url + f"/mr/package/{self.name}/")
+            if r.status_code == 404:
+                raise NotFoundOnSnapshotError()
             data = r.json()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
@@ -83,6 +85,8 @@ class SourcePackage:
             r = self.sdl.rs.get(
                 self.sdl.url + f"/mr/package/{self.name}/{self.version}" "/binpackages"
             )
+            if r.status_code == 404:
+                raise NotFoundOnSnapshotError()
             data = r.json()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
