@@ -34,9 +34,10 @@ class Package:
     def versions(self):
         try:
             r = self.sdl.rs.get(self.sdl.url + f"/mr/package/{self.name}/")
+            data = r.json()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
-        for v in r.json().get("result", []):
+        for v in data["result"]:
             yield SourcePackage(self.sdl, self.name, v["version"])
 
 
