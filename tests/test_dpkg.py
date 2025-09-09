@@ -1,3 +1,7 @@
+# Copyright (C) 2025 Siemens
+#
+# SPDX-License-Identifier: MIT
+
 from debian.deb822 import PkgRelation
 from debian.debian_support import Version
 
