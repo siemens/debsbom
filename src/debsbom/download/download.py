@@ -9,7 +9,7 @@ import hashlib
 import json
 import shutil
 import sys
-from typing import Generator, Tuple, Type
+from typing import Generator, Iterator, Tuple, Type
 from pathlib import Path
 from urllib.request import urlretrieve
 from packageurl import PackageURL
@@ -172,7 +172,12 @@ class PackageDownloader:
         nbytes = reduce(lambda acc, x: acc + x.size, self.to_download, 0)
         return (len(self.to_download), nbytes)
 
-    def download(self, progress_cb):
+    def download(self, progress_cb) -> Iterator[Path]:
+        """
+        Download all files and yield the file paths to the on-disk
+        object. Files that are already there are not downloaded again,
+        but still reported.
+        """
         for idx, f in enumerate(self.to_download):
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
@@ -181,6 +186,7 @@ class PackageDownloader:
                 with open(target, "rb") as fd:
                     digest = hashlib.file_digest(fd, "sha1")
                 if digest.hexdigest() == f.hash:
+                    yield target
                     continue
                 else:
                     print(f"Checksum mismatch on {f.filename}. Download again.", file=sys.stderr)
@@ -190,4 +196,5 @@ class PackageDownloader:
                 with open(fdst, "wb") as f:
                     shutil.copyfileobj(r.raw, f)
             fdst.rename(target)
+            yield target
         self.to_download = []
