@@ -48,3 +48,6 @@ minversion = "6.0"
 testpaths = [
     "tests",
 ]
+markers = [
+  "online: tests requiring internet access",
+]
