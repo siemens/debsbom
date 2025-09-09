@@ -15,6 +15,7 @@ from uuid import uuid4
 
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import (
+    Reference,
     SPDX_REF_PREFIX,
     SPDX_REF_DOCUMENT,
     SUPPLIER_PATTERN,
@@ -43,7 +44,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
         )
     if isinstance(package, BinaryPackage):
         spdx_pkg = spdx_package.Package(
-            spdx_id=package.bom_ref(SBOMType.SPDX),
+            spdx_id=Reference(package.name).as_str(SBOMType.SPDX),
             name=package.name,
             download_location=SpdxNoAssertion(),
             version=str(package.version),
@@ -71,7 +72,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
         return spdx_pkg
     elif isinstance(package, SourcePackage):
         spdx_pkg = spdx_package.Package(
-            spdx_id=package.bom_ref(SBOMType.SPDX),
+            spdx_id=Reference(package.name, is_source=True).as_str(SBOMType.SPDX),
             name=package.name,
             version=str(package.version),
             supplier=supplier,
@@ -152,20 +153,21 @@ def spdx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
+        reference = Reference(package.name)
         relationships.append(
             spdx_relationship.Relationship(
-                spdx_element_id=package.bom_ref(SBOMType.SPDX),
+                spdx_element_id=reference.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.PACKAGE_OF,
                 related_spdx_element_id=distro_ref,
             )
         )
         if package.depends:
             for dep in package.depends:
-                if dep.name in package_names:
+                if dep.package_name in package_names:
                     relationship = spdx_relationship.Relationship(
-                        spdx_element_id=package.bom_ref(SBOMType.SPDX),
+                        spdx_element_id=reference.as_str(SBOMType.SPDX),
                         relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
-                        related_spdx_element_id=dep.bom_ref(SBOMType.SPDX),
+                        related_spdx_element_id=dep.as_str(SBOMType.SPDX),
                     )
                     relationships.append(relationship)
                 else:
@@ -173,9 +175,9 @@ def spdx_bom(
                     pass
         if package.source:
             relationship = spdx_relationship.Relationship(
-                spdx_element_id=package.source.bom_ref(SBOMType.SPDX),
+                spdx_element_id=package.source.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
-                related_spdx_element_id=package.bom_ref(SBOMType.SPDX),
+                related_spdx_element_id=reference.as_str(SBOMType.SPDX),
             )
             relationships.append(relationship)
 

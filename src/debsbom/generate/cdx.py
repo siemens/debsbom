@@ -14,7 +14,7 @@ from typing import Callable, Dict, List, Tuple
 from uuid import UUID, uuid4
 
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
-from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, SBOMType
+from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType
 
 
 def cdx_package_repr(
@@ -22,7 +22,7 @@ def cdx_package_repr(
 ) -> cdx_component.Component | None:
     """Get the CDX representation of a Package."""
     if isinstance(package, BinaryPackage):
-        ref = package.bom_ref(SBOMType.CycloneDX)
+        ref = Reference(package.name).as_str(SBOMType.CycloneDX)
         refs[ref] = cdx_bom_ref.BomRef(ref)
 
         match = SUPPLIER_PATTERN.match(package.maintainer)
@@ -98,20 +98,21 @@ def cyclonedx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
+        reference = Reference(package.name)
         distro_dependencies.append(
-            cdx_dependency.Dependency(refs[package.bom_ref(SBOMType.CycloneDX)])
+            cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
         )
         if package.depends:
             deps = SortedSet([])
             for dep in package.depends:
                 try:
-                    dep_bom_ref = refs[dep.bom_ref(SBOMType.CycloneDX)]
+                    dep_bom_ref = refs[dep.as_str(SBOMType.CycloneDX)]
                 except KeyError:
                     # this means we have a virtual dependency, ignore it
                     continue
                 deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
             dependency = cdx_dependency.Dependency(
-                ref=refs[package.bom_ref(SBOMType.CycloneDX)],
+                ref=refs[reference.as_str(SBOMType.CycloneDX)],
                 dependencies=deps,
             )
             dependencies.add(dependency)
