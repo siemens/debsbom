@@ -6,6 +6,7 @@ from debian.deb822 import PkgRelation
 from debian.debian_support import Version
 
 from debsbom.dpkg.package import Dependency, BinaryPackage, SourcePackage
+from debsbom.sbom import Reference
 
 
 def test_parse_dependency():
@@ -27,12 +28,14 @@ def test_parse_minimal_status_file():
     assert bpkg.name == "binutils"
     assert bpkg.section == "devel"
     assert bpkg.maintainer == "Matthias Klose <doko@debian.org>"
-    assert bpkg.source == SourcePackage(bpkg.name, bpkg.version, bpkg.maintainer)
+    assert bpkg.source == Reference(package_name=bpkg.name, is_source=True)
     assert bpkg.version == "2.40-2"
     assert bpkg.depends == [
-        Dependency(name="binutils-common", version=("=", Version("2.40-2"))),
-        Dependency(name="libbinutils", version=("=", Version("2.40-2"))),
-        Dependency(name="binutils-x86-64-linux-gnu", version=("=", Version("2.40-2"))),
+        Reference(package_name="binutils-common"),
+        Reference(package_name="libbinutils"),
+        Reference(
+            package_name="binutils-x86-64-linux-gnu",
+        ),
     ]
     assert (
         bpkg.description
@@ -56,15 +59,15 @@ def test_parse_source_status_file():
     assert bpkg.name == "apt-utils"
     assert bpkg.section == "admin"
     assert bpkg.maintainer == "APT Development Team <deity@lists.debian.org>"
-    assert bpkg.source == SourcePackage("apt", bpkg.version, bpkg.maintainer)
+    assert bpkg.source == Reference(package_name="apt", is_source=True)
     assert bpkg.version == "2.6.1"
     assert bpkg.depends == [
-        Dependency(name="apt", version=("=", Version("2.6.1"))),
-        Dependency(name="libapt-pkg6.0", version=(">=", Version("2.6.1"))),
-        Dependency(name="libc6", version=(">=", Version("2.34"))),
-        Dependency(name="libdb5.3", version=None),
-        Dependency(name="libgcc-s1", version=(">=", Version("3.0"))),
-        Dependency(name="libstdc++6", version=(">=", Version("11"))),
+        Reference(package_name="apt"),
+        Reference(package_name="libapt-pkg6.0"),
+        Reference(package_name="libc6"),
+        Reference(package_name="libdb5.3"),
+        Reference(package_name="libgcc-s1"),
+        Reference(package_name="libstdc++6"),
     ]
     assert (
         bpkg.description

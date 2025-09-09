@@ -7,13 +7,9 @@ from dataclasses import dataclass
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 from packageurl import PackageURL
-import re
 from typing import Iterator, List, Tuple, Type
 
-from ..sbom import CDX_REF_PREFIX, SBOMType, SPDX_REF_PREFIX
-
-# SPDX IDs only allow alphanumeric, '.' and '-'
-SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
+from ..sbom import Reference
 
 
 @dataclass
@@ -25,13 +21,6 @@ class Dependency:
     version: Tuple[str, Version] | None = None
     arch: str | None = None
     restrictions: str | None = None
-
-    def bom_ref(self, sbom_type: SBOMType) -> str:
-        """Return a unique BOM reference."""
-        if sbom_type == SBOMType.CycloneDX:
-            return CDX_REF_PREFIX + "{}".format(self.name)
-        elif sbom_type == SBOMType.SPDX:
-            return SPDX_REF_PREFIX + re.sub(SPDX_ID_RE, ".", self.name)
 
     @classmethod
     def from_pkg_relations(cls, relations: List[List[PkgRelation]]) -> List["Dependency"]:
@@ -70,7 +59,10 @@ class Package(ABC):
             for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
                 pdepends = package.relations["depends"]
                 if pdepends:
-                    dependencies = Dependency.from_pkg_relations(pdepends)
+                    dependencies = [
+                        Reference(package_name=dep.name)
+                        for dep in Dependency.from_pkg_relations(pdepends)
+                    ]
                 else:
                     dependencies = None
 
@@ -84,7 +76,7 @@ class Package(ABC):
                     section=package.get("Section"),
                     maintainer=package.get("Maintainer"),
                     architecture=package.get("Architecture"),
-                    source=spkg,
+                    source=Reference(package_name=spkg.name, is_source=True),
                     version=package.get("Version"),
                     depends=dependencies,
                     description=package.get("Description"),
@@ -117,13 +109,6 @@ class SourcePackage(Package):
             "pkg:deb/debian/{}@{}?arch=source".format(self.name, self.version)
         )
 
-    def bom_ref(self, sbom_type: SBOMType) -> str:
-        """Return a unique BOM reference."""
-        if sbom_type == SBOMType.CycloneDX:
-            return CDX_REF_PREFIX + "{}-srcpkg".format(self.name)
-        elif sbom_type == SBOMType.SPDX:
-            return SPDX_REF_PREFIX + "{}-srcpkg".format(re.sub(SPDX_ID_RE, ".", self.name))
-
 
 @dataclass(init=False)
 class BinaryPackage(Package):
@@ -132,8 +117,8 @@ class BinaryPackage(Package):
     maintainer: str
     section: str
     architecture: str
-    source: SourcePackage
-    depends: List[Dependency]
+    source: Reference
+    depends: List[Reference]
     description: str
     homepage: str
 
@@ -165,10 +150,3 @@ class BinaryPackage(Package):
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
-
-    def bom_ref(self, sbom_type: SBOMType) -> str:
-        """Return a unique BOM reference."""
-        if sbom_type == SBOMType.CycloneDX:
-            return CDX_REF_PREFIX + self.name
-        elif sbom_type == SBOMType.SPDX:
-            return SPDX_REF_PREFIX + re.sub(SPDX_ID_RE, ".", self.name)
