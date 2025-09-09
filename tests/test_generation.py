@@ -1,3 +1,7 @@
+# Copyright (C) 2025 Siemens
+#
+# SPDX-License-Identifier: MIT
+
 from datetime import datetime, timezone
 from importlib.metadata import version
 import json
