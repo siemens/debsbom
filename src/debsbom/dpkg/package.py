@@ -80,6 +80,10 @@ class Package(ABC):
                 pdepends = package.relations["depends"] or []
                 dependencies = Dependency.from_pkg_relations(pdepends)
 
+                # static dependencies
+                s_built_using = package.relations["built-using"] or []
+                sdepends = Dependency.from_pkg_relations(s_built_using)
+
                 bpkg = BinaryPackage(
                     name=package.get("Package"),
                     section=package.get("Section"),
@@ -88,6 +92,7 @@ class Package(ABC):
                     source=srcdep,
                     version=package.get("Version"),
                     depends=dependencies,
+                    built_using=sdepends,
                     description=package.get("Description"),
                     homepage=package.get("Homepage"),
                 )
@@ -122,6 +127,14 @@ class Package(ABC):
         if pkg.source:
             logger.debug(f"Found source package: '{pkg.source.name}'")
             yield SourcePackage(pkg.source.name, pkg.source.version[1], pkg.maintainer)
+        for bu in pkg.built_using:
+            # When creating the source package from a built-depends, we don't know the maintainer.
+            # If we now create a source package first via a built-using relation and later
+            # re-create the same source package from a binary package, it still misses the
+            # maintainer information, despite we would have it from the binary package.
+            # Some tests on a rather large debian sid showed, that this situation is unlikely.
+            logger.debug(f"Found built-using source package: '{bu.name}@{bu.version[1]}'")
+            yield SourcePackage(bu.name, bu.version[1])
         if add_pkg:
             yield pkg
 
@@ -142,13 +155,12 @@ class SourcePackage(Package):
         self.maintainer = maintainer
 
     def __hash__(self):
-        # For compatibility reasons
-        return hash(self.name)
+        return hash(self.purl())
 
     def __eq__(self, other):
         # For compatibility reasons
         if isinstance(other, SourcePackage):
-            return self.name == other.name
+            return (self.name, self.version) == (other.name, other.version)
         return NotImplemented
 
     def purl(self) -> PackageURL:
@@ -176,6 +188,7 @@ class BinaryPackage(Package):
     architecture: str
     source: Dependency
     depends: List[Dependency]
+    built_using: List[Dependency]
     description: str
     homepage: str
 
@@ -188,6 +201,7 @@ class BinaryPackage(Package):
         source: Dependency,
         version: str | Version,
         depends: List[Dependency],
+        built_using: List[Dependency],
         description: str,
         homepage: str,
     ):
@@ -198,16 +212,16 @@ class BinaryPackage(Package):
         self.source = source
         self.version = Version(version)
         self.depends = depends
+        self.built_using = built_using
         self.description = description
         self.homepage = homepage
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.purl())
 
     def __eq__(self, other):
-        # For compatibility reasons
         if isinstance(other, BinaryPackage):
-            return self.name == other.name
+            return self.purl() == other.purl()
         return NotImplemented
 
     def purl(self) -> PackageURL:

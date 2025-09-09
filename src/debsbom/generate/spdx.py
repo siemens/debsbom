@@ -187,6 +187,18 @@ def spdx_bom(
                 else:
                     # this might happen if we have optional dependencies
                     logger.debug(f"Skipped optional dependency: '{dep.name}'")
+
+        if package.built_using:
+            for dep in package.built_using:
+                bu_dep = Reference(dep.name, is_source=True)
+                relationship = spdx_relationship.Relationship(
+                    spdx_element_id=reference.as_str(SBOMType.SPDX),
+                    relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
+                    related_spdx_element_id=bu_dep.as_str(SBOMType.SPDX),
+                )
+                logger.debug(f"Created built-using relationship: {relationship}")
+                relationships.append(relationship)
+
         if package.source:
             sref = Reference(package.source.name, is_source=True)
             relationship = spdx_relationship.Relationship(
