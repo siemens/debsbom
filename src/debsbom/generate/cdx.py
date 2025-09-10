@@ -114,10 +114,11 @@ def cyclonedx_bom(
             deps = SortedSet([])
             for dep in package.depends:
                 try:
-                    dep_bom_ref = refs[dep.as_str(SBOMType.CycloneDX)]
+                    dref = Reference(dep.name)
+                    dep_bom_ref = refs[dref.as_str(SBOMType.CycloneDX)]
                 except KeyError:
                     # this means we have a virtual dependency, ignore it
-                    logger.debug(f"Skipped optional dependency: '{dep.package_name}'")
+                    logger.debug(f"Skipped optional dependency: '{dep.name}'")
                     continue
                 deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
             dependency = cdx_dependency.Dependency(

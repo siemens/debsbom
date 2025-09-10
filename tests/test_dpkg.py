@@ -28,14 +28,12 @@ def test_parse_minimal_status_file():
     assert bpkg.name == "binutils"
     assert bpkg.section == "devel"
     assert bpkg.maintainer == "Matthias Klose <doko@debian.org>"
-    assert bpkg.source == Reference(package_name=bpkg.name, is_source=True)
+    assert bpkg.source == Dependency(bpkg.name, None, ("=", bpkg.version))
     assert bpkg.version == "2.40-2"
     assert bpkg.depends == [
-        Reference(package_name="binutils-common"),
-        Reference(package_name="libbinutils"),
-        Reference(
-            package_name="binutils-x86-64-linux-gnu",
-        ),
+        Dependency("binutils-common", None, ("=", bpkg.version)),
+        Dependency("libbinutils", None, ("=", bpkg.version)),
+        Dependency("binutils-x86-64-linux-gnu", None, ("=", bpkg.version)),
     ]
     assert (
         bpkg.description
@@ -59,15 +57,15 @@ def test_parse_source_status_file():
     assert bpkg.name == "apt-utils"
     assert bpkg.section == "admin"
     assert bpkg.maintainer == "APT Development Team <deity@lists.debian.org>"
-    assert bpkg.source == Reference(package_name="apt", is_source=True)
+    assert bpkg.source == Dependency("apt", None, ("=", bpkg.version))
     assert bpkg.version == "2.6.1"
     assert bpkg.depends == [
-        Reference(package_name="apt"),
-        Reference(package_name="libapt-pkg6.0"),
-        Reference(package_name="libc6"),
-        Reference(package_name="libdb5.3"),
-        Reference(package_name="libgcc-s1"),
-        Reference(package_name="libstdc++6"),
+        Dependency("apt", None, ("=", bpkg.version)),
+        Dependency("libapt-pkg6.0", None, (">=", bpkg.version)),
+        Dependency("libc6", None, (">=", Version("2.34"))),
+        Dependency("libdb5.3", None, None),
+        Dependency("libgcc-s1", None, (">=", Version("3.0"))),
+        Dependency("libstdc++6", None, (">=", Version("11"))),
     ]
     assert (
         bpkg.description

@@ -171,20 +171,22 @@ def spdx_bom(
         )
         if package.depends:
             for dep in package.depends:
-                if dep.package_name in package_names:
+                dref = Reference(dep.name)
+                if dref.package_name in package_names:
                     relationship = spdx_relationship.Relationship(
                         spdx_element_id=reference.as_str(SBOMType.SPDX),
                         relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
-                        related_spdx_element_id=dep.as_str(SBOMType.SPDX),
+                        related_spdx_element_id=dref.as_str(SBOMType.SPDX),
                     )
                     logger.debug(f"Created dependency relationship: {relationship}")
                     relationships.append(relationship)
                 else:
                     # this might happen if we have optional dependencies
-                    logger.debug(f"Skipped optional dependency: '{dep.package_name}'")
+                    logger.debug(f"Skipped optional dependency: '{dep.name}'")
         if package.source:
+            sref = Reference(package.source.name, is_source=True)
             relationship = spdx_relationship.Relationship(
-                spdx_element_id=package.source.as_str(SBOMType.SPDX),
+                spdx_element_id=sref.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
                 related_spdx_element_id=reference.as_str(SBOMType.SPDX),
             )
