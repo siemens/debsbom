@@ -9,12 +9,16 @@ import cyclonedx.model.component as cdx_component
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
 from datetime import datetime
+import logging
 from sortedcontainers import SortedSet
 from typing import Callable, Dict, List, Tuple
 from uuid import UUID, uuid4
 
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType
+
+
+logger = logging.getLogger(__name__)
 
 
 def cdx_package_repr(
@@ -47,11 +51,13 @@ def cdx_package_repr(
                     comment="homepage",
                 ),
             )
+        logger.debug(f"Created binary component: {entry}")
         return entry
     elif isinstance(package, SourcePackage):
         # TODO: we are missing source packages here
         # Figure out how do properly represent them and the source<->binary relationship,
         # see https://github.com/CycloneDX/specification/issues/612#issuecomment-2958815330
+        logger.debug(f"Skipped component for source package: '{package.name}'")
         return None
 
 
@@ -78,6 +84,7 @@ def cyclonedx_bom(
     # string representation as key
     refs = {}
 
+    logger.info("Creating components...")
     for package in packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
@@ -92,6 +99,7 @@ def cyclonedx_bom(
     refs[distro_bom_ref] = cdx_bom_ref.BomRef(distro_bom_ref)
 
     distro_dependencies = []
+    logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
     for package in binary_packages:
         if progress_cb:
@@ -109,17 +117,20 @@ def cyclonedx_bom(
                     dep_bom_ref = refs[dep.as_str(SBOMType.CycloneDX)]
                 except KeyError:
                     # this means we have a virtual dependency, ignore it
+                    logger.debug(f"Skipped optional dependency: '{dep.package_name}'")
                     continue
                 deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
             dependency = cdx_dependency.Dependency(
                 ref=refs[reference.as_str(SBOMType.CycloneDX)],
                 dependencies=deps,
             )
+            logger.debug(f"Created dependency: {dependency}")
             dependencies.add(dependency)
     dependency = cdx_dependency.Dependency(
         ref=refs[distro_bom_ref],
         dependencies=distro_dependencies,
     )
+    logger.debug(f"Created distro dependency: {dependency}")
     dependencies.add(dependency)
 
     if distro_supplier:

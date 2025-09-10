@@ -4,6 +4,7 @@
 
 from datetime import datetime
 from importlib.metadata import version
+import logging
 import spdx_tools.spdx.model.actor as spdx_actor
 import spdx_tools.spdx.model.document as spdx_document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
@@ -23,6 +24,9 @@ from ..sbom import (
     SPDX_SUPPLIER_ORG_CUE,
     SBOMType,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def spdx_package_repr(package: Package) -> spdx_package.Package:
@@ -69,6 +73,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
             url = urlparse(package.homepage)
             url = url._replace(netloc=url.netloc.lower())
             spdx_pkg.homepage = urlunparse(url)
+        logger.debug(f"Created binary package: {spdx_pkg}")
         return spdx_pkg
     elif isinstance(package, SourcePackage):
         spdx_pkg = spdx_package.Package(
@@ -91,6 +96,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
             ],
             primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
         )
+        logger.debug(f"Created source package: {spdx_pkg}")
         return spdx_pkg
 
 
@@ -137,6 +143,7 @@ def spdx_bom(
     num_steps = len(packages) + len(binary_packages)
     cur_step = 0
 
+    logger.info("Creating packages...")
     for package in packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
@@ -146,6 +153,7 @@ def spdx_bom(
         data.append(entry)
 
     relationships = []
+    logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
     package_names = [package.name for package in binary_packages]
     for package in binary_packages:
@@ -169,25 +177,27 @@ def spdx_bom(
                         relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
                         related_spdx_element_id=dep.as_str(SBOMType.SPDX),
                     )
+                    logger.debug(f"Created dependency relationship: {relationship}")
                     relationships.append(relationship)
                 else:
                     # this might happen if we have optional dependencies
-                    pass
+                    logger.debug(f"Skipped optional dependency: '{dep.package_name}'")
         if package.source:
             relationship = spdx_relationship.Relationship(
                 spdx_element_id=package.source.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
                 related_spdx_element_id=reference.as_str(SBOMType.SPDX),
             )
+            logger.debug(f"Created source relationship: {relationship}")
             relationships.append(relationship)
 
-    relationships.append(
-        spdx_relationship.Relationship(
-            spdx_element_id=SPDX_REF_DOCUMENT,
-            relationship_type=spdx_relationship.RelationshipType.DESCRIBES,
-            related_spdx_element_id=distro_ref,
-        )
+    distro_relationship = spdx_relationship.Relationship(
+        spdx_element_id=SPDX_REF_DOCUMENT,
+        relationship_type=spdx_relationship.RelationshipType.DESCRIBES,
+        related_spdx_element_id=distro_ref,
     )
+    logger.debug(f"Created document relationship: {distro_relationship}")
+    relationships.append(distro_relationship)
 
     if namespace is None:
         namespace = urlparse(

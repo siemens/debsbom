@@ -7,6 +7,7 @@
 import argparse
 from datetime import datetime
 from importlib.metadata import version
+import logging
 import sys
 import traceback
 from uuid import UUID
@@ -25,6 +26,8 @@ from .download import (
     DscFileNotFoundError,
 )
 from .snapshot import client as sdlclient
+
+logger = logging.getLogger(__name__)
 
 
 def progress_cb(i: int, n: int, name: str):
@@ -156,7 +159,7 @@ class DownloadCmd:
         if isinstance(p, package.SourcePackage) and not any(
             f.filename == p.dscfile() for f in files
         ):
-            print(f"no .dsc file found for {p.name}@{p.version}", file=sys.stderr)
+            logger.warning(f"no .dsc file found for {p.name}@{p.version}")
 
     @staticmethod
     def run(args):
@@ -178,6 +181,7 @@ class DownloadCmd:
             pkgs.extend(resolver.binaries())
 
         print("resolving upstream packages")
+        logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
@@ -185,7 +189,7 @@ class DownloadCmd:
                 files = list(resolver.resolve(sdl, pkg, cache))
                 DownloadCmd._check_for_dsc(pkg, files)
             except sdlclient.NotFoundOnSnapshotError:
-                local_pkgs.append(pkg)
+                logger.warn(f"not found upstream: {pkg.name}@{pkg.version}")
             downloader.register(files)
 
         nfiles, nbytes, cfiles, cbytes = downloader.stat()
@@ -194,9 +198,6 @@ class DownloadCmd:
             f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
         )
         list(downloader.download(progress_cb=progress_cb if args.progress else None))
-
-        for p in local_pkgs:
-            print(f"not found upstream: {p.name}@{p.version}")
 
     @staticmethod
     def setup_parser(parser):
@@ -223,16 +224,14 @@ class MergeCmd:
         merger = SourceArchiveMerger(pkgdir, outdir, compress)
         pkgs = list(resolver.sources())
 
-        local_pkgs = []
+        logger.info("Merging...")
         for idx, pkg in enumerate(pkgs):
             if args.progress:
                 progress_cb(idx, len(pkgs), f"{pkg.name}@{pkg.version}")
             try:
                 merger.merge(pkg)
             except DscFileNotFoundError:
-                local_pkgs.append(pkg)
-        for p in local_pkgs:
-            print(f"dsc file not found: {p.name}@{p.version}")
+                logger.warning(f"dsc file not found: {pkg.name}@{pkg.version}")
 
     @staticmethod
     def setup_parser(parser):
@@ -275,6 +274,15 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.verbose == 0:
+        level = logging.WARNING
+    elif args.verbose == 1:
+        level = logging.INFO
+    elif args.verbose == 2:
+        level = logging.DEBUG
+
+    logging.basicConfig(level=level)
+
     try:
         if args.cmd == "generate":
             GenerateCmd.run(args)
@@ -283,9 +291,10 @@ def main():
         elif args.cmd == "source-merge":
             MergeCmd.run(args)
     except Exception as e:
-        print("debsbom: error: {}".format(e))
-        if args.verbose >= 1:
-            print(traceback.format_exc(), end="")
+        logger.error(e)
+        print(f"debsbom: error: {e}", file=sys.stderr)
+        if args.verbose >= 2:
+            print(traceback.format_exc(), file=sys.stderr, end="")
         sys.exit(-1)
 
 
