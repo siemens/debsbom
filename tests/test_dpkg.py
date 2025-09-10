@@ -23,7 +23,7 @@ def test_parse_dependency():
 
 def test_parse_minimal_status_file():
     packages = list(BinaryPackage.parse_status_file("tests/data/dpkg-status-minimal"))
-    bpkg = packages[0]
+    bpkg = [p for p in packages if isinstance(p, BinaryPackage)][0]
 
     assert bpkg.name == "binutils"
     assert bpkg.section == "devel"
@@ -54,7 +54,7 @@ def test_parse_minimal_status_file():
 
 def test_parse_source_status_file():
     packages = list(BinaryPackage.parse_status_file("tests/data/dpkg-status-source"))
-    bpkg = packages[0]
+    bpkg = [p for p in packages if isinstance(p, BinaryPackage)][0]
 
     assert bpkg.name == "apt-utils"
     assert bpkg.section == "admin"
@@ -83,7 +83,7 @@ def test_parse_source_status_file():
     )
     assert bpkg.homepage is None
 
-    spkg = packages[1]
+    spkg = [p for p in packages if isinstance(p, SourcePackage)][0]
     assert spkg.name == "apt"
     assert spkg.version == bpkg.version
     assert spkg.maintainer == bpkg.maintainer
