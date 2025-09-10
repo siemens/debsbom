@@ -52,7 +52,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
         logger.warning(f"no supplier for {package.name}@{package.version}")
     if isinstance(package, BinaryPackage):
         spdx_pkg = spdx_package.Package(
-            spdx_id=Reference(package.name).as_str(SBOMType.SPDX),
+            spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
             download_location=SpdxNoAssertion(),
             version=str(package.version),
@@ -81,7 +81,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
         return spdx_pkg
     elif isinstance(package, SourcePackage):
         spdx_pkg = spdx_package.Package(
-            spdx_id=Reference(package.name, is_source=True).as_str(SBOMType.SPDX),
+            spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
             version=str(package.version),
             supplier=supplier,
@@ -159,13 +159,13 @@ def spdx_bom(
     relationships = []
     logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
-    package_names = [package.name for package in binary_packages]
+    ref_names = [Reference.make_from_pkg(package).target for package in binary_packages]
     for package in binary_packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        reference = Reference(package.name)
+        reference = Reference.make_from_pkg(package)
         relationships.append(
             spdx_relationship.Relationship(
                 spdx_element_id=reference.as_str(SBOMType.SPDX),
@@ -175,8 +175,8 @@ def spdx_bom(
         )
         if package.depends:
             for dep in package.depends:
-                dref = Reference(dep.name)
-                if dref.package_name in package_names:
+                dref = Reference.make_from_dep(dep)
+                if dref.target in ref_names:
                     relationship = spdx_relationship.Relationship(
                         spdx_element_id=reference.as_str(SBOMType.SPDX),
                         relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
@@ -190,7 +190,7 @@ def spdx_bom(
 
         if package.built_using:
             for dep in package.built_using:
-                bu_dep = Reference(dep.name, is_source=True)
+                bu_dep = Reference.make_from_dep(dep, True)
                 relationship = spdx_relationship.Relationship(
                     spdx_element_id=reference.as_str(SBOMType.SPDX),
                     relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
@@ -200,7 +200,7 @@ def spdx_bom(
                 relationships.append(relationship)
 
         if package.source:
-            sref = Reference(package.source.name, is_source=True)
+            sref = Reference.make_from_dep(package.source, True)
             relationship = spdx_relationship.Relationship(
                 spdx_element_id=sref.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
