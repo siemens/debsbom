@@ -4,6 +4,7 @@
 
 from collections import namedtuple
 import hashlib
+import logging
 from pathlib import Path
 import re
 import subprocess
@@ -11,6 +12,9 @@ import tempfile
 from debian import deb822
 
 from debsbom.dpkg import package
+
+
+logger = logging.getLogger(__name__)
 
 
 class CorruptedFileError(RuntimeError):
@@ -96,15 +100,17 @@ class SourceArchiveMerger:
             self.dldir
             / f"{p.name}_{p.version.upstream_version}-{p.version.debian_revision}.merged.tar"
         )
+        dsc = self.dldir / p.dscfile()
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
         if merged.is_file():
+            logger.debug(f"'{dsc}' already merged: '{merged}'")
             return merged
 
-        dsc = self.dldir / p.dscfile()
         if not dsc.is_file():
             raise DscFileNotFoundError(dsc)
 
+        logger.debug(f"Merging sources from '{dsc}'...")
         # get all referenced tarballs from dsc file (usually .orig and .debian and check digests)
         with open(dsc, "r") as f:
             d = deb822.Dsc(f)
@@ -120,7 +126,7 @@ class SourceArchiveMerger:
 
             # apply diff if any
             if len(diffs) > 1:
-                print(f"{p.name}@{p.version}: only a single debian .diff is supported.")
+                logger.warning(f"{p.name}@{p.version}: only a single debian .diff is supported.")
             if len(diffs):
                 self._patch(diffs[0])
 

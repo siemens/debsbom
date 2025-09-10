@@ -8,6 +8,7 @@ import dataclasses
 from functools import reduce
 import hashlib
 import json
+import logging
 import shutil
 import sys
 from typing import Generator, Iterator, Tuple, Type
@@ -18,6 +19,9 @@ import requests
 
 from ..dpkg import package
 from ..snapshot import client as sdlclient
+
+
+logger = logging.getLogger(__name__)
 
 
 class PackageResolverCache:
@@ -62,15 +66,15 @@ class PersistentResolverCache(PackageResolverCache):
         hash = self._package_hash(p)
         entry = self._entry_path(hash)
         if not entry.is_file():
+            logger.debug(f"Package '{p.name}' is not cached")
             return None
         with open(entry, "r") as f:
             try:
                 data = json.load(f)
             except json.decoder.JSONDecodeError:
-                print(
-                    f"cache file {entry.name} ({p.name}@{p.version}) is corrupted", file=sys.stderr
-                )
+                logger.warning(f"cache file {entry.name} ({p.name}@{p.version}) is corrupted")
                 return None
+        logger.debug(f"Package '{p.name}' already cached")
         return [sdlclient.RemoteFile(**d) for d in data]
 
     def insert(
@@ -138,6 +142,7 @@ class PackageResolver:
             )
         files_list = list(files)
         cache.insert(p, files_list)
+        logger.debug(f"Resolved '{p.name}': {files_list}")
         return files_list
 
     @staticmethod
@@ -185,6 +190,7 @@ class PackageDownloader:
         object. Files that are already there are not downloaded again,
         but still reported.
         """
+        logger.info("Starting download...")
         for idx, f in enumerate(self.to_download):
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
@@ -198,7 +204,7 @@ class PackageDownloader:
                     yield target
                     continue
                 else:
-                    print(f"Checksum mismatch on {f.filename}. Download again.", file=sys.stderr)
+                    logger.warning(f"Checksum mismatch on {f.filename}. Download again.")
                     self.known_hashes.pop(f.hash, None)
                     target.unlink()
             # check if we have a file with the same hash and link to it
@@ -210,6 +216,7 @@ class PackageDownloader:
                 continue
 
             fdst = target.with_suffix(target.suffix + ".tmp")
+            logger.debug(f"Downloading '{f.downloadurl}' to '{target}'...")
             with self.rs.get(f.downloadurl, stream=True) as r:
                 r.raise_for_status()
                 with open(fdst, "wb") as fp:

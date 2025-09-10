@@ -6,10 +6,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
+import logging
 from packageurl import PackageURL
 from typing import Iterator, List, Tuple, Type
 
 from ..sbom import Reference
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -52,6 +56,7 @@ class Package(ABC):
     @classmethod
     def parse_status_file(cls, status_file: str) -> Iterator[Type["Package"]]:
         """Parse a dpkg status file."""
+        logger.info(f"Parsing status file '{status_file}'...")
         with open(status_file, "r") as status_file:
             # track which source package ids we already added to
             # prevent duplicate entries
@@ -82,9 +87,11 @@ class Package(ABC):
                     description=package.get("Description"),
                     homepage=package.get("Homepage"),
                 )
+                logger.debug(f"Found binary package: '{bpkg.name}'")
                 yield bpkg
                 if spkg.name not in source_packages:
                     source_packages.append(spkg.name)
+                    logger.debug(f"Found source package: '{spkg.name}'")
                     yield spkg
 
     @abstractmethod

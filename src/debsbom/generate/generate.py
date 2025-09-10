@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Callable, Set, Tuple
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
+import logging
 from pathlib import Path
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
@@ -14,6 +15,9 @@ from ..dpkg.package import Package
 from ..sbom import SBOMType
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
+
+
+logger = logging.getLogger(__name__)
 
 
 class Debsbom:
@@ -45,6 +49,8 @@ class Debsbom:
         self.cdx_serialnumber = cdx_serialnumber
         self.timestamp = timestamp
 
+        logger.info(f"Configuration: {self.__dict__}")
+
         self.packages = None
 
     def generate(
@@ -62,6 +68,7 @@ class Debsbom:
             cdx_out = out
             if not cdx_out.endswith(".cdx.json"):
                 cdx_out += ".cdx.json"
+            logger.info(f"Generating CycloneDX SBOM in '{cdx_out}'...")
             bom = cyclonedx_bom(
                 self.packages,
                 self.distro_name,
@@ -78,6 +85,7 @@ class Debsbom:
             spdx_out = out
             if not spdx_out.endswith(".spdx.json"):
                 spdx_out += ".spdx.json"
+            logger.info(f"Generating SPDX SBOM in '{spdx_out}'...")
             bom = spdx_bom(
                 self.packages,
                 self.distro_name,
