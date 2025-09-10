@@ -4,13 +4,12 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import itertools
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 import logging
 from packageurl import PackageURL
 from typing import Iterator, List, Tuple, Type
-
-from ..sbom import Reference
 
 
 logger = logging.getLogger(__name__)
@@ -55,33 +54,38 @@ class Package(ABC):
 
     @classmethod
     def parse_status_file(cls, status_file: str) -> Iterator[Type["Package"]]:
-        """Parse a dpkg status file."""
+        """
+        Parse a dpkg status file and returns packages with their relations.
+        """
         logger.info(f"Parsing status file '{status_file}'...")
-        with open(status_file, "r") as status_file:
-            # track which source package ids we already added to
-            # prevent duplicate entries
-            source_packages = []
-            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
-                pdepends = package.relations["depends"]
-                if pdepends:
-                    dependencies = [
-                        Reference(package_name=dep.name)
-                        for dep in Dependency.from_pkg_relations(pdepends)
-                    ]
-                else:
-                    dependencies = None
+        binpkgs_it = cls._parse_status_file_raw(status_file)
+        return cls._unique_everseen(
+            itertools.chain.from_iterable(map(lambda p: cls._resolve_sources(p, True), binpkgs_it))
+        )
 
-                spkg = SourcePackage(
-                    name=package.source,
-                    version=package.source_version,
-                    maintainer=package.get("Maintainer"),
-                )
+    @classmethod
+    def _parse_status_file_raw(cls, status_file: str) -> Iterator[Type["BinaryPackage"]]:
+        """
+        Parse a dpkg status file and returns binary packages with their relations.
+        The relations might contain links to packages that are not known yet (e.g.
+        all source packages). These need to be resolved in a second pass.
+        """
+        with open(status_file, "r") as status_file:
+            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
+                if package.source:
+                    srcdep = Dependency(package.source, None, ("=", package.source_version))
+                else:
+                    srcdep = None
+
+                pdepends = package.relations["depends"] or []
+                dependencies = Dependency.from_pkg_relations(pdepends)
+
                 bpkg = BinaryPackage(
                     name=package.get("Package"),
                     section=package.get("Section"),
                     maintainer=package.get("Maintainer"),
                     architecture=package.get("Architecture"),
-                    source=Reference(package_name=spkg.name, is_source=True),
+                    source=srcdep,
                     version=package.get("Version"),
                     depends=dependencies,
                     description=package.get("Description"),
@@ -89,10 +93,37 @@ class Package(ABC):
                 )
                 logger.debug(f"Found binary package: '{bpkg.name}'")
                 yield bpkg
-                if spkg.name not in source_packages:
-                    source_packages.append(spkg.name)
-                    logger.debug(f"Found source package: '{spkg.name}'")
-                    yield spkg
+
+    @classmethod
+    def _unique_everseen(cls, iterable, key=None):
+        """
+        Yield unique elements, preserving order. Remember all elements ever seen.
+        """
+        seen = set()
+        if key is None:
+            for element in itertools.filterfalse(seen.__contains__, iterable):
+                seen.add(element)
+                yield element
+        else:
+            for element in iterable:
+                k = key(element)
+                if k not in seen:
+                    seen.add(k)
+                yield element
+
+    @classmethod
+    def _resolve_sources(
+        cls, pkg: Type["BinaryPackage"], add_pkg=False
+    ) -> Iterator[Type["Package"]]:
+        """
+        Returns an iterator to resolve the source package of a binary package.
+        If add_pkg=True is set, the passed binary package is returned as well.
+        """
+        if pkg.source:
+            logger.debug(f"Found source package: '{pkg.source.name}'")
+            yield SourcePackage(pkg.source.name, pkg.source.version[1], pkg.maintainer)
+        if add_pkg:
+            yield pkg
 
     @abstractmethod
     def purl(self) -> PackageURL:
@@ -109,6 +140,16 @@ class SourcePackage(Package):
         self.name = name
         self.version = Version(version)
         self.maintainer = maintainer
+
+    def __hash__(self):
+        # For compatibility reasons
+        return hash(self.name)
+
+    def __eq__(self, other):
+        # For compatibility reasons
+        if isinstance(other, SourcePackage):
+            return self.name == other.name
+        return NotImplemented
 
     def purl(self) -> PackageURL:
         """Return the PURL of the package."""
@@ -133,8 +174,8 @@ class BinaryPackage(Package):
     maintainer: str
     section: str
     architecture: str
-    source: Reference
-    depends: List[Reference]
+    source: Dependency
+    depends: List[Dependency]
     description: str
     homepage: str
 
@@ -144,9 +185,9 @@ class BinaryPackage(Package):
         section: str,
         maintainer: str,
         architecture: str,
-        source: Reference,
+        source: Dependency,
         version: str | Version,
-        depends: List[Reference],
+        depends: List[Dependency],
         description: str,
         homepage: str,
     ):
@@ -159,6 +200,15 @@ class BinaryPackage(Package):
         self.depends = depends
         self.description = description
         self.homepage = homepage
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        # For compatibility reasons
+        if isinstance(other, BinaryPackage):
+            return self.name == other.name
+        return NotImplemented
 
     def purl(self) -> PackageURL:
         """Return the PURL of the package."""

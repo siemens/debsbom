@@ -10,7 +10,6 @@ from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 from uuid import uuid4
 
-import debsbom
 from debsbom.generate import Debsbom, SBOMType
 
 
