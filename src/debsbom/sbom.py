@@ -59,6 +59,24 @@ class Reference:
             s += "-srcpkg"
         return s
 
+    @classmethod
+    def lookup(
+        cls, pkg: BinaryPackage, dep: Dependency, sbom_type: SBOMType, known_refs: set[str]
+    ) -> str | None:
+        """
+        For imprecise references (without architecture), locate the matching
+        reference id within the id passed as known_refs. Returns None if
+        not found. To avoid downstream double caching of IDs in two formats, we pass the
+        known_refs as a string set.
+        """
+        if dep.arch:
+            return Reference.make_from_dep(dep).as_str(sbom_type)
+        candidates = map(
+            lambda a: Reference.make_from_dep(dep, a).as_str(sbom_type),
+            set([pkg.architecture, "all"]),
+        )
+        return next(filter(lambda d: d in known_refs, candidates), None)
+
     @staticmethod
     def make_from_pkg(pkg: Package) -> Type["Reference"]:
         """
@@ -68,12 +86,13 @@ class Reference:
         if isinstance(pkg, SourcePackage):
             return Reference(target=f"{pkg.name}-{pkg.version}", is_source=True)
         elif isinstance(pkg, BinaryPackage):
-            return Reference(target=f"{pkg.name}", is_source=False)
+            return Reference(target=f"{pkg.name}-{pkg.architecture}", is_source=False)
         raise NotImplementedError()
 
     @staticmethod
-    def make_from_dep(dep: Dependency, to_source=False) -> type["Reference"]:
-        if to_source:
+    def make_from_dep(dep: Dependency, to_arch: str = None) -> type["Reference"]:
+        if to_arch == "source":
             return Reference(target=f"{dep.name}-{dep.version[1]}", is_source=True)
         else:
-            return Reference(target=f"{dep.name}", is_source=False)
+            to_arch = to_arch or dep.arch
+            return Reference(target=f"{dep.name}-{to_arch}", is_source=False)
