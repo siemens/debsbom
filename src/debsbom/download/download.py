@@ -10,10 +10,8 @@ import hashlib
 import json
 import logging
 import shutil
-import sys
 from typing import Generator, Iterator, Tuple, Type
 from pathlib import Path
-from urllib.request import urlretrieve
 from packageurl import PackageURL
 import requests
 
