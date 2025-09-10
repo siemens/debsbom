@@ -160,7 +160,7 @@ class SourcePackage(Package):
     def __eq__(self, other):
         # For compatibility reasons
         if isinstance(other, SourcePackage):
-            return (self.name, self.version) == (other.name, other.version)
+            return self.purl() == other.purl()
         return NotImplemented
 
     def purl(self) -> PackageURL:

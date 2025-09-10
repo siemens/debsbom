@@ -118,8 +118,8 @@ def cyclonedx_bom(
             deps = SortedSet([])
             for dep in package.depends:
                 try:
-                    dref = Reference.make_from_dep(dep)
-                    dep_bom_ref = refs[dref.as_str(SBOMType.CycloneDX)]
+                    ref_id = Reference.lookup(package, dep, SBOMType.CycloneDX, refs.keys())
+                    dep_bom_ref = refs[ref_id]
                 except KeyError:
                     # this means we have a virtual dependency, ignore it
                     logger.debug(f"Skipped optional dependency: '{dep.name}'")

@@ -71,33 +71,33 @@ def test_dependency_generation():
             spdx_json = json.loads(file.read())
             relationships = spdx_json["relationships"]
             assert relationships[0] == {
-                "spdxElementId": "SPDXRef-libc6",
+                "spdxElementId": "SPDXRef-libc6-amd64",
                 "relatedSpdxElement": "SPDXRef-pytest-distro",
                 "relationshipType": "PACKAGE_OF",
             }
             assert relationships[1] == {
-                "spdxElementId": "SPDXRef-libc6",
-                "relatedSpdxElement": "SPDXRef-libgcc-s1",
+                "spdxElementId": "SPDXRef-libc6-amd64",
+                "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
                 "relationshipType": "DEPENDS_ON",
             }
             assert relationships[2] == {
                 "spdxElementId": "SPDXRef-glibc-2.36-9.deb12u10-srcpkg",
-                "relatedSpdxElement": "SPDXRef-libc6",
+                "relatedSpdxElement": "SPDXRef-libc6-amd64",
                 "relationshipType": "GENERATES",
             }
             assert relationships[3] == {
-                "spdxElementId": "SPDXRef-libgcc-s1",
+                "spdxElementId": "SPDXRef-libgcc-s1-amd64",
                 "relatedSpdxElement": "SPDXRef-pytest-distro",
                 "relationshipType": "PACKAGE_OF",
             }
             assert relationships[4] == {
-                "spdxElementId": "SPDXRef-libgcc-s1",
-                "relatedSpdxElement": "SPDXRef-libc6",
+                "spdxElementId": "SPDXRef-libgcc-s1-amd64",
+                "relatedSpdxElement": "SPDXRef-libc6-amd64",
                 "relationshipType": "DEPENDS_ON",
             }
             assert relationships[5] == {
                 "spdxElementId": "SPDXRef-gcc-12-12.2.0-14.deb12u1-srcpkg",
-                "relatedSpdxElement": "SPDXRef-libgcc-s1",
+                "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
                 "relationshipType": "GENERATES",
             }
             assert relationships[6] == {
@@ -109,15 +109,15 @@ def test_dependency_generation():
             cdx_json = json.loads(file.read())
             deps = cdx_json["dependencies"]
             assert deps[0] == {
-                "dependsOn": ["CDXRef-libgcc-s1"],
-                "ref": "CDXRef-libc6",
+                "dependsOn": ["CDXRef-libgcc-s1-amd64"],
+                "ref": "CDXRef-libc6-amd64",
             }
             assert deps[1] == {
-                "dependsOn": ["CDXRef-libc6"],
-                "ref": "CDXRef-libgcc-s1",
+                "dependsOn": ["CDXRef-libc6-amd64"],
+                "ref": "CDXRef-libgcc-s1-amd64",
             }
             assert deps[2] == {
-                "dependsOn": ["CDXRef-libc6", "CDXRef-libgcc-s1"],
+                "dependsOn": ["CDXRef-libc6-amd64", "CDXRef-libgcc-s1-amd64"],
                 "ref": "CDXRef-pytest-distro",
             }
 

@@ -159,7 +159,7 @@ def spdx_bom(
     relationships = []
     logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
-    ref_names = [Reference.make_from_pkg(package).target for package in binary_packages]
+    refs = set(map(lambda p: Reference.make_from_pkg(p).as_str(SBOMType.SPDX), binary_packages))
     for package in binary_packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)
@@ -175,12 +175,12 @@ def spdx_bom(
         )
         if package.depends:
             for dep in package.depends:
-                dref = Reference.make_from_dep(dep)
-                if dref.target in ref_names:
+                ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs)
+                if ref_id:
                     relationship = spdx_relationship.Relationship(
                         spdx_element_id=reference.as_str(SBOMType.SPDX),
                         relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
-                        related_spdx_element_id=dref.as_str(SBOMType.SPDX),
+                        related_spdx_element_id=ref_id,
                     )
                     logger.debug(f"Created dependency relationship: {relationship}")
                     relationships.append(relationship)
@@ -190,7 +190,7 @@ def spdx_bom(
 
         if package.built_using:
             for dep in package.built_using:
-                bu_dep = Reference.make_from_dep(dep, True)
+                bu_dep = Reference.make_from_dep(dep, "source")
                 relationship = spdx_relationship.Relationship(
                     spdx_element_id=reference.as_str(SBOMType.SPDX),
                     relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
@@ -200,7 +200,7 @@ def spdx_bom(
                 relationships.append(relationship)
 
         if package.source:
-            sref = Reference.make_from_dep(package.source, True)
+            sref = Reference.make_from_dep(package.source, "source")
             relationship = spdx_relationship.Relationship(
                 spdx_element_id=sref.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
