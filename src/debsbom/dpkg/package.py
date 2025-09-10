@@ -137,9 +137,9 @@ class BinaryPackage(Package):
         section: str,
         maintainer: str,
         architecture: str,
-        source: SourcePackage,
+        source: Reference,
         version: str | Version,
-        depends: List[Dependency],
+        depends: List[Reference],
         description: str,
         homepage: str,
     ):
