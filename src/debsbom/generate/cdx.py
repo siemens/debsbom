@@ -26,7 +26,7 @@ def cdx_package_repr(
 ) -> cdx_component.Component | None:
     """Get the CDX representation of a Package."""
     if isinstance(package, BinaryPackage):
-        ref = Reference(package.name).as_str(SBOMType.CycloneDX)
+        ref = Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)
         refs[ref] = cdx_bom_ref.BomRef(ref)
 
         match = SUPPLIER_PATTERN.match(package.maintainer)
@@ -110,7 +110,7 @@ def cyclonedx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        reference = Reference(package.name)
+        reference = Reference.make_from_pkg(package)
         distro_dependencies.append(
             cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
         )
@@ -118,7 +118,7 @@ def cyclonedx_bom(
             deps = SortedSet([])
             for dep in package.depends:
                 try:
-                    dref = Reference(dep.name)
+                    dref = Reference.make_from_dep(dep)
                     dep_bom_ref = refs[dref.as_str(SBOMType.CycloneDX)]
                 except KeyError:
                     # this means we have a virtual dependency, ignore it

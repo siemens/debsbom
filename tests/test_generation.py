@@ -81,7 +81,7 @@ def test_dependency_generation():
                 "relationshipType": "DEPENDS_ON",
             }
             assert relationships[2] == {
-                "spdxElementId": "SPDXRef-glibc-srcpkg",
+                "spdxElementId": "SPDXRef-glibc-2.36-9.deb12u10-srcpkg",
                 "relatedSpdxElement": "SPDXRef-libc6",
                 "relationshipType": "GENERATES",
             }
@@ -96,7 +96,7 @@ def test_dependency_generation():
                 "relationshipType": "DEPENDS_ON",
             }
             assert relationships[5] == {
-                "spdxElementId": "SPDXRef-gcc-12-srcpkg",
+                "spdxElementId": "SPDXRef-gcc-12-12.2.0-14.deb12u1-srcpkg",
                 "relatedSpdxElement": "SPDXRef-libgcc-s1",
                 "relationshipType": "GENERATES",
             }
