@@ -148,11 +148,28 @@ class SourcePackage(Package):
     """Representation of a Debian Source package."""
 
     maintainer: str | None = None
+    binaries: list[str] | None = None
+    homepage: str | None = None
+    vcs_browser: str | None = None
+    vcs_git: str | None = None
 
-    def __init__(self, name: str, version: str | Version, maintainer: str | None = None):
+    def __init__(
+        self,
+        name: str,
+        version: str | Version,
+        maintainer: str | None = None,
+        binaries: list[str] | None = None,
+        homepage: str | None = None,
+        vcs_browser: str | None = None,
+        vcs_git: str | None = None,
+    ):
         self.name = name
         self.version = Version(version)
         self.maintainer = maintainer
+        self.binaries = binaries
+        self.homepage = homepage
+        self.vcs_browser = vcs_browser
+        self.vcs_git = vcs_git
 
     def __hash__(self):
         return hash(self.purl())
