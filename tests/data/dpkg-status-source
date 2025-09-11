@@ -18,3 +18,31 @@ Description: package management related utility programs
     needed to publish an archive of Debian packages
   * apt-sortpkgs is a Packages/Sources file normalizer.
 
+Package: guestfs-tools
+Status: install ok installed
+Priority: optional
+Section: utils
+Installed-Size: 34395
+Maintainer: Hilko Bengen <bengen@debian.org>
+Architecture: amd64
+Source: guestfs-tools (1.52.3-1)
+Version: 1.52.3-1+b1
+Replaces: libguestfs-tools (<< 1:1.46)
+Depends: libc6 (>= 2.38), libcrypt1 (>= 1:4.1.0), libglib2.0-0t64 (>= 2.12.0), libguestfs0t64 (>= 1:1.54.0), libjansson4 (>= 2.14), liblzma5 (>= 5.1.1alpha+20120614), libosinfo-1.0-0 (>= 1.7.1~), libpcre2-8-0 (>= 10.22), libtinfo6 (>= 6), libvirt0 (>= 0.4.0), libxml2-16 (>= 2.14.1), perl:any, libguestfs-perl, libintl-perl, libstring-shellquote-perl, libsys-virt-perl, libwin-hivex-perl, curl
+Recommends: virt-p2v, gnupg, libguestfs-tools (>= 1:1.46)
+Breaks: libguestfs-tools (<< 1:1.46)
+Conffiles:
+ /etc/apparmor.d/guestfs-tools a38d74973b682e864d52c65765a04fb9
+ /etc/virt-builder/repos.d/libguestfs.conf d66e417b5493e26d5c7b1e90f26b6a97
+ /etc/virt-builder/repos.d/libguestfs.gpg 257d05743af10adae7b43fc8170cee6e
+ /etc/virt-builder/repos.d/opensuse.conf 8fd3eec68e8a186e8de32f19b6d20455
+ /etc/virt-builder/repos.d/opensuse.gpg 24242f0e1fc574724443d2baa9c9b64d
+Description: guest disk image management system - tools
+ The libguestfs library allows accessing and modifying guest disk
+ images.
+ .
+ This package contains the guestfish interactive shell and various
+ virtualization tools, including virt-cat, virt-df, virt-edit,
+ virt-filesystems, virt-inspector, virt-ls, virt-make-fs, virt-rescue,
+ virt-resize, virt-tar, and virt-win-reg.
+Homepage: https://libguestfs.org

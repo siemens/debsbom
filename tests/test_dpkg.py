@@ -87,3 +87,8 @@ def test_parse_source_status_file():
     assert spkg.name == "apt"
     assert spkg.version == bpkg.version
     assert spkg.maintainer == bpkg.maintainer
+
+    # check source package with version != binary version
+    spkg = [p for p in packages if isinstance(p, SourcePackage)][1]
+    assert spkg.name == "guestfs-tools"
+    assert spkg.version == "1.52.3-1"
