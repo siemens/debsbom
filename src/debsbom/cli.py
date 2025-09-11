@@ -173,14 +173,12 @@ class DownloadCmd:
         downloader = PackageDownloader(args.outdir, session=rs)
 
         pkgs = []
-        local_pkgs = []
         if args.sources:
             pkgs.extend(resolver.sources())
 
         if args.binaries:
             pkgs.extend(resolver.binaries())
 
-        print("resolving upstream packages")
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
             if args.progress:
@@ -189,7 +187,7 @@ class DownloadCmd:
                 files = list(resolver.resolve(sdl, pkg, cache))
                 DownloadCmd._check_for_dsc(pkg, files)
             except sdlclient.NotFoundOnSnapshotError:
-                logger.warn(f"not found upstream: {pkg.name}@{pkg.version}")
+                logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
             downloader.register(files)
 
         nfiles, nbytes, cfiles, cbytes = downloader.stat()
@@ -197,7 +195,9 @@ class DownloadCmd:
             f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
             f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
         )
-        list(downloader.download(progress_cb=progress_cb if args.progress else None))
+        dl_files = downloader.download(progress_cb=progress_cb if args.progress else None)
+        for p in dl_files:
+            logger.debug(f"downloaded {p}")
 
     @staticmethod
     def setup_parser(parser):
