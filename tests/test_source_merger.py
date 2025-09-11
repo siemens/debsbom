@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from pathlib import Path
 import pytest
 import requests
 from debsbom.download import Compression, SourceArchiveMerger, PackageDownloader
@@ -49,7 +50,7 @@ def some_packages(dldir):
     ]
     srcfiles = []
     for p in packages:
-        srcfiles.extend(list(sdlclient.SourcePackage(sdl, p.name, p.version).srcfiles()))
+        srcfiles.extend(list(sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()))
     dl.register(srcfiles)
     list(dl.download())
     return packages
@@ -58,7 +59,7 @@ def some_packages(dldir):
 @pytest.mark.parametrize("compress", [None, "bzip2", "gzip", "xz", "zstd"])
 @pytest.mark.online
 def test_merger(tmpdir, some_packages, dldir, compress):
-    outdir = tmpdir / "merged"
+    outdir = Path(tmpdir / "merged")
     sam = SourceArchiveMerger(dldir, outdir, compress=Compression.from_tool(compress))
 
     for p in some_packages:

@@ -4,8 +4,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Generator, Type
 import requests
 from datetime import datetime
 from requests.exceptions import RequestException
@@ -54,7 +54,7 @@ class SourcePackage:
         self.name = name
         self.version = version
 
-    def srcfiles(self) -> Generator["RemoteFile", None, None]:
+    def srcfiles(self) -> Iterable["RemoteFile"]:
         """
         All files associated with the source package. Returns multiple RemoteFile
         instances for a single hash in case the file is known under multiple names.
@@ -77,7 +77,7 @@ class SourcePackage:
                 rf.architecture = "source"
                 yield rf
 
-    def binpackages(self) -> Generator["BinaryPackage", None, None]:
+    def binpackages(self) -> Iterable["BinaryPackage"]:
         """
         All binary packages created from this source package
         """
@@ -106,7 +106,7 @@ class BinaryPackage:
         self.srcname = srcname
         self.srcversion = srcversion
 
-    def files(self, arch: str = None) -> Generator["RemoteFile", None, None]:
+    def files(self, arch: str = None) -> Iterable["RemoteFile"]:
         """
         All files associated with this binary package (e.g. per-architecture)
 
@@ -160,7 +160,7 @@ class RemoteFile:
     path: str
     first_seen: int
     downloadurl: str
-    architecture: str = None
+    architecture: str | None = None
 
     @staticmethod
     def fromfileinfo(sdl, hash, fileinfo):
@@ -187,7 +187,7 @@ class SnapshotDataLake:
         # reuse the same connection for all requests
         self.rs = session
 
-    def packages(self) -> Generator[Package, None, None]:
+    def packages(self) -> Iterable[Package]:
         try:
             r = self.rs.get(self.url + "/mr/package/")
             data = r.json()

@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable, Set, Tuple
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
 import logging
@@ -24,15 +24,15 @@ class Debsbom:
     def __init__(
         self,
         distro_name: str,
-        sbom_types: Set[SBOMType] = SBOMType.SPDX,
+        sbom_types: set[SBOMType] | list[SBOMType] = [SBOMType.SPDX],
         root: str = "/",
         distro_supplier: str = None,
         distro_version: str = None,
-        spdx_namespace: Tuple | None = None,  # 6 item tuple representing an URL
+        spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID = None,
         timestamp: datetime = None,
     ):
-        self.sbom_types = sbom_types
+        self.sbom_types = set(sbom_types)
         self.root = root
         self.distro_name = distro_name
         self.distro_version = distro_version

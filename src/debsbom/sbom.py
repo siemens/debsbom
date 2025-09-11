@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Set
 from dataclasses import dataclass
 from enum import Enum
 import re
-from typing import Type
 
 from .dpkg.package import BinaryPackage, Dependency, Package, SourcePackage
 
@@ -61,7 +61,7 @@ class Reference:
 
     @classmethod
     def lookup(
-        cls, pkg: BinaryPackage, dep: Dependency, sbom_type: SBOMType, known_refs: set[str]
+        cls, pkg: BinaryPackage, dep: Dependency, sbom_type: SBOMType, known_refs: Set[str]
     ) -> str | None:
         """
         For imprecise references (without architecture), locate the matching
@@ -78,7 +78,7 @@ class Reference:
         return next(filter(lambda d: d in known_refs, candidates), None)
 
     @staticmethod
-    def make_from_pkg(pkg: Package) -> Type["Reference"]:
+    def make_from_pkg(pkg: Package) -> "Reference":
         """
         Return a unique string to reference a package in the list of all packages.
         This representation must match the one returned by make_from_dep.
@@ -90,7 +90,7 @@ class Reference:
         raise NotImplementedError()
 
     @staticmethod
-    def make_from_dep(dep: Dependency, to_arch: str = None) -> type["Reference"]:
+    def make_from_dep(dep: Dependency, to_arch: str | None = None) -> "Reference":
         if to_arch == "source":
             return Reference(target=f"{dep.name}-{dep.version[1]}", is_source=True)
         else:

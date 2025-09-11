@@ -11,8 +11,8 @@ import cyclonedx.model.dependency as cdx_dependency
 from datetime import datetime
 import logging
 from sortedcontainers import SortedSet
-from typing import Callable, Dict, List, Tuple
 from uuid import UUID, uuid4
+from collections.abc import Callable
 
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 def cdx_package_repr(
-    package: Package, refs: Dict[str, cdx_bom_ref.BomRef]
+    package: Package, refs: dict[str, cdx_bom_ref.BomRef]
 ) -> cdx_component.Component | None:
     """Get the CDX representation of a Package."""
     if isinstance(package, BinaryPackage):
@@ -66,7 +66,7 @@ def cdx_package_repr(
 
 
 def cyclonedx_bom(
-    packages: List[Package],
+    packages: list[Package],
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,

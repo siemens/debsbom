@@ -4,12 +4,13 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from collections.abc import Iterable
 import itertools
+from pathlib import Path
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 import logging
 from packageurl import PackageURL
-from typing import Iterator, List, Tuple, Type
 
 
 logger = logging.getLogger(__name__)
@@ -21,12 +22,12 @@ class Dependency:
 
     name: str
     archqual: str | None = None
-    version: Tuple[str, Version] | None = None
+    version: tuple[str, Version] | None = None
     arch: str | None = None
     restrictions: str | None = None
 
     @classmethod
-    def from_pkg_relations(cls, relations: List[List[PkgRelation]]) -> List["Dependency"]:
+    def from_pkg_relations(cls, relations: list[list[dict]]) -> list["Dependency"]:
         dependencies = []
         for relation in relations:
             for dep in relation:
@@ -37,7 +38,7 @@ class Dependency:
         return dependencies
 
     @classmethod
-    def parse_depends_line(cls, line: str) -> List["Dependency"]:
+    def parse_depends_line(cls, line: str) -> list["Dependency"]:
         return Dependency.from_pkg_relations(PkgRelation.parse_relations(line))
 
 
@@ -53,7 +54,7 @@ class Package(ABC):
         self.version = Version(version)
 
     @classmethod
-    def parse_status_file(cls, status_file: str) -> Iterator[Type["Package"]]:
+    def parse_status_file(cls, status_file: Path) -> Iterable["Package"]:
         """
         Parse a dpkg status file and returns packages with their relations.
         """
@@ -64,7 +65,7 @@ class Package(ABC):
         )
 
     @classmethod
-    def _parse_status_file_raw(cls, status_file: str) -> Iterator[Type["BinaryPackage"]]:
+    def _parse_status_file_raw(cls, status_file: Path) -> Iterable["BinaryPackage"]:
         """
         Parse a dpkg status file and returns binary packages with their relations.
         The relations might contain links to packages that are not known yet (e.g.
@@ -100,7 +101,7 @@ class Package(ABC):
                 yield bpkg
 
     @classmethod
-    def _unique_everseen(cls, iterable, key=None):
+    def _unique_everseen(cls, iterable: Iterable[object], key=None):
         """
         Yield unique elements, preserving order. Remember all elements ever seen.
         """
@@ -116,10 +117,9 @@ class Package(ABC):
                     seen.add(k)
                 yield element
 
+    # TODO: check type
     @classmethod
-    def _resolve_sources(
-        cls, pkg: Type["BinaryPackage"], add_pkg=False
-    ) -> Iterator[Type["Package"]]:
+    def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
         """
         Returns an iterator to resolve the source package of a binary package.
         If add_pkg=True is set, the passed binary package is returned as well.
@@ -183,27 +183,27 @@ class SourcePackage(Package):
 class BinaryPackage(Package):
     """Incomplete representation of a Debian binary package."""
 
-    maintainer: str
-    section: str
-    architecture: str
-    source: Dependency
-    depends: List[Dependency]
-    built_using: List[Dependency]
-    description: str
-    homepage: str
+    maintainer: str | None
+    section: str | None
+    architecture: str | None
+    source: Dependency | None
+    depends: list[Dependency]
+    built_using: list[Dependency]
+    description: str | None
+    homepage: str | None
 
     def __init__(
         self,
         name: str,
-        section: str,
-        maintainer: str,
-        architecture: str,
-        source: Dependency,
+        section: str | None,
+        maintainer: str | None,
+        architecture: str | None,
+        source: Dependency | None,
         version: str | Version,
-        depends: List[Dependency],
-        built_using: List[Dependency],
-        description: str,
-        homepage: str,
+        depends: list[Dependency],
+        built_using: list[Dependency],
+        description: str | None,
+        homepage: str | None,
     ):
         self.name = name
         self.section = section
