@@ -30,10 +30,14 @@ def cdx_package_repr(
         refs[ref] = cdx_bom_ref.BomRef(ref)
 
         match = SUPPLIER_PATTERN.match(package.maintainer)
-        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"])
-        supplier_email = match["supplier_email"]
-        if supplier_email:
-            supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
+        if match:
+            supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"])
+            supplier_email = match["supplier_email"]
+            if supplier_email:
+                supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
+        else:
+            supplier = None
+            logger.warning(f"no supplier for {package.name}@{package.version}")
         entry = cdx_component.Component(
             name=package.name,
             type=cdx_component.ComponentType.LIBRARY,
