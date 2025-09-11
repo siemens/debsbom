@@ -28,3 +28,16 @@ jobs:
     
     - name: Run pytest
       run: pytest
+
+    - name: smoke test generate
+      run: |
+        debsbom -v generate -t spdx -t cdx -o sbom --validate
+
+    - name: upload smoke test SBOMs
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom
+        path: |
+          sbom.cdx.json
+          sbom.spdx.json
+        if-no-files-found: error
