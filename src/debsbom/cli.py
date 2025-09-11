@@ -165,6 +165,7 @@ class DownloadCmd:
         cache = PersistentResolverCache(outdir / ".cache")
         resolver = PackageResolver.create(Path(args.bomfile))
         rs = requests.Session()
+        rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
         downloader = PackageDownloader(args.outdir, session=rs)
 
