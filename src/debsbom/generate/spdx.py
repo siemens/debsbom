@@ -31,21 +31,25 @@ logger = logging.getLogger(__name__)
 
 def spdx_package_repr(package: Package) -> spdx_package.Package:
     """Get the SPDX representation of a Package."""
-    match = SUPPLIER_PATTERN.match(package.maintainer)
-    supplier_name = match["supplier_name"]
-    supplier_email = match["supplier_email"]
-    if any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
+    match = SUPPLIER_PATTERN.match(package.maintainer or "")
+    if match:
+        supplier_name = match["supplier_name"]
+        supplier_email = match["supplier_email"]
+    if match and any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
         supplier = spdx_actor.Actor(
             actor_type=spdx_actor.ActorType.ORGANIZATION,
             name=supplier_name,
             email=supplier_email,
         )
-    else:
+    elif match:
         supplier = spdx_actor.Actor(
             actor_type=spdx_actor.ActorType.PERSON,
             name=supplier_name,
             email=supplier_email,
         )
+    else:
+        supplier = SpdxNoAssertion()
+        logger.warning(f"no supplier for {package.name}@{package.version}")
     if isinstance(package, BinaryPackage):
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference(package.name).as_str(SBOMType.SPDX),
