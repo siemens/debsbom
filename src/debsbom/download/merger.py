@@ -28,17 +28,17 @@ class DscFileNotFoundError(FileNotFoundError):
 class Compression:
     """ """
 
-    CmdAndExtType = namedtuple("compression", "tool compress extract fileext")
+    Format = namedtuple("compression", "tool compress extract fileext")
     # fmt: off
-    NONE  = CmdAndExtType("cat",   [],     [],                 "")
-    BZIP2 = CmdAndExtType("bzip2", ["-q"], ["-q", "-d", "-c"], ".bz2")
-    GZIP  = CmdAndExtType("gzip",  ["-q"], ["-q", "-d", "-c"], ".gz")
-    XZ    = CmdAndExtType("xz",    ["-q"], ["-q", "-d", "-c"], ".xz")
-    ZSTD  = CmdAndExtType("zstd",  ["-q"], ["-q", "-d", "-c"], ".zst")
+    NONE  = Format("cat",   [],     [],                 "")
+    BZIP2 = Format("bzip2", ["-q"], ["-q", "-d", "-c"], ".bz2")
+    GZIP  = Format("gzip",  ["-q"], ["-q", "-d", "-c"], ".gz")
+    XZ    = Format("xz",    ["-q"], ["-q", "-d", "-c"], ".xz")
+    ZSTD  = Format("zstd",  ["-q"], ["-q", "-d", "-c"], ".zst")
     # fmt: on
 
     @staticmethod
-    def from_tool(tool: str) -> CmdAndExtType:
+    def from_tool(tool: str | None) -> Format:
         if not tool:
             return Compression.NONE
         comp = [c for c in Compression.formats() if c.tool == tool]
@@ -47,7 +47,7 @@ class Compression:
         raise RuntimeError(f"No handler for compression with {tool}")
 
     @staticmethod
-    def from_ext(ext: str) -> CmdAndExtType:
+    def from_ext(ext: str | None) -> Format:
         if not ext:
             return Compression.NONE
         comp = [c for c in Compression.formats() if c.fileext == ext]
@@ -66,7 +66,12 @@ class SourceArchiveMerger:
     and the debian archive of a package.
     """
 
-    def __init__(self, dldir: Path, outdir: Path = None, compress: Compression = Compression.NONE):
+    def __init__(
+        self,
+        dldir: Path,
+        outdir: Path | None = None,
+        compress: Compression.Format = Compression.NONE,
+    ):
         self.dldir = dldir
         self.outdir = outdir or dldir
         self.compress = compress

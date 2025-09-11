@@ -57,7 +57,7 @@ class GenerateCmd:
 
         debsbom = Debsbom(
             distro_name=args.distro_name,
-            sbom_types=set(sbom_types),
+            sbom_types=sbom_types,
             root=args.root,
             distro_supplier=args.distro_supplier,
             distro_version=args.distro_version,

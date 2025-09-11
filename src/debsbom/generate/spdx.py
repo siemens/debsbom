@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Callable
 from datetime import datetime
 from importlib.metadata import version
 import logging
@@ -10,7 +11,6 @@ import spdx_tools.spdx.model.document as spdx_document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.relationship as spdx_relationship
-from typing import Callable, List, Tuple
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
@@ -105,11 +105,11 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
 
 
 def spdx_bom(
-    packages: List[Package],
+    packages: list[Package],
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
-    namespace: Tuple | None = None,  # 6 item tuple representing an URL
+    namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:

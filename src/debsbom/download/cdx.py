@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import json
-from typing import Tuple
 from .download import PackageResolver
-from ..dpkg import package
 from pathlib import Path
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component

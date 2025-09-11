@@ -35,6 +35,7 @@ classifiers = [
 dev = [
   "pytest>=6.0",
   "black",
+  "beartype>=0.20",
 ]
 
 [project.scripts]

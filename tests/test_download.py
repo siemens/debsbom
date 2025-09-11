@@ -24,7 +24,7 @@ def spdx_bomfile(tmpdir):
     """
     Return the path to a minimal spdx sbom file
     """
-    pkgs = BinaryPackage.parse_status_file("tests/data/dpkg-status-minimal")
+    pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
     bom = spdx_bom(list(pkgs), "debian")
     outfile = Path(tmpdir) / "bom.spdx.json"
     spdx_json_writer.write_document_to_file(bom, outfile, False)
@@ -36,7 +36,7 @@ def cdx_bomfile(tmpdir):
     """
     Return the path to a cdx minimal sbom file
     """
-    pkgs = BinaryPackage.parse_status_file("tests/data/dpkg-status-minimal")
+    pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
     bom = cyclonedx_bom(list(pkgs), "debian")
     outfile = Path(tmpdir) / "bom.cdx.json"
     cdx_output.make_outputter(

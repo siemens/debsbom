@@ -4,22 +4,24 @@
 
 from abc import abstractmethod
 from collections import namedtuple
+from collections.abc import Iterable
 import dataclasses
 from functools import reduce
 import hashlib
 import json
 import logging
 import shutil
-from typing import Generator, Iterator, Tuple, Type
 from pathlib import Path
 from packageurl import PackageURL
 import requests
 
 from ..dpkg import package
 from ..snapshot import client as sdlclient
+from ..snapshot.client import RemoteFile
 
 
 logger = logging.getLogger(__name__)
+StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
 
 
 class PackageResolverCache:
@@ -28,13 +30,11 @@ class PackageResolverCache:
     This dummy implementation can be used to not cache.
     """
 
-    def lookup(
-        self, p: package.SourcePackage | package.BinaryPackage
-    ) -> list["sdlclient.RemoteFile"] | None:
+    def lookup(self, p: package.SourcePackage | package.BinaryPackage) -> list["RemoteFile"] | None:
         return None
 
     def insert(
-        self, p: package.SourcePackage | package.BinaryPackage, files: list["sdlclient.RemoteFile"]
+        self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
     ) -> None:
         pass
 
@@ -58,9 +58,7 @@ class PersistentResolverCache(PackageResolverCache):
     def _entry_path(self, hash: str) -> Path:
         return self.cachedir / f"{hash}.json"
 
-    def lookup(
-        self, p: package.SourcePackage | package.BinaryPackage
-    ) -> list["sdlclient.RemoteFile"] | None:
+    def lookup(self, p: package.SourcePackage | package.BinaryPackage) -> list["RemoteFile"] | None:
         hash = self._package_hash(p)
         entry = self._entry_path(hash)
         if not entry.is_file():
@@ -73,10 +71,10 @@ class PersistentResolverCache(PackageResolverCache):
                 logger.warning(f"cache file {entry.name} ({p.name}@{p.version}) is corrupted")
                 return None
         logger.debug(f"Package '{p.name}' already cached")
-        return [sdlclient.RemoteFile(**d) for d in data]
+        return [RemoteFile(**d) for d in data]
 
     def insert(
-        self, p: package.SourcePackage | package.BinaryPackage, files: list["sdlclient.RemoteFile"]
+        self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
     ) -> None:
         hash = self._package_hash(p)
         entry = self._entry_path(hash)
@@ -87,19 +85,19 @@ class PersistentResolverCache(PackageResolverCache):
 
 class PackageResolver:
     @abstractmethod
-    def debian_pkgs(self) -> Generator:
+    def debian_pkgs(self) -> Iterable:
         """
         Return Debian package instances
         """
         pass
 
-    def sources(self) -> Generator[package.SourcePackage, None, None]:
+    def sources(self) -> Iterable[package.SourcePackage]:
         return filter(lambda p: isinstance(p, package.SourcePackage), self.debian_pkgs())
 
-    def binaries(self) -> Generator[package.BinaryPackage, None, None]:
+    def binaries(self) -> Iterable[package.BinaryPackage]:
         return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
-    def package_from_purl(self, purl: str) -> Tuple[str, str, str]:
+    def package_from_purl(self, purl: str) -> "package.Package":
         purl = PackageURL.from_string(purl)
         if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)
@@ -113,8 +111,8 @@ class PackageResolver:
                 architecture=purl.qualifiers.get("arch"),
                 source=None,
                 version=purl.version,
-                depends=None,
-                built_using=None,
+                depends=[],
+                built_using=[],
                 description=None,
                 homepage=None,
             )
@@ -124,7 +122,7 @@ class PackageResolver:
         sdl: sdlclient.SnapshotDataLake,
         p: package.SourcePackage | package.BinaryPackage,
         cache: PackageResolverCache = PackageResolverCache(),
-    ) -> list["sdlclient.RemoteFile"]:
+    ) -> list["RemoteFile"]:
         """
         Resolve a local package to references on the upstream snapshot mirror
         """
@@ -134,9 +132,9 @@ class PackageResolver:
 
         # Determine which type of package and fetch files
         if isinstance(p, package.SourcePackage):
-            files = sdlclient.SourcePackage(sdl, p.name, p.version).srcfiles()
+            files = sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()
         else:
-            files = sdlclient.BinaryPackage(sdl, p.name, p.version, None, None).files(
+            files = sdlclient.BinaryPackage(sdl, p.name, str(p.version), None, None).files(
                 arch=p.architecture
             )
         files_list = list(files)
@@ -145,7 +143,7 @@ class PackageResolver:
         return files_list
 
     @staticmethod
-    def create(filename: Path) -> Type["PackageResolver"]:
+    def create(filename: Path) -> "PackageResolver":
         if filename.name.endswith("spdx.json"):
             from .spdx import SpdxPackageResolver
 
@@ -159,21 +157,19 @@ class PackageResolver:
 
 
 class PackageDownloader:
-    StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
-
     def __init__(
         self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
     ):
         self.dldir = Path(outdir)
         self.dldir.mkdir(exist_ok=True)
-        self.to_download: list["sdlclient.RemoteFile"] = []
+        self.to_download: list[RemoteFile] = []
         self.rs = session
         self.known_hashes = {}
 
-    def register(self, files: list["sdlclient.RemoteFile"]):
+    def register(self, files: list[RemoteFile]):
         self.to_download.extend(list(files))
 
-    def stat(self) -> Type["StatisticsType"]:
+    def stat(self) -> StatisticsType:
         """
         Returns a tuple (files to download, total size, cached files, cached bytes)
         """
@@ -181,9 +177,9 @@ class PackageDownloader:
         nbytes = reduce(lambda acc, x: acc + x.size, unique_dl, 0)
         cfiles = list(filter(lambda f: Path(self.dldir / f.filename).is_file(), unique_dl))
         cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
-        return self.StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
+        return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
-    def download(self, progress_cb=None) -> Iterator[Path]:
+    def download(self, progress_cb=None) -> Iterable[Path]:
         """
         Download all files and yield the file paths to the on-disk
         object. Files that are already there are not downloaded again,
