@@ -27,6 +27,33 @@ options:
   --progress            report progress
 ```
 
+## Scope of the tool
+
+The primary goal is to generate Software Bills of Materials (SBOMs) for Debian-based systems, focusing on security and license clearing requirements.
+The `generate` command operates entirely offline, making it suitable for use in air-gapped networks or environments where internet connectivity is restricted.
+
+### Goals
+
+The `generate` command creates comprehensive SBOMs that include all installed software packages and their dependencies (binary, source package and
+`built-using`[[1]](https://www.debian.org/doc/debian-policy/ch-relationships.html#s-built-using)).
+These SBOM outputs are designed to serve as reliable input for vulnerability management systems and license compliance checks.
+
+The tool provides auxiliary commands for package source retrieval. These enable users to:
+1. Retrieve packages from Debian's upstream repositories and report missing packages.
+2. Convert the multi-archive source packages into a single artifact (one archive per source package)
+
+At its core, this tool was designed to fulfill these SBOM generation requirements while maintaining:
+1. A minimal dependency footprint: avoid huge dependency graph of external software ecosystems (like Go or Rust)
+2. Strict focus on Debian-specific package formats
+3. Clear separation between binary packages and their corresponding source packages
+4. Use official SPDX / CycloneDX libraries to ensure syntactic and semantic correctness
+
+### Non Goals
+
+- License and copyright text extraction from source packages
+- Real-time vulnerability database integration
+- Signing and attestation of generated artifacts
+
 ## Limitations
 
 ### License Information
