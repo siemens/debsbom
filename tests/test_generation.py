@@ -147,3 +147,28 @@ def test_homepage_regression():
             for package in packages:
                 if package["name"] == "r-recommended":
                     assert package["homepage"] == "http://www.r-project.org/"
+
+
+def test_apt_source_pkg():
+    url = urlparse("http://example.org")
+    uuid = uuid4()
+    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+    dbom = Debsbom(
+        distro_name="pytest-distro",
+        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
+        root="tests/root/apt-sources",
+        spdx_namespace=url,
+        cdx_serialnumber=uuid,
+        timestamp=timestamp,
+    )
+
+    with TemporaryDirectory() as outdir:
+        outdir = Path(outdir)
+        dbom.generate(str(outdir / "sbom"), validate=True)
+        with open(outdir / "sbom.spdx.json") as file:
+            spdx_json = json.loads(file.read())
+            packages = spdx_json["packages"]
+            for pkg in packages:
+                if pkg["SPDXID"].endswith("-srcpkg"):
+                    assert pkg["supplier"] != "NOASSERTION"

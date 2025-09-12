@@ -4,6 +4,7 @@
 
 from collections.abc import Callable
 from datetime import datetime
+import itertools
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
 import logging
@@ -11,7 +12,8 @@ from pathlib import Path
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
-from ..dpkg.package import Package
+from ..apt.cache import Repository
+from ..dpkg.package import Package, SourcePackage
 from ..sbom import SBOMType
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
@@ -64,7 +66,32 @@ class Debsbom:
         """
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
-        self.packages = list(Package.parse_status_file(Path(self.root) / "var/lib/dpkg/status"))
+        root = Path(self.root)
+        self.packages = list(Package.parse_status_file(root / "var/lib/dpkg/status"))
+
+        logging.info("load source packages from apt cache")
+        apt_lists = root / "var/lib/apt/lists"
+        if apt_lists.is_dir():
+            repos = Repository.from_apt_cache(apt_lists)
+        else:
+            logger.info("Missing apt lists cache, some source packages might be incomplete")
+            repos = iter([])
+
+        sources_it = itertools.chain.from_iterable(map(lambda r: r.sources(), repos))
+        # deduplicate source packages on the fly
+        sources = set(sources_it)
+
+        logging.info("enhance referenced packages with apt cache information")
+        # find any source packages with incomplete information
+        for package in [p for p in self.packages if isinstance(p, SourcePackage)]:
+            if package.maintainer is None:
+                for source in sources:
+                    if source.name == package.name and source.version == package.version:
+                        logger.debug(
+                            f"Extended source package information for '{package.name}@{package.version}'"
+                        )
+                        package.maintainer = source.maintainer
+                        break
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out

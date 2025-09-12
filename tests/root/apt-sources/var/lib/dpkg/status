@@ -1,0 +1,18 @@
+Package: binutils-arm-none-eabi
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 18208
+Maintainer: Joaquin de Andres <me@xcancerberox.com.ar>
+Architecture: amd64
+Multi-Arch: foreign
+Source: binutils-arm-none-eabi (18)
+Version: 2.40-2+18+b1
+Depends: libc6 (>= 2.34), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.0)
+Description: GNU assembler, linker and binary utilities for ARM Cortex-R/M processors
+ Bare metal binutils for embedded ARM chips using Cortex-M0/M0+/M3/M4 and
+ Cortex-R4/R5/R7 processors. The programs in this package are used to
+ manipulate binary and object files that may have been created for Cortex
+ architecture.
+Built-Using: binutils (= 2.40-2)
+Homepage: https://sourceware.org/binutils/
