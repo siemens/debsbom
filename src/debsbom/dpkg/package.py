@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from collections.abc import Iterable
 import itertools
 from pathlib import Path
-from debian.deb822 import Packages, PkgRelation
+from debian.deb822 import Deb822, Packages, PkgRelation
 from debian.debian_support import Version
 import logging
 from packageurl import PackageURL
