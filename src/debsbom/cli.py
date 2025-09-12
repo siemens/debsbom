@@ -13,19 +13,26 @@ import traceback
 from uuid import UUID
 from urllib.parse import urlparse
 from pathlib import Path
-import requests
 
 from .dpkg import package
 from .generate import Debsbom, SBOMType
-from .download import (
-    PackageDownloader,
-    PackageResolver,
-    PersistentResolverCache,
-    Compression,
-    SourceArchiveMerger,
-    DscFileNotFoundError,
-)
-from .snapshot import client as sdlclient
+
+# Keep the set of required deps to a bare minimum, needed for SBOM generation
+try:
+    import requests
+    from .download import (
+        PackageDownloader,
+        PackageResolver,
+        PersistentResolverCache,
+        Compression,
+        SourceArchiveMerger,
+        DscFileNotFoundError,
+    )
+    from .snapshot import client as sdlclient
+
+    HAS_DOWNLOAD_DEPS = True
+except ModuleNotFoundError:
+    HAS_DOWNLOAD_DEPS = False
 
 logger = logging.getLogger(__name__)
 
@@ -268,10 +275,15 @@ def main():
     GenerateCmd.setup_parser(
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
-    DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
-    MergeCmd.setup_parser(
-        subparser.add_parser("source-merge", help="merge referenced source packages")
-    )
+
+    if HAS_DOWNLOAD_DEPS:
+        DownloadCmd.setup_parser(
+            subparser.add_parser("download", help="download referenced packages")
+        )
+        MergeCmd.setup_parser(
+            subparser.add_parser("source-merge", help="merge referenced source packages")
+        )
+
     args = parser.parse_args()
 
     if args.verbose == 0:
