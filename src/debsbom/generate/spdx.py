@@ -195,6 +195,7 @@ def spdx_bom(
                     spdx_element_id=reference.as_str(SBOMType.SPDX),
                     relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
                     related_spdx_element_id=bu_dep.as_str(SBOMType.SPDX),
+                    comment="built-using",
                 )
                 logger.debug(f"Created built-using relationship: {relationship}")
                 relationships.append(relationship)
