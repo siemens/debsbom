@@ -105,7 +105,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
 
 
 def spdx_bom(
-    packages: list[Package],
+    packages: set[Package],
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
