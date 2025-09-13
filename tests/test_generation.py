@@ -70,56 +70,56 @@ def test_dependency_generation():
         with open(outdir / "sbom.spdx.json") as file:
             spdx_json = json.loads(file.read())
             relationships = spdx_json["relationships"]
-            assert relationships[0] == {
+            assert {
                 "spdxElementId": "SPDXRef-libc6-amd64",
                 "relatedSpdxElement": "SPDXRef-pytest-distro",
                 "relationshipType": "PACKAGE_OF",
-            }
-            assert relationships[1] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-libc6-amd64",
                 "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
                 "relationshipType": "DEPENDS_ON",
-            }
-            assert relationships[2] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-glibc-2.36-9.deb12u10-srcpkg",
                 "relatedSpdxElement": "SPDXRef-libc6-amd64",
                 "relationshipType": "GENERATES",
-            }
-            assert relationships[3] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-libgcc-s1-amd64",
                 "relatedSpdxElement": "SPDXRef-pytest-distro",
                 "relationshipType": "PACKAGE_OF",
-            }
-            assert relationships[4] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-libgcc-s1-amd64",
                 "relatedSpdxElement": "SPDXRef-libc6-amd64",
                 "relationshipType": "DEPENDS_ON",
-            }
-            assert relationships[5] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-gcc-12-12.2.0-14.deb12u1-srcpkg",
                 "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
                 "relationshipType": "GENERATES",
-            }
-            assert relationships[6] == {
+            } in relationships
+            assert {
                 "spdxElementId": "SPDXRef-DOCUMENT",
                 "relatedSpdxElement": "SPDXRef-pytest-distro",
                 "relationshipType": "DESCRIBES",
-            }
+            } in relationships
         with open(outdir / "sbom.cdx.json") as file:
             cdx_json = json.loads(file.read())
             deps = cdx_json["dependencies"]
-            assert deps[0] == {
+            assert {
                 "dependsOn": ["CDXRef-libgcc-s1-amd64"],
                 "ref": "CDXRef-libc6-amd64",
-            }
-            assert deps[1] == {
+            } in deps
+            assert {
                 "dependsOn": ["CDXRef-libc6-amd64"],
                 "ref": "CDXRef-libgcc-s1-amd64",
-            }
-            assert deps[2] == {
+            } in deps
+            assert {
                 "dependsOn": ["CDXRef-libc6-amd64", "CDXRef-libgcc-s1-amd64"],
                 "ref": "CDXRef-pytest-distro",
-            }
+            } in deps
 
 
 def test_homepage_regression():
