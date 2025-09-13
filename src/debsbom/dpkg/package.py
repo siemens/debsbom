@@ -72,7 +72,7 @@ class Package(ABC):
         all source packages). These need to be resolved in a second pass.
         """
         with open(status_file, "r") as status_file:
-            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=False):
+            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=True):
                 if package.source:
                     srcdep = Dependency(package.source, None, ("=", package.source_version))
                 else:
