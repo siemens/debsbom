@@ -68,6 +68,8 @@ class Debsbom:
         """
         root = Path(self.root)
         self.packages = set(Package.parse_status_file(root / "var/lib/dpkg/status"))
+        # names of packages in apt cache we also have referenced
+        sp_names_apt = set([p.name for p in self.packages if isinstance(p, SourcePackage)])
 
         logging.info("load source packages from apt cache")
         apt_lists = root / "var/lib/apt/lists"
@@ -77,7 +79,9 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             repos = iter([])
 
-        sources_it = itertools.chain.from_iterable(map(lambda r: r.sources(), repos))
+        sources_it = itertools.chain.from_iterable(
+            map(lambda r: r.sources(lambda p: p in sp_names_apt), repos)
+        )
         # deduplicate source packages on the fly
         sources = set(sources_it)
 
