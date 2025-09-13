@@ -85,7 +85,7 @@ class Repository:
         try:
             with open(sources_file) as f:
                 logger.debug(f"Parsing apt cache sources: {sources_file}")
-                sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=False)
+                sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=True)
                 for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
                     yield s
         except FileNotFoundError:
