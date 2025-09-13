@@ -66,7 +66,7 @@ def cdx_package_repr(
 
 
 def cyclonedx_bom(
-    packages: list[Package],
+    packages: set[Package],
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,

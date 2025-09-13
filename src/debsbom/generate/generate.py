@@ -67,7 +67,7 @@ class Debsbom:
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
         root = Path(self.root)
-        self.packages = list(Package.parse_status_file(root / "var/lib/dpkg/status"))
+        self.packages = set(Package.parse_status_file(root / "var/lib/dpkg/status"))
 
         logging.info("load source packages from apt cache")
         apt_lists = root / "var/lib/apt/lists"
