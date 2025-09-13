@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import defaultdict
 from collections.abc import Callable
 from datetime import datetime
 import itertools
@@ -82,20 +83,25 @@ class Debsbom:
         sources_it = itertools.chain.from_iterable(
             map(lambda r: r.sources(lambda p: p in sp_names_apt), repos)
         )
-        # deduplicate source packages on the fly
-        sources = set(sources_it)
+
+        # O(n) algorithm to extend our packages with information from the apt cache
+        sources_by_name: defaultdict[str, SourcePackage] = defaultdict(set)
+        for p in sources_it:
+            sources_by_name[p.name].add(p)
 
         logging.info("enhance referenced packages with apt cache information")
         # find any source packages with incomplete information
-        for package in [p for p in self.packages if isinstance(p, SourcePackage)]:
-            if package.maintainer is None:
-                for source in sources:
-                    if source.name == package.name and source.version == package.version:
-                        logger.debug(
-                            f"Extended source package information for '{package.name}@{package.version}'"
-                        )
-                        package.maintainer = source.maintainer
-                        break
+        for package in [
+            p for p in self.packages if isinstance(p, SourcePackage) and not p.maintainer
+        ]:
+            # this set is small, as each package has a limited number of known versions
+            for source in sources_by_name.get(package.name, set()):
+                if source.version == package.version:
+                    logger.debug(
+                        f"Extended source package information for '{package.name}@{package.version}'"
+                    )
+                    package.maintainer = source.maintainer
+                    break
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
