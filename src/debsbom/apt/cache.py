@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from debian.deb822 import Deb822, Sources
 from debian.debian_support import Version
@@ -53,9 +53,11 @@ class Repository:
                 )
 
     @classmethod
-    def _make_srcpkgs(cls, sources: Iterable[Sources]) -> Iterable[SourcePackage]:
-
-        for source in sources:
+    def _make_srcpkgs(
+        cls, sources: Iterable[Sources], filter_fn: Callable[[str], bool] | None = None
+    ) -> Iterable[SourcePackage]:
+        _sources = filter(lambda p: filter_fn(p["Package"]), sources) if filter_fn else sources
+        for source in _sources:
             name = source["Package"]
             version = Version(source.get("Version"))
             maintainer = source.get("Maintainer")
@@ -77,24 +79,26 @@ class Repository:
             )
 
     @classmethod
-    def _parse_sources(cls, sources_file: str) -> Iterable["SourcePackage"]:
+    def _parse_sources(
+        cls, sources_file: str, srcpkg_filter: Callable[[str], bool] | None = None
+    ) -> Iterable["SourcePackage"]:
         try:
             with open(sources_file) as f:
                 logger.debug(f"Parsing apt cache sources: {sources_file}")
                 sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=False)
-                for s in Repository._make_srcpkgs(sources_raw):
+                for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
                     yield s
         except FileNotFoundError:
             logger.debug(f"Missing apt cache sources: {sources_file}")
 
-    def sources(self) -> Iterable[SourcePackage]:
+    def sources(self, filter_fn: Callable[[str], bool] | None = None) -> Iterable[SourcePackage]:
         """Get all source packages from this repository."""
         repo_base = str(self.in_release_file).removesuffix("_InRelease")
         if self.components:
             for component in self.components:
                 sources_file = "_".join([repo_base, component, "source", "Sources"])
-                for s in self._parse_sources(sources_file):
+                for s in self._parse_sources(sources_file, filter_fn):
                     yield s
         else:
             sources_file = "_".join([repo_base, "source", "Sources"])
-            return self._parse_sources(sources_file)
+            return self._parse_sources(sources_file, filter_fn)
