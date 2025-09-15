@@ -68,6 +68,7 @@ class GenerateCmd:
             root=args.root,
             distro_supplier=args.distro_supplier,
             distro_version=args.distro_version,
+            base_distro_vendor=args.base_distro_vendor,
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,
             timestamp=args.timestamp,
@@ -118,6 +119,12 @@ class GenerateCmd:
             type=str,
             help="version for the root component",
             default=None,
+        )
+        parser.add_argument(
+            "--base-distro-vendor",
+            choices=["debian", "ubuntu"],
+            help="vendor of debian distribution (debian or ubuntu)",
+            default="debian",
         )
         parser.add_argument(
             "--spdx-namespace",
