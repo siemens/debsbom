@@ -29,7 +29,7 @@ from ..sbom import (
 logger = logging.getLogger(__name__)
 
 
-def spdx_package_repr(package: Package) -> spdx_package.Package:
+def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.Package:
     """Get the SPDX representation of a Package."""
     match = SUPPLIER_PATTERN.match(package.maintainer or "")
     if match:
@@ -68,7 +68,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
                 spdx_package.ExternalPackageRef(
                     category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
                     reference_type=SPDX_REFERENCE_TYPE_PURL,
-                    locator=package.purl().to_string(),
+                    locator=package.purl(vendor).to_string(),
                 )
             ],
             primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
@@ -95,7 +95,7 @@ def spdx_package_repr(package: Package) -> spdx_package.Package:
                 spdx_package.ExternalPackageRef(
                     category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
                     reference_type=SPDX_REFERENCE_TYPE_PURL,
-                    locator=package.purl().to_string(),
+                    locator=package.purl(vendor).to_string(),
                 )
             ],
             primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
@@ -109,6 +109,7 @@ def spdx_bom(
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
+    base_distro_vendor: str | None = "debian",
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
     progress_cb: Callable[[int, int, str], None] | None = None,
@@ -153,7 +154,7 @@ def spdx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        entry = spdx_package_repr(package)
+        entry = spdx_package_repr(package, vendor=base_distro_vendor)
         data.append(entry)
 
     relationships = []

@@ -163,10 +163,10 @@ class SourcePackage(Package):
             return self.purl() == other.purl()
         return NotImplemented
 
-    def purl(self) -> PackageURL:
+    def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
         return PackageURL.from_string(
-            "pkg:deb/debian/{}@{}?arch=source".format(self.name, self.version)
+            "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
         )
 
     def dscfile(self) -> str:
@@ -224,9 +224,9 @@ class BinaryPackage(Package):
             return self.purl() == other.purl()
         return NotImplemented
 
-    def purl(self) -> PackageURL:
+    def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        purl = "pkg:deb/debian/{}@{}".format(self.name, self.version)
+        purl = "pkg:deb/{}/{}@{}".format(vendor, self.name, self.version)
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
