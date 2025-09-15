@@ -28,6 +28,7 @@ class Debsbom:
         root: str = "/",
         distro_supplier: str = None,
         distro_version: str = None,
+        base_distro_vendor: str = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID = None,
         timestamp: datetime = None,
@@ -37,6 +38,7 @@ class Debsbom:
         self.distro_name = distro_name
         self.distro_version = distro_version
         self.distro_supplier = distro_supplier
+        self.base_distro_vendor = base_distro_vendor
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -75,6 +77,7 @@ class Debsbom:
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 serial_number=self.cdx_serialnumber,
+                base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
                 progress_cb=progress_cb,
             )
@@ -92,6 +95,7 @@ class Debsbom:
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 namespace=self.spdx_namespace,
+                base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
                 progress_cb=progress_cb,
             )

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 def cdx_package_repr(
-    package: Package, refs: dict[str, cdx_bom_ref.BomRef]
+    package: Package, refs: dict[str, cdx_bom_ref.BomRef], vendor: str = "debian"
 ) -> cdx_component.Component | None:
     """Get the CDX representation of a Package."""
     if isinstance(package, BinaryPackage):
@@ -45,7 +45,7 @@ def cdx_package_repr(
             supplier=supplier,
             version=str(package.version),
             description=package.description,
-            purl=package.purl(),
+            purl=package.purl(vendor),
         )
         if package.homepage:
             entry.externalReferences = (
@@ -70,6 +70,7 @@ def cyclonedx_bom(
     distro_name: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
+    base_distro_vendor: str | None = "debian",
     serial_number: UUID | None = None,
     timestamp: datetime | None = None,
     progress_cb: Callable[[int, int, str], None] | None = None,
@@ -94,7 +95,7 @@ def cyclonedx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        entry = cdx_package_repr(package, refs)
+        entry = cdx_package_repr(package, refs, vendor=base_distro_vendor)
         if entry is None:
             continue
         data.add(entry)
