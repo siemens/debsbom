@@ -60,15 +60,7 @@ class Debsbom:
 
         self.packages = None
 
-    def generate(
-        self,
-        out: str,
-        progress_cb: Callable[[int, int, str], None] | None = None,
-        validate: bool = False,
-    ):
-        """
-        Generate SBOMs. The progress callback is of format: (i,n,package)
-        """
+    def _import_packages(self):
         root = Path(self.root)
         self.packages = set(Package.parse_status_file(root / "var/lib/dpkg/status"))
         # names of packages in apt cache we also have referenced
@@ -104,6 +96,17 @@ class Debsbom:
                     )
                     package.maintainer = source.maintainer
                     break
+
+    def generate(
+        self,
+        out: str,
+        progress_cb: Callable[[int, int, str], None] | None = None,
+        validate: bool = False,
+    ):
+        """
+        Generate SBOMs. The progress callback is of format: (i,n,package)
+        """
+        self._import_packages()
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
