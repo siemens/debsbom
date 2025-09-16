@@ -81,30 +81,7 @@ class Package(ABC):
         """
         with open(status_file, "r") as status_file:
             for package in Packages.iter_paragraphs(status_file, use_apt_pkg=HAS_PYTHON_APT):
-                if package.source:
-                    srcdep = Dependency(package.source, None, ("=", package.source_version))
-                else:
-                    srcdep = None
-
-                pdepends = package.relations["depends"] or []
-                dependencies = Dependency.from_pkg_relations(pdepends)
-
-                # static dependencies
-                s_built_using = package.relations["built-using"] or []
-                sdepends = Dependency.from_pkg_relations(s_built_using)
-
-                bpkg = BinaryPackage(
-                    name=package.get("Package"),
-                    section=package.get("Section"),
-                    maintainer=package.get("Maintainer"),
-                    architecture=package.get("Architecture"),
-                    source=srcdep,
-                    version=package.get("Version"),
-                    depends=dependencies,
-                    built_using=sdepends,
-                    description=package.get("Description"),
-                    homepage=package.get("Homepage"),
-                )
+                bpkg = BinaryPackage.from_dep822(package)
                 logger.debug(f"Found binary package: '{bpkg.name}'")
                 yield bpkg
 
@@ -258,3 +235,30 @@ class BinaryPackage(Package):
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
+
+    @staticmethod
+    def from_dep822(package) -> "BinaryPackage":
+        if package.source:
+            srcdep = Dependency(package.source, None, ("=", package.source_version))
+        else:
+            srcdep = None
+
+        pdepends = package.relations["depends"] or []
+        dependencies = Dependency.from_pkg_relations(pdepends)
+
+        # static dependencies
+        s_built_using = package.relations["built-using"] or []
+        sdepends = Dependency.from_pkg_relations(s_built_using)
+
+        return BinaryPackage(
+            name=package.get("Package"),
+            section=package.get("Section"),
+            maintainer=package.get("Maintainer"),
+            architecture=package.get("Architecture"),
+            source=srcdep,
+            version=package.get("Version"),
+            depends=dependencies,
+            built_using=sdepends,
+            description=package.get("Description"),
+            homepage=package.get("Homepage"),
+        )
