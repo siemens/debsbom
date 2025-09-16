@@ -16,6 +16,7 @@ from pathlib import Path
 
 from .dpkg import package
 from .generate import Debsbom, SBOMType
+from . import HAS_PYTHON_APT
 
 # Keep the set of required deps to a bare minimum, needed for SBOM generation
 try:
@@ -301,6 +302,9 @@ def main():
         level = logging.DEBUG
 
     logging.basicConfig(level=level)
+
+    if not HAS_PYTHON_APT:
+        logging.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
     try:
         if args.cmd == "generate":

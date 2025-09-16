@@ -12,6 +12,7 @@ from debian.debian_support import Version
 import logging
 from packageurl import PackageURL
 
+from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ class Package(ABC):
         all source packages). These need to be resolved in a second pass.
         """
         with open(status_file, "r") as status_file:
-            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=True):
+            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=HAS_PYTHON_APT):
                 if package.source:
                     srcdep = Dependency(package.source, None, ("=", package.source_version))
                 else:

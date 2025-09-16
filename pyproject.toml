@@ -40,6 +40,11 @@ dev = [
 download = [
     "requests>=2.25.1",
 ]
+# only distributed in Debian (not pip).
+# only needed to speedup apt parsing
+apt = [
+    "python3-apt>=2.6.0",
+]
 
 [project.scripts]
 debsbom = "debsbom.cli:main"
