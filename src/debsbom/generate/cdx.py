@@ -11,15 +11,23 @@ import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
 import cyclonedx.model.definition as cdx_definition
+from cyclonedx.model import HashAlgorithm as cdx_hashalgo
+from cyclonedx.model import HashType as cdx_hashtype
 from datetime import datetime
 import logging
 from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
 from collections.abc import Callable
 
-from ..dpkg.package import BinaryPackage, Package, SourcePackage
+from ..dpkg.package import BinaryPackage, ChecksumAlgo, Package, SourcePackage
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
+
+CHKSUM_TO_CDX = {
+    ChecksumAlgo.MD5SUM: cdx_hashalgo.MD5,
+    ChecksumAlgo.SHA1SUM: cdx_hashalgo.SHA_1,
+    ChecksumAlgo.SHA256SUM: cdx_hashalgo.SHA_256,
+}
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +58,10 @@ def cdx_package_repr(
             description=package.description,
             purl=package.purl(vendor),
             group="debian",
+            hashes=[
+                cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
+                for alg, dig in package.checksums.items()
+            ],
         )
         if package.homepage:
             entry.external_references = (
