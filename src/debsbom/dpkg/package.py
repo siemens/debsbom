@@ -5,6 +5,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from collections.abc import Iterable
+from enum import Enum
 import itertools
 from pathlib import Path
 from debian.deb822 import Deb822, Packages, PkgRelation
@@ -15,6 +16,12 @@ from packageurl import PackageURL
 from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
+
+
+class ChecksumAlgo(Enum):
+    MD5SUM = 1
+    SHA1SUM = 2
+    SHA256SUM = 3
 
 
 @dataclass
@@ -209,6 +216,7 @@ class BinaryPackage(Package):
     built_using: list[Dependency]
     description: str | None
     homepage: str | None
+    checksums: dict[ChecksumAlgo, str]
 
     def __init__(
         self,
@@ -222,6 +230,7 @@ class BinaryPackage(Package):
         built_using: list[Dependency],
         description: str | None,
         homepage: str | None,
+        checksums: dict[ChecksumAlgo, str] | None = None,
     ):
         self.name = name
         self.section = section
@@ -233,6 +242,7 @@ class BinaryPackage(Package):
         self.built_using = built_using
         self.description = description
         self.homepage = homepage
+        self.checksums = checksums or {}
 
     def __hash__(self):
         return hash(self.purl())
