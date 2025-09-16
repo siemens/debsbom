@@ -59,25 +59,7 @@ class Repository:
     ) -> Iterable[SourcePackage]:
         _sources = filter(lambda p: filter_fn(p["Package"]), sources) if filter_fn else sources
         for source in _sources:
-            name = source["Package"]
-            version = Version(source.get("Version"))
-            maintainer = source.get("Maintainer")
-            if source.get("Binaries") is not None:
-                binaries = [b.strip() for b in source["Binaries"].split(",")]
-            else:
-                binaries = None
-            homepage = source.get("Homepage")
-            vcs_browser = source.get("Vcs-Browser")
-            vcs_git = source.get("Vcs-Git")
-            yield SourcePackage(
-                name=name,
-                version=version,
-                maintainer=maintainer,
-                binaries=binaries,
-                homepage=homepage,
-                vcs_browser=vcs_browser,
-                vcs_git=vcs_git,
-            )
+            yield SourcePackage.from_dep822(source)
 
     @classmethod
     def _parse_sources(
