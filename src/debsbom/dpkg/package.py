@@ -23,6 +23,16 @@ class ChecksumAlgo(Enum):
     SHA1SUM = 2
     SHA256SUM = 3
 
+    @classmethod
+    def to_hashlib(cls, algo):
+        if algo == cls.MD5SUM:
+            return "md5"
+        if algo == cls.SHA1SUM:
+            return "sha1"
+        if algo == cls.SHA256SUM:
+            return "sha256"
+        raise NotImplementedError()
+
 
 @dataclass
 class Dependency:
@@ -56,6 +66,7 @@ class Package(ABC):
 
     name: str
     version: Version
+    checksums: dict[ChecksumAlgo, str]
 
     def __init__(self, name: str, version: str | Version):
         self.name = name
@@ -147,6 +158,7 @@ class SourcePackage(Package):
         homepage: str | None = None,
         vcs_browser: str | None = None,
         vcs_git: str | None = None,
+        checksums: dict[ChecksumAlgo, str] | None = None,
     ):
         self.name = name
         self.version = Version(version)
@@ -155,6 +167,7 @@ class SourcePackage(Package):
         self.homepage = homepage
         self.vcs_browser = vcs_browser
         self.vcs_git = vcs_git
+        self.checksums = checksums or {}
 
     def __hash__(self):
         return hash(self.purl())
