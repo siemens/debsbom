@@ -14,7 +14,7 @@ import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
 from ..apt.cache import Repository
-from ..dpkg.package import Package, SourcePackage
+from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import SBOMType, BOM_Standard
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
@@ -62,9 +62,15 @@ class Debsbom:
 
     def _import_packages(self):
         root = Path(self.root)
-        self.packages = set(Package.parse_status_file(root / "var/lib/dpkg/status"))
+        packages = dict(
+            map(lambda p: (hash(p), p), Package.parse_status_file(root / "var/lib/dpkg/status"))
+        )
+
         # names of packages in apt cache we also have referenced
-        sp_names_apt = set([p.name for p in self.packages if isinstance(p, SourcePackage)])
+        sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
+        bin_names_apt = set(
+            [(p.name, p.architecture) for p in packages.values() if isinstance(p, BinaryPackage)]
+        )
 
         logging.info("load source packages from apt cache")
         apt_lists = root / "var/lib/apt/lists"
@@ -74,28 +80,32 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             repos = iter([])
 
-        sources_it = itertools.chain.from_iterable(
-            map(lambda r: r.sources(lambda p: p in sp_names_apt), repos)
+        # Create uniform list of all packages both we and the apt cache knows
+        # This list shall contain a superset of our packages (minus non-upstream ones)
+        # but filtering should be as good as possible as the apt cache contains potentially
+        # tenth of thousands packages.
+        packages_it = itertools.chain.from_iterable(
+            map(
+                lambda r: itertools.chain(
+                    r.sources(lambda p: p in sp_names_apt),
+                    r.binpackages(lambda p, a: (p, a) in bin_names_apt),
+                ),
+                repos,
+            )
         )
 
         # O(n) algorithm to extend our packages with information from the apt cache
-        sources_by_name: defaultdict[str, SourcePackage] = defaultdict(set)
-        for p in sources_it:
-            sources_by_name[p.name].add(p)
-
+        # Idea: Iterate apt cache (expensive!) and annotate local package if matching
         logging.info("enhance referenced packages with apt cache information")
-        # find any source packages with incomplete information
-        for package in [
-            p for p in self.packages if isinstance(p, SourcePackage) and not p.maintainer
-        ]:
-            # this set is small, as each package has a limited number of known versions
-            for source in sources_by_name.get(package.name, set()):
-                if source.version == package.version:
-                    logger.debug(
-                        f"Extended source package information for '{package.name}@{package.version}'"
-                    )
-                    package.maintainer = source.maintainer
-                    break
+        for p in packages_it:
+            ours = packages.get(hash(p))
+            if not ours:
+                continue
+            if not ours.maintainer and p.maintainer:
+                ours.maintainer = p.maintainer
+                logger.debug(f"Extended package information for '{p.name}@{p.version}'")
+
+        self.packages = set(packages.values())
 
     def generate(
         self,
