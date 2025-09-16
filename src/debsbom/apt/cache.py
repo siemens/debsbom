@@ -4,13 +4,12 @@
 
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from debian.deb822 import Deb822, Sources
+from debian.deb822 import Deb822, Sources, Packages
 from debian.debian_support import Version
 import logging
-import os
 from pathlib import Path
 
-from ..dpkg.package import SourcePackage
+from ..dpkg.package import BinaryPackage, SourcePackage
 from .. import HAS_PYTHON_APT
 
 
@@ -62,17 +61,41 @@ class Repository:
             yield SourcePackage.from_dep822(source)
 
     @classmethod
+    def _make_binpkgs(
+        cls, packages: Iterable[Packages], filter_fn: Callable[[str, str], bool] | None = None
+    ) -> Iterable[BinaryPackage]:
+        _pkgs = (
+            filter(lambda p: filter_fn(p["Package"], p["Architecture"]), packages)
+            if filter_fn
+            else packages
+        )
+        for pkg in _pkgs:
+            yield BinaryPackage.from_dep822(pkg)
+
+    @classmethod
     def _parse_sources(
         cls, sources_file: str, srcpkg_filter: Callable[[str], bool] | None = None
     ) -> Iterable["SourcePackage"]:
         try:
             with open(sources_file) as f:
-                logger.debug(f"Parsing apt cache sources: {sources_file}")
                 sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
                 for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
                     yield s
         except FileNotFoundError:
             logger.debug(f"Missing apt cache sources: {sources_file}")
+
+    @classmethod
+    def _parse_packages(
+        cls, packages_file: str, binpkg_filter: Callable[[str, str], bool] | None = None
+    ) -> Iterable[BinaryPackage]:
+        try:
+            with open(packages_file) as f:
+                logger.debug(f"Parsing apt cache packages: {packages_file}")
+                packages_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
+                for p in Repository._make_binpkgs(packages_raw, binpkg_filter):
+                    yield p
+        except FileNotFoundError:
+            logger.debug(f"Missing apt cache packages: {packages_file}")
 
     def sources(self, filter_fn: Callable[[str], bool] | None = None) -> Iterable[SourcePackage]:
         """Get all source packages from this repository."""
@@ -85,3 +108,14 @@ class Repository:
         else:
             sources_file = "_".join([repo_base, "source", "Sources"])
             return self._parse_sources(sources_file, filter_fn)
+
+    def binpackages(
+        self, filter_fn: Callable[[str, str], bool] | None = None
+    ) -> Iterable[BinaryPackage]:
+        """Get all binary packages from this repository"""
+        repo_base = str(self.in_release_file).removesuffix("_InRelease")
+        for component in self.components:
+            for arch in self.architectures:
+                packages_file = "_".join([repo_base, component, f"binary-{arch}", "Packages"])
+                for p in self._parse_packages(packages_file, filter_fn):
+                    yield p
