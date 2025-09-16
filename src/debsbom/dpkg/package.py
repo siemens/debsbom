@@ -272,6 +272,16 @@ class BinaryPackage(Package):
         s_built_using = package.relations["built-using"] or []
         sdepends = Dependency.from_pkg_relations(s_built_using)
 
+        pkg_chksums = {}
+        for alg, dep822_name in [
+            (ChecksumAlgo.MD5SUM, "MD5sum"),
+            (ChecksumAlgo.SHA1SUM, "SHA1"),
+            (ChecksumAlgo.SHA256SUM, "SHA256"),
+        ]:
+            chksum = package.get(dep822_name)
+            if chksum:
+                pkg_chksums[alg] = chksum
+
         return BinaryPackage(
             name=package.get("Package"),
             section=package.get("Section"),
@@ -283,4 +293,5 @@ class BinaryPackage(Package):
             built_using=sdepends,
             description=package.get("Description"),
             homepage=package.get("Homepage"),
+            checksums=pkg_chksums,
         )

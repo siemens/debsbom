@@ -104,6 +104,9 @@ class Debsbom:
             if not ours.maintainer and p.maintainer:
                 ours.maintainer = p.maintainer
                 logger.debug(f"Extended package information for '{p.name}@{p.version}'")
+            if isinstance(ours, BinaryPackage):
+                if not ours.checksums and p.checksums:
+                    ours.checksums = p.checksums
 
         self.packages = set(packages.values())
 
