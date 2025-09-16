@@ -180,6 +180,28 @@ class SourcePackage(Package):
             version_wo_epoch = self.version.upstream_version
         return f"{self.name}_{version_wo_epoch}.dsc"
 
+    @staticmethod
+    def from_dep822(package) -> "SourcePackage":
+        name = package["Package"]
+        version = Version(package.get("Version"))
+        maintainer = package.get("Maintainer")
+        if package.get("Binaries") is not None:
+            binaries = [b.strip() for b in package["Binaries"].split(",")]
+        else:
+            binaries = None
+        homepage = package.get("Homepage")
+        vcs_browser = package.get("Vcs-Browser")
+        vcs_git = package.get("Vcs-Git")
+        return SourcePackage(
+            name=name,
+            version=version,
+            maintainer=maintainer,
+            binaries=binaries,
+            homepage=homepage,
+            vcs_browser=vcs_browser,
+            vcs_git=vcs_git,
+        )
+
 
 @dataclass(init=False)
 class BinaryPackage(Package):
