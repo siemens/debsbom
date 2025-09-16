@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 
 from ..dpkg.package import SourcePackage
+from .. import HAS_PYTHON_APT
 
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,7 @@ class Repository:
         try:
             with open(sources_file) as f:
                 logger.debug(f"Parsing apt cache sources: {sources_file}")
-                sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=True)
+                sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
                 for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
                     yield s
         except FileNotFoundError:
