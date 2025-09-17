@@ -108,16 +108,18 @@ def test_dependency_generation():
         with open(outdir / "sbom.cdx.json") as file:
             cdx_json = json.loads(file.read())
             deps = cdx_json["dependencies"]
+            libc_ref = "pkg:deb/debian/libc6@2.36-9%2Bdeb12u10?arch=amd64"
+            libgcc_s1_ref = "pkg:deb/debian/libgcc-s1@12.2.0-14%2Bdeb12u1?arch=amd64"
             assert {
-                "dependsOn": ["CDXRef-libgcc-s1-amd64"],
-                "ref": "CDXRef-libc6-amd64",
+                "dependsOn": [libgcc_s1_ref],
+                "ref": libc_ref,
             } in deps
             assert {
-                "dependsOn": ["CDXRef-libc6-amd64"],
-                "ref": "CDXRef-libgcc-s1-amd64",
+                "dependsOn": [libc_ref],
+                "ref": libgcc_s1_ref,
             } in deps
             assert {
-                "dependsOn": ["CDXRef-libc6-amd64", "CDXRef-libgcc-s1-amd64"],
+                "dependsOn": [libc_ref, libgcc_s1_ref],
                 "ref": "CDXRef-pytest-distro",
             } in deps
 

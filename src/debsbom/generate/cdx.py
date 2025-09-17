@@ -27,7 +27,7 @@ def cdx_package_repr(
     """Get the CDX representation of a Package."""
     if isinstance(package, BinaryPackage):
         ref = Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)
-        refs[ref] = cdx_bom_ref.BomRef(ref)
+        refs[ref] = cdx_bom_ref.BomRef(package.purl().to_string())
 
         match = SUPPLIER_PATTERN.match(package.maintainer)
         if match:
