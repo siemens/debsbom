@@ -41,6 +41,13 @@ class SBOMType(Enum):
     SPDX = (1,)
 
 
+class BOM_Standard(Enum):
+    """Controls the data representation and added values in the SBOM"""
+
+    DEFAULT = (0,)
+    STANDARD_BOM = (1,)
+
+
 @dataclass
 class Reference:
     """Generic reference in a SBOM."""

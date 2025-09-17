@@ -14,6 +14,7 @@ from uuid import UUID
 from urllib.parse import urlparse
 from pathlib import Path
 
+from .sbom import BOM_Standard
 from .dpkg import package
 from .generate import Debsbom, SBOMType
 from . import HAS_PYTHON_APT
@@ -63,6 +64,10 @@ class GenerateCmd:
                 elif stype == "spdx":
                     sbom_types.append(SBOMType.SPDX)
 
+        cdx_standard = BOM_Standard.DEFAULT
+        if args.cdx_standard == "standard-bom":
+            cdx_standard = BOM_Standard.STANDARD_BOM
+
         debsbom = Debsbom(
             distro_name=args.distro_name,
             sbom_types=sbom_types,
@@ -73,6 +78,7 @@ class GenerateCmd:
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,
             timestamp=args.timestamp,
+            cdx_standard=cdx_standard,
         )
         debsbom.generate(
             args.out,
@@ -126,6 +132,12 @@ class GenerateCmd:
             choices=["debian", "ubuntu"],
             help="vendor of debian distribution (debian or ubuntu)",
             default="debian",
+        )
+        parser.add_argument(
+            "--cdx-standard",
+            choices=["default", "standard-bom"],
+            help="generate SBOM according to this spec (only for CDX)",
+            default="default",
         )
         parser.add_argument(
             "--spdx-namespace",

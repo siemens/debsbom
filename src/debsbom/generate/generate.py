@@ -15,7 +15,7 @@ from uuid import UUID
 
 from ..apt.cache import Repository
 from ..dpkg.package import Package, SourcePackage
-from ..sbom import SBOMType
+from ..sbom import SBOMType, BOM_Standard
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
 
@@ -35,6 +35,7 @@ class Debsbom:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID = None,
         timestamp: datetime = None,
+        cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
         self.root = root
@@ -42,6 +43,7 @@ class Debsbom:
         self.distro_version = distro_version
         self.distro_supplier = distro_supplier
         self.base_distro_vendor = base_distro_vendor
+        self.cdx_standard = cdx_standard
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -116,6 +118,7 @@ class Debsbom:
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
             cdx_output.make_outputter(
