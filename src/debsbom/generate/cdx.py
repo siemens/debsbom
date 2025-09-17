@@ -49,6 +49,7 @@ def cdx_package_repr(
             version=str(package.version),
             description=package.description,
             purl=package.purl(vendor),
+            group="debian",
         )
         if package.homepage:
             entry.external_references = (
