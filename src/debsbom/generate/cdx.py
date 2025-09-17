@@ -10,6 +10,7 @@ import cyclonedx.model.component as cdx_component
 import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
+import cyclonedx.model.definition as cdx_definition
 from datetime import datetime
 import logging
 from sortedcontainers import SortedSet
@@ -17,7 +18,7 @@ from uuid import UUID, uuid4
 from collections.abc import Callable
 
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
-from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType
+from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,7 @@ def cyclonedx_bom(
     base_distro_vendor: str | None = "debian",
     serial_number: UUID | None = None,
     timestamp: datetime | None = None,
+    standard: BOM_Standard = BOM_Standard.DEFAULT,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> cdx_bom.Bom:
     """Return a valid CycloneDX SBOM."""
@@ -187,4 +189,24 @@ def cyclonedx_bom(
         components=data,
         dependencies=dependencies,
     )
+
+    if standard == BOM_Standard.STANDARD_BOM:
+        bom.definitions = cdx_definition.Definitions(
+            standards=[
+                cdx_definition.Standard(
+                    bom_ref=cdx_bom_ref.BomRef("standard-bom"),
+                    name="Standard BOM",
+                    version="3.0.0",
+                    description="The Standard for Software Bills of Materials in Siemens",
+                    owner="Siemens AG",
+                    external_references=[
+                        cdx_model.ExternalReference(
+                            url=cdx_model.XsUri("https://sbom.siemens.io"),
+                            type=cdx_model.ExternalReferenceType.WEBSITE,
+                        )
+                    ],
+                )
+            ],
+        )
+
     return bom
