@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+from importlib.metadata import version, metadata
 import cyclonedx.model as cdx_model
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.bom_ref as cdx_bom_ref
 import cyclonedx.model.component as cdx_component
+import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
 from datetime import datetime
@@ -158,11 +160,29 @@ def cyclonedx_bom(
     if timestamp is None:
         timestamp = datetime.now()
 
+    tool_urls = metadata("debsbom").get_all("Project-URL")
+    tool_component = cdx_component.Component(
+        bom_ref=cdx_bom_ref.BomRef(
+            Reference(f"debsbom-{version("debsbom")}").as_str(SBOMType.CycloneDX)
+        ),
+        type=cdx_component.ComponentType.APPLICATION,
+        name="debsbom",
+        version=version("debsbom"),
+    )
+    if tool_urls:
+        tool_component.external_references = (
+            cdx_model.ExternalReference(
+                url=cdx_model.XsUri(tool_urls[0].split(",")[1].strip()),
+                type=cdx_model.ExternalReferenceType.WEBSITE,
+            ),
+        )
+
     bom = cdx_bom.Bom(
         serial_number=serial_number,
         metadata=cdx_bom.BomMetaData(
             timestamp=timestamp,
             component=distro_component,
+            tools=cdx_tool.ToolRepository(components=[tool_component]),
         ),
         components=data,
         dependencies=dependencies,
