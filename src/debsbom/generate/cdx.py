@@ -48,7 +48,7 @@ def cdx_package_repr(
             purl=package.purl(vendor),
         )
         if package.homepage:
-            entry.externalReferences = (
+            entry.external_references = (
                 cdx_model.ExternalReference(
                     url=cdx_model.XsUri(package.homepage),
                     type=cdx_model.ExternalReferenceType.WEBSITE,
