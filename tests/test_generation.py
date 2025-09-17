@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 from debsbom.generate import Debsbom, SBOMType
+from debsbom.sbom import BOM_Standard
 
 
 def test_tree_generation():
@@ -122,6 +123,26 @@ def test_dependency_generation():
                 "dependsOn": [libc_ref, libgcc_s1_ref],
                 "ref": "CDXRef-pytest-distro",
             } in deps
+
+
+def test_standard_bom():
+    dbom = Debsbom(
+        distro_name="pytest-distro",
+        sbom_types=[SBOMType.CycloneDX],
+        root="tests/root/dependency",
+        spdx_namespace=urlparse("http://example.org"),
+        cdx_serialnumber=uuid4(),
+        timestamp=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        cdx_standard=BOM_Standard.STANDARD_BOM,
+    )
+    with TemporaryDirectory() as outdir:
+        outdir = Path(outdir)
+        dbom.generate(str(outdir / "sbom"), validate=True)
+        with open(outdir / "sbom.cdx.json") as file:
+            cdx_json = json.loads(file.read())
+            s_bom = cdx_json["definitions"]["standards"][0]
+            assert s_bom["bom-ref"] == "standard-bom"
+            assert s_bom["owner"] == "Siemens AG"
 
 
 def test_homepage_regression():
