@@ -29,6 +29,9 @@ classifiers = [
   "Topic :: System :: Operating System Kernels :: Linux" ,
   "Topic :: Utilities",
 ]
+[project.urls]
+Homepage = "https://github.com/siemens/debsbom"
+Repository = "https://github.com/siemens/debsbom.git"
 
 [project.optional-dependencies]
 dev = [
