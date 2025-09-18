@@ -273,10 +273,10 @@ class MergeCmd:
     def setup_parser(parser):
         parser.add_argument("bomfile", help="sbom file to process")
         parser.add_argument(
-            "--pkgdir", default="downloads", help="directory with downloaded packages"
+            "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
         )
         parser.add_argument(
-            "--outdir", default="downloads", help="directory to store the merged files"
+            "--outdir", default="downloads/sources", help="directory to store the merged files"
         )
         parser.add_argument(
             "--compress",

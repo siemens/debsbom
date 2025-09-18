@@ -153,11 +153,22 @@ class PackageDownloader:
     def __init__(
         self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
     ):
-        self.dldir = Path(outdir)
-        self.dldir.mkdir(exist_ok=True)
+        outdir = Path(outdir)
+        self.sources_dir = outdir / "sources"
+        self.binaries_dir = outdir / "binaries"
         self.to_download: list[RemoteFile] = []
         self.rs = session
         self.known_hashes = {}
+
+        outdir.mkdir(exist_ok=True)
+        for p in [self.sources_dir, self.binaries_dir]:
+            p.mkdir(exist_ok=True)
+
+    def _target_path(self, f: RemoteFile):
+        if f.architecture == "source":
+            return Path(self.sources_dir / f.filename)
+        else:
+            return Path(self.binaries_dir / f.filename)
 
     def register(self, files: list[RemoteFile]):
         self.to_download.extend(list(files))
@@ -168,7 +179,7 @@ class PackageDownloader:
         """
         unique_dl = list({v.hash: v for v in self.to_download}.values())
         nbytes = reduce(lambda acc, x: acc + x.size, unique_dl, 0)
-        cfiles = list(filter(lambda f: Path(self.dldir / f.filename).is_file(), unique_dl))
+        cfiles = list(filter(lambda f: self._target_path(f).is_file(), unique_dl))
         cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
         return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
@@ -182,7 +193,7 @@ class PackageDownloader:
         for idx, f in enumerate(self.to_download):
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
-            target = Path(self.dldir / f.filename)
+            target = self._target_path(f)
             # check if we have the file under the exact filename
             if target.is_file():
                 with open(target, "rb") as fd:
@@ -198,8 +209,9 @@ class PackageDownloader:
             # check if we have a file with the same hash and link to it
             o_filename = self.known_hashes.get(f.hash)
             if o_filename:
-                o_path = Path(self.dldir / o_filename).resolve()
-                target.symlink_to(o_path.relative_to(self.dldir.resolve()))
+                basepath = target.parent
+                o_path = basepath / o_filename
+                target.symlink_to(o_path.relative_to(basepath))
                 yield target
                 continue
 
