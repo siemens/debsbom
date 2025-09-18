@@ -166,7 +166,7 @@ def cyclonedx_bom(
     tool_urls = metadata("debsbom").get_all("Project-URL")
     tool_component = cdx_component.Component(
         bom_ref=cdx_bom_ref.BomRef(
-            Reference(f"debsbom-{version("debsbom")}").as_str(SBOMType.CycloneDX)
+            Reference("debsbom-{}".format(version("debsbom"))).as_str(SBOMType.CycloneDX)
         ),
         type=cdx_component.ComponentType.APPLICATION,
         name="debsbom",
