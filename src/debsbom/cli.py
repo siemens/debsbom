@@ -7,6 +7,7 @@
 import argparse
 from datetime import datetime
 from importlib.metadata import version
+import itertools
 import logging
 import sys
 import traceback
@@ -31,6 +32,7 @@ try:
         DscFileNotFoundError,
     )
     from .snapshot import client as sdlclient
+    from .repack import Packer, BomTransformer
 
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError:
@@ -291,6 +293,60 @@ class MergeCmd:
         )
 
 
+class RepackCmd:
+    """
+    Repacks the downloaded files into a uniform source archive.
+    The layout of the source archive is controlled by the 'format' argument.
+
+    Note: The files have to be downloaded first and need to be in the directory specified by 'dldir'.
+    """
+
+    @staticmethod
+    def run(args):
+        compress = Compression.from_tool(args.compress if args.compress != "no" else None)
+        linkonly = not args.copy
+        packer = Packer.from_format(
+            fmt=args.format, dldir=Path(args.dldir), outdir=Path(args.outdir), compress=compress
+        )
+        resolver = PackageResolver.create(Path(args.bomin))
+        bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
+        pkgs = resolver.debian_pkgs()
+        repacked = filter(lambda p: p, map(lambda p: packer.repack(p, symlink=linkonly), pkgs))
+        bom = packer.rewrite_sbom(bt, repacked)
+        Debsbom.write_to_file(bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate)
+
+    @staticmethod
+    def setup_parser(parser):
+        parser.add_argument("bomin", help="sbom input file")
+        parser.add_argument("bomout", help="sbom output file")
+        parser.add_argument(
+            "--dldir", default="downloads", help="download directory from 'download'"
+        )
+        parser.add_argument("--outdir", default="packed", help="directory to repack into'")
+        parser.add_argument("--format", default="standard-bom", choices=["standard-bom"])
+        parser.add_argument(
+            "--compress",
+            help="compress merged tarballs (default: gzip)",
+            choices=["no"] + [c.tool for c in Compression.formats()],
+            default="gzip",
+        )
+        parser.add_argument(
+            "--apply-patches",
+            help="apply debian patches",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--copy",
+            help="copy artifacts into deploy tree instead of symlinking",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--validate",
+            help="validate generated SBOM (only for SPDX)",
+            action="store_true",
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="debsbom",
@@ -317,6 +373,7 @@ def main():
         MergeCmd.setup_parser(
             subparser.add_parser("source-merge", help="merge referenced source packages")
         )
+        RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
 
     args = parser.parse_args()
 
@@ -339,6 +396,8 @@ def main():
             DownloadCmd.run(args)
         elif args.cmd == "source-merge":
             MergeCmd.run(args)
+        elif args.cmd == "repack":
+            RepackCmd.run(args)
     except Exception as e:
         logger.error(e)
         print(f"debsbom: error: {e}", file=sys.stderr)

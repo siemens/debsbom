@@ -16,6 +16,7 @@ from pathlib import Path
 from packageurl import PackageURL
 import requests
 
+from ..sbom import SBOMType
 from ..dpkg import package
 from ..dpkg.package import ChecksumAlgo
 from ..snapshot import client as sdlclient

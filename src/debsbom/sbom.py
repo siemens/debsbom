@@ -15,6 +15,7 @@ CDX_PACKAGE_EXTREF_TYPE_WEBSITE = "website"
 SPDX_REF_PREFIX = "SPDXRef-"
 SPDX_REF_DOCUMENT = SPDX_REF_PREFIX + "DOCUMENT"
 SPDX_REFERENCE_TYPE_PURL = "purl"
+SPDX_REFERENCE_TYPE_DISTRIBUTION = "distribution"
 # SPDX IDs only allow alphanumeric, '.' and '-'
 SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
 
@@ -103,3 +104,19 @@ class Reference:
         else:
             to_arch = to_arch or dep.arch
             return Reference(target=f"{dep.name}-{to_arch}", is_source=False)
+
+
+class BomSpecific:
+    """Mixin to denote that a class processes bom type specific data"""
+
+    @classmethod
+    def sbom_type(cls) -> SBOMType:
+        return cls._sbom_type
+
+
+class CDXType(BomSpecific):
+    _sbom_type = SBOMType.CycloneDX
+
+
+class SPDXType(BomSpecific):
+    _sbom_type = SBOMType.SPDX

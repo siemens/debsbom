@@ -21,6 +21,7 @@ positional arguments:
     generate            generate a SBOM for a Debian system
     download            download referenced packages
     source-merge        merge referenced source packages
+    repack              repack sources and sbom
 
 options:
   -h, --help            show this help message and exit
