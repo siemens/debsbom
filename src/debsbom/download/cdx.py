@@ -10,10 +10,9 @@ from cyclonedx.model.component import Component
 
 
 class CdxPackageResolver(PackageResolver):
-    def __init__(self, filename: Path):
+    def __init__(self, document: Bom):
         super().__init__()
-        with open(filename, "r") as f:
-            self.document = Bom.from_json(json.load(f))
+        self.document = document
 
     @staticmethod
     def _is_debian_pkg(p: Component):
@@ -26,3 +25,8 @@ class CdxPackageResolver(PackageResolver):
             lambda p: self.package_from_purl(str(p.purl)),
             filter(self._is_debian_pkg, self.document.components),
         )
+
+    @classmethod
+    def from_file(cls, filename: Path):
+        with open(filename, "r") as f:
+            return cls(Bom.from_json(json.load(f)))
