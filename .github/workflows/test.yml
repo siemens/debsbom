@@ -13,13 +13,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
     - uses: actions/checkout@v4
     
     - uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ matrix.python-version }}
     
     - name: Install dependencies
       run: |
@@ -36,7 +39,7 @@ jobs:
     - name: upload smoke test SBOMs
       uses: actions/upload-artifact@v4
       with:
-        name: sbom
+        name: sbom-${{ matrix.python-version }}
         path: |
           sbom.cdx.json
           sbom.spdx.json
