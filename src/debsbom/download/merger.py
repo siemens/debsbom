@@ -101,10 +101,7 @@ class SourceArchiveMerger:
             raise RuntimeError("Failed to apply patch: ", stderr.decode())
 
     def merge(self, p: package.SourcePackage) -> Path:
-        merged = (
-            self.dldir
-            / f"{p.name}_{p.version.upstream_version}-{p.version.debian_revision}.merged.tar"
-        )
+        merged = self.dldir / p.dscfile().replace(".dsc", ".merged.tar")
         dsc = self.dldir / p.dscfile()
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
