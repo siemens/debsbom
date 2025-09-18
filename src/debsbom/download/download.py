@@ -85,7 +85,7 @@ class PersistentResolverCache(PackageResolverCache):
 
 class PackageResolver:
     @abstractmethod
-    def debian_pkgs(self) -> Iterable:
+    def debian_pkgs(self) -> Iterable[package.Package]:
         """
         Return Debian package instances
         """
