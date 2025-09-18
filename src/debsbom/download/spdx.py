@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ..sbom import SPDXType
 from .download import PackageResolver
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file
@@ -9,7 +10,7 @@ import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.document as spdx_document
 
 
-class SpdxPackageResolver(PackageResolver):
+class SpdxPackageResolver(PackageResolver, SPDXType):
     def __init__(self, document: spdx_document.Document):
         super().__init__()
         self._document = document

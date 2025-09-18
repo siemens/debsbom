@@ -15,6 +15,7 @@ from pathlib import Path
 from packageurl import PackageURL
 import requests
 
+from ..sbom import SBOMType
 from ..dpkg import package
 from ..snapshot import client as sdlclient
 from ..snapshot.client import RemoteFile

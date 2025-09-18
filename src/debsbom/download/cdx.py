@@ -3,13 +3,15 @@
 # SPDX-License-Identifier: MIT
 
 import json
+
+from ..sbom import CDXType
 from .download import PackageResolver
 from pathlib import Path
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component
 
 
-class CdxPackageResolver(PackageResolver):
+class CdxPackageResolver(PackageResolver, CDXType):
     def __init__(self, document: Bom):
         super().__init__()
         self._document = document
