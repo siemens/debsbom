@@ -153,6 +153,15 @@ class Package(ABC):
     def purl(self) -> PackageURL:
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def locator(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def filename(self) -> str:
+        return self.locator.split("/")[-1]
+
 
 @dataclass(init=False)
 class SourcePackage(Package):
@@ -161,6 +170,7 @@ class SourcePackage(Package):
     binaries: list[str] | None = None
     vcs_browser: str | None = None
     vcs_git: str | None = None
+    _locator: str | None = None
 
     def __init__(
         self,
@@ -196,6 +206,15 @@ class SourcePackage(Package):
         return PackageURL.from_string(
             "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
         )
+
+    @property
+    def locator(self) -> str:
+        """Path to file if set or name of .dsc file"""
+        return self._locator or self.dscfile()
+
+    @locator.setter
+    def locator(self, loc) -> None:
+        self._locator = loc
 
     def dscfile(self) -> str:
         """Return the name of the .dsc file"""
@@ -251,6 +270,7 @@ class BinaryPackage(Package):
     built_using: list[Dependency]
     description: str | None
     manually_installed: bool
+    _locator: str | None = None
 
     def __init__(
         self,
@@ -295,15 +315,6 @@ class BinaryPackage(Package):
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
 
-    section: str | None
-    architecture: str | None
-    source: Dependency | None
-    depends: list[Dependency]
-    built_using: list[Dependency]
-    description: str | None
-    checksums: dict[ChecksumAlgo, str]
-    manually_installed: bool
-
     def merge_with(self, other: "BinaryPackage"):
         super().merge_with(other)
         if not self.section:
@@ -324,6 +335,22 @@ class BinaryPackage(Package):
         built_using = list(self.built_using)
         built_using.extend(x for x in other.built_using if x not in built_using)
         self.built_using = built_using
+
+    @property
+    def locator(self) -> str:
+        """Return the name (and path if available) of the .deb file"""
+        if self._locator:
+            return self._locator
+        # TODO: find where this filename format is specified
+        if self.version.debian_revision:
+            version_wo_epoch = f"{self.version.upstream_version}-{self.version.debian_revision}"
+        else:
+            version_wo_epoch = self.version.upstream_version
+        return f"{self.name}_{version_wo_epoch}_{self.architecture}.deb"
+
+    @locator.setter
+    def locator(self, loc) -> None:
+        self._locator = loc
 
     @classmethod
     def parse_pkglist_stream(cls, stream: Iterable[str]) -> Iterable["BinaryPackage"]:
