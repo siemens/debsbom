@@ -6,12 +6,13 @@ from .download import PackageResolver
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file
 import spdx_tools.spdx.model.package as spdx_package
+import spdx_tools.spdx.model.document as spdx_document
 
 
 class SpdxPackageResolver(PackageResolver):
-    def __init__(self, filename: Path):
+    def __init__(self, document: spdx_document.Document):
         super().__init__()
-        self.document = parse_file(str(filename))
+        self.document = document
 
     @staticmethod
     def _is_debian_pkg(p):
@@ -30,3 +31,7 @@ class SpdxPackageResolver(PackageResolver):
             lambda p: self.package_from_purl(p.external_references[0].locator),
             filter(self._is_debian_pkg, self.document.packages),
         )
+
+    @classmethod
+    def from_file(cls, filename: Path) -> "SpdxPackageResolver":
+        return cls(parse_file(str(filename)))

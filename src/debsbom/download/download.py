@@ -140,11 +140,11 @@ class PackageResolver:
         if filename.name.endswith("spdx.json"):
             from .spdx import SpdxPackageResolver
 
-            return SpdxPackageResolver(filename)
+            return SpdxPackageResolver.from_file(filename)
         elif filename.name.endswith("cdx.json"):
             from .cdx import CdxPackageResolver
 
-            return CdxPackageResolver(filename)
+            return CdxPackageResolver.from_file(filename)
         else:
             raise RuntimeError("Cannot determine file format")
 
