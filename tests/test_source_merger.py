@@ -60,7 +60,7 @@ def some_packages(dldir):
 @pytest.mark.online
 def test_merger(tmpdir, some_packages, dldir, compress):
     outdir = Path(tmpdir / "merged")
-    sam = SourceArchiveMerger(dldir, outdir, compress=Compression.from_tool(compress))
+    sam = SourceArchiveMerger(dldir / "sources", outdir, compress=Compression.from_tool(compress))
 
     for p in some_packages:
         assert p.name in sam.merge(p).name
