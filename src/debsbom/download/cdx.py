@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from ..dpkg.package import ChecksumAlgo, Package
+from ..sbom import CDXType
 from .download import PackageResolver
 
 import json
@@ -23,7 +24,7 @@ CHKSUM_TO_INTERNAL = {
 }
 
 
-class CdxPackageResolver(PackageResolver):
+class CdxPackageResolver(PackageResolver, CDXType):
     def __init__(self, document: Bom):
         super().__init__()
         self._document = document

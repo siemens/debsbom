@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from ..dpkg.package import ChecksumAlgo, Package
+from ..sbom import SPDXType
 from .download import PackageResolver
 
 import logging
@@ -24,7 +25,7 @@ CHKSUM_TO_INTERNAL = {
 }
 
 
-class SpdxPackageResolver(PackageResolver):
+class SpdxPackageResolver(PackageResolver, SPDXType):
     def __init__(self, document: spdx_document.Document):
         super().__init__()
         self._document = document
