@@ -2,19 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ..sbom import SPDXType
 from .download import PackageResolver
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file
 import spdx_tools.spdx.model.package as spdx_package
+import spdx_tools.spdx.model.document as spdx_document
 
 
-class SpdxPackageResolver(PackageResolver):
-    def __init__(self, filename: Path):
+class SpdxPackageResolver(PackageResolver, SPDXType):
+    def __init__(self, document: spdx_document.Document):
         super().__init__()
-        self.document = parse_file(str(filename))
+        self._document = document
 
     @staticmethod
-    def _is_debian_pkg(p):
+    def is_debian_pkg(p):
         if not p.external_references:
             return False
         # TODO: scan all references
@@ -28,5 +30,9 @@ class SpdxPackageResolver(PackageResolver):
     def debian_pkgs(self):
         return map(
             lambda p: self.package_from_purl(p.external_references[0].locator),
-            filter(self._is_debian_pkg, self.document.packages),
+            filter(self.is_debian_pkg, self._document.packages),
         )
+
+    @classmethod
+    def from_file(cls, filename: Path):
+        return cls(parse_file(str(filename)))
