@@ -192,6 +192,14 @@ def test_apt_source_pkg():
         with open(outdir / "sbom.spdx.json") as file:
             spdx_json = json.loads(file.read())
             packages = spdx_json["packages"]
+            assert next(
+                filter(lambda p: p["SPDXID"].endswith("binutils-arm-none-eabi-amd64"), packages)
+            )
             for pkg in packages:
                 if pkg["SPDXID"].endswith("-srcpkg"):
                     assert pkg["supplier"] != "NOASSERTION"
+                if pkg["SPDXID"].endswith("binutils-arm-none-eabi-amd64"):
+                    assert {
+                        "algorithm": "MD5",
+                        "checksumValue": "041580298095f940c2c9c130e0d6e149",
+                    } in pkg["checksums"]
