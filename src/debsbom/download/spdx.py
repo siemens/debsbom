@@ -12,10 +12,10 @@ import spdx_tools.spdx.model.document as spdx_document
 class SpdxPackageResolver(PackageResolver):
     def __init__(self, document: spdx_document.Document):
         super().__init__()
-        self.document = document
+        self._document = document
 
     @staticmethod
-    def _is_debian_pkg(p):
+    def is_debian_pkg(p):
         if not p.external_references:
             return False
         # TODO: scan all references
@@ -29,7 +29,7 @@ class SpdxPackageResolver(PackageResolver):
     def debian_pkgs(self):
         return map(
             lambda p: self.package_from_purl(p.external_references[0].locator),
-            filter(self._is_debian_pkg, self.document.packages),
+            filter(self.is_debian_pkg, self._document.packages),
         )
 
     @classmethod
