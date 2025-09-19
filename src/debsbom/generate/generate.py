@@ -163,9 +163,7 @@ class Debsbom:
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
-            cdx_output.make_outputter(
-                bom, cdx_schema.OutputFormat.JSON, cdx_schema.SchemaVersion.V1_6
-            ).output_to_file(cdx_out, allow_overwrite=True, indent=4)
+            self.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
         if SBOMType.SPDX in self.sbom_types:
             spdx_out = out
             if not spdx_out.endswith(".spdx.json"):
@@ -181,4 +179,13 @@ class Debsbom:
                 timestamp=self.timestamp,
                 progress_cb=progress_cb,
             )
-            spdx_json_writer.write_document_to_file(bom, spdx_out, validate)
+            self.write_to_file(bom, SBOMType.SPDX, Path(spdx_out), validate)
+
+    @staticmethod
+    def write_to_file(bom, bomtype: SBOMType, outfile: Path, validate: bool):
+        if bomtype == SBOMType.CycloneDX:
+            cdx_output.make_outputter(
+                bom, cdx_schema.OutputFormat.JSON, cdx_schema.SchemaVersion.V1_6
+            ).output_to_file(str(outfile), allow_overwrite=True, indent=4)
+        elif bomtype == SBOMType.SPDX:
+            spdx_json_writer.write_document_to_file(bom, str(outfile), validate)
