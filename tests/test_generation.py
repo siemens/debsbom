@@ -43,12 +43,12 @@ def test_tree_generation():
             assert len(spdx_json["relationships"]) == 66
         with open(outdir / "sbom.cdx.json") as file:
             cdx_json = json.loads(file.read())
-            assert len(cdx_json["components"]) == 21 - 7  # 6 source packages, 1 distro package
+            assert len(cdx_json["components"]) == 20  # 14 binary + 6 source
             deps_total = 0
             for dep_entry in cdx_json["dependencies"]:
                 if dep_entry.get("dependsOn"):
                     deps_total += len(dep_entry["dependsOn"])
-            assert deps_total == 66 - 15  # 1 distro package, 14 binary<->src
+            assert deps_total == 65
             assert cdx_json["serialNumber"] == "urn:uuid:{}".format(uuid)
 
 
@@ -111,12 +111,14 @@ def test_dependency_generation():
             deps = cdx_json["dependencies"]
             libc_ref = "pkg:deb/debian/libc6@2.36-9%2Bdeb12u10?arch=amd64"
             libgcc_s1_ref = "pkg:deb/debian/libgcc-s1@12.2.0-14%2Bdeb12u1?arch=amd64"
+            glibc_src_ref = "pkg:deb/debian/glibc@2.36-9%2Bdeb12u10?arch=source"
+            gcc_src_ref = "pkg:deb/debian/gcc-12@12.2.0-14%2Bdeb12u1?arch=source"
             assert {
-                "dependsOn": [libgcc_s1_ref],
+                "dependsOn": [glibc_src_ref, libgcc_s1_ref],
                 "ref": libc_ref,
             } in deps
             assert {
-                "dependsOn": [libc_ref],
+                "dependsOn": [gcc_src_ref, libc_ref],
                 "ref": libgcc_s1_ref,
             } in deps
             assert {
