@@ -143,6 +143,7 @@ def cyclonedx_bom(
         # add dependency to source package
         if package.source:
             pkg_deps.append(package.source)
+        pkg_deps.extend(package.built_using)
 
         deps = SortedSet([])
         for dep in pkg_deps:
