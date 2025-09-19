@@ -43,12 +43,12 @@ def test_tree_generation():
             assert len(spdx_json["relationships"]) == 66
         with open(outdir / "sbom.cdx.json") as file:
             cdx_json = json.loads(file.read())
-            assert len(cdx_json["components"]) == 21 - 7  # 6 source packages, 1 distro package
+            assert len(cdx_json["components"]) == 20  # 14 binary + 6 source
             deps_total = 0
             for dep_entry in cdx_json["dependencies"]:
                 if dep_entry.get("dependsOn"):
                     deps_total += len(dep_entry["dependsOn"])
-            assert deps_total == 66 - 15  # 1 distro package, 14 binary<->src
+            assert deps_total == 58
             assert cdx_json["serialNumber"] == "urn:uuid:{}".format(uuid)
 
 

@@ -35,50 +35,56 @@ logger = logging.getLogger(__name__)
 def cdx_package_repr(
     package: Package, refs: dict[str, cdx_bom_ref.BomRef], vendor: str = "debian"
 ) -> cdx_component.Component | None:
-    """Get the CDX representation of a Package."""
-    if isinstance(package, BinaryPackage):
-        ref = Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)
-        refs[ref] = cdx_bom_ref.BomRef(package.purl().to_string())
+    """
+    Get the CDX representation of a Package.
 
-        match = SUPPLIER_PATTERN.match(package.maintainer)
-        if match:
-            supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"])
-            supplier_email = match["supplier_email"]
-            if supplier_email:
-                supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
-        else:
-            supplier = None
-            logger.warning(f"no supplier for {package.name}@{package.version}")
-        entry = cdx_component.Component(
-            name=package.name,
-            type=cdx_component.ComponentType.LIBRARY,
-            bom_ref=refs[ref],
-            supplier=supplier,
-            version=str(package.version),
-            description=package.description,
-            purl=package.purl(vendor),
-            group="debian",
-            hashes=[
-                cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
-                for alg, dig in package.checksums.items()
-            ],
+    CycloneDX v1.6 does not have a proposed way of expressing the relation
+    between a source package and a binary package in a machine readable way.
+    Until this is fixed in the spec, we add the source packages similar to
+    binary packages, where they can be distinguished by the PURL. We further add
+    a dependency from the binary to the source package.
+    Also see: https://github.com/CycloneDX/specification/issues/612#issuecomment-2958815330
+    """
+    ref = Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)
+    refs[ref] = cdx_bom_ref.BomRef(package.purl().to_string())
+
+    match = SUPPLIER_PATTERN.match(package.maintainer or "")
+    if match:
+        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"])
+        supplier_email = match["supplier_email"]
+        if supplier_email:
+            supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
+    else:
+        supplier = None
+        logger.warning(f"no supplier for {package.name}@{package.version}")
+    entry = cdx_component.Component(
+        name=package.name,
+        type=cdx_component.ComponentType.LIBRARY,
+        bom_ref=refs[ref],
+        supplier=supplier,
+        version=str(package.version),
+        purl=package.purl(vendor),
+        group="debian",
+    )
+    if package.homepage:
+        entry.external_references = (
+            cdx_model.ExternalReference(
+                url=cdx_model.XsUri(package.homepage),
+                type=cdx_model.ExternalReferenceType.WEBSITE,
+                comment="homepage",
+            ),
         )
-        if package.homepage:
-            entry.external_references = (
-                cdx_model.ExternalReference(
-                    url=cdx_model.XsUri(package.homepage),
-                    type=cdx_model.ExternalReferenceType.WEBSITE,
-                    comment="homepage",
-                ),
-            )
+    if isinstance(package, BinaryPackage):
+        entry.description = package.description
+        entry.hashes = [
+            cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
+            for alg, dig in package.checksums.items()
+        ]
         logger.debug(f"Created binary component: {entry}")
         return entry
     elif isinstance(package, SourcePackage):
-        # TODO: we are missing source packages here
-        # Figure out how do properly represent them and the source<->binary relationship,
-        # see https://github.com/CycloneDX/specification/issues/612#issuecomment-2958815330
-        logger.debug(f"Skipped component for source package: '{package.name}'")
-        return None
+        logger.debug(f"Created source component: {entry}")
+        return entry
 
 
 def cyclonedx_bom(
@@ -132,17 +138,23 @@ def cyclonedx_bom(
         distro_dependencies.append(
             cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
         )
-        if package.depends:
-            deps = SortedSet([])
-            for dep in package.depends:
-                try:
-                    ref_id = Reference.lookup(package, dep, SBOMType.CycloneDX, refs.keys())
-                    dep_bom_ref = refs[ref_id]
-                except KeyError:
-                    # this means we have a virtual dependency, ignore it
-                    logger.debug(f"Skipped optional dependency: '{dep.name}'")
-                    continue
-                deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
+        # copy the depends to not alter the package itself
+        pkg_deps = list(package.depends) or []
+        # add dependency to source package
+        if package.source:
+            pkg_deps.append(package.source)
+
+        deps = SortedSet([])
+        for dep in pkg_deps:
+            try:
+                ref_id = Reference.lookup(package, dep, SBOMType.CycloneDX, refs.keys())
+                dep_bom_ref = refs[ref_id]
+            except KeyError:
+                # this means we have a virtual dependency, ignore it
+                logger.debug(f"Skipped optional dependency: '{dep.name}'")
+                continue
+            deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
+        if pkg_deps:
             dependency = cdx_dependency.Dependency(
                 ref=refs[reference.as_str(SBOMType.CycloneDX)],
                 dependencies=deps,
