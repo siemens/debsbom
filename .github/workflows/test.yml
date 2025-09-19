@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-name: Run Tests
+name: Tests
 
 on:
   pull_request:
