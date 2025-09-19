@@ -36,6 +36,7 @@ Repository = "https://github.com/siemens/debsbom.git"
 [project.optional-dependencies]
 dev = [
   "pytest>=6.0",
+  "pytest-cov>=6",
   "black",
   "beartype>=0.20",
   "debsbom[download]",
@@ -62,4 +63,16 @@ testpaths = [
 ]
 markers = [
   "online: tests requiring internet access",
+]
+
+[tool.coverage.run]
+source = [
+  "debsbom"
+]
+
+[tool.coverage.paths]
+paths = [
+    "src/debsbom/",
+    "*/site-packages/debsbom/",
+    "*/runner/work/debsbom/debsbom/src/debsbom",
 ]
