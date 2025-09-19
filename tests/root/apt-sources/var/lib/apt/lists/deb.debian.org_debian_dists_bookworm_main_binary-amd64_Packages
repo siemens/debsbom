@@ -1,0 +1,18 @@
+Package: binutils-arm-none-eabi
+Source: binutils-arm-none-eabi (18)
+Version: 2.40-2+18+b1
+Installed-Size: 18208
+Maintainer: Joaquin de Andres <me@xcancerberox.com.ar>
+Architecture: amd64
+Depends: libc6 (>= 2.34), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.0)
+Description: GNU assembler, linker and binary utilities for ARM Cortex-R/M processors
+Multi-Arch: foreign
+Homepage: https://sourceware.org/binutils/
+Built-Using: binutils (= 2.40-2)
+Description-md5: f75c79ad4cf4a6315ad1103f5b7e3723
+Section: devel
+Priority: optional
+Filename: pool/main/b/binutils-arm-none-eabi/binutils-arm-none-eabi_2.40-2+18+b1_amd64.deb
+Size: 2851564
+MD5sum: 041580298095f940c2c9c130e0d6e149
+SHA256: c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c
