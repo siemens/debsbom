@@ -12,10 +12,10 @@ from cyclonedx.model.component import Component
 class CdxPackageResolver(PackageResolver):
     def __init__(self, document: Bom):
         super().__init__()
-        self.document = document
+        self._document = document
 
     @staticmethod
-    def _is_debian_pkg(p: Component):
+    def is_debian_pkg(p: Component):
         if str(p.purl).startswith("pkg:deb/debian/"):
             return True
         return False
@@ -23,7 +23,7 @@ class CdxPackageResolver(PackageResolver):
     def debian_pkgs(self):
         return map(
             lambda p: self.package_from_purl(str(p.purl)),
-            filter(self._is_debian_pkg, self.document.components),
+            filter(self.is_debian_pkg, self._document.components),
         )
 
     @classmethod
