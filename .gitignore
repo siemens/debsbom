@@ -1,4 +1,5 @@
 **/__pycache__
 *.json
 *.egg-info
+.coverage*
 downloads/
