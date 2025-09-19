@@ -1,3 +1,5 @@
+[![Tests](https://github.com/siemens/debsbom/actions/workflows/test.yml/badge.svg)](https://github.com/siemens/debsbom/actions/workflows/test.yml)
+
 # debsbom - SBOM generator for Debian-based distributions
 
 `debsbom` generates SBOMs (Software Bill of Materials) for distributions based on Debian in the two standard formats [SPDX](https://www.spdx.org) and [CycloneDX](https://www.cyclonedx.org).
