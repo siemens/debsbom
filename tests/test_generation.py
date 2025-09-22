@@ -208,6 +208,39 @@ def test_apt_source_pkg():
                     } in pkg["checksums"]
 
 
+def test_apt_pkgs_stream():
+    url = urlparse("http://example.org")
+    uuid = uuid4()
+    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+    dbom = Debsbom(
+        distro_name="pytest-distro",
+        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
+        root="tests/root/apt-sources",
+        spdx_namespace=url,
+        cdx_serialnumber=uuid,
+        timestamp=timestamp,
+    )
+    with TemporaryDirectory() as outdir:
+        with open("tests/data/pkgs-stream", "r") as stream:
+            outdir = Path(outdir)
+            dbom.generate(str(outdir / "sbom"), validate=True, pkgs_stream=stream)
+        with open(outdir / "sbom.spdx.json") as file:
+            spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+        binutils_bpf = next(filter(lambda p: p["SPDXID"].endswith("binutils-bpf-amd64"), packages))
+        assert binutils_bpf["versionInfo"] == "2.40-2+1"
+        assert binutils_bpf["summary"].startswith("GNU binary")
+        assert binutils_bpf["supplier"].startswith("Organization:")
+
+        bu_bpf_src = next(
+            filter(lambda p: p["SPDXID"].endswith("binutils-bpf-10-srcpkg"), packages)
+        )
+        assert bu_bpf_src["versionInfo"] == "10"
+        assert bu_bpf_src["summary"].startswith("Debian source")
+        assert bu_bpf_src["supplier"].startswith("Organization: Debian GCC")
+
+
 def test_apt_extended_states():
     es = ExtendedStates.from_file("tests/root/apt-sources/var/lib/apt/extended_states")
     assert not es.is_manual("binutils-arm-none-eabi", "amd64")

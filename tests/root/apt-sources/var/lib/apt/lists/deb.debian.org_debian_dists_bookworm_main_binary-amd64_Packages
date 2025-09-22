@@ -29,3 +29,27 @@ Homepage: https://sourceware.org/binutils/
 Built-Using: binutils (= 2.40-2)
 Description-md5: 766ed65dd4873b5a9bfd5973de3e3d4e
 Section: devel
+
+Package: binutils-bpf
+Binary: binutils-bpf
+Version: 10
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Uploaders: Matthias Klose <doko@debian.org>
+Build-Depends: binutils-source (>= 2.40-2~), debhelper (>= 10), bison, flex, gettext, texinfo, dejagnu, python3, file, xz-utils, lsb-release, zlib1g-dev
+Architecture: any
+Standards-Version: 4.6.2
+Format: 3.0 (native)
+Files:
+ 014fb03579339258f2efafe128d8ba7c 1786 binutils-bpf_10.dsc
+ 7cfdddafeef0905c57bf99f363c6f3e0 2952 binutils-bpf_10.tar.xz
+Vcs-Browser: https://salsa.debian.org/toolchain-team/binutils-bpf
+Vcs-Git: https://salsa.debian.org/toolchain-team/binutils-bpf.git
+Checksums-Sha256:
+ e3d26fc2e701c269ffc832dcbadbae2b6bafc217ed5d1967574bc81e5e93e616 1786 binutils-bpf_10.dsc
+ 043e201d9256fd4cd1f34e0e3000e8459ba2b861f734904085af1d2ba63c010b 2952 binutils-bpf_10.tar.xz
+Homepage: https://sourceware.org/binutils/
+Package-List: 
+ binutils-bpf deb devel optional arch=any
+Directory: pool/main/b/binutils-bpf
+Priority: extra
+Section: misc
