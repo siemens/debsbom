@@ -80,10 +80,14 @@ class GenerateCmd:
             timestamp=args.timestamp,
             cdx_standard=cdx_standard,
         )
+        if args.from_pkglist and sys.stdin.isatty():
+            logger.warning("Expecting data via stdin, but connected to TTY.")
+
         debsbom.generate(
             args.out,
             progress_cb=progress_cb if args.progress else None,
             validate=args.validate,
+            pkgs_stream=sys.stdin if args.from_pkglist else None,
         )
 
     @staticmethod
@@ -160,6 +164,11 @@ class GenerateCmd:
         parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--from-pkglist",
+            help="create SBOM from a package list passed via stdin instead of dpkg data",
             action="store_true",
         )
 
