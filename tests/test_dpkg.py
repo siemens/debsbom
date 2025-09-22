@@ -6,7 +6,7 @@ from pathlib import Path
 from debian.deb822 import PkgRelation
 from debian.debian_support import Version
 
-from debsbom.dpkg.package import Dependency, BinaryPackage, SourcePackage
+from debsbom.dpkg.package import ChecksumAlgo, Dependency, BinaryPackage, SourcePackage
 from debsbom.sbom import Reference
 
 
@@ -91,3 +91,32 @@ def test_parse_source_status_file():
     spkg = [p for p in packages if isinstance(p, SourcePackage)][1]
     assert spkg.name == "guestfs-tools"
     assert spkg.version == "1.52.3-1"
+
+
+def test_package_merge():
+    pkg_foo = BinaryPackage(
+        name="foo",
+        version="1.0-r1",
+        depends=[Dependency("bar")],
+        built_using=[Dependency("bar-src")],
+        checksums={ChecksumAlgo.MD5SUM: "50a2fabfdd276f573ff97ace8b11c5f4"},
+    )
+    pkg_foo_apt = BinaryPackage(
+        name="foo",
+        version="1.0-r1",
+        depends=[Dependency("top")],
+        built_using=[Dependency("bar-src"), Dependency("foo-src")],
+        checksums={ChecksumAlgo.SHA1SUM: "34973274ccef6ab4dfaaf86599792fa9c3fe4689"},
+        description="description of foo",
+        homepage="http://example.com/",
+        manually_installed=True,
+    )
+    pkg_foo.merge_with(pkg_foo_apt)
+    assert "bar" in [d.name for d in pkg_foo.depends]
+    assert "top" in [d.name for d in pkg_foo.depends]
+    assert "bar-src" in [d.name for d in pkg_foo.built_using]
+    assert "foo-src" in [d.name for d in pkg_foo.built_using]
+    assert ChecksumAlgo.MD5SUM in pkg_foo.checksums.keys()
+    assert ChecksumAlgo.SHA1SUM in pkg_foo.checksums.keys()
+    assert pkg_foo.description.startswith("desc")
+    assert pkg_foo.manually_installed
