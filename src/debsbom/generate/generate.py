@@ -5,6 +5,7 @@
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from datetime import datetime
+from io import TextIOWrapper
 import itertools
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
@@ -59,8 +60,11 @@ class Debsbom:
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
 
-    def _import_packages(self):
-        packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
+    def _import_packages(self, stream=None):
+        if stream:
+            packages_it = BinaryPackage.parse_pkglist_stream(stream)
+        else:
+            packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
         self.packages = self._merge_apt_data(pkgdict)
 
@@ -72,7 +76,7 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             return iter([])
 
-    def _merge_apt_data(self, packages: dict[int, Package]):
+    def _merge_apt_data(self, packages: dict[int, Package]) -> set[Package]:
         # names of packages in apt cache we also have referenced
         sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
         bin_names_apt = set(
@@ -81,6 +85,18 @@ class Debsbom:
 
         logging.info("load source packages from apt cache")
         repos = self._create_apt_repos_it()
+
+        if not len(sp_names_apt):
+            # we only have a package list, hence create everything from apt
+            repos = self._create_apt_repos_it()
+            binaries_it = itertools.chain.from_iterable(
+                map(
+                    lambda r: r.binpackages(lambda p, a: (p, a) in bin_names_apt),
+                    repos,
+                )
+            )
+            packages_it = Package.inject_src_packages(binaries_it)
+            return set(packages_it)
 
         # load extended status information
         apt_ext_s_file = self.root / "var/lib/apt/extended_states"
@@ -124,11 +140,12 @@ class Debsbom:
         out: str,
         progress_cb: Callable[[int, int, str], None] | None = None,
         validate: bool = False,
+        pkgs_stream: TextIOWrapper | None = None,
     ):
         """
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
-        self._import_packages()
+        self._import_packages(stream=pkgs_stream)
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
