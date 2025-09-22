@@ -106,6 +106,12 @@ class Package(ABC):
                     seen.add(k)
                 yield element
 
+    def merge_with(self, other: "Package"):
+        if not self.maintainer:
+            self.maintainer = other.maintainer
+        if not self.homepage:
+            self.homepage = other.homepage
+
     # TODO: check type
     @classmethod
     def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
@@ -145,7 +151,7 @@ class SourcePackage(Package):
         name: str,
         version: str | Version,
         maintainer: str | None = None,
-        binaries: list[str] | None = None,
+        binaries: list[str] = [],
         homepage: str | None = None,
         vcs_browser: str | None = None,
         vcs_git: str | None = None,
@@ -182,6 +188,17 @@ class SourcePackage(Package):
             version_wo_epoch = self.version.upstream_version
         return f"{self.name}_{version_wo_epoch}.dsc"
 
+    def merge_with(self, other: "SourcePackage"):
+        super().merge_with(other)
+        if not self.vcs_browser:
+            self.vcs_browser = other.vcs_browser
+        if not self.vcs_git:
+            self.vcs_git = other.vcs_git
+        # add binaries from other
+        binaries = list(self.binaries)
+        binaries.extend(x for x in other.binaries if x not in binaries)
+        self.binaries = binaries
+
     @staticmethod
     def from_dep822(package) -> "SourcePackage":
         name = package["Package"]
@@ -190,7 +207,7 @@ class SourcePackage(Package):
         if package.get("Binaries") is not None:
             binaries = [b.strip() for b in package["Binaries"].split(",")]
         else:
-            binaries = None
+            binaries = []
         homepage = package.get("Homepage")
         vcs_browser = package.get("Vcs-Browser")
         vcs_git = package.get("Vcs-Git")
@@ -260,6 +277,36 @@ class BinaryPackage(Package):
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
+
+    section: str | None
+    architecture: str | None
+    source: Dependency | None
+    depends: list[Dependency]
+    built_using: list[Dependency]
+    description: str | None
+    checksums: dict[ChecksumAlgo, str]
+    manually_installed: bool
+
+    def merge_with(self, other: "BinaryPackage"):
+        super().merge_with(other)
+        if not self.section:
+            self.section = other.section
+        if not self.architecture:
+            self.architecture = other.architecture
+        if not self.source:
+            self.source = other.source
+        if not self.description:
+            self.description = other.description
+        self.checksums |= other.checksums
+        self.manually_installed |= other.manually_installed
+
+        depends = list(self.depends)
+        depends.extend(x for x in other.depends if x not in depends)
+        self.depends = depends
+
+        built_using = list(self.built_using)
+        built_using.extend(x for x in other.built_using if x not in built_using)
+        self.built_using = built_using
 
     @staticmethod
     def from_dep822(package) -> "BinaryPackage":
