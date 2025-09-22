@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import datetime
 import itertools
 import cyclonedx.output as cdx_output
@@ -64,6 +64,14 @@ class Debsbom:
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
         self.packages = self._merge_apt_data(pkgdict)
 
+    def _create_apt_repos_it(self) -> Iterable[Repository]:
+        apt_lists = self.root / "var/lib/apt/lists"
+        if apt_lists.is_dir():
+            return Repository.from_apt_cache(apt_lists)
+        else:
+            logger.info("Missing apt lists cache, some source packages might be incomplete")
+            return iter([])
+
     def _merge_apt_data(self, packages: dict[int, Package]):
         # names of packages in apt cache we also have referenced
         sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
@@ -72,12 +80,7 @@ class Debsbom:
         )
 
         logging.info("load source packages from apt cache")
-        apt_lists = self.root / "var/lib/apt/lists"
-        if apt_lists.is_dir():
-            repos = Repository.from_apt_cache(apt_lists)
-        else:
-            logger.info("Missing apt lists cache, some source packages might be incomplete")
-            repos = iter([])
+        repos = self._create_apt_repos_it()
 
         # load extended status information
         apt_ext_s_file = self.root / "var/lib/apt/extended_states"
