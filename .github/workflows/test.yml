@@ -34,7 +34,7 @@ jobs:
     - name: smoke test generate
       env:
         COVERAGE_FILE: .coverage.smoke.${{matrix.python-version }}
-      run: coverage run $(which debsbom) -vv generate -t spdx -t cdx -o sbom --validate
+      run: coverage run $(which debsbom) -v generate -t spdx -t cdx -o sbom --validate
 
     - name: upload smoke test SBOMs
       uses: actions/upload-artifact@v4
