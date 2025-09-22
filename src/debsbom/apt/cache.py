@@ -17,6 +17,35 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class ExtendedStates:
+    """
+    The apt extended states encode information if a package is manually
+    installed or installed via a dependency only.
+    """
+
+    auto_installed: set[tuple[str, str]]
+
+    def is_manual(self, name: str, arch: str):
+        return (name, arch) not in self.auto_installed
+
+    @classmethod
+    def from_file(
+        cls, file: str | Path, filter_fn: Callable[[str, str], bool] | None = None
+    ) -> "ExtendedStates":
+        auto_installed = set()
+        with open(Path(file)) as f:
+            for s in Deb822.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT):
+                name = s.get("Package")
+                arch = s.get("Architecture")
+                if s.get("Auto-Installed") != "1":
+                    continue
+                if (filter_fn is None) or (filter_fn(name, arch)):
+                    auto_installed.add((name, arch))
+
+        return cls(auto_installed=auto_installed)
+
+
+@dataclass
 class Repository:
     """Represents a debian repository as cached by apt."""
 
@@ -110,7 +139,9 @@ class Repository:
             return self._parse_sources(sources_file, filter_fn)
 
     def binpackages(
-        self, filter_fn: Callable[[str, str], bool] | None = None
+        self,
+        filter_fn: Callable[[str, str], bool] | None = None,
+        ext_states: ExtendedStates = ExtendedStates(set()),
     ) -> Iterable[BinaryPackage]:
         """Get all binary packages from this repository"""
         repo_base = str(self.in_release_file).removesuffix("_InRelease")
@@ -118,4 +149,5 @@ class Repository:
             for arch in self.architectures:
                 packages_file = "_".join([repo_base, component, f"binary-{arch}", "Packages"])
                 for p in self._parse_packages(packages_file, filter_fn):
+                    p.manually_installed = ext_states.is_manual(p.name, p.architecture)
                     yield p
