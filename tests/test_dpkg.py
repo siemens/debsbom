@@ -29,7 +29,7 @@ def test_parse_minimal_status_file():
     assert bpkg.name == "binutils"
     assert bpkg.section == "devel"
     assert bpkg.maintainer == "Matthias Klose <doko@debian.org>"
-    assert bpkg.source == Dependency(bpkg.name, None, ("=", bpkg.version))
+    assert bpkg.source == Dependency(bpkg.name, None, ("=", bpkg.version), arch="source")
     assert bpkg.version == "2.40-2"
     assert bpkg.depends == [
         Dependency("binutils-common", None, ("=", bpkg.version)),
@@ -58,7 +58,7 @@ def test_parse_source_status_file():
     assert bpkg.name == "apt-utils"
     assert bpkg.section == "admin"
     assert bpkg.maintainer == "APT Development Team <deity@lists.debian.org>"
-    assert bpkg.source == Dependency("apt", None, ("=", bpkg.version))
+    assert bpkg.source == Dependency("apt", None, ("=", bpkg.version), arch="source")
     assert bpkg.version == "2.6.1"
     assert bpkg.depends == [
         Dependency("apt", None, ("=", bpkg.version)),

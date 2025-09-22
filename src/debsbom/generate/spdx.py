@@ -176,13 +176,14 @@ def spdx_bom(
         cur_step += 1
 
         reference = Reference.make_from_pkg(package)
-        relationships.append(
-            spdx_relationship.Relationship(
-                spdx_element_id=reference.as_str(SBOMType.SPDX),
-                relationship_type=spdx_relationship.RelationshipType.PACKAGE_OF,
-                related_spdx_element_id=distro_ref,
+        if package.manually_installed:
+            relationships.append(
+                spdx_relationship.Relationship(
+                    spdx_element_id=reference.as_str(SBOMType.SPDX),
+                    relationship_type=spdx_relationship.RelationshipType.PACKAGE_OF,
+                    related_spdx_element_id=distro_ref,
+                )
             )
-        )
         if package.depends:
             for dep in package.depends:
                 ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs)
