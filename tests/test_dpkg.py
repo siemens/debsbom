@@ -120,3 +120,18 @@ def test_package_merge():
     assert ChecksumAlgo.SHA1SUM in pkg_foo.checksums.keys()
     assert pkg_foo.description.startswith("desc")
     assert pkg_foo.manually_installed
+
+
+def test_parse_pkgs_stream():
+    data = ["binutils-arm-none-eabi 2.40-2+18+b1 amd64", "binutils-bpf 2.40-2+1 amd64"]
+    pkgs_it = BinaryPackage.parse_pkglist_stream(data)
+
+    pkg: BinaryPackage = next(pkgs_it)
+    assert pkg.name == "binutils-arm-none-eabi"
+    assert pkg.version.debian_revision == "2+18+b1"
+    assert pkg.architecture == "amd64"
+
+    pkg: BinaryPackage = next(pkgs_it)
+    assert pkg.name == "binutils-bpf"
+    assert pkg.version.upstream_version == "2.40"
+    assert pkg.architecture == "amd64"
