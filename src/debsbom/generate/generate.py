@@ -28,7 +28,7 @@ class Debsbom:
         self,
         distro_name: str,
         sbom_types: set[SBOMType] | list[SBOMType] = [SBOMType.SPDX],
-        root: str = "/",
+        root: str | Path = "/",
         distro_supplier: str = None,
         distro_version: str = None,
         base_distro_vendor: str = "debian",
@@ -38,7 +38,7 @@ class Debsbom:
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
-        self.root = root
+        self.root = Path(root)
         self.distro_name = distro_name
         self.distro_version = distro_version
         self.distro_supplier = distro_supplier
@@ -57,15 +57,14 @@ class Debsbom:
         self.timestamp = timestamp
 
         logger.info(f"Configuration: {self.__dict__}")
-
-        self.packages = None
+        self.packages: set[Package] = set()
 
     def _import_packages(self):
-        root = Path(self.root)
-        packages = dict(
-            map(lambda p: (hash(p), p), Package.parse_status_file(root / "var/lib/dpkg/status"))
-        )
+        packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
+        pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
+        self.packages = self._merge_apt_data(pkgdict)
 
+    def _merge_apt_data(self, packages: dict[int, Package]):
         # names of packages in apt cache we also have referenced
         sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
         bin_names_apt = set(
@@ -73,7 +72,7 @@ class Debsbom:
         )
 
         logging.info("load source packages from apt cache")
-        apt_lists = root / "var/lib/apt/lists"
+        apt_lists = self.root / "var/lib/apt/lists"
         if apt_lists.is_dir():
             repos = Repository.from_apt_cache(apt_lists)
         else:
@@ -81,7 +80,7 @@ class Debsbom:
             repos = iter([])
 
         # load extended status information
-        apt_ext_s_file = root / "var/lib/apt/extended_states"
+        apt_ext_s_file = self.root / "var/lib/apt/extended_states"
         if apt_ext_s_file.is_file():
             apt_extended_states = ExtendedStates.from_file(
                 apt_ext_s_file, lambda p, a: (p, a) in bin_names_apt
@@ -121,7 +120,7 @@ class Debsbom:
                     ours.checksums = p.checksums
                 ours.manually_installed = p.manually_installed
 
-        self.packages = set(packages.values())
+        return set(packages.values())
 
     def generate(
         self,
