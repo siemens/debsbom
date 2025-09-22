@@ -328,7 +328,7 @@ def main():
     except Exception as e:
         logger.error(e)
         print(f"debsbom: error: {e}", file=sys.stderr)
-        if args.verbose >= 2:
+        if args.verbose >= 1:
             print(traceback.format_exc(), file=sys.stderr, end="")
         sys.exit(-1)
 
