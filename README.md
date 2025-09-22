@@ -56,15 +56,33 @@ At its core, this tool was designed to fulfill these SBOM generation requirement
 - Real-time vulnerability database integration
 - Signing and attestation of generated artifacts
 
-## Source-Binary Package Relations
+## Package Relations
+
+A Debian distribution is composed of source packages and binary packages.
+Binary packages are installed into the root filesystem, while the source packages are the originals from which those binaries are built.
+
+Some binary packages are installed explicitly by the user; others appear automatically as dependencies of the explicitly‑installed packages.
+The SBOM mirrors this relationship, using the `distro-package` entry as the single central node for traversing the package graph.
+
+```
+distro-package
+├─ binary-package-foo
+├─── source-package-foo
+├─── binary-dep-of-foo
+├─ binary-package-bar
+├─── source-package-bar
+└─── binary-dep-of-bar
+```
+
+### Source-Binary
 
 To differentiate binary and source packages in the SBOM a different approach for each SBOM standard is required.
 
-### CycloneDX
+#### CycloneDX
 
 In the CDX format it is currently not possible to mark a component as a source package. There is an ongoing discussion [[2]](https://github.com/CycloneDX/specification/issues/612) which, while looking promising, will not land in the standard for quite some time. In the meantime source packages can only be identified by their PURL by looking at the `arch=source` qualifier. The relationships between a binary and its source package is done with a simple dependency.
 
-### SPDX
+#### SPDX
 
 We differentiate a source package by setting `"primaryPackagePurpose": "SOURCE"` as opposed to `LIBRARY` for binary packages. Their relationship is expressed with the `GENERATES` relation. For packages that are marked as `Built-Using` in the dpkg status file, we use the `GENERATED_FROM` relation. This expresses the same semantic in SPDX, but this way it can still be identified if it is a proper source/binary relationship or a built-using one.
 

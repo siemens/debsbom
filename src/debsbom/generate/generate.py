@@ -13,7 +13,7 @@ from pathlib import Path
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
-from ..apt.cache import Repository
+from ..apt.cache import Repository, ExtendedStates
 from ..dpkg.package import BinaryPackage, Package, SourcePackage
 from ..sbom import SBOMType, BOM_Standard
 from .cdx import cyclonedx_bom
@@ -80,6 +80,18 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             repos = iter([])
 
+        # load extended status information
+        apt_ext_s_file = root / "var/lib/apt/extended_states"
+        if apt_ext_s_file.is_file():
+            apt_extended_states = ExtendedStates.from_file(
+                apt_ext_s_file, lambda p, a: (p, a) in bin_names_apt
+            )
+        else:
+            logging.info(
+                "Missing apt extended_states file, all packages will be marked as manually installed"
+            )
+            apt_extended_states = ExtendedStates(set())
+
         # Create uniform list of all packages both we and the apt cache knows
         # This list shall contain a superset of our packages (minus non-upstream ones)
         # but filtering should be as good as possible as the apt cache contains potentially
@@ -88,7 +100,7 @@ class Debsbom:
             map(
                 lambda r: itertools.chain(
                     r.sources(lambda p: p in sp_names_apt),
-                    r.binpackages(lambda p, a: (p, a) in bin_names_apt),
+                    r.binpackages(lambda p, a: (p, a) in bin_names_apt, apt_extended_states),
                 ),
                 repos,
             )
@@ -107,6 +119,7 @@ class Debsbom:
             if isinstance(ours, BinaryPackage):
                 if not ours.checksums and p.checksums:
                     ours.checksums = p.checksums
+                ours.manually_installed = p.manually_installed
 
         self.packages = set(packages.values())
 

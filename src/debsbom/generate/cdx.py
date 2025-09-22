@@ -135,9 +135,10 @@ def cyclonedx_bom(
         cur_step += 1
 
         reference = Reference.make_from_pkg(package)
-        distro_dependencies.append(
-            cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
-        )
+        if package.manually_installed:
+            distro_dependencies.append(
+                cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
+            )
         # copy the depends to not alter the package itself
         pkg_deps = list(package.depends) or []
         # add dependency to source package
