@@ -58,6 +58,8 @@ class Package(ABC):
 
     name: str
     version: Version
+    maintainer: str | None = None
+    homepage: str | None = None
 
     def __init__(self, name: str, version: str | Version):
         self.name = name
@@ -134,9 +136,7 @@ class Package(ABC):
 class SourcePackage(Package):
     """Representation of a Debian Source package."""
 
-    maintainer: str | None = None
     binaries: list[str] | None = None
-    homepage: str | None = None
     vcs_browser: str | None = None
     vcs_git: str | None = None
 
@@ -209,14 +209,12 @@ class SourcePackage(Package):
 class BinaryPackage(Package):
     """Incomplete representation of a Debian binary package."""
 
-    maintainer: str | None
     section: str | None
     architecture: str | None
     source: Dependency | None
     depends: list[Dependency]
     built_using: list[Dependency]
     description: str | None
-    homepage: str | None
     checksums: dict[ChecksumAlgo, str]
     manually_installed: bool
 
