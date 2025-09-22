@@ -218,6 +218,7 @@ class BinaryPackage(Package):
     description: str | None
     homepage: str | None
     checksums: dict[ChecksumAlgo, str]
+    manually_installed: bool
 
     def __init__(
         self,
@@ -232,6 +233,7 @@ class BinaryPackage(Package):
         description: str | None,
         homepage: str | None,
         checksums: dict[ChecksumAlgo, str] | None = None,
+        manually_installed: bool = True,
     ):
         self.name = name
         self.section = section
@@ -244,6 +246,7 @@ class BinaryPackage(Package):
         self.description = description
         self.homepage = homepage
         self.checksums = checksums or {}
+        self.manually_installed = manually_installed
 
     def __hash__(self):
         return hash(self.purl())
