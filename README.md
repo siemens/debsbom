@@ -4,7 +4,7 @@
 
 `debsbom` generates SBOMs (Software Bill of Materials) for distributions based on Debian in the two standard formats [SPDX](https://www.spdx.org) and [CycloneDX](https://www.cyclonedx.org).
 
-The generated SBOM includes all installed binary packages and also contains [Debian Source packages](https://www.debian.org/doc/debian-policy/ch-source.html) (currently only for SPDX SBOMs, support for CycloneDX is coming [when some specification related problems are resolved](https://github.com/CycloneDX/specification/issues/612)).
+The generated SBOM includes all installed binary packages and also contains [Debian Source packages](https://www.debian.org/doc/debian-policy/ch-source.html).
 
 Source packages are especially relevant for security as CVEs in the Debian ecosystem are filed not against the installed binary packages, but source packages. The names of source and binary packages must not always be the same, and in some cases a single source package builds a number of binary packages.
 
@@ -56,6 +56,18 @@ At its core, this tool was designed to fulfill these SBOM generation requirement
 - Real-time vulnerability database integration
 - Signing and attestation of generated artifacts
 
+## Source-Binary Package Relations
+
+To differentiate binary and source packages in the SBOM a different approach for each SBOM standard is required.
+
+### CycloneDX
+
+In the CDX format it is currently not possible to mark a component as a source package. There is an ongoing discussion [[2]](https://github.com/CycloneDX/specification/issues/612) which, while looking promising, will not land in the standard for quite some time. In the meantime source packages can only be identified by their PURL by looking at the `arch=source` qualifier. The relationships between a binary and its source package is done with a simple dependency.
+
+### SPDX
+
+We differentiate a source package by setting `"primaryPackagePurpose": "SOURCE"` as opposed to `LIBRARY` for binary packages. Their relationship is expressed with the `GENERATES` relation. For packages that are marked as `Built-Using` in the dpkg status file, we use the `GENERATED_FROM` relation. This expresses the same semantic in SPDX, but this way it can still be identified if it is a proper source/binary relationship or a built-using one.
+
 ## Limitations
 
 ### License Information
@@ -65,8 +77,6 @@ To prevent any false license information to be included in the SBOM they are not
 
 ### Vendor Packages
 
-Vendor packages can currently not identified. `debsbom` only parses the dpkg information which does not include the source of a package. This is especially problematic when we emit the PURL for these packages, since it is just wrong for vendor packages right now. The information from which repository a package comes from is available in apt, so it should be possible to fix this issue.
+Vendor packages are currently not identified. Identifying them is important to emit the correct PURL. Right now we make no difference between vendor and official packages. That means we emit potentially incorrect PURLs for vendor packages.
 
-### Package checksums
-
-Checksums for packages are currently missing, which makes it impossible to verify the integrity of installed packages. This data is also available in apt but needs to be parsed and included.
+Reliably and correctly identifying if a package is a vendor package or not is non-trivial without access to the internet. For this reason we do not attempt it. If you have vendor packages in your distribution we assume you know them, and if not you can identify them in postprocessing. A simple way is to use `debsbom download` and look for any packages that failed to download, or whose checksums do not match.
