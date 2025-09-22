@@ -112,13 +112,7 @@ class Debsbom:
             ours = packages.get(hash(p))
             if not ours:
                 continue
-            if not ours.maintainer and p.maintainer:
-                ours.maintainer = p.maintainer
-                logger.debug(f"Extended package information for '{p.name}@{p.version}'")
-            if isinstance(ours, BinaryPackage):
-                if not ours.checksums and p.checksums:
-                    ours.checksums = p.checksums
-                ours.manually_installed = p.manually_installed
+            ours.merge_with(p)
 
         return set(packages.values())
 
