@@ -71,10 +71,7 @@ class Package(ABC):
         Parse a dpkg status file and returns packages with their relations.
         """
         logger.info(f"Parsing status file '{status_file}'...")
-        binpkgs_it = cls._parse_status_file_raw(status_file)
-        return cls._unique_everseen(
-            itertools.chain.from_iterable(map(lambda p: cls._resolve_sources(p, True), binpkgs_it))
-        )
+        return cls.inject_src_packages(cls._parse_status_file_raw(status_file))
 
     @classmethod
     def _parse_status_file_raw(cls, status_file: Path) -> Iterable["BinaryPackage"]:
@@ -88,6 +85,13 @@ class Package(ABC):
                 bpkg = BinaryPackage.from_dep822(package)
                 logger.debug(f"Found binary package: '{bpkg.name}'")
                 yield bpkg
+
+    @classmethod
+    def inject_src_packages(cls, binpkgs: Iterable["BinaryPackage"]) -> Iterable["Package"]:
+        """Create and inject referenced source packages"""
+        return cls._unique_everseen(
+            itertools.chain.from_iterable(map(lambda p: cls._resolve_sources(p, True), binpkgs))
+        )
 
     @classmethod
     def _unique_everseen(cls, iterable: Iterable[object], key=None):
