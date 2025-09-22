@@ -16,3 +16,20 @@ Description: GNU assembler, linker and binary utilities for ARM Cortex-R/M proce
  architecture.
 Built-Using: binutils (= 2.40-2)
 Homepage: https://sourceware.org/binutils/
+
+Package: binutils-bpf
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 14919
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: amd64
+Source: binutils-bpf (10)
+Version: 2.40-2+1
+Depends: libc6 (>= 2.34), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.0)
+Description: GNU binary utilities for bpf
+ binutils for the bpf target. This package is primarily for
+ those developing for BPF and is not needed by normal
+ users or developers.
+Built-Using: binutils (= 2.40-2)
+Homepage: https://sourceware.org/binutils/

@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 from uuid import uuid4
 
+from debsbom.apt.cache import ExtendedStates
 from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
 
@@ -205,3 +206,13 @@ def test_apt_source_pkg():
                         "algorithm": "MD5",
                         "checksumValue": "041580298095f940c2c9c130e0d6e149",
                     } in pkg["checksums"]
+
+
+def test_apt_extended_states():
+    es = ExtendedStates.from_file("tests/root/apt-sources/var/lib/apt/extended_states")
+    assert not es.is_manual("binutils-arm-none-eabi", "amd64")
+    # no information about riscv64, assume manual
+    assert es.is_manual("binutils-bpf", "amd64")
+
+    noes = ExtendedStates(set())
+    assert noes.is_manual("foo", "amd64")

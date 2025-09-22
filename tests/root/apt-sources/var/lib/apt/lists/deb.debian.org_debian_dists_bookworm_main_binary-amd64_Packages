@@ -16,3 +16,16 @@ Filename: pool/main/b/binutils-arm-none-eabi/binutils-arm-none-eabi_2.40-2+18+b1
 Size: 2851564
 MD5sum: 041580298095f940c2c9c130e0d6e149
 SHA256: c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c
+
+Package: binutils-bpf
+Source: binutils-bpf (10)
+Version: 2.40-2+1
+Installed-Size: 14919
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: amd64
+Depends: libc6 (>= 2.34), libzstd1 (>= 1.5.2), zlib1g (>= 1:1.2.0)
+Description: GNU binary utilities for bpf
+Homepage: https://sourceware.org/binutils/
+Built-Using: binutils (= 2.40-2)
+Description-md5: 766ed65dd4873b5a9bfd5973de3e3d4e
+Section: devel
