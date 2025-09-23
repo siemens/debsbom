@@ -7,10 +7,11 @@ from pathlib import Path
 import pytest
 from debsbom.download import PackageDownloader, PackageResolver
 from debsbom.download.download import PersistentResolverCache
-from debsbom.dpkg.package import BinaryPackage
+from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
 from debsbom.snapshot.client import RemoteFile
+import debsbom.snapshot.client as sdlclient
 
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 import cyclonedx.output as cdx_output
@@ -105,3 +106,37 @@ def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir, sdl):
     # resolve with cache
     files = list(rs.resolve(sdl, next(rs.sources()), rs_cache))
     assert "binutils" in files[0].filename
+
+
+@pytest.mark.online
+def test_file_checksum(sdl, tmpdir, http_session):
+    bpkg = BinaryPackage(
+        name="binutils-arm-none-eabi", architecture="amd64", version="2.40-2+18+b1"
+    )
+    bpkg.checksums[ChecksumAlgo.SHA256SUM] = (
+        "c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c"
+    )
+    s_bpkg = sdlclient.BinaryPackage(sdl, bpkg.name, str(bpkg.version), None, None)
+    files = list(s_bpkg.files(arch=bpkg.architecture))
+
+    dl = PackageDownloader(Path(tmpdir), session=http_session)
+
+    # test matching checksum case
+    dl.register(files, bpkg)
+    stats = dl.stat()
+    assert stats.files == 1
+    local_files = list(dl.download())
+    assert len(local_files) == 1
+
+    # test invalid checksum
+    local_files[0].unlink()
+    # tamper checksum (sha256sum of '42')
+    bpkg.checksums[ChecksumAlgo.SHA256SUM] = (
+        "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0"
+    )
+    dl.register(files, bpkg)
+    stats = dl.stat()
+    assert stats.files == 1
+    local_files = list(dl.download())
+    # no file was successfully downloaded
+    assert len(local_files) == 0
