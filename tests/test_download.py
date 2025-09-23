@@ -10,7 +10,7 @@ from debsbom.download.download import PersistentResolverCache
 from debsbom.dpkg.package import BinaryPackage
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
-from debsbom.snapshot.client import RemoteFile, SnapshotDataLake
+from debsbom.snapshot.client import RemoteFile
 
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 import cyclonedx.output as cdx_output
@@ -46,8 +46,8 @@ def cdx_bomfile(tmpdir):
 
 
 @pytest.mark.online
-def test_download(tmpdir):
-    dl = PackageDownloader(Path(tmpdir))
+def test_download(tmpdir, http_session):
+    dl = PackageDownloader(Path(tmpdir), session=http_session)
     test_file = RemoteFile(
         hash="1f3a43c181b81e3578d609dc0931ff147623eb38",
         filename="pytest_8.4.2-1.dsc",
@@ -94,9 +94,8 @@ def test_package_resolver_parse_cdx(cdx_bomfile):
 
 
 @pytest.mark.online
-def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir):
+def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir, sdl):
     cachedir = Path(tmpdir) / ".cache"
-    sdl = SnapshotDataLake()
     rs = PackageResolver.create(spdx_bomfile)
     rs_cache = PersistentResolverCache(cachedir)
 
