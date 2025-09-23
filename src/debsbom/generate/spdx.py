@@ -200,7 +200,7 @@ def spdx_bom(
 
         if package.built_using:
             for dep in package.built_using:
-                bu_dep = Reference.make_from_dep(dep, "source")
+                bu_dep = Reference.make_from_dep(dep)
                 relationship = spdx_relationship.Relationship(
                     spdx_element_id=reference.as_str(SBOMType.SPDX),
                     relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
@@ -211,7 +211,7 @@ def spdx_bom(
                 relationships.append(relationship)
 
         if package.source:
-            sref = Reference.make_from_dep(package.source, "source")
+            sref = Reference.make_from_dep(package.source)
             relationship = spdx_relationship.Relationship(
                 spdx_element_id=sref.as_str(SBOMType.SPDX),
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
