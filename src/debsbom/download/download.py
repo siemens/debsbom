@@ -106,15 +106,8 @@ class PackageResolver:
         else:
             return package.BinaryPackage(
                 name=purl.name,
-                section=None,
-                maintainer=None,
                 architecture=purl.qualifiers.get("arch"),
-                source=None,
                 version=purl.version,
-                depends=[],
-                built_using=[],
-                description=None,
-                homepage=None,
             )
 
     @staticmethod
