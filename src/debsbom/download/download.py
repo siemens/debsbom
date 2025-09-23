@@ -220,3 +220,4 @@ class PackageDownloader:
             self.known_hashes[f.hash] = f.filename
             yield target
         self.to_download = []
+        self.known_hashes.clear()
