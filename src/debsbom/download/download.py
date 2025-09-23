@@ -106,7 +106,8 @@ class PackageResolver:
     def binaries(self) -> Iterable[package.BinaryPackage]:
         return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
-    def package_from_purl(self, purl: str) -> "package.Package":
+    @classmethod
+    def package_from_purl(cls, purl: str) -> "package.Package":
         purl = PackageURL.from_string(purl)
         if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)

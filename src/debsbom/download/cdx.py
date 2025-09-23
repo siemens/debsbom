@@ -2,11 +2,25 @@
 #
 # SPDX-License-Identifier: MIT
 
-import json
+from ..dpkg.package import ChecksumAlgo, Package
 from .download import PackageResolver
+
+import json
+import logging
 from pathlib import Path
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component
+from cyclonedx.model import HashAlgorithm as cdx_hashalgo
+
+
+logger = logging.getLogger(__name__)
+
+
+CHKSUM_TO_INTERNAL = {
+    cdx_hashalgo.MD5: ChecksumAlgo.MD5SUM,
+    cdx_hashalgo.SHA_1: ChecksumAlgo.SHA1SUM,
+    cdx_hashalgo.SHA_256: ChecksumAlgo.SHA256SUM,
+}
 
 
 class CdxPackageResolver(PackageResolver):
@@ -20,9 +34,19 @@ class CdxPackageResolver(PackageResolver):
             return True
         return False
 
+    @classmethod
+    def create_package(cls, c: Component) -> Package:
+        pkg = cls.package_from_purl(str(c.purl))
+        for cks in c.hashes:
+            if cks.alg not in CHKSUM_TO_INTERNAL.keys():
+                logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")
+                continue
+            pkg.checksums[CHKSUM_TO_INTERNAL[cks.alg]] = cks.content
+        return pkg
+
     def debian_pkgs(self):
         return map(
-            lambda p: self.package_from_purl(str(p.purl)),
+            lambda p: self.create_package(p),
             filter(self.is_debian_pkg, self._document.components),
         )
 
