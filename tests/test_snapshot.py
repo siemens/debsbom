@@ -3,24 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import pytest
-import requests
-from importlib.metadata import version
 
 from debsbom.snapshot.client import (
     BinaryPackage,
     NotFoundOnSnapshotError,
     Package,
-    SnapshotDataLake,
     SnapshotDataLakeError,
     SourcePackage,
 )
-
-
-@pytest.fixture(scope="module")
-def sdl():
-    rs = requests.Session()
-    rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}+test"})
-    return SnapshotDataLake(session=rs)
 
 
 @pytest.mark.online
