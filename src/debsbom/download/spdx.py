@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+from ..dpkg.package import Package
 from .download import PackageResolver
+
+from collections.abc import Iterable
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file
 import spdx_tools.spdx.model.package as spdx_package
@@ -14,21 +17,23 @@ class SpdxPackageResolver(PackageResolver):
         super().__init__()
         self._document = document
 
-    @staticmethod
-    def is_debian_pkg(p):
-        if not p.external_references:
-            return False
-        # TODO: scan all references
-        if (
-            p.external_references[0].category
-            != spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER
-        ):
-            return False
-        return True
+    @classmethod
+    def package_manager_ref(cls, p: spdx_package.Package) -> spdx_package.ExternalPackageRef | None:
+        cat_pkg_manager = spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER
+        return next(
+            filter(lambda ref: ref.category == cat_pkg_manager, p.external_references), None
+        )
 
-    def debian_pkgs(self):
+    @classmethod
+    def is_debian_pkg(cls, p: spdx_package.Package) -> bool:
+        ref = cls.package_manager_ref(p)
+        if ref and ref.reference_type == "purl" and ref.locator.startswith("pkg:deb"):
+            return True
+        return False
+
+    def debian_pkgs(self) -> Iterable[Package]:
         return map(
-            lambda p: self.package_from_purl(p.external_references[0].locator),
+            lambda p: self.package_from_purl(self.package_manager_ref(p).locator),
             filter(self.is_debian_pkg, self._document.packages),
         )
 
