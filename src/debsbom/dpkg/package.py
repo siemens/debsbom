@@ -35,13 +35,15 @@ class Dependency:
     restrictions: str | None = None
 
     @classmethod
-    def from_pkg_relations(cls, relations: list[list[dict]]) -> list["Dependency"]:
+    def from_pkg_relations(cls, relations: list[list[dict]], is_source=False) -> list["Dependency"]:
         dependencies = []
         for relation in relations:
             for dep in relation:
                 if dep.get("version"):
                     # make a proper Version out of it
                     dep["version"] = (dep["version"][0], Version(dep["version"][1]))
+                if is_source:
+                    dep["arch"] = "source"
                 dependencies.append(Dependency(**dep))
         return dependencies
 
@@ -261,7 +263,7 @@ class BinaryPackage(Package):
     @staticmethod
     def from_dep822(package) -> "BinaryPackage":
         if package.source:
-            srcdep = Dependency(package.source, None, ("=", package.source_version))
+            srcdep = Dependency(package.source, None, ("=", package.source_version), arch="source")
         else:
             srcdep = None
 
@@ -270,7 +272,7 @@ class BinaryPackage(Package):
 
         # static dependencies
         s_built_using = package.relations["built-using"] or []
-        sdepends = Dependency.from_pkg_relations(s_built_using)
+        sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
 
         pkg_chksums = {}
         for alg, dep822_name in [

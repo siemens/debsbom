@@ -98,7 +98,7 @@ class Reference:
 
     @staticmethod
     def make_from_dep(dep: Dependency, to_arch: str | None = None) -> "Reference":
-        if to_arch == "source":
+        if "source" in [dep.arch, to_arch]:
             return Reference(target=f"{dep.name}-{dep.version[1]}", is_source=True)
         else:
             to_arch = to_arch or dep.arch
