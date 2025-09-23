@@ -8,6 +8,7 @@ from collections.abc import Iterable
 import dataclasses
 from functools import reduce
 import hashlib
+from hmac import compare_digest
 import json
 import logging
 import shutil
@@ -16,6 +17,7 @@ from packageurl import PackageURL
 import requests
 
 from ..dpkg import package
+from ..dpkg.package import ChecksumAlgo
 from ..snapshot import client as sdlclient
 from ..snapshot.client import RemoteFile
 
@@ -166,7 +168,7 @@ class PackageDownloader:
         outdir = Path(outdir)
         self.sources_dir = outdir / "sources"
         self.binaries_dir = outdir / "binaries"
-        self.to_download: list[RemoteFile] = []
+        self.to_download: list[tuple[package.Package, RemoteFile]] = []
         self.rs = session
         self.known_hashes = {}
 
@@ -180,18 +182,47 @@ class PackageDownloader:
         else:
             return Path(self.binaries_dir / f.filename)
 
-    def register(self, files: list[RemoteFile]):
-        self.to_download.extend(list(files))
+    def register(self, files: list[RemoteFile], package: package.Package | None = None):
+        self.to_download.extend([(package, f) for f in files])
 
     def stat(self) -> StatisticsType:
         """
         Returns a tuple (files to download, total size, cached files, cached bytes)
         """
-        unique_dl = list({v.hash: v for v in self.to_download}.values())
+        unique_dl = list({v.hash: v for _, v in self.to_download}.values())
         nbytes = reduce(lambda acc, x: acc + x.size, unique_dl, 0)
         cfiles = list(filter(lambda f: self._target_path(f).is_file(), unique_dl))
         cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
         return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
+
+    @classmethod
+    def checksum_ok(cls, pkg: package.Package, file: Path) -> bool:
+        if not pkg.checksums:
+            return True
+
+        dig_exp = None
+        hl_algo = None
+        pkg_algs = pkg.checksums.keys()
+        if ChecksumAlgo.SHA256SUM in pkg_algs:
+            dig_exp = pkg.checksums[ChecksumAlgo.SHA256SUM]
+            hl_algo = "sha256"
+        elif ChecksumAlgo.SHA1SUM in pkg_algs:
+            dig_exp = pkg.checksums[ChecksumAlgo.SHA1SUM]
+            hl_algo = "sha1"
+        elif ChecksumAlgo.MD5SUM in pkg_algs:
+            dig_exp = pkg.checksums[ChecksumAlgo.MD5SUM]
+            hl_algo = "md5"
+        else:
+            logger.debug(f"No supported checksum on {pkg.name}@{pkg.version}")
+            return True
+
+        with open(file, "rb") as fd:
+            logger.debug(f"compute checksum on {file.name}")
+            digest = hashlib.file_digest(fd, hl_algo).hexdigest()
+        if compare_digest(dig_exp, digest):
+            return True
+        logger.error(f"Checksums mismatch on '{file.name}': {dig_exp} != {digest}")
+        return False
 
     def download(self, progress_cb=None) -> Iterable[Path]:
         """
@@ -200,7 +231,7 @@ class PackageDownloader:
         but still reported.
         """
         logger.info("Starting download...")
-        for idx, f in enumerate(self.to_download):
+        for idx, (pkg, f) in enumerate(self.to_download):
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
             target = self._target_path(f)
@@ -231,6 +262,9 @@ class PackageDownloader:
                 r.raise_for_status()
                 with open(fdst, "wb") as fp:
                     shutil.copyfileobj(r.raw, fp)
+            if pkg and not self.checksum_ok(pkg, fdst):
+                fdst.unlink()
+                continue
             fdst.rename(target)
             self.known_hashes[f.hash] = f.filename
             yield target
