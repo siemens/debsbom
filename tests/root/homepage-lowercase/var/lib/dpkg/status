@@ -4,6 +4,7 @@ Priority: optional
 Section: gnu-r
 Source: r-base
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
+Architecture: all
 Installed-Size: 12.3 kB
 Depends: r-base-core (>= 4.2.2.20221110-2), r-cran-boot (>= 1.2.19), r-cran-cluster (>= 1.9.6-2), r-cran-foreign (>= 0.7-2), r-cran-kernsmooth (>= 2.2.14), r-cran-lattice (>= 0.10.11), r-cran-mgcv (>= 1.1.5), r-cran-nlme (>= 3.1.52), r-cran-rpart (>= 3.1.20), r-cran-survival (>= 2.13.2-1), r-cran-mass, r-cran-class, r-cran-nnet, r-cran-spatial, r-cran-codetools, r-cran-matrix
 Homepage: http://www.R-project.org/
