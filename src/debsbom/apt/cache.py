@@ -74,9 +74,6 @@ class Repository:
                 if not len(architectures):
                     logger.error(f"Repository does not specify 'Architectures', ignoring: {entry}")
                     continue
-                if not codename:
-                    logger.error(f"Repository does not specify 'Origin', ignoring: {entry}")
-                    continue
                 yield Repository(
                     in_release_file=entry,
                     origin=origin,
