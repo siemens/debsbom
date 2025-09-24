@@ -5,9 +5,10 @@
 from pathlib import Path
 import pytest
 import requests
-from debsbom.download import Compression, SourceArchiveMerger, PackageDownloader
+from debsbom.download import SourceArchiveMerger, PackageDownloader
 import debsbom.dpkg.package as dpkg
 import debsbom.snapshot.client as sdlclient
+from debsbom.util import Compression
 
 
 def test_compressor_from_tool():

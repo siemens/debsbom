@@ -27,12 +27,12 @@ try:
         PackageDownloader,
         PackageResolver,
         PersistentResolverCache,
-        Compression,
         SourceArchiveMerger,
         DscFileNotFoundError,
     )
     from .snapshot import client as sdlclient
     from .repack import Packer, BomTransformer
+    from .util import Compression
 
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError:
