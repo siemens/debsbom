@@ -83,7 +83,7 @@ class Debsbom:
             [(p.name, p.architecture) for p in packages.values() if isinstance(p, BinaryPackage)]
         )
 
-        logging.info("load source packages from apt cache")
+        logger.info("load source packages from apt cache")
         repos = self._create_apt_repos_it()
 
         if not len(sp_names_apt):
@@ -105,7 +105,7 @@ class Debsbom:
                 apt_ext_s_file, lambda p, a: (p, a) in bin_names_apt
             )
         else:
-            logging.info(
+            logger.info(
                 "Missing apt extended_states file, all packages will be marked as manually installed"
             )
             apt_extended_states = ExtendedStates(set())
@@ -126,7 +126,7 @@ class Debsbom:
 
         # O(n) algorithm to extend our packages with information from the apt cache
         # Idea: Iterate apt cache (expensive!) and annotate local package if matching
-        logging.info("enhance referenced packages with apt cache information")
+        logger.info("enhance referenced packages with apt cache information")
         for p in packages_it:
             ours = packages.get(hash(p))
             if not ours:

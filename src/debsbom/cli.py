@@ -387,7 +387,7 @@ def main():
     logging.basicConfig(level=level)
 
     if not HAS_PYTHON_APT:
-        logging.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
+        logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
     try:
         if args.cmd == "generate":
