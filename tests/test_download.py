@@ -10,6 +10,7 @@ from debsbom.download.download import PersistentResolverCache
 from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
+from debsbom.repack.packer import BomTransformer, Packer
 from debsbom.snapshot.client import RemoteFile
 import debsbom.snapshot.client as sdlclient
 
@@ -140,3 +141,61 @@ def test_file_checksum(sdl, tmpdir, http_session):
     local_files = list(dl.download())
     # no file was successfully downloaded
     assert len(local_files) == 0
+
+
+@pytest.mark.online
+def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
+    tmpdir = Path(tmpdir)
+
+    dl_dir = tmpdir / "downloads"
+    out_dir = tmpdir / "outdir"
+    dl_dir.mkdir()
+    out_dir.mkdir()
+
+    packer = Packer.from_format(
+        fmt="standard-bom",
+        dldir=dl_dir,
+        outdir=out_dir,
+    )
+
+    found_spdx = False
+    found_cdx = False
+    for bom in [spdx_bomfile, cdx_bomfile]:
+        resolver = PackageResolver.create(bom)
+
+        # download a single package
+        dl = PackageDownloader(dl_dir, session=http_session)
+        for p in resolver.sources():
+            dl.register(PackageResolver.resolve(sdl, p))
+        files = list(dl.download())
+        assert len(files) == 3
+
+        # merge the source package
+        bt = BomTransformer.create("standard-bom", resolver.sbom_type(), resolver.document)
+        pkgs = resolver.debian_pkgs()
+        repacked = list(filter(lambda p: p, map(lambda p: packer.repack(p, symlink=True), pkgs)))
+        assert len(repacked) == 1
+        assert ".merged.tar" in repacked[0].filename
+        bom_out = packer.rewrite_sbom(bt, repacked)
+
+        # check if the sbom is updated
+        if "spdx" in bom.name:
+            found_spdx = True
+            found_updated_locator = False
+            for p in bom_out.packages:
+                if p.external_references:
+                    if any([ref.locator.startswith("file:///") for ref in p.external_references]):
+                        found_updated_locator = True
+                        break
+            assert found_updated_locator
+        if "cdx" in bom.name:
+            found_cdx = True
+            for c in bom_out.components:
+                if c.external_references:
+                    if any([str(ref.url).startswith("file:///") for ref in c.external_references]):
+                        found_updated_locator = True
+                        break
+            assert found_updated_locator
+
+    assert found_spdx
+    assert found_cdx
