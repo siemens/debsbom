@@ -63,4 +63,4 @@ def test_merger(tmpdir, some_packages, dldir, compress):
     sam = SourceArchiveMerger(dldir / "sources", outdir, compress=Compression.from_tool(compress))
 
     for p in some_packages:
-        assert p.name in sam.merge(p).name
+        assert p.name in sam.merge(p, apply_patches=True).name
