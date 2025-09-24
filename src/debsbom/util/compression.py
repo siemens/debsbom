@@ -14,6 +14,7 @@ class Compression:
     GZIP  = Format("gzip",  ["-q"], ["-q", "-d", "-c"], ".gz")
     XZ    = Format("xz",    ["-q"], ["-q", "-d", "-c"], ".xz")
     ZSTD  = Format("zstd",  ["-q"], ["-q", "-d", "-c"], ".zst")
+    LZ4  = Format("lz4",    ["-q"], ["-q", "-d", "-c"], ".lz4")
     # fmt: on
 
     @staticmethod
@@ -36,5 +37,10 @@ class Compression:
 
     @staticmethod
     def formats():
-        return [Compression.BZIP2, Compression.GZIP, Compression.XZ, Compression.ZSTD]
-
+        return [
+            Compression.BZIP2,
+            Compression.GZIP,
+            Compression.XZ,
+            Compression.ZSTD,
+            Compression.LZ4,
+        ]
