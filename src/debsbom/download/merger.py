@@ -7,7 +7,9 @@ import hashlib
 import logging
 from pathlib import Path
 import re
+import shutil
 import subprocess
+import sys
 import tempfile
 from debian import deb822
 
@@ -75,10 +77,9 @@ class SourceArchiveMerger:
         self.dldir = dldir
         self.outdir = outdir or dldir
         self.compress = compress
-        # archive files (either debian and source)
-        self.archive_regex = re.compile(r"^.*\.tar\.(bz2|gz|xz|zst)$")
-        # debian diff files (policy section 4.x)
-        self.diff_regex = re.compile(r"^.*\.diff\.(bz2|gz|xz|zst)$")
+        self.dpkg_source = shutil.which("dpkg-source")
+        if not self.dpkg_source:
+            raise RuntimeError("'dpkg-source' from the 'dpkg-dev' package is missing.")
 
     def _check_hash(self, dsc_entry):
         file = self.dldir / dsc_entry["name"]
@@ -87,21 +88,9 @@ class SourceArchiveMerger:
             if digest.hexdigest() != dsc_entry["sha256"]:
                 raise CorruptedFileError(file)
 
-    def _patch(self, diff_file: Path):
-        """
-        Create the debian dir from a patch file (policy section 4.x).
-        Note: This does not apply patches from the debian dir (debian/patches/*) itself
-        """
-        comp = Compression.from_ext(diff_file.suffix)
-        extractor = subprocess.Popen([comp.tool] + comp.extract, stdout=subprocess.PIPE)
-        patcher = subprocess.Popen(["patch"], stdin=extractor.stdout)
-        _, stderr = patcher.communicate()
-        ret = patcher.wait()
-        if ret != 0:
-            raise RuntimeError("Failed to apply patch: ", stderr.decode())
-
-    def merge(self, p: package.SourcePackage) -> Path:
-        merged = self.dldir / p.dscfile().replace(".dsc", ".merged.tar")
+    def merge(self, p: package.SourcePackage, apply_patches=False) -> Path:
+        suffix = ".merged.patched.tar" if apply_patches else ".merged.tar"
+        merged = self.dldir / p.dscfile().replace(".dsc", suffix)
         dsc = self.dldir / p.dscfile()
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
@@ -119,18 +108,18 @@ class SourceArchiveMerger:
         files = d["Checksums-Sha256"]
         [self._check_hash(f) for f in files]
 
-        archives = [self.dldir / f["name"] for f in files if self.archive_regex.match(f["name"])]
-        diffs = [self.dldir / f["name"] for f in files if self.diff_regex.match(f["name"])]
         # extract all tars into tmpdir and create new tar with combined content
         with tempfile.TemporaryDirectory() as tmpdir:
-            for archive in archives:
-                subprocess.check_call(["tar", "xf", str(archive.absolute())], cwd=tmpdir)
-
-            # apply diff if any
-            if len(diffs) > 1:
-                logger.warning(f"{p.name}@{p.version}: only a single debian .diff is supported.")
-            if len(diffs):
-                self._patch(diffs[0])
+            verbose = logger.getEffectiveLevel() <= logging.DEBUG
+            dpkg_src_opts = ["--no-check"]
+            # only set option if this is not a native package
+            if not apply_patches and p.version.debian_revision:
+                dpkg_src_opts.append("--skip-patches")
+            subprocess.check_call(
+                [self.dpkg_source] + dpkg_src_opts + ["-x", str(dsc.absolute())],
+                cwd=tmpdir,
+                stdout=sys.stderr if verbose else subprocess.DEVNULL,
+            )
 
             # repack archive
             sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]

@@ -265,7 +265,7 @@ class MergeCmd:
             if args.progress:
                 progress_cb(idx, len(pkgs), f"{pkg.name}@{pkg.version}")
             try:
-                merger.merge(pkg)
+                merger.merge(pkg, apply_patches=args.apply_patches)
             except DscFileNotFoundError:
                 logger.warning(f"dsc file not found: {pkg.name}@{pkg.version}")
 
@@ -283,6 +283,11 @@ class MergeCmd:
             help="compress merged tarballs (default: gzip)",
             choices=["no"] + [c.tool for c in Compression.formats()],
             default="gzip",
+        )
+        parser.add_argument(
+            "--apply-patches",
+            help="apply debian patches",
+            action="store_true",
         )
 
 
