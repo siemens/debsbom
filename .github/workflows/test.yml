@@ -81,7 +81,7 @@ jobs:
           pattern: coverage-data-*-3.13
           merge-multiple: true
 
-      - name: Check coverage and fail it it’s under 75%
+      - name: Check coverage and fail it it’s under 85%
         run: |
           cat >.coveragerc <<EOF
           [run]
@@ -99,8 +99,8 @@ jobs:
           # Report and write to summary.
           python -m coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
 
-          # Report again and fail if under 75%.
-          python -Im coverage report --fail-under=75
+          # Report again and fail if under 85%.
+          python -Im coverage report --fail-under=85
 
       - name: Upload HTML report if check failed
         uses: actions/upload-artifact@v4
