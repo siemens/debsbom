@@ -65,8 +65,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # python version has to match the coverage-data version,
-          # otherwise the sources are not available
           python-version: 3.13
 
       - name: Install dependencies
@@ -77,8 +75,7 @@ jobs:
       - name: Download coverage data
         uses: actions/download-artifact@v4
         with:
-          # use coverage of most recent python version
-          pattern: coverage-data-*-3.13
+          pattern: coverage-data-*
           merge-multiple: true
 
       - name: Check coverage and fail it it’s under 85%
