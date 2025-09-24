@@ -67,10 +67,13 @@ class Repository:
                 origin = repo["Origin"]
                 codename = repo.get("Codename")
                 version = repo.get("Version")
-                architectures = repo["Architectures"].split()
+                architectures = repo.get("Architectures", "").split()
                 components = repo.get("Components")
                 description = repo.get("Description")
                 logger.info(f"Found apt lists cache repository: {entry}")
+                if not len(architectures):
+                    logger.error(f"Repository does not specify 'Architectures', ignoring: {entry}")
+                    continue
                 yield Repository(
                     in_release_file=entry,
                     origin=origin,
