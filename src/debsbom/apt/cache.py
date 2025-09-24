@@ -50,7 +50,7 @@ class Repository:
     """Represents a debian repository as cached by apt."""
 
     in_release_file: Path
-    origin: str
+    origin: str | None
     codename: str
     architectures: list[str]
     components: list[str] | None = None
@@ -64,7 +64,7 @@ class Repository:
             if entry.name.endswith("_InRelease"):
                 with open(entry) as f:
                     repo = Deb822(f)
-                origin = repo["Origin"]
+                origin = repo.get("Origin")
                 codename = repo.get("Codename")
                 version = repo.get("Version")
                 architectures = repo.get("Architectures", "").split()
