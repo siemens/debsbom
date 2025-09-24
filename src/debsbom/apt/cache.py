@@ -51,7 +51,7 @@ class Repository:
 
     in_release_file: Path
     origin: str | None
-    codename: str
+    codename: str | None
     architectures: list[str]
     components: list[str] | None = None
     version: Version | None = None
