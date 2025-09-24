@@ -76,6 +76,12 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             return iter([])
 
+    @staticmethod
+    def _inject_extended_state(ext_states: ExtendedStates, p: Package) -> Package:
+        if isinstance(p, BinaryPackage):
+            p.manually_installed = ext_states.is_manual(p.name, p.architecture)
+        return p
+
     def _merge_apt_data(self, packages: dict[int, Package]) -> set[Package]:
         # names of packages in apt cache we also have referenced
         sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
@@ -113,12 +119,12 @@ class Debsbom:
         # Create uniform list of all packages both we and the apt cache knows
         # This list shall contain a superset of our packages (minus non-upstream ones)
         # but filtering should be as good as possible as the apt cache contains potentially
-        # tenth of thousands packages.
+        # tenth of thousands packages. If we don't have apt-cache data, this iterator is empty.
         packages_it = itertools.chain.from_iterable(
             map(
                 lambda r: itertools.chain(
                     r.sources(lambda p: p in sp_names_apt),
-                    r.binpackages(lambda p, a: (p, a) in bin_names_apt, apt_extended_states),
+                    r.binpackages(lambda p, a: (p, a) in bin_names_apt),
                 ),
                 repos,
             )
@@ -133,7 +139,10 @@ class Debsbom:
                 continue
             ours.merge_with(p)
 
-        return set(packages.values())
+        # Even without apt-cache data, we still may have extended states. Add them.
+        return set(
+            map(lambda p: self._inject_extended_state(apt_extended_states, p), packages.values())
+        )
 
     def generate(
         self,
