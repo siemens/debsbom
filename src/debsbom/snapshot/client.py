@@ -4,6 +4,11 @@
 #
 # SPDX-License-Identifier: MIT
 
+"""
+This module contains wrappers of the snapshot.debian.org machine-usable interface
+documented in https://salsa.debian.org/snapshot-team/snapshot/raw/master/API.
+"""
+
 from collections.abc import Iterable
 from dataclasses import dataclass
 import requests
@@ -20,6 +25,10 @@ class SnapshotDataLakeError(Exception):
 
 
 class NotFoundOnSnapshotError(SnapshotDataLakeError, FileNotFoundError):
+    """
+    The requested file is not found on the snapshot mirror
+    """
+
     pass
 
 
@@ -33,6 +42,9 @@ class Package:
         self.name = name
 
     def versions(self):
+        """
+        Iterate all versions of a ``SourcePackage``.
+        """
         try:
             r = self.sdl.rs.get(self.sdl.url + f"/mr/package/{self.name}/")
             if r.status_code == 404:
@@ -164,6 +176,9 @@ class RemoteFile:
 
     @staticmethod
     def fromfileinfo(sdl, hash, fileinfo):
+        """
+        Factory to create a ``RemoteFile`` from a fileinfo object.
+        """
         return RemoteFile(
             hash,
             fileinfo["name"],
@@ -177,7 +192,8 @@ class RemoteFile:
 
 class SnapshotDataLake:
     """
-    Snapshot instance to query against
+    Snapshot instance to query against. If you use this API from a tool,
+    please use a dedicated requests session and set a custom user-agent header.
     """
 
     def __init__(
@@ -188,6 +204,10 @@ class SnapshotDataLake:
         self.rs = session
 
     def packages(self) -> Iterable[Package]:
+        """
+        Iterate all known packages on the mirror. The request is costly.
+        If you need to access a package by name, create the ``Package`` directly.
+        """
         try:
             r = self.rs.get(self.url + "/mr/package/")
             data = r.json()
@@ -197,6 +217,9 @@ class SnapshotDataLake:
             yield Package(self, p["package"])
 
     def fileinfo(self, hash):
+        """
+        Retrieve information about a file by hash.
+        """
         try:
             r = self.rs.get(self.url + f"/mr/file/{hash}/info")
             data = r.json()
