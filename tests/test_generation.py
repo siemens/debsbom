@@ -5,12 +5,16 @@
 from datetime import datetime, timezone
 from importlib.metadata import version
 import json
+import os
 from pathlib import Path
+import pytest
+import subprocess
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 from uuid import uuid4
 
 from debsbom.apt.cache import ExtendedStates
+from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
 
@@ -249,3 +253,74 @@ def test_apt_extended_states():
 
     noes = ExtendedStates(set())
     assert noes.is_manual("foo", "amd64")
+
+
+compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
+
+
+@pytest.mark.parametrize("tool", compressions)
+def test_apt_lists_compression(tmpdir, tool):
+    comp = Compression.from_tool(tool)
+
+    url = urlparse("http://example.org")
+    uuid = uuid4()
+    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+    # create a temporary rootfs copied from tests/root/apt-sources and
+    # compress the _Sources and _Packages there
+    root = tmpdir / f"root-{comp.tool}"
+    base = Path("tests/root/apt-sources")
+    in_release_file = "deb.debian.org_debian_dists_bookworm_InRelease"
+    lists_dir = root / "var/lib/apt/lists"
+    os.makedirs(lists_dir)
+    dpkg_dir = root / "var/lib/dpkg"
+    os.makedirs(dpkg_dir)
+    # simply symlink the InRelease and status file
+    os.symlink(
+        (base / f"var/lib/apt/lists/{in_release_file}").resolve(), lists_dir / in_release_file
+    )
+    os.symlink((base / "var/lib/dpkg/status").resolve(), dpkg_dir / "status")
+    sources_file = "var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources"
+    binaries_file = (
+        "var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages"
+    )
+    with open(root / sources_file + comp.fileext, "w") as f, open(base / sources_file) as in_f:
+        compressor = subprocess.Popen(
+            [comp.tool] + comp.compress,
+            stdin=in_f,
+            stdout=f,
+        )
+        _, stderr = compressor.communicate()
+        assert compressor.wait() == 0
+    with open(root / binaries_file + comp.fileext, "w") as f, open(base / binaries_file) as in_f:
+        compressor = subprocess.Popen(
+            [comp.tool] + comp.compress,
+            stdin=in_f,
+            stdout=f,
+        )
+        _, stderr = compressor.communicate()
+        assert compressor.wait() == 0
+
+    dbom = Debsbom(
+        distro_name="pytest-distro",
+        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
+        root=str(root),
+        spdx_namespace=url,
+        cdx_serialnumber=uuid,
+        timestamp=timestamp,
+    )
+    dbom.generate(str(tmpdir / "sbom"), validate=True)
+    with open(tmpdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+        assert next(
+            filter(lambda p: p["SPDXID"].endswith("binutils-arm-none-eabi-amd64"), packages)
+        )
+        for pkg in packages:
+            if pkg["SPDXID"].endswith("-srcpkg"):
+                assert pkg["supplier"] != "NOASSERTION"
+            if pkg["SPDXID"].endswith("binutils-arm-none-eabi-amd64"):
+                assert {
+                    "algorithm": "MD5",
+                    "checksumValue": "041580298095f940c2c9c130e0d6e149",
+                } in pkg["checksums"]
