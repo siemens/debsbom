@@ -89,6 +89,9 @@ class SourceArchiveMerger:
                 raise CorruptedFileError(file)
 
     def merge(self, p: package.SourcePackage, apply_patches=False) -> Path:
+        """
+        The provided package will also be updated with information from the .dsc file.
+        """
         suffix = ".merged.patched.tar" if apply_patches else ".merged.tar"
         merged = self.dldir / p.dscfile().replace(".dsc", suffix)
         dsc = self.dldir / p.dscfile()
@@ -107,6 +110,9 @@ class SourceArchiveMerger:
             d = deb822.Dsc(f)
         files = d["Checksums-Sha256"]
         [self._check_hash(f) for f in files]
+
+        # merge package with info from dsc file
+        p.merge_with(package.SourcePackage.from_dep822(d))
 
         # extract all tars into tmpdir and create new tar with combined content
         with tempfile.TemporaryDirectory() as tmpdir:
