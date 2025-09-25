@@ -38,8 +38,12 @@ SUPPLIER_PATTERN = re.compile("(?P<supplier_name>^[^<]+)(\\<(?P<supplier_email>.
 
 
 class SBOMType(Enum):
+    """Supported SBOM types"""
+
     CycloneDX = (0,)
+    """CycloneDX"""
     SPDX = (1,)
+    """SPDX"""
 
 
 class BOM_Standard(Enum):
@@ -88,8 +92,8 @@ class Reference:
     @staticmethod
     def make_from_pkg(pkg: Package) -> "Reference":
         """
-        Return a unique string to reference a package in the list of all packages.
-        This representation must match the one returned by make_from_dep.
+        Return a reference to a package in the list of all packages.
+        This representation must match the one returned by ``make_from_dep``.
         """
         if isinstance(pkg, SourcePackage):
             return Reference(target=f"{pkg.name}-{pkg.version}", is_source=True)
@@ -99,6 +103,11 @@ class Reference:
 
     @staticmethod
     def make_from_dep(dep: Dependency, to_arch: str | None = None) -> "Reference":
+        """
+        Return a reference to a package from a dependency. If the dependency does
+        not specify an architecture, the caller is responsible for providing this
+        in ``to_arch``.
+        """
         if "source" in [dep.arch, to_arch]:
             return Reference(target=f"{dep.name}-{dep.version[1]}", is_source=True)
         else:
@@ -111,12 +120,17 @@ class BomSpecific:
 
     @classmethod
     def sbom_type(cls) -> SBOMType:
+        """Type of SBOM this class can handle"""
         return cls._sbom_type
 
 
 class CDXType(BomSpecific):
+    """CycloneDX type mixin"""
+
     _sbom_type = SBOMType.CycloneDX
 
 
 class SPDXType(BomSpecific):
+    """SPDX type mixin"""
+
     _sbom_type = SBOMType.SPDX
