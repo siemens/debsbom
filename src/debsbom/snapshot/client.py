@@ -9,7 +9,7 @@ This module contains wrappers of the snapshot.debian.org machine-usable interfac
 documented in https://salsa.debian.org/snapshot-team/snapshot/raw/master/API.
 """
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 import requests
 from datetime import datetime
@@ -37,11 +37,11 @@ class Package:
     Source package name (without specific version)
     """
 
-    def __init__(self, sdl, name: str):
+    def __init__(self, sdl: "SnapshotDataLake", name: str):
         self.sdl = sdl
         self.name = name
 
-    def versions(self):
+    def versions(self) -> Iterable["SourcePackage"]:
         """
         Iterate all versions of a ``SourcePackage``.
         """
@@ -61,7 +61,7 @@ class SourcePackage:
     Source package in a specific version
     """
 
-    def __init__(self, sdl, name: str, version: str):
+    def __init__(self, sdl: "SnapshotDataLake", name: str, version: str):
         self.sdl = sdl
         self.name = name
         self.version = version
@@ -111,14 +111,21 @@ class BinaryPackage:
     Binary package in a specific version
     """
 
-    def __init__(self, sdl, binname, binversion, srcname, srcversion):
+    def __init__(
+        self,
+        sdl: "SnapshotDataLake",
+        binname: str,
+        binversion: str,
+        srcname: str | None,
+        srcversion: str | None,
+    ):
         self.sdl = sdl
         self.binname = binname
         self.binversion = binversion
         self.srcname = srcname
         self.srcversion = srcversion
 
-    def files(self, arch: str = None) -> Iterable["RemoteFile"]:
+    def files(self, arch: str | None = None) -> Iterable["RemoteFile"]:
         """
         All files associated with this binary package (e.g. per-architecture)
 
@@ -175,7 +182,7 @@ class RemoteFile:
     architecture: str | None = None
 
     @staticmethod
-    def fromfileinfo(sdl, hash, fileinfo):
+    def fromfileinfo(sdl, hash: str, fileinfo: Mapping) -> "RemoteFile":
         """
         Factory to create a ``RemoteFile`` from a fileinfo object.
         """
@@ -216,7 +223,7 @@ class SnapshotDataLake:
         for p in data.get("result", []):
             yield Package(self, p["package"])
 
-    def fileinfo(self, hash):
+    def fileinfo(self, hash: str) -> Iterable[RemoteFile]:
         """
         Retrieve information about a file by hash.
         """
