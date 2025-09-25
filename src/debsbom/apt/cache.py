@@ -9,6 +9,7 @@ from debian.debian_support import Version
 import logging
 from pathlib import Path
 
+from ..util.compression import read_maybe_compressed_file
 from ..dpkg.package import BinaryPackage, SourcePackage
 from .. import HAS_PYTHON_APT
 
@@ -109,11 +110,12 @@ class Repository:
         cls, sources_file: str, srcpkg_filter: Callable[[str], bool] | None = None
     ) -> Iterable["SourcePackage"]:
         try:
-            with open(sources_file) as f:
-                sources_raw = Sources.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
-                for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
-                    yield s
-        except FileNotFoundError:
+            logger.debug(f"Parsing apt cache source packages: {sources_file}")
+            content = read_maybe_compressed_file(Path(sources_file))
+            sources_raw = Sources.iter_paragraphs(content, use_apt_pkg=HAS_PYTHON_APT)
+            for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
+                yield s
+        except (FileNotFoundError, RuntimeError):
             logger.debug(f"Missing apt cache sources: {sources_file}")
 
     @classmethod
@@ -121,12 +123,12 @@ class Repository:
         cls, packages_file: str, binpkg_filter: Callable[[str, str], bool] | None = None
     ) -> Iterable[BinaryPackage]:
         try:
-            with open(packages_file) as f:
-                logger.debug(f"Parsing apt cache packages: {packages_file}")
-                packages_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
-                for p in Repository._make_binpkgs(packages_raw, binpkg_filter):
-                    yield p
-        except FileNotFoundError:
+            logger.debug(f"Parsing apt cache packages: {packages_file}")
+            content = read_maybe_compressed_file(Path(packages_file))
+            packages_raw = Packages.iter_paragraphs(content, use_apt_pkg=HAS_PYTHON_APT)
+            for p in Repository._make_binpkgs(packages_raw, binpkg_filter):
+                yield p
+        except (FileNotFoundError, RuntimeError):
             logger.debug(f"Missing apt cache packages: {packages_file}")
 
     def sources(self, filter_fn: Callable[[str], bool] | None = None) -> Iterable[SourcePackage]:
