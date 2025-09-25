@@ -16,6 +16,12 @@ Package Representations
 .. automodule:: debsbom.dpkg.package
    :members:
 
+APT Cache Retrieval
+-------------------
+
+.. automodule:: debsbom.apt.cache
+   :members:
+
 Debian Snapshot Client
 ----------------------
 

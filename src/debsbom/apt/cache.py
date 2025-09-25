@@ -26,13 +26,15 @@ class ExtendedStates:
 
     auto_installed: set[tuple[str, str]]
 
-    def is_manual(self, name: str, arch: str):
+    def is_manual(self, name: str, arch: str) -> bool:
+        """True if package is explicitly installed"""
         return (name, arch) not in self.auto_installed
 
     @classmethod
     def from_file(
         cls, file: str | Path, filter_fn: Callable[[str, str], bool] | None = None
     ) -> "ExtendedStates":
+        """Factory to create instance from the apt extended states file"""
         auto_installed = set()
         with open(Path(file)) as f:
             for s in Deb822.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT):
