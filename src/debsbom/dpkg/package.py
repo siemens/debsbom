@@ -238,7 +238,11 @@ class SourcePackage(Package):
 
     @staticmethod
     def from_dep822(package) -> "SourcePackage":
-        name = package["Package"]
+        """
+        Create a package from a dep822 representation. If the dep822 input
+        is a .dsc file, the name is read from the source property.
+        """
+        name = package.get("Source") or package["Package"]
         version = Version(package.get("Version"))
         maintainer = package.get("Maintainer")
         if package.get("Binaries") is not None:
