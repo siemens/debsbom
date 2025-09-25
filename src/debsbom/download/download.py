@@ -16,7 +16,6 @@ from pathlib import Path
 from packageurl import PackageURL
 import requests
 
-from ..sbom import SBOMType
 from ..dpkg import package
 from ..dpkg.package import ChecksumAlgo
 from ..snapshot import client as sdlclient
@@ -34,11 +33,13 @@ class PackageResolverCache:
     """
 
     def lookup(self, p: package.SourcePackage | package.BinaryPackage) -> list["RemoteFile"] | None:
+        """Lookup package files in cache"""
         return None
 
     def insert(
         self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
     ) -> None:
+        """Insert package files into cache"""
         pass
 
 
@@ -94,6 +95,7 @@ class PackageResolver:
 
     @abstractmethod
     def is_debian_pkg(package) -> bool:
+        """Return true if provided SBOM package is a Debian package"""
         raise NotImplementedError()
 
     @abstractmethod
@@ -104,13 +106,19 @@ class PackageResolver:
         pass
 
     def sources(self) -> Iterable[package.SourcePackage]:
+        """Iterate Debian source packages"""
         return filter(lambda p: isinstance(p, package.SourcePackage), self.debian_pkgs())
 
     def binaries(self) -> Iterable[package.BinaryPackage]:
+        """Iterate Debian binary packages"""
         return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
     @classmethod
     def package_from_purl(cls, purl: str) -> "package.Package":
+        """
+        Create a package from a PURL. Note, that the package only encodes
+        information that can be derived from the PURL.
+        """
         purl = PackageURL.from_string(purl)
         if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)
@@ -150,6 +158,9 @@ class PackageResolver:
 
     @staticmethod
     def create(filename: Path) -> "PackageResolver":
+        """
+        Factory to create a PackageResolver for the given SBOM type (based on the filename extension).
+        """
         if filename.name.endswith("spdx.json"):
             from .spdx import SpdxPackageResolver
 
@@ -163,6 +174,11 @@ class PackageResolver:
 
 
 class PackageDownloader:
+    """
+    Retrieve package artifacts from upstream. Files are only retrieved once by comparison
+    with the data in the local downloads directory.
+    """
+
     def __init__(
         self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
     ):
@@ -183,7 +199,8 @@ class PackageDownloader:
         else:
             return Path(self.binaries_dir / f.filename)
 
-    def register(self, files: list[RemoteFile], package: package.Package | None = None):
+    def register(self, files: list[RemoteFile], package: package.Package | None = None) -> None:
+        """Register a list of files corresponding to a package for download."""
         self.to_download.extend([(package, f) for f in files])
 
     def stat(self) -> StatisticsType:
@@ -198,6 +215,10 @@ class PackageDownloader:
 
     @classmethod
     def checksum_ok(cls, pkg: package.Package, file: Path) -> bool:
+        """
+        Check if the checksum of a file matches the checksums of the package.
+        If no checksums are provided, return true.
+        """
         if not pkg.checksums:
             return True
 

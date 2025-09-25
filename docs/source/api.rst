@@ -22,6 +22,15 @@ APT Cache Retrieval
 .. automodule:: debsbom.apt.cache
    :members:
 
+Package Downloader
+------------------
+
+.. automodule:: debsbom.download.download
+   :members:
+
+.. automodule:: debsbom.download.merger
+   :members:
+
 Debian Snapshot Client
 ----------------------
 
