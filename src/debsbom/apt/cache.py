@@ -148,9 +148,16 @@ class Repository:
     ) -> Iterable[BinaryPackage]:
         """Get all binary packages from this repository"""
         repo_base = str(self.in_release_file).removesuffix("_InRelease")
-        for component in self.components:
+        if self.components:
+            for component in self.components:
+                for arch in self.architectures:
+                    packages_file = "_".join([repo_base, component, f"binary-{arch}", "Packages"])
+                    for p in self._parse_packages(packages_file, filter_fn):
+                        p.manually_installed = ext_states.is_manual(p.name, p.architecture)
+                        yield p
+        else:
             for arch in self.architectures:
-                packages_file = "_".join([repo_base, component, f"binary-{arch}", "Packages"])
+                packages_file = "_".join([repo_base, f"binary-{arch}", "Packages"])
                 for p in self._parse_packages(packages_file, filter_fn):
                     p.manually_installed = ext_states.is_manual(p.name, p.architecture)
                     yield p
