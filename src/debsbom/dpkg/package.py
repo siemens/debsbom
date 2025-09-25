@@ -123,12 +123,14 @@ class Package(ABC):
                 yield element
 
     def merge_with(self, other: "Package"):
+        """
+        Copy the corresponding values of the other package for each unset field.
+        """
         if not self.maintainer:
             self.maintainer = other.maintainer
         if not self.homepage:
             self.homepage = other.homepage
 
-    # TODO: check type
     @classmethod
     def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
         """
@@ -160,6 +162,7 @@ class Package(ABC):
 
     @property
     def filename(self) -> str:
+        """Return the filename part from the locator of a package."""
         return self.locator.split("/")[-1]
 
 
@@ -226,6 +229,7 @@ class SourcePackage(Package):
         return f"{self.name}_{version_wo_epoch}.dsc"
 
     def merge_with(self, other: "SourcePackage"):
+        """Copy properties from other which are unset on our side. Merge lists."""
         super().merge_with(other)
         if not self.vcs_browser:
             self.vcs_browser = other.vcs_browser
@@ -320,6 +324,7 @@ class BinaryPackage(Package):
         return PackageURL.from_string(purl)
 
     def merge_with(self, other: "BinaryPackage"):
+        """Copy properties from other which are unset on our side. Merge lists and dicts. Or booleans."""
         super().merge_with(other)
         if not self.section:
             self.section = other.section
@@ -381,6 +386,9 @@ class BinaryPackage(Package):
 
     @staticmethod
     def from_dep822(package) -> "BinaryPackage":
+        """
+        Create a ``BinaryPackage`` from a dep822 representation.
+        """
         if package.source:
             srcdep = Dependency(package.source, None, ("=", package.source_version), arch="source")
         else:
