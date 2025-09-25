@@ -40,6 +40,7 @@ dev = [
   "black",
   "beartype>=0.20",
   "debsbom[download]",
+  "debsbom[doc]",
 ]
 download = [
     "requests>=2.25.1",
@@ -48,6 +49,14 @@ download = [
 # only needed to speedup apt parsing
 apt = [
     "python3-apt>=2.6.0",
+]
+
+# dependencies to build documentation
+doc = [
+  "sphinx>=7,<8",
+  "sphinx-rtd-theme>=2.0.0",
+  "sphinx-autodoc-typehints>=2.0.0",
+  "sphinx-argparse>=0.2.1",
 ]
 
 [project.scripts]

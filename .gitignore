@@ -2,4 +2,5 @@
 *.json
 *.egg-info
 .coverage*
+docs/build/
 downloads/
