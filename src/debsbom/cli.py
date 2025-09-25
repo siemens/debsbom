@@ -347,7 +347,7 @@ class RepackCmd:
         )
 
 
-def main():
+def setup_parser():
     parser = argparse.ArgumentParser(
         prog="debsbom",
         description="SBOM tool for Debian systems.",
@@ -375,6 +375,11 @@ def main():
         )
         RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
 
+    return parser
+
+
+def main():
+    parser = setup_parser()
     args = parser.parse_args()
 
     if args.verbose == 0:
