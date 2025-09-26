@@ -26,6 +26,7 @@ try:
     from .download import (
         PackageDownloader,
         PackageResolver,
+        PackageStreamResolver,
         PersistentResolverCache,
         SourceArchiveMerger,
         DscFileNotFoundError,
@@ -182,7 +183,9 @@ class GenerateCmd:
 
 class DownloadCmd:
     """
-    Processes a SBOM and downloads the referenced packages
+    Processes a SBOM and downloads the referenced packages.
+    If no SBOM is provided, it reads line separated entries (name version arch)
+    from stdin to define what shall be downloaded.
     """
 
     @staticmethod
@@ -209,7 +212,11 @@ class DownloadCmd:
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
         cache = PersistentResolverCache(outdir / ".cache")
-        resolver = PackageResolver.create(Path(args.bomfile))
+        if args.bomfile:
+            resolver = PackageResolver.create(Path(args.bomfile))
+        else:
+            warn_if_tty()
+            resolver = PackageStreamResolver(sys.stdin)
         rs = requests.Session()
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
@@ -244,7 +251,7 @@ class DownloadCmd:
 
     @staticmethod
     def setup_parser(parser):
-        parser.add_argument("bomfile", help="sbom file to process")
+        parser.add_argument("bomfile", help="sbom file to process", nargs="?")
         parser.add_argument(
             "--outdir", default="downloads", help="directory to store downloaded files"
         )
