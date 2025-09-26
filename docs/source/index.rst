@@ -6,6 +6,7 @@ debsbom documentation
 
    intro
    commands
+   examples
    api
 
 Indices and tables
