@@ -62,7 +62,7 @@ class Debsbom:
 
     def _import_packages(self, stream=None):
         if stream:
-            packages_it = BinaryPackage.parse_pkglist_stream(stream)
+            packages_it = Package.parse_pkglist_stream(stream)
         else:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))

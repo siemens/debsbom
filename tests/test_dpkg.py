@@ -6,7 +6,7 @@ from pathlib import Path
 from debian.deb822 import PkgRelation
 from debian.debian_support import Version
 
-from debsbom.dpkg.package import ChecksumAlgo, Dependency, BinaryPackage, SourcePackage
+from debsbom.dpkg.package import ChecksumAlgo, Dependency, BinaryPackage, SourcePackage, Package
 from debsbom.sbom import Reference
 
 
@@ -124,7 +124,7 @@ def test_package_merge():
 
 def test_parse_pkgs_stream():
     data = ["binutils-arm-none-eabi 2.40-2+18+b1 amd64", "binutils-bpf 2.40-2+1 amd64"]
-    pkgs_it = BinaryPackage.parse_pkglist_stream(data)
+    pkgs_it = Package.parse_pkglist_stream(data)
 
     pkg: BinaryPackage = next(pkgs_it)
     assert pkg.name == "binutils-arm-none-eabi"
