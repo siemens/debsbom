@@ -5,7 +5,12 @@
 from pathlib import Path
 
 import pytest
-from debsbom.download import PackageDownloader, PackageResolver, PersistentResolverCache
+from debsbom.download import (
+    PackageDownloader,
+    PackageResolver,
+    PackageStreamResolver,
+    PersistentResolverCache,
+)
 from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
@@ -92,6 +97,16 @@ def test_package_resolver_parse_spdx(spdx_bomfile):
 def test_package_resolver_parse_cdx(cdx_bomfile):
     rs = PackageResolver.create(cdx_bomfile)
     assert any(filter(lambda p: p.architecture == "amd64", rs.binaries()))
+
+
+def test_package_resolver_parse_stream():
+    data = [
+        "binutils 2.40-2 amd64",
+        "guestfs-tools 1.52.3-1 source",
+    ]
+    rs = PackageStreamResolver(data)
+    assert any(filter(lambda p: p.name == "guestfs-tools", rs.sources()))
+    assert any(filter(lambda p: p.name == "binutils", rs.binaries()))
 
 
 @pytest.mark.online

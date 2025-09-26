@@ -159,3 +159,24 @@ class PackageResolver:
             return CdxPackageResolver.from_file(filename)
         else:
             raise RuntimeError("Cannot determine file format")
+
+
+class PackageStreamResolver(PackageResolver):
+    """
+    Iterates a list of pkg-list entries (name version architecture) and
+    resolves them.
+    """
+
+    def __init__(self, pkgstream: Iterable[str]):
+        """The provided pkgstream is fully read on object creation"""
+        self.packages = set(package.Package.parse_pkglist_stream(pkgstream))
+
+    def is_debian_pkg(package) -> bool:
+        """This solver only operates on debian packages. Always returns true"""
+        return True
+
+    def debian_pkgs(self) -> Iterable[package.Package]:
+        """
+        Return Debian package instances
+        """
+        return iter(self.packages)
