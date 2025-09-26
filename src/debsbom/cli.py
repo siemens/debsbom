@@ -49,6 +49,11 @@ def progress_cb(i: int, n: int, name: str):
     sys.stdout.flush()
 
 
+def warn_if_tty() -> None:
+    if sys.stdin.isatty():
+        logger.warning("Expecting data via stdin, but connected to TTY.")
+
+
 class GenerateCmd:
     """
     Generate SBOMs from the dpkg package list
@@ -82,8 +87,8 @@ class GenerateCmd:
             timestamp=args.timestamp,
             cdx_standard=cdx_standard,
         )
-        if args.from_pkglist and sys.stdin.isatty():
-            logger.warning("Expecting data via stdin, but connected to TTY.")
+        if args.from_pkglist:
+            warn_if_tty()
 
         debsbom.generate(
             args.out,
