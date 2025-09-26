@@ -29,6 +29,11 @@ class CdxPackageResolver(PackageResolver, CDXType):
         super().__init__()
         self._document = document
 
+    @property
+    def document(self):
+        """get the parsed SBOM document"""
+        return self._document
+
     @staticmethod
     def is_debian_pkg(p: Component):
         if str(p.purl).startswith("pkg:deb/debian/"):
