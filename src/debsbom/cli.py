@@ -270,7 +270,11 @@ class MergeCmd:
         pkgdir = Path(args.pkgdir)
         outdir = Path(args.outdir or args.pkgdir)
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
-        resolver = PackageResolver.create(Path(args.bomfile))
+        if args.bomfile:
+            resolver = PackageResolver.create(Path(args.bomfile))
+        else:
+            warn_if_tty()
+            resolver = PackageStreamResolver(sys.stdin)
         merger = SourceArchiveMerger(pkgdir, outdir, compress)
         pkgs = list(resolver.sources())
 
@@ -285,7 +289,7 @@ class MergeCmd:
 
     @staticmethod
     def setup_parser(parser):
-        parser.add_argument("bomfile", help="sbom file to process")
+        parser.add_argument("bomfile", help="sbom file to process", nargs="?")
         parser.add_argument(
             "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
         )
