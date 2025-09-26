@@ -4,7 +4,7 @@
 
 from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import CDXType
-from .download import PackageResolver
+from .resolver import PackageResolver
 
 import json
 import logging
