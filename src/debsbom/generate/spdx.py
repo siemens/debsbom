@@ -39,7 +39,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
     """Get the SPDX representation of a Package."""
     match = SUPPLIER_PATTERN.match(package.maintainer or "")
     if match:
-        supplier_name = match["supplier_name"]
+        supplier_name = match["supplier_name"].strip()
         supplier_email = match["supplier_email"]
     if match and any([cue in supplier_name.lower() for cue in SPDX_SUPPLIER_ORG_CUE]):
         supplier = spdx_actor.Actor(
