@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .download import PackageResolver, PackageResolverCache, PersistentResolverCache
+from .resolver import PackageResolver, PackageResolverCache, PersistentResolverCache
 from .download import PackageDownloader
 from .merger import SourceArchiveMerger, Compression, CorruptedFileError, DscFileNotFoundError

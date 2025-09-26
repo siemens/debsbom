@@ -4,7 +4,7 @@
 
 from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import SPDXType
-from .download import PackageResolver
+from .resolver import PackageResolver
 
 import logging
 from collections.abc import Iterable

@@ -5,8 +5,7 @@
 from pathlib import Path
 
 import pytest
-from debsbom.download import PackageDownloader, PackageResolver
-from debsbom.download.download import PersistentResolverCache
+from debsbom.download import PackageDownloader, PackageResolver, PersistentResolverCache
 from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
