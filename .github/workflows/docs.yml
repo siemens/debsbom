@@ -29,3 +29,24 @@ jobs:
         run: |
           cd docs
           make html
+
+  publish:
+    name: Publish Docs
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - docs
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build/html
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
