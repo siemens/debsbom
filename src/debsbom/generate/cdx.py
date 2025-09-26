@@ -50,7 +50,7 @@ def cdx_package_repr(
 
     match = SUPPLIER_PATTERN.match(package.maintainer or "")
     if match:
-        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"])
+        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"].strip())
         supplier_email = match["supplier_email"]
         if supplier_email:
             supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
