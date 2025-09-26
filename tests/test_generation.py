@@ -11,7 +11,7 @@ import pytest
 import subprocess
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from debsbom.apt.cache import ExtendedStates
 from debsbom.util.compression import Compression
@@ -19,20 +19,33 @@ from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
 
 
-def test_tree_generation():
-    url = urlparse("http://example.org")
-    uuid = uuid4()
+@pytest.fixture
+def sbom_generator():
+    def setup_sbom_generator(
+        test_root: Path, uuid: UUID = None, timestamp: datetime | None = None
+    ) -> Debsbom:
+        url = urlparse("http://example.org")
+        if uuid is None:
+            uuid = uuid4()
+        if timestamp is None:
+            timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+        return Debsbom(
+            distro_name="pytest-distro",
+            sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
+            root=str(test_root),
+            spdx_namespace=url,
+            cdx_serialnumber=uuid,
+            timestamp=timestamp,
+        )
+
+    return setup_sbom_generator
+
+
+def test_tree_generation(sbom_generator):
     timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root="tests/root/tree",
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
-
+    uuid = uuid4()
+    dbom = sbom_generator(Path("tests/root/tree"), uuid, timestamp)
     with TemporaryDirectory() as outdir:
         outdir = Path(outdir)
         dbom.generate(str(outdir / "sbom"), validate=True)
@@ -57,19 +70,8 @@ def test_tree_generation():
             assert cdx_json["serialNumber"] == "urn:uuid:{}".format(uuid)
 
 
-def test_dependency_generation():
-    url = urlparse("http://example.org")
-    uuid = uuid4()
-    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root="tests/root/dependency",
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
+def test_dependency_generation(sbom_generator):
+    dbom = sbom_generator(Path("tests/root/dependency"))
     with TemporaryDirectory() as outdir:
         outdir = Path(outdir)
         dbom.generate(str(outdir / "sbom"), validate=True)
@@ -152,20 +154,8 @@ def test_standard_bom():
             assert s_bom["owner"] == "Siemens AG"
 
 
-def test_homepage_regression():
-    url = urlparse("http://example.org")
-    uuid = uuid4()
-    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root="tests/root/homepage-lowercase",
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
-
+def test_homepage_regression(sbom_generator):
+    dbom = sbom_generator("tests/root/homepage-lowercase")
     with TemporaryDirectory() as outdir:
         outdir = Path(outdir)
         dbom.generate(str(outdir / "sbom"), validate=True)
@@ -179,20 +169,8 @@ def test_homepage_regression():
                     assert package["homepage"] == "http://www.r-project.org/"
 
 
-def test_apt_source_pkg():
-    url = urlparse("http://example.org")
-    uuid = uuid4()
-    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root="tests/root/apt-sources",
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
-
+def test_apt_source_pkg(sbom_generator):
+    dbom = sbom_generator("tests/root/apt-sources")
     with TemporaryDirectory() as outdir:
         outdir = Path(outdir)
         dbom.generate(str(outdir / "sbom"), validate=True)
@@ -212,19 +190,8 @@ def test_apt_source_pkg():
                     } in pkg["checksums"]
 
 
-def test_apt_pkgs_stream():
-    url = urlparse("http://example.org")
-    uuid = uuid4()
-    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root="tests/root/apt-sources",
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
+def test_apt_pkgs_stream(sbom_generator):
+    dbom = sbom_generator("tests/root/apt-sources")
     with TemporaryDirectory() as outdir:
         with open("tests/data/pkgs-stream", "r") as stream:
             outdir = Path(outdir)
@@ -259,12 +226,8 @@ compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
 
 
 @pytest.mark.parametrize("tool", compressions)
-def test_apt_lists_compression(tmpdir, tool):
+def test_apt_lists_compression(tmpdir, sbom_generator, tool):
     comp = Compression.from_tool(tool)
-
-    url = urlparse("http://example.org")
-    uuid = uuid4()
-    timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
     # create a temporary rootfs copied from tests/root/apt-sources and
     # compress the _Sources and _Packages there
@@ -301,14 +264,7 @@ def test_apt_lists_compression(tmpdir, tool):
         _, stderr = compressor.communicate()
         assert compressor.wait() == 0
 
-    dbom = Debsbom(
-        distro_name="pytest-distro",
-        sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
-        root=str(root),
-        spdx_namespace=url,
-        cdx_serialnumber=uuid,
-        timestamp=timestamp,
-    )
+    dbom = sbom_generator(root)
     dbom.generate(str(tmpdir / "sbom"), validate=True)
     with open(tmpdir / "sbom.spdx.json") as file:
         spdx_json = json.loads(file.read())
