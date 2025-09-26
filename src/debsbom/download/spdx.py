@@ -30,6 +30,11 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
         super().__init__()
         self._document = document
 
+    @property
+    def document(self):
+        """get the parsed SBOM document"""
+        return self._document
+
     @classmethod
     def package_manager_ref(cls, p: spdx_package.Package) -> spdx_package.ExternalPackageRef | None:
         cat_pkg_manager = spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER

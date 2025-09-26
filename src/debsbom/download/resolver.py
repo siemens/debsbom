@@ -81,11 +81,6 @@ class PersistentResolverCache(PackageResolverCache):
 
 
 class PackageResolver:
-    @property
-    def document(self):
-        """get the parsed SBOM document"""
-        return self._document
-
     @abstractmethod
     def is_debian_pkg(package) -> bool:
         """Return true if provided SBOM package is a Debian package"""
