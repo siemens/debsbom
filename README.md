@@ -1,4 +1,5 @@
 [![Tests](https://github.com/siemens/debsbom/actions/workflows/test.yml/badge.svg)](https://github.com/siemens/debsbom/actions/workflows/test.yml)
+[![Documentation](https://github.com/siemens/debsbom/actions/workflows/docs.yml/badge.svg)](https://siemens.github.io/debsbom)
 
 # debsbom - SBOM generator for Debian-based distributions
 
