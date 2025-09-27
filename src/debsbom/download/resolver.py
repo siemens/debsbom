@@ -101,24 +101,6 @@ class PackageResolver:
         """Iterate Debian binary packages"""
         return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
-    @classmethod
-    def package_from_purl(cls, purl: str) -> "package.Package":
-        """
-        Create a package from a PURL. Note, that the package only encodes
-        information that can be derived from the PURL.
-        """
-        purl = PackageURL.from_string(purl)
-        if not purl.type == "deb":
-            raise RuntimeError("Not a debian purl", purl)
-        if purl.qualifiers.get("arch") == "source":
-            return package.SourcePackage(purl.name, purl.version)
-        else:
-            return package.BinaryPackage(
-                name=purl.name,
-                architecture=purl.qualifiers.get("arch"),
-                version=purl.version,
-            )
-
     @staticmethod
     def resolve(
         sdl: sdlclient.SnapshotDataLake,

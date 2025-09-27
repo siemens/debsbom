@@ -121,6 +121,24 @@ class Package(ABC):
                 )
 
     @classmethod
+    def from_purl(cls, purl: str) -> "Package":
+        """
+        Create a package from a PURL. Note, that the package only encodes
+        information that can be derived from the PURL.
+        """
+        purl = PackageURL.from_string(purl)
+        if not purl.type == "deb":
+            raise RuntimeError("Not a debian purl", purl)
+        if purl.qualifiers.get("arch") == "source":
+            return SourcePackage(purl.name, purl.version)
+        else:
+            return BinaryPackage(
+                name=purl.name,
+                architecture=purl.qualifiers.get("arch"),
+                version=purl.version,
+            )
+
+    @classmethod
     def inject_src_packages(cls, binpkgs: Iterable["BinaryPackage"]) -> Iterable["Package"]:
         """Create and inject referenced source packages"""
         return cls._unique_everseen(
