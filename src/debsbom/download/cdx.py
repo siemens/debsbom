@@ -4,7 +4,7 @@
 
 from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import CDXType
-from .download import PackageResolver
+from .resolver import PackageResolver
 
 import json
 import logging
@@ -29,6 +29,11 @@ class CdxPackageResolver(PackageResolver, CDXType):
         super().__init__()
         self._document = document
 
+    @property
+    def document(self):
+        """get the parsed SBOM document"""
+        return self._document
+
     @staticmethod
     def is_debian_pkg(p: Component):
         if str(p.purl).startswith("pkg:deb/debian/"):
@@ -37,7 +42,7 @@ class CdxPackageResolver(PackageResolver, CDXType):
 
     @classmethod
     def create_package(cls, c: Component) -> Package:
-        pkg = cls.package_from_purl(str(c.purl))
+        pkg = Package.from_purl(str(c.purl))
         for cks in c.hashes:
             if cks.alg not in CHKSUM_TO_INTERNAL.keys():
                 logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")
