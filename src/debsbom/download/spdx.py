@@ -51,7 +51,7 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
 
     @classmethod
     def create_package(cls, p: spdx_package.Package) -> Package:
-        pkg = cls.package_from_purl(cls.package_manager_ref(p).locator)
+        pkg = Package.from_purl(cls.package_manager_ref(p).locator)
         for cks in p.checksums:
             if cks.algorithm not in CHKSUM_TO_INTERNAL.keys():
                 logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")

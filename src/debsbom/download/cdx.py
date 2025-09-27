@@ -42,7 +42,7 @@ class CdxPackageResolver(PackageResolver, CDXType):
 
     @classmethod
     def create_package(cls, c: Component) -> Package:
-        pkg = cls.package_from_purl(str(c.purl))
+        pkg = Package.from_purl(str(c.purl))
         for cks in c.hashes:
             if cks.alg not in CHKSUM_TO_INTERNAL.keys():
                 logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")
