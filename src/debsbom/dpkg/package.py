@@ -102,11 +102,15 @@ class Package(ABC):
     def parse_pkglist_stream(cls, stream: Iterable[str]) -> Iterable["Package"]:
         """
         Parses a stream of space separated tuples describing packages
-        (name, version, arch). Each line describes one package. Example:
+        (name, version, arch) or PURLs alternatively. Each line describes one
+        package. Example:
         gcc 15.0-1 amd64
         g++ 15.0-1 amd64
         """
         for line in stream:
+            if line.startswith("pkg:deb/"):
+                yield Package.from_purl(line)
+                continue
             name, version, arch = line.split()
             if arch == "source":
                 yield SourcePackage(
