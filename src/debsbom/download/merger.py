@@ -106,8 +106,9 @@ class SourceArchiveMerger:
                     stdout=outfile,
                 )
                 _, stderr = compressor.communicate()
-                ret = compressor.wait()
-                if ret != 0:
+                tar_ret = tar_writer.wait()
+                comp_ret = compressor.wait()
+                if any([r != 0 for r in [tar_ret, comp_ret]]):
                     raise RuntimeError("could not created merged tar: ", stderr.decode())
             tmpfile.rename(merged)
         return merged
