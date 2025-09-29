@@ -125,7 +125,7 @@ class Repository:
                 logger.debug(f"Parsing apt cache source packages: {sources_file}")
                 # TODO: in python-debian >= 1.0.0 it is possible to directly
                 # pass the filename of a compressed file when using apt_pkg
-                sources_raw = Packages.iter_paragraphs(content, use_apt_pkg=HAS_PYTHON_APT)
+                sources_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
                 for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
                     yield s
         except (FileNotFoundError, IndexError, RuntimeError):
@@ -148,7 +148,7 @@ class Repository:
                 content = stream_compressed_file(compressed_variant)
                 # TODO: in python-debian >= 1.0.0 it is possible to directly
                 # pass the filename of a compressed file when using apt_pkg
-                packages_raw = Packages.iter_paragraphs(content, use_apt_pkg=HAS_PYTHON_APT)
+                packages_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
                 logger.debug(f"Parsing apt cache binary packages: {packages_file}")
                 for s in Repository._make_binpkgs(packages_raw, binpkg_filter):
                     yield s
