@@ -73,6 +73,9 @@ testpaths = [
 markers = [
   "online: tests requiring internet access",
 ]
+filterwarnings = [
+  "error",
+]
 
 [tool.coverage.run]
 source = [
