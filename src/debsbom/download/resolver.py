@@ -6,10 +6,12 @@ from abc import abstractmethod
 from collections.abc import Iterable
 import dataclasses
 import hashlib
+import io
 import json
 import logging
 from pathlib import Path
 from packageurl import PackageURL
+from zstandard import ZstdCompressor, ZstdDecompressor
 
 from ..dpkg import package
 from ..snapshot import client as sdlclient
@@ -44,6 +46,8 @@ class PersistentResolverCache(PackageResolverCache):
 
     def __init__(self, cachedir: Path):
         self.cachedir = cachedir
+        self.cctx = ZstdCompressor(level=10)
+        self.dctx = ZstdDecompressor()
         cachedir.mkdir(exist_ok=True)
 
     @staticmethod
@@ -53,7 +57,7 @@ class PersistentResolverCache(PackageResolverCache):
         ).hexdigest()
 
     def _entry_path(self, hash: str) -> Path:
-        return self.cachedir / f"{hash}.json"
+        return self.cachedir / f"{hash}.json.zst"
 
     def lookup(self, p: package.SourcePackage | package.BinaryPackage) -> list["RemoteFile"] | None:
         hash = self._package_hash(p)
@@ -61,7 +65,10 @@ class PersistentResolverCache(PackageResolverCache):
         if not entry.is_file():
             logger.debug(f"Package '{p.name}' is not cached")
             return None
-        with open(entry, "r") as f:
+        with (
+            open(entry, "rb") as _f,
+            self.dctx.stream_reader(_f) as f,
+        ):
             try:
                 data = json.load(f)
             except json.decoder.JSONDecodeError:
@@ -75,7 +82,11 @@ class PersistentResolverCache(PackageResolverCache):
     ) -> None:
         hash = self._package_hash(p)
         entry = self._entry_path(hash)
-        with open(entry.with_suffix(".tmp"), "w") as f:
+        with (
+            open(entry.with_suffix(".tmp"), "wb") as _f,
+            self.cctx.stream_writer(_f) as cf,
+            io.TextIOWrapper(cf, encoding="utf-8") as f,
+        ):
             json.dump([dataclasses.asdict(rf) for rf in files], f)
         entry.with_suffix(".tmp").rename(entry)
 
