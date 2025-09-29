@@ -107,6 +107,7 @@ class SourceArchiveMerger:
                 )
                 _, stderr = compressor.communicate()
                 tar_ret = tar_writer.wait()
+                tar_writer.stdout.close()
                 comp_ret = compressor.wait()
                 if any([r != 0 for r in [tar_ret, comp_ret]]):
                     raise RuntimeError("could not created merged tar: ", stderr.decode())
