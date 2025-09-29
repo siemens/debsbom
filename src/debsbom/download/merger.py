@@ -52,7 +52,7 @@ class SourceArchiveMerger:
             if digest.hexdigest() != dsc_entry["sha256"]:
                 raise CorruptedFileError(file)
 
-    def merge(self, p: package.SourcePackage, apply_patches=False) -> Path:
+    def merge(self, p: package.SourcePackage, apply_patches: bool = False) -> Path:
         """
         The provided package will also be updated with information from the .dsc file.
         """
