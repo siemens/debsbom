@@ -44,6 +44,7 @@ dev = [
 ]
 download = [
     "requests>=2.25.1",
+    "zstandard>=0.20",
 ]
 # only distributed in Debian (not pip).
 # only needed to speedup apt parsing
