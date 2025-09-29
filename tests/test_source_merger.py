@@ -24,7 +24,7 @@ def test_compressor_from_ext():
     assert Compression.from_ext(None) == Compression.NONE
     for c in Compression.formats():
         assert Compression.from_ext(c.fileext) == c
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         Compression.from_ext("foobar")
 
 

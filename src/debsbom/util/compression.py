@@ -36,7 +36,7 @@ class Compression:
         comp = [c for c in Compression.formats() if c.fileext == ext]
         if comp:
             return comp[0]
-        raise RuntimeError(f"No handler for extension {ext}")
+        raise ValueError(f"no handler for extension {ext}")
 
     @staticmethod
     def formats():
