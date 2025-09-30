@@ -1,0 +1,81 @@
+# Copyright (C) 2025 Siemens
+#
+# SPDX-License-Identifier: MIT
+name: Containers
+
+on:
+  push:
+
+jobs:
+  build_containers:
+    name: Build, test and deploy container images
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: Set up docker build
+        uses: ./.github/actions/docker-init
+        with:
+          deploy-user: ${{ github.actor }}
+          deploy-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build debsbom image
+        uses: docker/build-push-action@v6
+        with:
+          context: /home/runner/debsbom-clone
+          target: debsbom
+          platforms: linux/amd64
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          outputs: type=docker,rewrite-timestamp=true
+          tags: ghcr.io/${{ github.repository }}:test
+      - name: Test debsbom image
+        run: |
+          docker run ghcr.io/${{ github.repository }}:test debsbom --version
+          mkdir downloads
+          echo "guestfs-tools 1.52.3-1 source" | \
+            docker run -v$(pwd)/downloads:/mnt/downloads -i ghcr.io/${{ github.repository }}:test \
+                debsbom download --outdir /mnt/downloads --sources
+          find downloads/sources -name "guestfs-tools*" | grep .
+      - name: Complete build and deploy image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        id: push
+        with:
+          context: /home/runner/debsbom-clone
+          target: debsbom
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          provenance: false
+          outputs: type=registry,rewrite-timestamp=true
+          tags: ghcr.io/${{ github.repository }}:latest
+          annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
+      - name: Attest image
+        if: github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  cleanup_ghcr_containers:
+    name: cleanup untagged containers
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    needs: build_containers
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 #v1.0.16
+        with:
+          dry-run: false
+          validate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
