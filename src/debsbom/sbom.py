@@ -45,6 +45,13 @@ class SBOMType(Enum):
     SPDX = (1,)
     """SPDX"""
 
+    def from_str(bomtype: str):
+        if bomtype.lower() == "cdx":
+            return SBOMType.CycloneDX
+        if bomtype.lower() == "spdx":
+            return SBOMType.SPDX
+        raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
+
 
 class BOM_Standard(Enum):
     """Controls the data representation and added values in the SBOM"""
