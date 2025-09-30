@@ -62,10 +62,22 @@ class SbomInput:
 
     @classmethod
     def parser_add_sbom_input_args(cls, parser):
-        parser.add_argument("bomin", help="sbom file to process", nargs="?")
+        parser.add_argument(
+            "bomin", help="sbom file to process ('-' to read SBOM from stdin)", nargs="?"
+        )
+        parser.add_argument(
+            "-t",
+            "--sbom-type",
+            choices=["cdx", "spdx"],
+            help="SBOM type to process (default: auto-detect)",
+        )
 
     @classmethod
     def get_sbom_resolver(cls, args):
+        if args.bomin == "-":
+            if not args.sbom_type:
+                raise RuntimeError("If reading from stdin, the '--sbom-type' needs to be set")
+            return PackageResolver.from_stream(sys.stdin, SBOMType.from_str(args.sbom_type))
         return PackageResolver.create(Path(args.bomin))
 
     @classmethod
