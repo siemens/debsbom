@@ -23,6 +23,16 @@ jobs:
         with:
           artifact-identifier: "${{ matrix.python-version }}"
 
+  test-python-apt:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check if python-apt is available
+        run: python -c "import apt"
+      - uses: ./.github/actions/pytest
+        with:
+          artifact-identifier: "python-apt"
+
   coverage:
     name: Check coverage
     needs: test
