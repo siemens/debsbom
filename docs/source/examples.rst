@@ -53,6 +53,14 @@ It is also possible to download multiple packages by name, version and architect
     guestfs-tools 1.52.3-1 source
     EOF
 
+Alternatively, the download can be executed from the container image:
+
+.. code-block:: bash
+
+    echo "guestfs-tools 1.52.3-1 source" | \
+    docker run -v$(pwd)/downloads:/mnt/downloads -i ghcr.io/siemens/debsbom:latest \
+        debsbom download --outdir /mnt/downloads --sources
+
 Merge Source Packages
 ~~~~~~~~~~~~~~~~~~~~~
 
