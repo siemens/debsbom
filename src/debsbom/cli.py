@@ -236,9 +236,9 @@ class DownloadCmd:
             try:
                 files = list(resolver.resolve(sdl, pkg, cache))
                 DownloadCmd._check_for_dsc(pkg, files)
+                downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
                 logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
-            downloader.register(files, pkg)
 
         nfiles, nbytes, cfiles, cbytes = downloader.stat()
         print(
