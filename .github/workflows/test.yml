@@ -13,46 +13,15 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
-
     steps:
-    - uses: actions/checkout@v4
-    
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .[dev]
-    
-    - name: Run pytest
-      env:
-        COVERAGE_FILE: .coverage.test.${{matrix.python-version }}
-      run: pytest --cov debsbom
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: smoke test generate
-      env:
-        COVERAGE_FILE: .coverage.smoke.${{matrix.python-version }}
-      run: coverage run $(which debsbom) -v generate -t spdx -t cdx -o sbom --validate
-
-    - name: upload smoke test SBOMs
-      uses: actions/upload-artifact@v4
-      with:
-        name: sbom-${{ matrix.python-version }}
-        path: |
-          sbom.cdx.json
-          sbom.spdx.json
-        if-no-files-found: error
-
-    - name: Upload coverage data
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-data-tests-${{ matrix.python-version }}
-        path: .coverage.*
-        include-hidden-files: true
-        if-no-files-found: error
-
+      - uses: ./.github/actions/pytest
+        with:
+          artifact-identifier: "${{ matrix.python-version }}"
 
   coverage:
     name: Check coverage
