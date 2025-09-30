@@ -65,12 +65,7 @@ class GenerateCmd:
         if args.sbom_type is None:
             sbom_types = [SBOMType.SPDX, SBOMType.CycloneDX]
         else:
-            sbom_types = []
-            for stype in args.sbom_type:
-                if stype == "cdx":
-                    sbom_types.append(SBOMType.CycloneDX)
-                elif stype == "spdx":
-                    sbom_types.append(SBOMType.SPDX)
+            sbom_types = [SBOMType.from_str(stype) for stype in args.sbom_type]
 
         cdx_standard = BOM_Standard.DEFAULT
         if args.cdx_standard == "standard-bom":
