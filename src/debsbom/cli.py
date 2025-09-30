@@ -73,6 +73,19 @@ class SbomInput:
         return args.bomin is not None
 
 
+class PkgStreamInput:
+    """
+    Mixin that takes a pkgstream as input. A pkgstream is either a stream
+    of newline separated tuples "<pkg-name> <pkg-version> <pkg-arch>" or a
+    stream of newline separated debian PURLs.
+    """
+
+    @classmethod
+    def get_pkgstream_resolver(cls):
+        warn_if_tty()
+        return PackageStreamResolver(sys.stdin)
+
+
 class GenerateCmd:
     """
     Generate SBOMs from the dpkg package list
@@ -194,7 +207,7 @@ class GenerateCmd:
         )
 
 
-class DownloadCmd(SbomInput):
+class DownloadCmd(SbomInput, PkgStreamInput):
     """
     Processes a SBOM and downloads the referenced packages.
     If no SBOM is provided, it reads line separated entries (name version arch)
@@ -228,8 +241,7 @@ class DownloadCmd(SbomInput):
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolver(args)
         else:
-            warn_if_tty()
-            resolver = PackageStreamResolver(sys.stdin)
+            resolver = cls.get_pkgstream_resolver()
         rs = requests.Session()
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
@@ -272,7 +284,7 @@ class DownloadCmd(SbomInput):
         parser.add_argument("--binaries", help="download binary packages", action="store_true")
 
 
-class MergeCmd(SbomInput):
+class MergeCmd(SbomInput, PkgStreamInput):
     """
     Processes an SBOM and merges the .orig and .debian tarballs. The tarballs have to be
     downloaded first.
@@ -286,8 +298,7 @@ class MergeCmd(SbomInput):
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolver(args)
         else:
-            warn_if_tty()
-            resolver = PackageStreamResolver(sys.stdin)
+            resolver = cls.get_pkgstream_resolver()
         merger = SourceArchiveMerger(pkgdir, outdir, compress)
         pkgs = list(resolver.sources())
 
