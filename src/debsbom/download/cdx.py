@@ -57,6 +57,6 @@ class CdxPackageResolver(PackageResolver, CDXType):
         )
 
     @classmethod
-    def from_file(cls, filename: Path):
+    def from_file(cls, filename: Path) -> "CdxPackageResolver":
         with open(filename, "r") as f:
             return cls(Bom.from_json(json.load(f)))
