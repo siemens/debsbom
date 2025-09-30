@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
+from typing import IO
 from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import SPDXType
 from .resolver import PackageResolver
@@ -10,6 +12,7 @@ import logging
 from collections.abc import Iterable
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file
+from spdx_tools.spdx.parser.jsonlikedict.json_like_dict_parser import JsonLikeDictParser
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.document as spdx_document
 from spdx_tools.spdx.model.checksum import ChecksumAlgorithm
@@ -68,3 +71,7 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
     @classmethod
     def from_file(cls, filename: Path) -> "SpdxPackageResolver":
         return cls(parse_file(str(filename)))
+
+    @classmethod
+    def from_stream(cls, stream: IO[str]) -> "SpdxPackageResolver":
+        return cls(JsonLikeDictParser().parse(json.load(stream)))
