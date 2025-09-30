@@ -55,6 +55,24 @@ def warn_if_tty() -> None:
         logger.warning("Expecting data via stdin, but connected to TTY.")
 
 
+class SbomInput:
+    """
+    Mixin that needs an SBOM as input
+    """
+
+    @classmethod
+    def parser_add_sbom_input_args(cls, parser):
+        parser.add_argument("bomin", help="sbom file to process", nargs="?")
+
+    @classmethod
+    def get_sbom_resolver(cls, args):
+        return PackageResolver.create(Path(args.bomin))
+
+    @classmethod
+    def has_bomin(cls, args):
+        return args.bomin is not None
+
+
 class GenerateCmd:
     """
     Generate SBOMs from the dpkg package list
@@ -176,7 +194,7 @@ class GenerateCmd:
         )
 
 
-class DownloadCmd:
+class DownloadCmd(SbomInput):
     """
     Processes a SBOM and downloads the referenced packages.
     If no SBOM is provided, it reads line separated entries (name version arch)
@@ -202,13 +220,13 @@ class DownloadCmd:
         ):
             logger.warning(f"no .dsc file found for {p.name}@{p.version}")
 
-    @staticmethod
-    def run(args):
+    @classmethod
+    def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
         cache = PersistentResolverCache(outdir / ".cache")
-        if args.bomfile:
-            resolver = PackageResolver.create(Path(args.bomfile))
+        if cls.has_bomin(args):
+            resolver = cls.get_sbom_resolver(args)
         else:
             warn_if_tty()
             resolver = PackageStreamResolver(sys.stdin)
@@ -244,9 +262,9 @@ class DownloadCmd:
         for p in dl_files:
             logger.debug(f"downloaded {p}")
 
-    @staticmethod
-    def setup_parser(parser):
-        parser.add_argument("bomfile", help="sbom file to process", nargs="?")
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_sbom_input_args(parser)
         parser.add_argument(
             "--outdir", default="downloads", help="directory to store downloaded files"
         )
@@ -254,19 +272,19 @@ class DownloadCmd:
         parser.add_argument("--binaries", help="download binary packages", action="store_true")
 
 
-class MergeCmd:
+class MergeCmd(SbomInput):
     """
     Processes an SBOM and merges the .orig and .debian tarballs. The tarballs have to be
     downloaded first.
     """
 
-    @staticmethod
-    def run(args):
+    @classmethod
+    def run(cls, args):
         pkgdir = Path(args.pkgdir)
         outdir = Path(args.outdir or args.pkgdir)
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
-        if args.bomfile:
-            resolver = PackageResolver.create(Path(args.bomfile))
+        if cls.has_bomin(args):
+            resolver = cls.get_sbom_resolver(args)
         else:
             warn_if_tty()
             resolver = PackageStreamResolver(sys.stdin)
@@ -282,9 +300,9 @@ class MergeCmd:
             except DscFileNotFoundError:
                 logger.warning(f"dsc file not found: {pkg.name}@{pkg.version}")
 
-    @staticmethod
-    def setup_parser(parser):
-        parser.add_argument("bomfile", help="sbom file to process", nargs="?")
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_sbom_input_args(parser)
         parser.add_argument(
             "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
         )
@@ -304,7 +322,7 @@ class MergeCmd:
         )
 
 
-class RepackCmd:
+class RepackCmd(SbomInput):
     """
     Repacks the downloaded files into a uniform source archive.
     The layout of the source archive is controlled by the 'format' argument.
@@ -312,14 +330,14 @@ class RepackCmd:
     Note: The files have to be downloaded first and need to be in the directory specified by 'dldir'.
     """
 
-    @staticmethod
-    def run(args):
+    @classmethod
+    def run(cls, args):
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
         linkonly = not args.copy
         packer = Packer.from_format(
             fmt=args.format, dldir=Path(args.dldir), outdir=Path(args.outdir), compress=compress
         )
-        resolver = PackageResolver.create(Path(args.bomin))
+        resolver = cls.get_sbom_resolver(args)
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
         pkgs = resolver.debian_pkgs()
         repacked = filter(lambda p: p, map(lambda p: packer.repack(p, symlink=linkonly), pkgs))
@@ -331,9 +349,9 @@ class RepackCmd:
                 bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
             )
 
-    @staticmethod
-    def setup_parser(parser):
-        parser.add_argument("bomin", help="sbom input file")
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_sbom_input_args(parser)
         parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
         parser.add_argument(
             "--dldir", default="downloads", help="download directory from 'download'"
