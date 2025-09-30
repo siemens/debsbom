@@ -7,6 +7,7 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 from io import TextIOWrapper
 import itertools
+import sys
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
 import logging
@@ -158,7 +159,7 @@ class Debsbom:
 
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
-            if not cdx_out.endswith(".cdx.json"):
+            if cdx_out != "-" and not cdx_out.endswith(".cdx.json"):
                 cdx_out += ".cdx.json"
             logger.info(f"Generating CycloneDX SBOM in '{cdx_out}'...")
             bom = cyclonedx_bom(
@@ -172,10 +173,13 @@ class Debsbom:
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
-            self.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
+            if cdx_out == "-":
+                self.write_to_stream(bom, SBOMType.CycloneDX, sys.stdout, validate)
+            else:
+                self.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
         if SBOMType.SPDX in self.sbom_types:
             spdx_out = out
-            if not spdx_out.endswith(".spdx.json"):
+            if spdx_out != "-" and not spdx_out.endswith(".spdx.json"):
                 spdx_out += ".spdx.json"
             logger.info(f"Generating SPDX SBOM in '{spdx_out}'...")
             bom = spdx_bom(
@@ -188,7 +192,10 @@ class Debsbom:
                 timestamp=self.timestamp,
                 progress_cb=progress_cb,
             )
-            self.write_to_file(bom, SBOMType.SPDX, Path(spdx_out), validate)
+            if spdx_out == "-":
+                self.write_to_stream(bom, SBOMType.SPDX, sys.stdout, validate)
+            else:
+                self.write_to_file(bom, SBOMType.SPDX, Path(spdx_out), validate)
 
     @staticmethod
     def write_to_file(bom, bomtype: SBOMType, outfile: Path, validate: bool):
@@ -198,3 +205,15 @@ class Debsbom:
             ).output_to_file(str(outfile), allow_overwrite=True, indent=4)
         elif bomtype == SBOMType.SPDX:
             spdx_json_writer.write_document_to_file(bom, str(outfile), validate)
+
+    @staticmethod
+    def write_to_stream(bom, bomtype: SBOMType, f: TextIOWrapper, validate: bool):
+        if bomtype == SBOMType.CycloneDX:
+            f.write(
+                cdx_output.make_outputter(
+                    bom, cdx_schema.OutputFormat.JSON, cdx_schema.SchemaVersion.V1_6
+                ).output_as_string(indent=4)
+            )
+        elif bomtype == SBOMType.SPDX:
+            spdx_json_writer.write_document_to_stream(bom, f, validate)
+        f.write("\n")

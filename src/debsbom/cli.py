@@ -118,7 +118,7 @@ class GenerateCmd:
             "-o",
             "--out",
             type=str,
-            help="filename for output (default: %(default)s)",
+            help="filename for output (default: %(default)s). Use '-' to write to stdout",
             default="sbom",
         )
         parser.add_argument(
@@ -329,12 +329,17 @@ class RepackCmd:
         pkgs = resolver.debian_pkgs()
         repacked = filter(lambda p: p, map(lambda p: packer.repack(p, symlink=linkonly), pkgs))
         bom = packer.rewrite_sbom(bt, repacked)
-        Debsbom.write_to_file(bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate)
+        if args.bomout == "-":
+            Debsbom.write_to_stream(bom, resolver.sbom_type(), sys.stdout, validate=args.validate)
+        else:
+            Debsbom.write_to_file(
+                bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
+            )
 
     @staticmethod
     def setup_parser(parser):
         parser.add_argument("bomin", help="sbom input file")
-        parser.add_argument("bomout", help="sbom output file")
+        parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
         parser.add_argument(
             "--dldir", default="downloads", help="download directory from 'download'"
         )
