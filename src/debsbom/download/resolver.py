@@ -10,9 +10,11 @@ import io
 import json
 import logging
 from pathlib import Path
+from typing import IO
 from packageurl import PackageURL
 from zstandard import ZstdCompressor, ZstdDecompressor
 
+from ..sbom import SBOMType
 from ..dpkg import package
 from ..snapshot import client as sdlclient
 from ..snapshot.client import RemoteFile
@@ -152,6 +154,20 @@ class PackageResolver:
             return CdxPackageResolver.from_file(filename)
         else:
             raise RuntimeError("Cannot determine file format")
+
+    @staticmethod
+    def from_stream(stream: IO, bomtype=SBOMType) -> "PackageResolver":
+        """
+        Factory to create a PackageResolver for the given SBOM type that parses a stream.
+        """
+        if bomtype == SBOMType.SPDX:
+            from .spdx import SpdxPackageResolver
+
+            return SpdxPackageResolver.from_stream(stream)
+        else:
+            from .cdx import CdxPackageResolver
+
+            return CdxPackageResolver.from_stream(stream)
 
 
 class PackageStreamResolver(PackageResolver):

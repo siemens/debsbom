@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import IO
 from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import CDXType
 from .resolver import PackageResolver
@@ -59,4 +60,8 @@ class CdxPackageResolver(PackageResolver, CDXType):
     @classmethod
     def from_file(cls, filename: Path) -> "CdxPackageResolver":
         with open(filename, "r") as f:
-            return cls(Bom.from_json(json.load(f)))
+            return cls.from_stream(f)
+
+    @classmethod
+    def from_stream(cls, stream: IO[str]) -> "CdxPackageResolver":
+        return cls(Bom.from_json(json.load(stream)))
