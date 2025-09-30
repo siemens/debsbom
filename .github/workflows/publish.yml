@@ -55,3 +55,46 @@ jobs:
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
         with:
           packages-dir: dist/
+
+  deploy_containers:
+    name: Build and deploy container images
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: Get release
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Set up docker build
+        uses: ./.github/actions/docker-init
+        with:
+          deploy-user: ${{ github.actor }}
+          deploy-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find latest tag
+        run: echo "LATEST_TAG=$(git tag | sort --version-sort | tail -n1)" >> $GITHUB_ENV
+      - name: Build image
+        uses: docker/build-push-action@v6
+        id: push
+        with:
+          context: /home/runner/debsbom-clone
+          target: debsbom
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          provenance: false
+          outputs: type=registry,rewrite-timestamp=true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
+            ${{ github.ref_name == env.LATEST_TAG && format('ghcr.io/{0}:latest-release', github.repository) || '' }}
+          annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
+      - name: Attest image
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
