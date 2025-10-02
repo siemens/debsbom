@@ -11,7 +11,7 @@ from debsbom.download import (
     PackageStreamResolver,
     PersistentResolverCache,
 )
-from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo
+from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo, SourcePackage
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
 from debsbom.repack.packer import BomTransformer, Packer
@@ -90,13 +90,14 @@ def test_download(tmpdir, http_session):
 
 def test_package_resolver_parse_spdx(spdx_bomfile):
     rs = PackageResolver.create(spdx_bomfile)
-    assert any(filter(lambda p: p.name == "binutils", rs.sources()))
-    assert any(filter(lambda p: p.architecture == "amd64", rs.binaries()))
+    pkgs = list(rs)
+    assert any(filter(lambda p: isinstance(p, SourcePackage) and p.name == "binutils", pkgs))
+    assert any(filter(lambda p: isinstance(p, BinaryPackage) and p.architecture == "amd64", pkgs))
 
 
 def test_package_resolver_parse_cdx(cdx_bomfile):
     rs = PackageResolver.create(cdx_bomfile)
-    assert any(filter(lambda p: p.architecture == "amd64", rs.binaries()))
+    assert any(filter(lambda p: p.architecture == "amd64", rs))
 
 
 def test_package_resolver_parse_stream():
@@ -105,8 +106,9 @@ def test_package_resolver_parse_stream():
         "guestfs-tools 1.52.3-1 source",
     ]
     rs = PackageStreamResolver(data)
-    assert any(filter(lambda p: p.name == "guestfs-tools", rs.sources()))
-    assert any(filter(lambda p: p.name == "binutils", rs.binaries()))
+    pkgs = list(rs)
+    assert any(filter(lambda p: isinstance(p, SourcePackage) and p.name == "guestfs-tools", pkgs))
+    assert any(filter(lambda p: isinstance(p, BinaryPackage) and p.name == "binutils", pkgs))
 
 
 @pytest.mark.online
@@ -115,11 +117,12 @@ def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir, sdl):
     rs = PackageResolver.create(spdx_bomfile)
     rs_cache = PersistentResolverCache(cachedir)
 
-    files = list(rs.resolve(sdl, next(rs.sources()), rs_cache))
+    files = list(rs.resolve(sdl, next(rs), rs_cache))
     assert "binutils" in files[0].filename
 
     # resolve with cache
-    files = list(rs.resolve(sdl, next(rs.sources()), rs_cache))
+    rs = PackageResolver.create(spdx_bomfile)
+    files = list(rs.resolve(sdl, next(rs), rs_cache))
     assert "binutils" in files[0].filename
 
 
@@ -176,17 +179,17 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
     found_cdx = False
     for bom in [spdx_bomfile, cdx_bomfile]:
         resolver = PackageResolver.create(bom)
+        pkgs = list(resolver)
 
         # download a single package
         dl = PackageDownloader(dl_dir, session=http_session)
-        for p in resolver.sources():
+        for p in filter(lambda p: isinstance(p, SourcePackage), pkgs):
             dl.register(PackageResolver.resolve(sdl, p))
         files = list(dl.download())
         assert len(files) == 3
 
         # merge the source package
         bt = BomTransformer.create("standard-bom", resolver.sbom_type(), resolver.document)
-        pkgs = resolver.debian_pkgs()
         repacked = list(filter(lambda p: p, map(lambda p: packer.repack(p, symlink=True), pkgs)))
         assert len(repacked) == 1
         assert ".merged.tar" in repacked[0].filename
