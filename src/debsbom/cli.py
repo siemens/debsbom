@@ -245,6 +245,14 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         ):
             logger.warning(f"no .dsc file found for {p.name}@{p.version}")
 
+    @staticmethod
+    def _filter_pkg(p: package.Package, sources: bool, binaries: bool) -> bool:
+        if sources and isinstance(p, package.SourcePackage):
+            return True
+        if binaries and isinstance(p, package.BinaryPackage):
+            return True
+        return False
+
     @classmethod
     def run(cls, args):
         outdir = Path(args.outdir)
@@ -258,13 +266,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
         downloader = PackageDownloader(args.outdir, session=rs)
-
-        pkgs = []
-        if args.sources:
-            pkgs.extend(resolver.sources())
-
-        if args.binaries:
-            pkgs.extend(resolver.binaries())
+        pkgs = list(filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries), resolver))
 
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
@@ -362,7 +364,7 @@ class RepackCmd(SbomInput):
         )
         resolver = cls.get_sbom_resolver(args)
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
-        pkgs = resolver.debian_pkgs()
+        pkgs = list(resolver)
         repacked = filter(lambda p: p, map(lambda p: packer.repack(p, symlink=linkonly), pkgs))
         bom = packer.rewrite_sbom(bt, repacked)
         if args.bomout == "-":

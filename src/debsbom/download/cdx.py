@@ -29,14 +29,21 @@ class CdxPackageResolver(PackageResolver, CDXType):
     def __init__(self, document: Bom):
         super().__init__()
         self._document = document
+        self._pkgs = map(
+            lambda p: self.create_package(p),
+            filter(self.is_debian_pkg, self._document.components),
+        )
 
     @property
     def document(self):
         """get the parsed SBOM document"""
         return self._document
 
-    @staticmethod
-    def is_debian_pkg(p: Component):
+    def __next__(self) -> Package:
+        return next(self._pkgs)
+
+    @classmethod
+    def is_debian_pkg(cls, p: Component):
         if str(p.purl).startswith("pkg:deb/debian/"):
             return True
         return False
@@ -50,12 +57,6 @@ class CdxPackageResolver(PackageResolver, CDXType):
                 continue
             pkg.checksums[CHKSUM_TO_INTERNAL[cks.alg]] = cks.content
         return pkg
-
-    def debian_pkgs(self):
-        return map(
-            lambda p: self.create_package(p),
-            filter(self.is_debian_pkg, self._document.components),
-        )
 
     @classmethod
     def from_file(cls, filename: Path) -> "CdxPackageResolver":
