@@ -94,25 +94,19 @@ class PersistentResolverCache(PackageResolverCache):
 
 
 class PackageResolver:
+    """
+    Creates internal package representations of an arbitrary
+    package input. The packages are iteratively resolved.
+    Iterable class.
+    """
+
+    def __iter__(self):
+        return self
+
     @abstractmethod
-    def is_debian_pkg(package) -> bool:
-        """Return true if provided SBOM package is a Debian package"""
+    def __next__(self) -> package.Package:
+        """Return next package"""
         raise NotImplementedError()
-
-    @abstractmethod
-    def debian_pkgs(self) -> Iterable[package.Package]:
-        """
-        Return Debian package instances
-        """
-        pass
-
-    def sources(self) -> Iterable[package.SourcePackage]:
-        """Iterate Debian source packages"""
-        return filter(lambda p: isinstance(p, package.SourcePackage), self.debian_pkgs())
-
-    def binaries(self) -> Iterable[package.BinaryPackage]:
-        """Iterate Debian binary packages"""
-        return filter(lambda p: isinstance(p, package.BinaryPackage), self.debian_pkgs())
 
     @staticmethod
     def resolve(
@@ -177,15 +171,7 @@ class PackageStreamResolver(PackageResolver):
     """
 
     def __init__(self, pkgstream: Iterable[str]):
-        """The provided pkgstream is fully read on object creation"""
-        self.packages = set(package.Package.parse_pkglist_stream(pkgstream))
+        self.packages = package.Package.parse_pkglist_stream(pkgstream)
 
-    def is_debian_pkg(package) -> bool:
-        """This solver only operates on debian packages. Always returns true"""
-        return True
-
-    def debian_pkgs(self) -> Iterable[package.Package]:
-        """
-        Return Debian package instances
-        """
-        return iter(self.packages)
+    def __next__(self) -> package.Package:
+        return next(self.packages)

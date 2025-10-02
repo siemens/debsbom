@@ -31,6 +31,9 @@ Package Downloader
 .. automodule:: debsbom.download.merger
    :members:
 
+.. automodule:: debsbom.download.resolver
+   :members:
+
 Debian Snapshot Client
 ----------------------
 
