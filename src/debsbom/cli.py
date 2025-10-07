@@ -19,6 +19,7 @@ from .sbom import BOM_Standard
 from .dpkg import package
 from .generate import Debsbom, SBOMType
 from . import HAS_PYTHON_APT
+from .util import Compression
 
 # Keep the set of required deps to a bare minimum, needed for SBOM generation
 try:
@@ -34,11 +35,11 @@ try:
     )
     from .snapshot import client as sdlclient
     from .repack import Packer, BomTransformer
-    from .util import Compression
 
     HAS_DOWNLOAD_DEPS = True
-except ModuleNotFoundError:
+except ModuleNotFoundError as e:
     HAS_DOWNLOAD_DEPS = False
+    MISSING_MODULE = e
 
 logger = logging.getLogger(__name__)
 
@@ -442,20 +443,15 @@ def setup_parser():
         help="report progress",
         action="store_true",
     )
-    subparser = parser.add_subparsers(help="sub command help", dest="cmd")
+    subparser = parser.add_subparsers(help="sub command help", dest="cmd", required=True)
     GenerateCmd.setup_parser(
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
-
-    if HAS_DOWNLOAD_DEPS:
-        DownloadCmd.setup_parser(
-            subparser.add_parser("download", help="download referenced packages")
-        )
-        MergeCmd.setup_parser(
-            subparser.add_parser("source-merge", help="merge referenced source packages")
-        )
-        RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
-
+    DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
+    MergeCmd.setup_parser(
+        subparser.add_parser("source-merge", help="merge referenced source packages")
+    )
+    RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
     return parser
 
 
@@ -478,6 +474,8 @@ def main():
     try:
         if args.cmd == "generate":
             GenerateCmd.run(args)
+        elif not HAS_DOWNLOAD_DEPS:
+            raise RuntimeError(f"{MISSING_MODULE}. {args.cmd} not available")
         elif args.cmd == "download":
             DownloadCmd.run(args)
         elif args.cmd == "source-merge":
