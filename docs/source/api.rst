@@ -41,6 +41,14 @@ Artifact Repacking
    :members:
 
 .. automodule:: debsbom.repack.merger
+
+Graph Exporting
+---------------
+
+.. automodule:: debsbom.export.exporter
+   :members:
+
+.. automodule:: debsbom.export.graphml
    :members:
 
 Debian Snapshot Client
