@@ -34,6 +34,15 @@ Package Downloader
 .. automodule:: debsbom.download.resolver
    :members:
 
+Graph Exporting
+---------------
+
+.. automodule:: debsbom.export.exporter
+   :members:
+
+.. automodule:: debsbom.export.graphml
+   :members:
+
 Debian Snapshot Client
 ----------------------
 
