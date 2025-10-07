@@ -185,7 +185,7 @@ def spdx_bom(
                 )
             )
         if package.depends:
-            for dep in package.depends:
+            for dep in package.unique_depends:
                 ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs)
                 if ref_id:
                     relationship = spdx_relationship.Relationship(
