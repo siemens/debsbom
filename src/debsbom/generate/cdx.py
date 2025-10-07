@@ -140,7 +140,7 @@ def cyclonedx_bom(
                 cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
             )
         # copy the depends to not alter the package itself
-        pkg_deps = list(package.depends) or []
+        pkg_deps = list(package.unique_depends) or []
         # add dependency to source package
         if package.source:
             pkg_deps.append(package.source)

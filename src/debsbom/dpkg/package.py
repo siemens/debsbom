@@ -367,6 +367,22 @@ class BinaryPackage(Package):
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
 
+    @property
+    def unique_depends(self):
+        """
+        Returns the unique dependencies without version.
+        The raw dependencies can include version specifiers, but as only a single
+        version can be installed at a time, we ignore them.
+        """
+        seen = set()
+        unique = []
+        for dep in self.depends:
+            key = (dep.name, dep.arch)
+            if key not in seen:
+                seen.add(key)
+                unique.append(dep)
+        return unique
+
     def merge_with(self, other: "BinaryPackage"):
         """Copy properties from other which are unset on our side. Merge lists and dicts. Or booleans."""
         super().merge_with(other)
