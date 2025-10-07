@@ -145,3 +145,14 @@ def test_parse_pkgs_stream(data):
     assert pkg.name == "binutils-bpf"
     assert pkg.version.upstream_version == "2.40"
     assert pkg.architecture == "amd64"
+
+
+def test_unique_depends():
+    deps = [
+        Dependency("libc6", None, (">>", Version("2.41")), arch="amd64"),
+        Dependency("libc6", None, ("<<", Version("2.42")), arch="amd64"),
+        Dependency("foo", None, ("", Version("2.41"))),
+    ]
+    pkg = BinaryPackage("foo", "1.0", architecture="amd64", depends=deps)
+    assert len(pkg.depends) == 3
+    assert len(pkg.unique_depends) == 2
