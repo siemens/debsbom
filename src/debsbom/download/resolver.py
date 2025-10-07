@@ -140,12 +140,14 @@ class PackageResolver:
         """
         if filename.name.endswith("spdx.json"):
             from .spdx import SpdxPackageResolver
+            from ..bomreader import SpdxBomReader
 
-            return SpdxPackageResolver.from_file(filename)
+            return SpdxPackageResolver(SpdxBomReader.read_file(filename))
         elif filename.name.endswith("cdx.json"):
             from .cdx import CdxPackageResolver
+            from ..bomreader import CdxBomReader
 
-            return CdxPackageResolver.from_file(filename)
+            return CdxPackageResolver(CdxBomReader.read_file(filename))
         else:
             raise RuntimeError("Cannot determine file format")
 
@@ -156,12 +158,14 @@ class PackageResolver:
         """
         if bomtype == SBOMType.SPDX:
             from .spdx import SpdxPackageResolver
+            from ..bomreader import SpdxBomReader
 
-            return SpdxPackageResolver.from_stream(stream)
+            return SpdxPackageResolver(SpdxBomReader.read_stream(stream))
         else:
             from .cdx import CdxPackageResolver
+            from ..bomreader import CdxBomReader
 
-            return CdxPackageResolver.from_stream(stream)
+            return CdxPackageResolver(CdxBomReader.read_stream(stream))
 
 
 class PackageStreamResolver(PackageResolver):

@@ -57,12 +57,3 @@ class CdxPackageResolver(PackageResolver, CDXType):
                 continue
             pkg.checksums[CHKSUM_TO_INTERNAL[cks.alg]] = cks.content
         return pkg
-
-    @classmethod
-    def from_file(cls, filename: Path) -> "CdxPackageResolver":
-        with open(filename, "r") as f:
-            return cls.from_stream(f)
-
-    @classmethod
-    def from_stream(cls, stream: IO[str]) -> "CdxPackageResolver":
-        return cls(Bom.from_json(json.load(stream)))
