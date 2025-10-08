@@ -85,9 +85,15 @@ class Debsbom:
 
     def _merge_apt_data(self, packages: dict[int, Package]) -> set[Package]:
         # names of packages in apt cache we also have referenced
-        sp_names_apt = set([p.name for p in packages.values() if isinstance(p, SourcePackage)])
+        sp_names_apt = set(
+            [(p.name, p.version) for p in packages.values() if isinstance(p, SourcePackage)]
+        )
         bin_names_apt = set(
-            [(p.name, p.architecture) for p in packages.values() if isinstance(p, BinaryPackage)]
+            [
+                (p.name, p.architecture, p.version)
+                for p in packages.values()
+                if isinstance(p, BinaryPackage)
+            ]
         )
 
         logger.info("load source packages from apt cache")
@@ -97,7 +103,7 @@ class Debsbom:
             # we only have a package list, hence create everything from apt
             binaries_it = itertools.chain.from_iterable(
                 map(
-                    lambda r: r.binpackages(lambda p, a, v: (p, a) in bin_names_apt),
+                    lambda r: r.binpackages(lambda p, a, v: (p, a, v) in bin_names_apt),
                     repos,
                 )
             )
@@ -108,7 +114,7 @@ class Debsbom:
         apt_ext_s_file = self.root / "var/lib/apt/extended_states"
         if apt_ext_s_file.is_file():
             apt_extended_states = ExtendedStates.from_file(
-                apt_ext_s_file, lambda p, a: (p, a) in bin_names_apt
+                apt_ext_s_file, lambda p, a: (p, a) in [(b[0], b[1]) for b in bin_names_apt]
             )
         else:
             logger.info(
@@ -123,8 +129,8 @@ class Debsbom:
         packages_it = itertools.chain.from_iterable(
             map(
                 lambda r: itertools.chain(
-                    r.sources(lambda p, v: p in sp_names_apt),
-                    r.binpackages(lambda p, a, v: (p, a) in bin_names_apt),
+                    r.sources(lambda p, v: (p, v) in sp_names_apt),
+                    r.binpackages(lambda p, a, v: (p, a, v) in bin_names_apt),
                 ),
                 repos,
             )
