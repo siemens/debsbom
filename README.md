@@ -12,17 +12,18 @@ Source packages are especially relevant for security as CVEs in the Debian ecosy
 ## Usage
 
 ```
-usage: debsbom [-h] [--version] [-v] [--progress] {generate,download,source-merge,repack} ...
+usage: debsbom [-h] [--version] [-v] [--progress] {generate,download,source-merge,repack,export} ...
 
 SBOM tool for Debian systems.
 
 positional arguments:
-  {generate,download,source-merge,repack}
+  {generate,download,source-merge,repack,export}
                         sub command help
     generate            generate a SBOM for a Debian system
     download            download referenced packages
     source-merge        merge referenced source packages
     repack              repack sources and sbom
+    export              export SBOM as graph
 
 options:
   -h, --help            show this help message and exit

@@ -8,3 +8,4 @@ Commands
   commands/download
   commands/source-merge
   commands/repack
+  commands/export
