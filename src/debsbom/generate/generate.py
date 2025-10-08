@@ -77,11 +77,23 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             return iter([])
 
-    @staticmethod
-    def _inject_extended_state(ext_states: ExtendedStates, p: Package) -> Package:
-        if isinstance(p, BinaryPackage):
+    def _merge_extended_states(
+        self, packages: dict[int, Package], filter_fn: Callable[[str, str, str], bool]
+    ):
+        apt_ext_s_file = self.root / "var/lib/apt/extended_states"
+        if apt_ext_s_file.is_file():
+            ext_states = ExtendedStates.from_file(
+                apt_ext_s_file,
+                filter_fn,
+            )
+        else:
+            logger.info(
+                "Missing apt extended_states file, all packages will be marked as manually installed"
+            )
+            return
+
+        for p in filter(lambda pkg: isinstance(pkg, BinaryPackage), packages.values()):
             p.manually_installed = ext_states.is_manual(p.name, p.architecture)
-        return p
 
     def _merge_apt_data(self, packages: dict[int, Package]) -> set[Package]:
         # names of packages in apt cache we also have referenced
@@ -110,18 +122,6 @@ class Debsbom:
             packages_it = Package.inject_src_packages(binaries_it)
             return set(packages_it)
 
-        # load extended status information
-        apt_ext_s_file = self.root / "var/lib/apt/extended_states"
-        if apt_ext_s_file.is_file():
-            apt_extended_states = ExtendedStates.from_file(
-                apt_ext_s_file, lambda p, a: (p, a) in [(b[0], b[1]) for b in bin_names_apt]
-            )
-        else:
-            logger.info(
-                "Missing apt extended_states file, all packages will be marked as manually installed"
-            )
-            apt_extended_states = ExtendedStates(set())
-
         # Create uniform list of all packages both we and the apt cache knows
         # This list shall contain a superset of our packages (minus non-upstream ones)
         # but filtering should be as good as possible as the apt cache contains potentially
@@ -146,9 +146,10 @@ class Debsbom:
             ours.merge_with(p)
 
         # Even without apt-cache data, we still may have extended states. Add them.
-        return set(
-            map(lambda p: self._inject_extended_state(apt_extended_states, p), packages.values())
+        self._merge_extended_states(
+            packages, lambda p, a: (p, a) in [(b[0], b[1]) for b in bin_names_apt]
         )
+        return set(packages.values())
 
     def generate(
         self,
