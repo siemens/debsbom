@@ -271,3 +271,17 @@ def test_apt_lists_compression(tmpdir, sbom_generator, tool):
                     "algorithm": "MD5",
                     "checksumValue": "041580298095f940c2c9c130e0d6e149",
                 } in pkg["checksums"]
+
+
+def test_pkglist_apt_cache(tmpdir, sbom_generator):
+    dbom = sbom_generator("tests/root/apt-sources")
+    with open("tests/data/pkgs-custom-stream", "r") as stream:
+        outdir = Path(tmpdir)
+        dbom.generate(str(outdir / "sbom"), validate=True, pkgs_stream=stream)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+    packages = spdx_json["packages"]
+    binutils_bpf = next(filter(lambda p: p["SPDXID"].endswith("binutils-bpf-amd64"), packages))
+    assert binutils_bpf["versionInfo"] == "2.40-2+1-custom"
+    # make sure we have no additional information
+    assert binutils_bpf["supplier"] == "NOASSERTION"
