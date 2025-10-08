@@ -30,6 +30,15 @@ The ``debsbom`` tool hereby is used from the host (e.g. from a Python venv).
     CHROOT=$(podman unshare podman mount $CRT)
     podman unshare debsbom generate -t spdx --root $CHROOT
 
+From Package List
+^^^^^^^^^^^^^^^^^
+
+Create the SBOM from a package list. The so provided packages will still be enriched with any available data from the apt cache.
+
+.. code-block:: bash
+
+    echo "htop 3.4.1-5 amd64" | debsbom generate --from-pkglist
+
 Download
 ~~~~~~~~
 
