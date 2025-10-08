@@ -95,7 +95,6 @@ class Debsbom:
 
         if not len(sp_names_apt):
             # we only have a package list, hence create everything from apt
-            repos = self._create_apt_repos_it()
             binaries_it = itertools.chain.from_iterable(
                 map(
                     lambda r: r.binpackages(lambda p, a: (p, a) in bin_names_apt),
