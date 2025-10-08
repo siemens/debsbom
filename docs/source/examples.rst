@@ -180,3 +180,19 @@ And the same list of packages can be repacked:
         --apply-patches
         sbom.cdx.json \
         sbom.cdx.repacked.json
+
+Export as Graph
+~~~~~~~~~~~~~~~
+
+The :doc:`commands/export` allows to convert the SBOM into various graph representations.
+These can be used as input to graph visualization and analysis tooling (like Gephi).
+
+.. note::
+    We recommend to use the SPDX format as input, as this describes inter package relations
+    more precisely.
+
+Convert the SPDX SBOM to GraphML:
+
+.. code-block:: bash
+
+    debsbom export sbom.spdx.json sbom-graph.graphml

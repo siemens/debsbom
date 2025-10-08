@@ -435,6 +435,39 @@ class RepackCmd(SbomInput):
         )
 
 
+class ExportCmd(SbomInput):
+    """
+    Processes an SBOM and converts it to various graph formats.
+    Note, that SPDX SBOMs lead to better results, as they describes inter
+    package relations more precisely.
+    """
+
+    @classmethod
+    def run(cls, args):
+        from debsbom.export.spdx import GraphExporter
+        from debsbom.export.exporter import GraphOutputFormat
+
+        exporter = cls.create_sbom_processor(
+            args, GraphExporter, GraphOutputFormat.from_str(args.format)
+        )
+        if args.out and args.out != "-":
+            with open(args.out, "w") as f:
+                exporter.export(f)
+        else:
+            exporter.export(sys.stdout)
+
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_sbom_input_args(parser)
+        parser.add_argument("out", nargs="?", help="output file (optional)")
+        parser.add_argument(
+            "--format",
+            help="graph output format (default: %(default)s)",
+            choices=["graphml"],
+            default="graphml",
+        )
+
+
 def setup_parser():
     parser = argparse.ArgumentParser(
         prog="debsbom",
@@ -458,6 +491,8 @@ def setup_parser():
         subparser.add_parser("source-merge", help="merge referenced source packages")
     )
     RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
+    ExportCmd.setup_parser(subparser.add_parser("export", help="export SBOM as graph"))
+
     return parser
 
 
@@ -485,6 +520,8 @@ def main():
             MergeCmd.run(args)
         elif args.cmd == "repack":
             RepackCmd.run(args)
+        elif args.cmd == "export":
+            ExportCmd.run(args)
     except Exception as e:
         logger.error(e)
         print(f"debsbom: error: {e}", file=sys.stderr)
