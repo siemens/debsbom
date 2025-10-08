@@ -74,12 +74,18 @@ class SbomInput:
         )
 
     @classmethod
-    def get_sbom_resolver(cls, args):
+    def create_sbom_processor(cls, args, processor_cls, *proc_args):
         if args.bomin == "-":
             if not args.sbom_type:
                 raise RuntimeError("If reading from stdin, the '--sbom-type' needs to be set")
-            return PackageResolver.from_stream(sys.stdin, SBOMType.from_str(args.sbom_type))
-        return PackageResolver.create(Path(args.bomin))
+            return processor_cls.from_stream(
+                sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
+            )
+        return processor_cls.create(Path(args.bomin), *proc_args)
+
+    @classmethod
+    def get_sbom_resolver(cls, args) -> PackageResolver:
+        return cls.create_sbom_processor(args, PackageResolver)
 
     @classmethod
     def has_bomin(cls, args):
