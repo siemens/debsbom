@@ -157,11 +157,15 @@ class Debsbom:
         """
         self._import_packages(stream=pkgs_stream)
 
+        write_to_stdout = out == "-"
         if SBOMType.CycloneDX in self.sbom_types:
             cdx_out = out
             if cdx_out != "-" and not cdx_out.endswith(".cdx.json"):
                 cdx_out += ".cdx.json"
-            logger.info(f"Generating CycloneDX SBOM in '{cdx_out}'...")
+            if write_to_stdout:
+                logger.info("Generating CycloneDX SBOM...")
+            else:
+                logger.info(f"Generating CycloneDX SBOM in '{cdx_out}'...")
             bom = cyclonedx_bom(
                 self.packages,
                 self.distro_name,
@@ -173,7 +177,7 @@ class Debsbom:
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
-            if cdx_out == "-":
+            if write_to_stdout:
                 self.write_to_stream(bom, SBOMType.CycloneDX, sys.stdout, validate)
             else:
                 self.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
@@ -181,7 +185,10 @@ class Debsbom:
             spdx_out = out
             if spdx_out != "-" and not spdx_out.endswith(".spdx.json"):
                 spdx_out += ".spdx.json"
-            logger.info(f"Generating SPDX SBOM in '{spdx_out}'...")
+            if write_to_stdout:
+                logger.info("Generating SPDX SBOM...")
+            else:
+                logger.info(f"Generating SPDX SBOM in '{spdx_out}'...")
             bom = spdx_bom(
                 self.packages,
                 self.distro_name,
@@ -192,7 +199,7 @@ class Debsbom:
                 timestamp=self.timestamp,
                 progress_cb=progress_cb,
             )
-            if spdx_out == "-":
+            if write_to_stdout:
                 self.write_to_stream(bom, SBOMType.SPDX, sys.stdout, validate)
             else:
                 self.write_to_file(bom, SBOMType.SPDX, Path(spdx_out), validate)
