@@ -97,7 +97,7 @@ class Debsbom:
             # we only have a package list, hence create everything from apt
             binaries_it = itertools.chain.from_iterable(
                 map(
-                    lambda r: r.binpackages(lambda p, a: (p, a) in bin_names_apt),
+                    lambda r: r.binpackages(lambda p, a, v: (p, a) in bin_names_apt),
                     repos,
                 )
             )
@@ -123,8 +123,8 @@ class Debsbom:
         packages_it = itertools.chain.from_iterable(
             map(
                 lambda r: itertools.chain(
-                    r.sources(lambda p: p in sp_names_apt),
-                    r.binpackages(lambda p, a: (p, a) in bin_names_apt),
+                    r.sources(lambda p, v: p in sp_names_apt),
+                    r.binpackages(lambda p, a, v: (p, a) in bin_names_apt),
                 ),
                 repos,
             )

@@ -89,18 +89,22 @@ class Repository:
 
     @classmethod
     def _make_srcpkgs(
-        cls, sources: Iterable[Sources], filter_fn: Callable[[str], bool] | None = None
+        cls, sources: Iterable[Sources], filter_fn: Callable[[str, str], bool] | None = None
     ) -> Iterable[SourcePackage]:
-        _sources = filter(lambda p: filter_fn(p["Package"]), sources) if filter_fn else sources
+        _sources = (
+            filter(lambda p: filter_fn(p["Package"], p["Version"]), sources)
+            if filter_fn
+            else sources
+        )
         for source in _sources:
             yield SourcePackage.from_dep822(source)
 
     @classmethod
     def _make_binpkgs(
-        cls, packages: Iterable[Packages], filter_fn: Callable[[str, str], bool] | None = None
+        cls, packages: Iterable[Packages], filter_fn: Callable[[str, str, str], bool] | None = None
     ) -> Iterable[BinaryPackage]:
         _pkgs = (
-            filter(lambda p: filter_fn(p["Package"], p["Architecture"]), packages)
+            filter(lambda p: filter_fn(p["Package"], p["Architecture"], p["Version"]), packages)
             if filter_fn
             else packages
         )
@@ -109,7 +113,7 @@ class Repository:
 
     @classmethod
     def _parse_sources(
-        cls, sources_file: str, srcpkg_filter: Callable[[str], bool] | None = None
+        cls, sources_file: str, srcpkg_filter: Callable[[str, str], bool] | None = None
     ) -> Iterable["SourcePackage"]:
         sources_path = Path(sources_file)
         try:
@@ -133,7 +137,7 @@ class Repository:
 
     @classmethod
     def _parse_packages(
-        cls, packages_file: str, binpkg_filter: Callable[[str, str], bool] | None = None
+        cls, packages_file: str, binpkg_filter: Callable[[str, str, str], bool] | None = None
     ) -> Iterable[BinaryPackage]:
         packages_path = Path(packages_file)
         try:
@@ -155,7 +159,9 @@ class Repository:
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache packages: {packages_file}")
 
-    def sources(self, filter_fn: Callable[[str], bool] | None = None) -> Iterable[SourcePackage]:
+    def sources(
+        self, filter_fn: Callable[[str, str], bool] | None = None
+    ) -> Iterable[SourcePackage]:
         """Get all source packages from this repository."""
         repo_base = str(self.in_release_file).removesuffix("_InRelease")
         if self.components:
@@ -169,7 +175,7 @@ class Repository:
 
     def binpackages(
         self,
-        filter_fn: Callable[[str, str], bool] | None = None,
+        filter_fn: Callable[[str, str, str], bool] | None = None,
         ext_states: ExtendedStates = ExtendedStates(set()),
     ) -> Iterable[BinaryPackage]:
         """Get all binary packages from this repository"""
