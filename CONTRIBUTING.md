@@ -7,7 +7,7 @@ steps.
 ## Contribution Checklist
 
 - use git to manage your changes [*recommended*]
-- follow Python coding style outlined in pep8 [**required**]
+- follow Python coding style as enforced by the `black` tool [**required**]
 - add signed-off to all patches [**required**]
     - to certify the "Developer's Certificate of Origin", see below
     - check with your employer when not working on your own!
