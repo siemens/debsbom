@@ -77,6 +77,56 @@ class Debsbom:
             logger.info("Missing apt lists cache, some source packages might be incomplete")
             return iter([])
 
+    def _merge_pkginfo(self, our_pkgs: dict[int, Package], cache_pkgs: Iterable[Package]):
+        # O(n) algorithm to extend our packages with information from the apt cache
+        # Idea: Iterate apt cache (expensive!) and annotate local package if matching
+        for p in cache_pkgs:
+            ours = our_pkgs.get(hash(p))
+            if not ours:
+                continue
+            ours.merge_with(p)
+
+    def _merge_apt_binary_data(
+        self,
+        packages: dict[int, Package],
+        repos: list[Repository],
+        filter_fn: Callable[[str, str, str], bool],
+    ):
+        # Create uniform list of all packages both we and the apt cache knows
+        # This list shall contain a superset of our packages (minus non-upstream ones)
+        # but filtering should be as good as possible as the apt cache contains potentially
+        # tens of thousands packages. If we don't have apt-cache data, this iterator is empty.
+        packages_it = itertools.chain.from_iterable(
+            map(
+                lambda r: itertools.chain(
+                    r.binpackages(filter_fn),
+                ),
+                repos,
+            )
+        )
+
+        logger.info("Enhance binary packages with apt cache information")
+        self._merge_pkginfo(packages, packages_it)
+
+    def _merge_apt_source_data(
+        self,
+        packages: dict[int, Package],
+        repos: list[Repository],
+        filter_fn: Callable[[str, str], bool],
+    ):
+        # see _merge_apt_binary_data why we create the iterator this way
+        packages_it = itertools.chain.from_iterable(
+            map(
+                lambda r: itertools.chain(
+                    r.sources(filter_fn),
+                ),
+                repos,
+            )
+        )
+
+        logger.info("Enhance source packages with apt cache information")
+        self._merge_pkginfo(packages, packages_it)
+
     def _merge_extended_states(
         self, packages: dict[int, Package], filter_fn: Callable[[str, str, str], bool]
     ):
@@ -108,42 +158,26 @@ class Debsbom:
             ]
         )
 
+        def binary_filter(p: str, a: str, v: str) -> bool:
+            return (p, a, v) in bin_names_apt
+
         logger.info("load source packages from apt cache")
-        repos = self._create_apt_repos_it()
+        repos = list(self._create_apt_repos_it())
 
         if not len(sp_names_apt):
             # we only have a package list, hence create everything from apt
             binaries_it = itertools.chain.from_iterable(
                 map(
-                    lambda r: r.binpackages(lambda p, a, v: (p, a, v) in bin_names_apt),
+                    lambda r: r.binpackages(binary_filter),
                     repos,
                 )
             )
             packages_it = Package.inject_src_packages(binaries_it)
             return set(packages_it)
 
-        # Create uniform list of all packages both we and the apt cache knows
-        # This list shall contain a superset of our packages (minus non-upstream ones)
-        # but filtering should be as good as possible as the apt cache contains potentially
-        # tenth of thousands packages. If we don't have apt-cache data, this iterator is empty.
-        packages_it = itertools.chain.from_iterable(
-            map(
-                lambda r: itertools.chain(
-                    r.sources(lambda p, v: (p, v) in sp_names_apt),
-                    r.binpackages(lambda p, a, v: (p, a, v) in bin_names_apt),
-                ),
-                repos,
-            )
-        )
+        self._merge_apt_binary_data(packages, repos, binary_filter)
 
-        # O(n) algorithm to extend our packages with information from the apt cache
-        # Idea: Iterate apt cache (expensive!) and annotate local package if matching
-        logger.info("enhance referenced packages with apt cache information")
-        for p in packages_it:
-            ours = packages.get(hash(p))
-            if not ours:
-                continue
-            ours.merge_with(p)
+        self._merge_apt_source_data(packages, repos, lambda p, v: (p, v) in sp_names_apt)
 
         # Even without apt-cache data, we still may have extended states. Add them.
         self._merge_extended_states(
