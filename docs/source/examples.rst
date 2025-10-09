@@ -106,6 +106,13 @@ The following example generates a ``standard-bom`` source distribution archive.
         --validate \
         sbom.spdx.json sbom.packed.spdx.json
 
+It further is possible to only repack (and update in the SBOM) a subset of packages.
+For that, provide both an SBOM, as well as a set of "to-be-processed" packages via stdin.
+
+.. code-block:: bash
+
+    echo "bash 5.2.37-2 source" | debsbom -v repack sbom-in.json sbom-out.json
+
 Compare SBOMs
 ~~~~~~~~~~~~~
 
@@ -156,3 +163,12 @@ Once downloaded, it is possible to merge the source packages:
 .. code-block:: bash
 
     echo "$PURLS" | debsbom source-merge --apply-patches
+
+And the same list of packages can be repacked:
+
+.. code-block:: bash
+
+    echo "$PURLS" | debsbom repack \
+        --apply-patches
+        sbom.cdx.json \
+        sbom.cdx.repacked.json
