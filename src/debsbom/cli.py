@@ -28,6 +28,7 @@ try:
         PackageResolver,
         PackageStreamResolver,
         PersistentResolverCache,
+        UpstreamResolver,
         SourceArchiveMerger,
         DscFileNotFoundError,
     )
@@ -265,6 +266,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs = requests.Session()
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
+        u_resolver = UpstreamResolver(sdl, cache)
         downloader = PackageDownloader(args.outdir, session=rs)
         pkgs = list(filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries), resolver))
 
@@ -273,7 +275,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(resolver.resolve(sdl, pkg, cache))
+                files = list(u_resolver.resolve(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
