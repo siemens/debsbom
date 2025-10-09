@@ -151,11 +151,10 @@ class Debsbom:
         self, packages: dict[int, Package], inject_sources: bool = False
     ) -> set[Package]:
         bin_names_apt = set(
-            [
-                (p.name, p.architecture, p.version)
-                for p in packages.values()
-                if isinstance(p, BinaryPackage)
-            ]
+            map(
+                lambda p: (p.name, p.architecture, p.version),
+                filter(lambda p: isinstance(p, BinaryPackage), packages.values()),
+            )
         )
 
         def binary_filter(bpf: Repository.BinaryPackageFilter) -> bool:
@@ -170,17 +169,24 @@ class Debsbom:
 
         # add any newly discovered source packages, if needed
         if inject_sources:
+            to_add = []
             for source_pkg in Package.referenced_src_packages(
-                [p for p in packages.values() if isinstance(p, BinaryPackage)]
+                filter(lambda p: isinstance(p, BinaryPackage), packages.values())
             ):
                 shash = hash(source_pkg)
                 if shash not in packages:
-                    packages[shash] = source_pkg
+                    to_add.append(source_pkg)
+            # we add it in a separate loop so we do not invalidate the packages iterator
+            for source_pkg in to_add:
+                packages[hash(source_pkg)] = source_pkg
 
         # now that we are sure have discovered all source packages, we can add any
         # additional apt-cache package data to them
         sp_names_apt = set(
-            [(p.name, p.version) for p in packages.values() if isinstance(p, SourcePackage)]
+            map(
+                lambda p: (p.name, p.version),
+                filter(lambda p: isinstance(p, SourcePackage), packages.values()),
+            )
         )
 
         def source_filter(spf: Repository.SourcePackageFilter) -> bool:
@@ -188,7 +194,7 @@ class Debsbom:
 
         self._merge_apt_source_data(packages, repos, source_filter)
 
-        bin_names_apt = [(b[0], b[1]) for b in bin_names_apt]
+        bin_names_apt = set(map(lambda bn: (bn[0], bn[1]), bin_names_apt))
 
         def extended_states_filter(pf: ExtendedStates.PackageFilter) -> bool:
             return pf in bin_names_apt
