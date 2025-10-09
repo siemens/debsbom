@@ -351,6 +351,8 @@ class RepackCmd(SbomInput):
     """
     Repacks the downloaded files into a uniform source archive.
     The layout of the source archive is controlled by the 'format' argument.
+    If an input SBOM is provided and data is passed via stdin, only the packages passed via
+    stdin are resolved and updated in the final SBOM.
 
     Note: The files have to be downloaded first and need to be in the directory specified by 'dldir'.
     """
@@ -359,13 +361,29 @@ class RepackCmd(SbomInput):
     def run(cls, args):
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
         linkonly = not args.copy
+
+        if cls.has_bomin(args) and not sys.stdin.isatty():
+            logger.info("run in partial-repack mode")
+            pkg_subset = set(PackageStreamResolver(sys.stdin))
+        else:
+            pkg_subset = None
+
         packer = Packer.from_format(
             fmt=args.format, dldir=Path(args.dldir), outdir=Path(args.outdir), compress=compress
         )
         resolver = cls.get_sbom_resolver(args)
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
-        pkgs = list(resolver)
-        repacked = filter(lambda p: p, map(lambda p: packer.repack(p, symlink=linkonly), pkgs))
+        if pkg_subset:
+            pkgs = filter(lambda p: p in pkg_subset, resolver)
+        else:
+            pkgs = resolver
+        repacked = filter(
+            lambda p: p,
+            map(
+                lambda p: packer.repack(p, symlink=linkonly),
+                pkgs,
+            ),
+        )
         bom = packer.rewrite_sbom(bt, repacked)
         if args.bomout == "-":
             Debsbom.write_to_stream(bom, resolver.sbom_type(), sys.stdout, validate=args.validate)
