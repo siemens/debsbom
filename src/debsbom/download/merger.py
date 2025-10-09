@@ -61,9 +61,6 @@ class SourceArchiveMerger:
         dsc = self.dldir / p.dscfile()
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
-        if merged.is_file():
-            logger.debug(f"'{dsc}' already merged: '{merged}'")
-            return merged
 
         if not dsc.is_file():
             raise DscFileNotFoundError(dsc)
@@ -77,6 +74,11 @@ class SourceArchiveMerger:
 
         # merge package with info from dsc file
         p.merge_with(package.SourcePackage.from_dep822(d))
+
+        # metadata is now merged, archive can be skipped as we already have it
+        if merged.is_file():
+            logger.debug(f"'{dsc}' already merged: '{merged}'")
+            return merged
 
         # extract all tars into tmpdir and create new tar with combined content
         with tempfile.TemporaryDirectory() as tmpdir:
