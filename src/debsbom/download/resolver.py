@@ -177,11 +177,15 @@ class PackageResolver:
 
 class PackageStreamResolver(PackageResolver):
     """
-    Iterates a list of pkg-list entries (name version architecture) and
-    resolves them.
+    Handles universal package ingress. Emits (partial) package
+    instances, depending on input. Iterable class.
     """
 
     def __init__(self, pkgstream: Iterable[str]):
+        """
+        The input can be either be newline separated pkg-list entries
+        (name version architecture) or newline separated PURLs.
+        """
         self.packages = package.Package.parse_pkglist_stream(pkgstream)
 
     def __next__(self) -> package.Package:
