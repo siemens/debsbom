@@ -76,15 +76,6 @@ Their relationship is expressed with the ``GENERATES`` relation.
 For packages that are marked as ``Built-Using`` in the dpkg status file, we use the ``GENERATED_FROM`` relation.
 This expresses the same semantic in SPDX, but this way it can still be identified if it is a proper source/binary relationship or a built-using one.
 
-Container Image
----------------
-
-The ``debsbom`` tool is available as a container image at ``ghcr.io/siemens/debsbom:<latest|tag>``.
-It runs as root inside the container, allowing mounted directories (e.g., the download directory) to be owned by the invoking user in rootless environments, simplifying CI usage.
-
-The container image is built in a bit‑for‑bit reproducible manner.
-This can be verified by forking the repository, executing the CI pipeline, and comparing the hashes of the resulting container manifest.
-
 Limitations
 -----------
 
