@@ -128,7 +128,9 @@ class Debsbom:
         self._merge_pkginfo(packages, packages_it)
 
     def _merge_extended_states(
-        self, packages: dict[int, Package], filter_fn: Callable[[str, str, str], bool]
+        self,
+        packages: dict[int, Package],
+        filter_fn: Callable[[ExtendedStates.PackageFilter], bool],
     ):
         apt_ext_s_file = self.root / "var/lib/apt/extended_states"
         if apt_ext_s_file.is_file():
@@ -156,8 +158,8 @@ class Debsbom:
             ]
         )
 
-        def binary_filter(p: str, a: str, v: str) -> bool:
-            return (p, a, v) in bin_names_apt
+        def binary_filter(bpf: Repository.BinaryPackageFilter) -> bool:
+            return bpf in bin_names_apt
 
         logger.info("load source packages from apt cache")
         repos = list(self._create_apt_repos_it())
@@ -180,11 +182,21 @@ class Debsbom:
         sp_names_apt = set(
             [(p.name, p.version) for p in packages.values() if isinstance(p, SourcePackage)]
         )
-        self._merge_apt_source_data(packages, repos, lambda p, v: (p, v) in sp_names_apt)
+
+        def source_filter(spf: Repository.SourcePackageFilter) -> bool:
+            return spf in sp_names_apt
+
+        self._merge_apt_source_data(packages, repos, source_filter)
+
+        bin_names_apt = [(b[0], b[1]) for b in bin_names_apt]
+
+        def extended_states_filter(pf: ExtendedStates.PackageFilter) -> bool:
+            return pf in bin_names_apt
 
         # Even without apt-cache data, we still may have extended states. Add them.
         self._merge_extended_states(
-            packages, lambda p, a: (p, a) in [(b[0], b[1]) for b in bin_names_apt]
+            packages,
+            extended_states_filter,
         )
         return set(packages.values())
 
