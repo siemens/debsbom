@@ -39,6 +39,14 @@ Create the SBOM from a package list. The so provided packages will still be enri
 
     echo "htop 3.4.1-5 amd64" | debsbom generate --from-pkglist
 
+It further is possible to inject a dpkg status file via stdin (e.g. if you only have that file).
+The data is then also resolved from the apt-cache (if available), but this usually only makes sense if you don't have a
+chroot and want to create the sbom just from the data in the file.
+
+.. code-block:: bash
+
+    cat path/to/dpkg/status | debsbom generate --from-pkglist
+
 Download
 ~~~~~~~~
 
