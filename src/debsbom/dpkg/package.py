@@ -150,6 +150,15 @@ class Package(ABC):
         )
 
     @classmethod
+    def referenced_src_packages(
+        cls, binpkgs: Iterable["BinaryPackage"]
+    ) -> Iterable["SourcePackage"]:
+        """Create and return referenced source packages"""
+        return cls._unique_everseen(
+            itertools.chain.from_iterable(map(lambda p: cls._resolve_sources(p, False), binpkgs))
+        )
+
+    @classmethod
     def _unique_everseen(cls, iterable: Iterable[object], key=None):
         """
         Yield unique elements, preserving order. Remember all elements ever seen.

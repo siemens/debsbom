@@ -67,7 +67,7 @@ class Debsbom:
         else:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
-        self.packages = self._merge_apt_data(pkgdict)
+        self.packages = self._merge_apt_data(pkgdict, inject_sources=stream is not None)
 
     def _create_apt_repos_it(self) -> Iterable[Repository]:
         apt_lists = self.root / "var/lib/apt/lists"
@@ -145,11 +145,9 @@ class Debsbom:
         for p in filter(lambda pkg: isinstance(pkg, BinaryPackage), packages.values()):
             p.manually_installed = ext_states.is_manual(p.name, p.architecture)
 
-    def _merge_apt_data(self, packages: dict[int, Package]) -> set[Package]:
-        # names of packages in apt cache we also have referenced
-        sp_names_apt = set(
-            [(p.name, p.version) for p in packages.values() if isinstance(p, SourcePackage)]
-        )
+    def _merge_apt_data(
+        self, packages: dict[int, Package], inject_sources: bool = False
+    ) -> set[Package]:
         bin_names_apt = set(
             [
                 (p.name, p.architecture, p.version)
@@ -164,19 +162,24 @@ class Debsbom:
         logger.info("load source packages from apt cache")
         repos = list(self._create_apt_repos_it())
 
-        if not len(sp_names_apt):
-            # we only have a package list, hence create everything from apt
-            binaries_it = itertools.chain.from_iterable(
-                map(
-                    lambda r: r.binpackages(binary_filter),
-                    repos,
-                )
-            )
-            packages_it = Package.inject_src_packages(binaries_it)
-            return set(packages_it)
-
+        # by incorporating the binary data from the apt-cache first we might
+        # discover previously unknown source packages
         self._merge_apt_binary_data(packages, repos, binary_filter)
 
+        # add any newly discovered source packages, if needed
+        if inject_sources:
+            for source_pkg in Package.referenced_src_packages(
+                [p for p in packages.values() if isinstance(p, BinaryPackage)]
+            ):
+                shash = hash(source_pkg)
+                if shash not in packages:
+                    packages[shash] = source_pkg
+
+        # now that we are sure have discovered all source packages, we can add any
+        # additional apt-cache package data to them
+        sp_names_apt = set(
+            [(p.name, p.version) for p in packages.values() if isinstance(p, SourcePackage)]
+        )
         self._merge_apt_source_data(packages, repos, lambda p, v: (p, v) in sp_names_apt)
 
         # Even without apt-cache data, we still may have extended states. Add them.
