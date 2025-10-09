@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import io
 from pathlib import Path
 
 import pytest
@@ -106,7 +107,8 @@ def test_package_resolver_parse_stream():
         "binutils 2.40-2 amd64",
         "guestfs-tools 1.52.3-1 source",
     ]
-    rs = PackageStreamResolver(data)
+    stream = io.BytesIO("\n".join(data).encode())
+    rs = PackageStreamResolver(stream)
     pkgs = list(rs)
     assert any(filter(lambda p: isinstance(p, SourcePackage) and p.name == "guestfs-tools", pkgs))
     assert any(filter(lambda p: isinstance(p, BinaryPackage) and p.name == "binutils", pkgs))

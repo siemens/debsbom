@@ -6,7 +6,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from collections.abc import Iterable
 from enum import Enum
-from io import TextIOWrapper
+from io import BufferedReader, TextIOWrapper
+import io
 import itertools
 from pathlib import Path
 from typing import IO
@@ -101,7 +102,7 @@ class Package(ABC):
             yield bpkg
 
     @classmethod
-    def parse_pkglist_stream(cls, stream: Iterable[str]) -> Iterable["Package"]:
+    def parse_pkglist_stream(cls, stream: IO) -> Iterable["Package"]:
         """
         Parses a stream of space separated tuples describing packages
         (name, version, arch) or PURLs alternatively. Each line describes one
@@ -109,6 +110,19 @@ class Package(ABC):
         gcc 15.0-1 amd64
         g++ 15.0-1 amd64
         """
+        if isinstance(stream, io.BufferedReader):
+            bstream = stream
+        elif isinstance(stream, io.TextIOBase):
+            bstream = io.BufferedReader(stream.buffer)
+        else:
+            bstream = io.BufferedReader(stream)
+
+        with io.TextIOWrapper(bstream) as tstream:
+            for p in cls._parse_pkglist_line_stream(tstream):
+                yield p
+
+    @classmethod
+    def _parse_pkglist_line_stream(cls, stream: IO[str]) -> Iterable["Package"]:
         for line in stream:
             if line.startswith("pkg:deb/"):
                 yield Package.from_purl(line)

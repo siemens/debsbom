@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import io
 from pathlib import Path
 from debian.deb822 import PkgRelation
 from debian.debian_support import Version
@@ -134,7 +135,8 @@ def test_package_merge():
     ],
 )
 def test_parse_pkgs_stream(data):
-    pkgs_it = Package.parse_pkglist_stream(data)
+    stream = io.BytesIO("\n".join(data).encode())
+    pkgs_it = Package.parse_pkglist_stream(stream)
 
     pkg: BinaryPackage = next(pkgs_it)
     assert pkg.name == "binutils-arm-none-eabi"
