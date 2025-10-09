@@ -10,6 +10,7 @@ from debsbom.download import (
     PackageResolver,
     PackageStreamResolver,
     PersistentResolverCache,
+    UpstreamResolver,
 )
 from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo, SourcePackage
 from debsbom.generate.spdx import spdx_bom
@@ -114,15 +115,16 @@ def test_package_resolver_parse_stream():
 @pytest.mark.online
 def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir, sdl):
     cachedir = Path(tmpdir) / ".cache"
-    rs = PackageResolver.create(spdx_bomfile)
+    prs = PackageResolver.create(spdx_bomfile)
     rs_cache = PersistentResolverCache(cachedir)
+    urs = UpstreamResolver(sdl, rs_cache)
 
-    files = list(rs.resolve(sdl, next(rs), rs_cache))
+    files = list(urs.resolve(next(prs)))
     assert "binutils" in files[0].filename
 
     # resolve with cache
-    rs = PackageResolver.create(spdx_bomfile)
-    files = list(rs.resolve(sdl, next(rs), rs_cache))
+    prs = PackageResolver.create(spdx_bomfile)
+    files = list(urs.resolve(next(prs)))
     assert "binutils" in files[0].filename
 
 
@@ -177,6 +179,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
 
     found_spdx = False
     found_cdx = False
+    urs = UpstreamResolver(sdl)
     for bom in [spdx_bomfile, cdx_bomfile]:
         resolver = PackageResolver.create(bom)
         pkgs = list(resolver)
@@ -184,7 +187,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
         # download a single package
         dl = PackageDownloader(dl_dir, session=http_session)
         for p in filter(lambda p: isinstance(p, SourcePackage), pkgs):
-            dl.register(PackageResolver.resolve(sdl, p))
+            dl.register(urs.resolve(p))
         files = list(dl.download())
         assert len(files) == 3
 

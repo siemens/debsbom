@@ -93,6 +93,38 @@ class PersistentResolverCache(PackageResolverCache):
         entry.with_suffix(".tmp").rename(entry)
 
 
+class UpstreamResolver:
+    """
+    Helper to lookup packages on an upstream snapshot server.
+    """
+
+    def __init__(
+        self, sdl: sdlclient.SnapshotDataLake, cache: PackageResolverCache = PackageResolverCache()
+    ):
+        self.sdl = sdl
+        self.cache = cache
+
+    def resolve(self, p: package.Package) -> list["RemoteFile"]:
+        """
+        Resolve a local package to references on the upstream snapshot mirror
+        """
+        cached_files = self.cache.lookup(p)
+        if cached_files:
+            return cached_files
+
+        # Determine which type of package and fetch files
+        if isinstance(p, package.SourcePackage):
+            files = sdlclient.SourcePackage(self.sdl, p.name, str(p.version)).srcfiles()
+        else:
+            files = sdlclient.BinaryPackage(self.sdl, p.name, str(p.version), None, None).files(
+                arch=p.architecture
+            )
+        files_list = list(files)
+        self.cache.insert(p, files_list)
+        logger.debug(f"Resolved '{p.name}': {files_list}")
+        return files_list
+
+
 class PackageResolver:
     """
     Creates internal package representations of an arbitrary
@@ -107,31 +139,6 @@ class PackageResolver:
     def __next__(self) -> package.Package:
         """Return next package"""
         raise NotImplementedError()
-
-    @staticmethod
-    def resolve(
-        sdl: sdlclient.SnapshotDataLake,
-        p: package.SourcePackage | package.BinaryPackage,
-        cache: PackageResolverCache = PackageResolverCache(),
-    ) -> list["RemoteFile"]:
-        """
-        Resolve a local package to references on the upstream snapshot mirror
-        """
-        cached_files = cache.lookup(p)
-        if cached_files:
-            return cached_files
-
-        # Determine which type of package and fetch files
-        if isinstance(p, package.SourcePackage):
-            files = sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()
-        else:
-            files = sdlclient.BinaryPackage(sdl, p.name, str(p.version), None, None).files(
-                arch=p.architecture
-            )
-        files_list = list(files)
-        cache.insert(p, files_list)
-        logger.debug(f"Resolved '{p.name}': {files_list}")
-        return files_list
 
     @staticmethod
     def create(filename: Path) -> "PackageResolver":
