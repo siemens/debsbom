@@ -9,6 +9,7 @@ from enum import Enum
 from io import TextIOWrapper
 import itertools
 from pathlib import Path
+from typing import IO
 from debian.deb822 import Deb822, Packages, PkgRelation
 from debian.debian_support import Version
 import logging
@@ -83,20 +84,21 @@ class Package(ABC):
         Parse a dpkg status file and returns packages with their relations.
         """
         logger.info(f"Parsing status file '{status_file}'...")
-        return cls.inject_src_packages(cls._parse_status_file_raw(status_file))
+        with open(status_file, "r") as dep822_stream:
+            for p in cls.inject_src_packages(cls._parse_dpkg_status(dep822_stream)):
+                yield p
 
     @classmethod
-    def _parse_status_file_raw(cls, status_file: Path) -> Iterable["BinaryPackage"]:
+    def _parse_dpkg_status(cls, stream: IO) -> Iterable["BinaryPackage"]:
         """
         Parse a dpkg status file and returns binary packages with their relations.
         The relations might contain links to packages that are not known yet (e.g.
         all source packages). These need to be resolved in a second pass.
         """
-        with open(status_file, "r") as status_file:
-            for package in Packages.iter_paragraphs(status_file, use_apt_pkg=HAS_PYTHON_APT):
-                bpkg = BinaryPackage.from_dep822(package)
-                logger.debug(f"Found binary package: '{bpkg.name}'")
-                yield bpkg
+        for package in Packages.iter_paragraphs(stream, use_apt_pkg=HAS_PYTHON_APT):
+            bpkg = BinaryPackage.from_dep822(package)
+            logger.debug(f"Found binary package: '{bpkg.name}'")
+            yield bpkg
 
     @classmethod
     def parse_pkglist_stream(cls, stream: Iterable[str]) -> Iterable["Package"]:
