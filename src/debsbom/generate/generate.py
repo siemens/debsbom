@@ -16,7 +16,7 @@ import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
 from ..apt.cache import Repository, ExtendedStates
-from ..dpkg.package import BinaryPackage, Package, SourcePackage
+from ..dpkg.package import BinaryPackage, Package, PkgListType, SourcePackage
 from ..sbom import SBOMType, BOM_Standard
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
@@ -67,7 +67,9 @@ class Debsbom:
         else:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
-        self.packages = self._merge_apt_data(pkgdict, inject_sources=stream is not None)
+        self.packages = self._merge_apt_data(
+            pkgdict, inject_sources=packages_it.kind != PkgListType.STATUS_FILE
+        )
 
     def _create_apt_repos_it(self) -> Iterable[Repository]:
         apt_lists = self.root / "var/lib/apt/lists"

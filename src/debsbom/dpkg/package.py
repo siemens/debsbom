@@ -37,6 +37,48 @@ class ChecksumAlgo(Enum):
         raise NotImplementedError()
 
 
+class PkgListType(Enum):
+    """Type of package list data (e.g. PURL or dpkg status file)"""
+
+    STATUS_FILE = (0,)
+    PKG_LIST = (1,)
+    PURL_LIST = (2,)
+
+
+class PkgListStream:
+    """
+    Wrapper around a packages iterator that takes care of closing the attached
+    stream (either on StopIteration or via context manager). It further allows
+    to return the source type of data from which the packages are created.
+    """
+
+    def __init__(self, stream: IO, kind: PkgListType, pkgs: Iterable["Package"]):
+        self._stream = stream
+        self.kind = kind
+        self._pkgs = pkgs
+
+    def __iter__(self) -> "PkgListStream":
+        return self
+
+    def __next__(self) -> "Package":
+        """return the next package, close the stream if no further elements."""
+        try:
+            return next(self._pkgs)
+        except StopIteration:
+            self.close()
+            raise
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def close(self):
+        """explicitly close the stream"""
+        self._stream.close()
+
+
 @dataclass
 class Dependency:
     """Representation of a dependency for a package."""
@@ -80,36 +122,47 @@ class Package(ABC):
         self.version = Version(version)
 
     @classmethod
-    def parse_status_file(cls, status_file: Path) -> Iterable["Package"]:
+    def parse_status_file(cls, status_file: Path) -> PkgListStream:
         """
         Parse a dpkg status file and returns packages with their relations.
         """
         logger.info(f"Parsing status file '{status_file}'...")
-        with open(status_file, "r") as dep822_stream:
-            for p in cls.inject_src_packages(cls._parse_dpkg_status(dep822_stream)):
-                yield p
+        dep822_stream = open(status_file, "r")
+        pkgs_it = cls.inject_src_packages(cls._parse_dpkg_status(dep822_stream))
+        return PkgListStream(dep822_stream, PkgListType.STATUS_FILE, pkgs_it)
 
     @classmethod
-    def _parse_dpkg_status(cls, stream: IO) -> Iterable["BinaryPackage"]:
+    def _parse_dpkg_status(
+        cls, stream: IO, force_no_apt: bool = False
+    ) -> Iterable["BinaryPackage"]:
         """
         Parse a dpkg status file and returns binary packages with their relations.
         The relations might contain links to packages that are not known yet (e.g.
         all source packages). These need to be resolved in a second pass.
+
+        The force_no_apt flag can be used to explicitly disable the use of python-apt.
+        Due to bugs in some python-apt versions, this might be required if a non-file
+        input stream is used.
         """
-        for package in Packages.iter_paragraphs(stream, use_apt_pkg=HAS_PYTHON_APT):
+        use_apt = HAS_PYTHON_APT and not force_no_apt
+        for package in Packages.iter_paragraphs(stream, use_apt_pkg=use_apt):
             bpkg = BinaryPackage.from_dep822(package)
             logger.debug(f"Found binary package: '{bpkg.name}'")
             yield bpkg
 
     @classmethod
-    def parse_pkglist_stream(cls, stream: IO) -> Iterable["Package"]:
+    def parse_pkglist_stream(cls, stream: IO) -> PkgListStream:
         """
         Parses a stream of space separated tuples describing packages
-        (name, version, arch) or PURLs alternatively. Each line describes one
+        (name, version, arch) or PURLs alternatively or a dpkg-status file.
+        If not passing a dpkg-status file, each line describes one
         package. Example:
         gcc 15.0-1 amd64
         g++ 15.0-1 amd64
         """
+        DPKG_STATUS_MAGIC = "Package: ".encode()
+        PURL_MAGIC = "pkg:deb/".encode()
+
         if isinstance(stream, io.BufferedReader):
             bstream = stream
         elif isinstance(stream, io.TextIOBase):
@@ -117,17 +170,19 @@ class Package(ABC):
         else:
             bstream = io.BufferedReader(stream)
 
-        with io.TextIOWrapper(bstream) as tstream:
-            for p in cls._parse_pkglist_line_stream(tstream):
-                yield p
+        if bstream.peek(len(DPKG_STATUS_MAGIC)).startswith(DPKG_STATUS_MAGIC):
+            pkgs_it = cls.inject_src_packages(cls._parse_dpkg_status(bstream, force_no_apt=True))
+            return PkgListStream(bstream, PkgListType.STATUS_FILE, pkgs_it)
+        elif bstream.peek(len(PURL_MAGIC)).startswith(PURL_MAGIC):
+            return PkgListStream(
+                stream, PkgListType.PURL_LIST, map(lambda l: Package.from_purl(l.decode()), bstream)
+            )
+        return PkgListStream(bstream, PkgListType.PKG_LIST, cls._parse_pkglist_line_stream(bstream))
 
     @classmethod
-    def _parse_pkglist_line_stream(cls, stream: IO[str]) -> Iterable["Package"]:
+    def _parse_pkglist_line_stream(cls, stream: IO[bytes]) -> Iterable["Package"]:
         for line in stream:
-            if line.startswith("pkg:deb/"):
-                yield Package.from_purl(line)
-                continue
-            name, version, arch = line.split()
+            name, version, arch = line.decode().split()
             if arch == "source":
                 yield SourcePackage(
                     name=name,
