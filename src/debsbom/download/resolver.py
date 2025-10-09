@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
-from collections.abc import Iterable
 import dataclasses
 import hashlib
 import io
@@ -181,7 +180,7 @@ class PackageStreamResolver(PackageResolver):
     instances, depending on input. Iterable class.
     """
 
-    def __init__(self, pkgstream: Iterable[str]):
+    def __init__(self, pkgstream: IO):
         """
         The input can be either be newline separated pkg-list entries
         (name version architecture) or newline separated PURLs.
