@@ -5,6 +5,7 @@ debsbom documentation
    :maxdepth: 2
 
    intro
+   starting
    commands
    examples
    api
