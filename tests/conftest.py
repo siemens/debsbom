@@ -3,13 +3,23 @@
 # SPDX-License-Identifier: MIT
 
 from importlib.metadata import version
+from io import BufferedReader, BytesIO
+from typing import IO
+from beartype import BeartypeConf, FrozenDict
 from beartype.claw import beartype_package
 import pytest
 import requests
 
 from debsbom.snapshot.client import SnapshotDataLake
 
-beartype_package("debsbom")
+# Fix the incomplete type hierarchy of the IO module
+bt_conf = BeartypeConf(
+    hint_overrides=FrozenDict(
+        {IO: IO | BytesIO | BufferedReader, IO[bytes]: IO[bytes] | BufferedReader}
+    )
+)
+
+beartype_package("debsbom", conf=bt_conf)
 
 
 @pytest.fixture(scope="module")
