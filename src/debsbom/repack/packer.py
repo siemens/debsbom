@@ -14,7 +14,8 @@ import sys
 from ..sbom import BomSpecific, SBOMType
 from ..dpkg.package import Package, SourcePackage
 from ..dpkg.package import ChecksumAlgo as CSA
-from ..download.merger import Compression, DscFileNotFoundError, SourceArchiveMerger
+from .merger import DscFileNotFoundError, SourceArchiveMerger
+from ..util import Compression
 
 logger = logging.getLogger(__name__)
 
