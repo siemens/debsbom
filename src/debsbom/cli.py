@@ -316,7 +316,7 @@ class MergeCmd(SbomInput, PkgStreamInput):
         else:
             resolver = cls.get_pkgstream_resolver()
         merger = SourceArchiveMerger(pkgdir, outdir, compress)
-        pkgs = list(resolver.sources())
+        pkgs = list(filter(lambda p: isinstance(p, package.SourcePackage), resolver))
 
         logger.info("Merging...")
         for idx, pkg in enumerate(pkgs):
