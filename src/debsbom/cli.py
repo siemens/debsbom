@@ -7,7 +7,6 @@
 import argparse
 from datetime import datetime
 from importlib.metadata import version
-import itertools
 import logging
 import sys
 import traceback

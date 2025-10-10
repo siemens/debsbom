@@ -4,7 +4,6 @@
 
 from collections.abc import Iterable
 import logging
-from packageurl import PackageURL
 import spdx_tools.spdx.model.document as spdx_document
 import spdx_tools.spdx.model.package as spdx_package
 from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm

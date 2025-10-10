@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Iterable
 from functools import reduce
