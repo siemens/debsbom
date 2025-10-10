@@ -5,7 +5,8 @@
 from pathlib import Path
 import pytest
 import requests
-from debsbom.download import SourceArchiveMerger, PackageDownloader
+from debsbom.download import PackageDownloader
+from debsbom.repack import SourceArchiveMerger
 import debsbom.dpkg.package as dpkg
 import debsbom.snapshot.client as sdlclient
 from debsbom.util import Compression

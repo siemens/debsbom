@@ -28,10 +28,28 @@ Package Downloader
 .. automodule:: debsbom.download.download
    :members:
 
-.. automodule:: debsbom.download.merger
-   :members:
+Package Resolving
+-----------------
 
 .. automodule:: debsbom.download.resolver
+   :members:
+
+Artifact Repacking
+------------------
+
+.. automodule:: debsbom.repack.packer
+   :members:
+
+.. automodule:: debsbom.repack.merger
+   :members:
+
+Graph Exporting
+---------------
+
+.. automodule:: debsbom.export.exporter
+   :members:
+
+.. automodule:: debsbom.export.graphml
    :members:
 
 Debian Snapshot Client

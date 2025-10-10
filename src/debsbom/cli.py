@@ -7,7 +7,6 @@
 import argparse
 from datetime import datetime
 from importlib.metadata import version
-import itertools
 import logging
 import sys
 import traceback
@@ -17,7 +16,10 @@ from pathlib import Path
 
 from .sbom import BOM_Standard
 from .dpkg import package
+from .resolver import PackageResolver, PackageStreamResolver
+from .repack import Packer, BomTransformer, SourceArchiveMerger, DscFileNotFoundError
 from .generate import Debsbom, SBOMType
+from .util import Compression
 from . import HAS_PYTHON_APT
 
 # Keep the set of required deps to a bare minimum, needed for SBOM generation
@@ -25,16 +27,10 @@ try:
     import requests
     from .download import (
         PackageDownloader,
-        PackageResolver,
-        PackageStreamResolver,
         PersistentResolverCache,
         UpstreamResolver,
-        SourceArchiveMerger,
-        DscFileNotFoundError,
     )
     from .snapshot import client as sdlclient
-    from .repack import Packer, BomTransformer
-    from .util import Compression
 
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError:
@@ -76,12 +72,18 @@ class SbomInput:
         )
 
     @classmethod
-    def get_sbom_resolver(cls, args):
+    def create_sbom_processor(cls, args, processor_cls, *proc_args):
         if args.bomin == "-":
             if not args.sbom_type:
                 raise RuntimeError("If reading from stdin, the '--sbom-type' needs to be set")
-            return PackageResolver.from_stream(sys.stdin, SBOMType.from_str(args.sbom_type))
-        return PackageResolver.create(Path(args.bomin))
+            return processor_cls.from_stream(
+                sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
+            )
+        return processor_cls.create(Path(args.bomin), *proc_args)
+
+    @classmethod
+    def get_sbom_resolver(cls, args) -> PackageResolver:
+        return cls.create_sbom_processor(args, PackageResolver)
 
     @classmethod
     def has_bomin(cls, args):
@@ -428,6 +430,39 @@ class RepackCmd(SbomInput):
         )
 
 
+class ExportCmd(SbomInput):
+    """
+    Processes an SBOM and converts it to various graph formats.
+    Note, that SPDX SBOMs lead to better results, as they describes inter
+    package relations more precisely.
+    """
+
+    @classmethod
+    def run(cls, args):
+        from debsbom.export.spdx import GraphExporter
+        from debsbom.export.exporter import GraphOutputFormat
+
+        exporter = cls.create_sbom_processor(
+            args, GraphExporter, GraphOutputFormat.from_str(args.format)
+        )
+        if args.out and args.out != "-":
+            with open(args.out, "w") as f:
+                exporter.export(f)
+        else:
+            exporter.export(sys.stdout)
+
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_sbom_input_args(parser)
+        parser.add_argument("out", nargs="?", help="output file (optional)")
+        parser.add_argument(
+            "--format",
+            help="graph output format (default: %(default)s)",
+            choices=["graphml"],
+            default="graphml",
+        )
+
+
 def setup_parser():
     parser = argparse.ArgumentParser(
         prog="debsbom",
@@ -451,10 +486,12 @@ def setup_parser():
         DownloadCmd.setup_parser(
             subparser.add_parser("download", help="download referenced packages")
         )
-        MergeCmd.setup_parser(
-            subparser.add_parser("source-merge", help="merge referenced source packages")
-        )
-        RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
+
+    MergeCmd.setup_parser(
+        subparser.add_parser("source-merge", help="merge referenced source packages")
+    )
+    RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
+    ExportCmd.setup_parser(subparser.add_parser("export", help="export SBOM as graph"))
 
     return parser
 
@@ -484,6 +521,8 @@ def main():
             MergeCmd.run(args)
         elif args.cmd == "repack":
             RepackCmd.run(args)
+        elif args.cmd == "export":
+            ExportCmd.run(args)
     except Exception as e:
         logger.error(e)
         print(f"debsbom: error: {e}", file=sys.stderr)

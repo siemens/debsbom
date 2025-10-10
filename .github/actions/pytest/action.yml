@@ -48,6 +48,8 @@ runs:
       export COVERAGE_FILE=".coverage.smoke-repack.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v repack sbom-rp.spdx.json sbom-rp.repacked.spdx.json
       grep -q "file:///sources/" sbom-rp.repacked.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-export.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v export sbom-rp.spdx.json
 
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@v4
