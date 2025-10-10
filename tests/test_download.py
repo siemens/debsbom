@@ -11,6 +11,7 @@ from debsbom.download import (
     PersistentResolverCache,
     UpstreamResolver,
 )
+from debsbom.download.download import DownloadStatus
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom.dpkg.package import (
     BinaryPackage,
@@ -78,21 +79,24 @@ def test_download(tmpdir, http_session):
     mock_cb.assert_called_once_with(0, 1, test_file.filename)
 
     assert len(downloaded) == 1
-    assert downloaded[0].is_file()
-    assert downloaded[0].is_relative_to(Path(tmpdir))
-    stat_orig = downloaded[0].stat()
+    assert downloaded[0].path.is_file()
+    assert downloaded[0].path.is_relative_to(Path(tmpdir))
+    stat_orig = downloaded[0].path.stat()
+    assert downloaded[0].status == DownloadStatus.OK
 
     # now download again (which should not actually download)
     dl.register([test_file])
     downloaded = list(dl.download(None))
-    assert int(downloaded[0].stat().st_mtime_ns) == int(stat_orig.st_mtime_ns)
+    assert int(downloaded[0].path.stat().st_mtime_ns) == int(stat_orig.st_mtime_ns)
+    assert downloaded[0].status == DownloadStatus.OK
 
     # tamper the checksum of the downloaded file. Must result in re-download
-    with open(downloaded[0], "w+") as f:
+    with open(downloaded[0].path, "w+") as f:
         f.write("append")
     dl.register([test_file])
     downloaded = list(dl.download(None))
-    assert int(downloaded[0].stat().st_mtime_ns) != int(stat_orig.st_mtime_ns)
+    assert int(downloaded[0].path.stat().st_mtime_ns) != int(stat_orig.st_mtime_ns)
+    assert downloaded[0].status == DownloadStatus.OK
 
 
 def test_package_resolver_parse_spdx(spdx_bomfile):
@@ -153,10 +157,10 @@ def test_file_checksum(sdl, tmpdir, http_session):
     stats = dl.stat()
     assert stats.files == 1
     local_files = list(dl.download())
-    assert len(local_files) == 1
+    assert local_files[0].status == DownloadStatus.OK
 
     # test invalid checksum
-    local_files[0].unlink()
+    local_files[0].path.unlink()
     # tamper checksum (sha256sum of '42')
     bpkg.checksums[ChecksumAlgo.SHA256SUM] = (
         "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0"
@@ -166,7 +170,7 @@ def test_file_checksum(sdl, tmpdir, http_session):
     assert stats.files == 1
     local_files = list(dl.download())
     # no file was successfully downloaded
-    assert len(local_files) == 0
+    assert local_files[0].status == DownloadStatus.CHECKSUM_MISMATCH
 
 
 @pytest.mark.online

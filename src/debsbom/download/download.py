@@ -4,9 +4,12 @@
 
 from collections import namedtuple
 from collections.abc import Iterable
+from dataclasses import dataclass
+from enum import Enum
 from functools import reduce
 import hashlib
 from hmac import compare_digest
+import json
 import logging
 import shutil
 from pathlib import Path
@@ -14,7 +17,7 @@ import sys
 import os
 
 from ..dpkg import package
-from ..dpkg.package import ChecksumAlgo
+from ..dpkg.package import ChecksumAlgo, Package
 from ..snapshot.client import RemoteFile
 
 import requests
@@ -24,6 +27,36 @@ logger = logging.getLogger(__name__)
 StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
 
 
+class DownloadStatus(str, Enum):
+    OK = "ok"
+    CHECKSUM_MISMATCH = "checksum_mismatch"
+    NOT_FOUND = "not_found"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+@dataclass
+class DownloadResult:
+    path: Path | None
+    status: DownloadStatus
+    package: Package | None
+    filename: str
+
+    def json(self) -> str:
+        return json.dumps(
+            {
+                "status": str(self.status),
+                "package": {
+                    "name": self.package.name if self.package else "",
+                    "version": str(self.package.version) if self.package else "",
+                },
+                "filename": self.filename,
+                "path": str(self.path.absolute()) if self.path else "",
+            }
+        )
+
+
 class PackageDownloader:
     """
     Retrieve package artifacts from upstream. Files are only retrieved once by comparison
@@ -31,7 +64,9 @@ class PackageDownloader:
     """
 
     def __init__(
-        self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
+        self,
+        outdir: Path | str = "downloads",
+        session: requests.Session = requests.Session(),
     ):
         self.outdir = Path(outdir)
         self.sources_dir = self.outdir / "sources"
@@ -99,7 +134,7 @@ class PackageDownloader:
         logger.error(f"Checksums mismatch on '{file.name}': {dig_exp} != {digest}")
         return False
 
-    def download(self, progress_cb=None) -> Iterable[Path]:
+    def download(self, progress_cb=None) -> Iterable[DownloadResult]:
         """
         Download all files and yield the file paths to the on-disk
         object. Files that are already there are not downloaded again,
@@ -117,8 +152,11 @@ class PackageDownloader:
                 with open(target, "rb") as fd:
                     digest = hashlib.file_digest(fd, "sha1")
                 if digest.hexdigest() == f.hash:
+                    logger.debug(f"File '{target}' already downloaded.")
                     self.known_hashes[f.hash] = target
-                    yield target
+                    yield DownloadResult(
+                        path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+                    )
                     continue
                 else:
                     logger.warning(f"Checksum mismatch on {f.filename}. Download again.")
@@ -132,7 +170,10 @@ class PackageDownloader:
                 else:
                     o_target_rel = o_target.relative_to(target.parent, walk_up=True)
                 target.symlink_to(o_target_rel)
-                yield target
+                logger.debug(f"Linking '{target}' to already downloaded '{o_target_rel}'")
+                yield DownloadResult(
+                    path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+                )
                 continue
 
             fdst = target.with_suffix(target.suffix + ".tmp")
@@ -142,10 +183,20 @@ class PackageDownloader:
                 with open(fdst, "wb") as fp:
                     shutil.copyfileobj(r.raw, fp)
             if pkg and not self.checksum_ok(pkg, fdst, f):
+                logger.warning(f"Checksum mismatch on downloaded file '{fdst}'")
                 fdst.unlink()
+                yield DownloadResult(
+                    path=None,
+                    status=DownloadStatus.CHECKSUM_MISMATCH,
+                    package=pkg,
+                    filename=f.filename,
+                )
                 continue
+            logger.debug(f"Downloaded '{f.downloadurl}'")
             fdst.rename(target)
             self.known_hashes[f.hash] = target
-            yield target
+            yield DownloadResult(
+                path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+            )
         self.to_download = []
         self.known_hashes.clear()

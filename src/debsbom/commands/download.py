@@ -18,6 +18,7 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.download import PackageDownloader
     from ..download.resolver import PersistentResolverCache, UpstreamResolver
+    from debsbom.download.download import DownloadStatus, DownloadResult
 except ModuleNotFoundError:
     pass
 
@@ -85,15 +86,25 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
                 logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
+                print(
+                    DownloadResult(
+                        path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
+                    ).json()
+                )
 
-        nfiles, nbytes, cfiles, cbytes = downloader.stat()
-        print(
-            f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
-            f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
-        )
-        dl_files = downloader.download(progress_cb=progress_cb if args.progress else None)
-        for p in dl_files:
-            logger.debug(f"downloaded {p}")
+        if not args.json:
+            nfiles, nbytes, cfiles, cbytes = downloader.stat()
+            print(
+                f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
+                f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
+            )
+
+        dl_results = downloader.download(progress_cb=progress_cb if args.progress else None)
+
+        for r in dl_results:
+            if args.json:
+                print(r.json())
+            logger.debug(f"{r.status}: {r.filename}")
 
     @classmethod
     def setup_parser(cls, parser):
