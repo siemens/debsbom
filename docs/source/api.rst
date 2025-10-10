@@ -31,6 +31,9 @@ Package Downloader
 .. automodule:: debsbom.download.merger
    :members:
 
+Package Resolving
+-----------------
+
 .. automodule:: debsbom.download.resolver
    :members:
 
