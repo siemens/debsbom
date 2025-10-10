@@ -39,9 +39,15 @@ def setup_parser():
         "--version", action="version", version="%(prog)s {}".format(version("debsbom"))
     )
     parser.add_argument("-v", "--verbose", action="count", default=0, help="be more verbose")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "--progress",
         help="report progress",
+        action="store_true",
+    )
+    group.add_argument(
+        "--json",
+        help="make output machine readable",
         action="store_true",
     )
     subparser = parser.add_subparsers(help="sub command help", dest="cmd", required=True)
@@ -87,9 +93,10 @@ def main():
             ExportCmd.run(args)
     except Exception as e:
         logger.error(e)
-        print(f"debsbom: error: {e}", file=sys.stderr)
-        if args.verbose >= 1:
-            print(traceback.format_exc(), file=sys.stderr, end="")
+        if not args.json:
+            print(f"debsbom: error: {e}", file=sys.stderr)
+            if args.verbose >= 1:
+                print(traceback.format_exc(), file=sys.stderr, end="")
         sys.exit(-1)
 
 
