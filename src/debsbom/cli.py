@@ -7,7 +7,6 @@
 import argparse
 from datetime import datetime
 from importlib.metadata import version
-import itertools
 import logging
 import sys
 import traceback
@@ -17,7 +16,10 @@ from pathlib import Path
 
 from .sbom import BOM_Standard
 from .dpkg import package
+from .resolver import PackageResolver, PackageStreamResolver
+from .repack import Packer, BomTransformer, SourceArchiveMerger, DscFileNotFoundError
 from .generate import Debsbom, SBOMType
+from .util import Compression
 from . import HAS_PYTHON_APT
 
 # Keep the set of required deps to a bare minimum, needed for SBOM generation
@@ -25,16 +27,10 @@ try:
     import requests
     from .download import (
         PackageDownloader,
-        PackageResolver,
-        PackageStreamResolver,
         PersistentResolverCache,
         UpstreamResolver,
-        SourceArchiveMerger,
-        DscFileNotFoundError,
     )
     from .snapshot import client as sdlclient
-    from .repack import Packer, BomTransformer
-    from .util import Compression
 
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError:
@@ -76,12 +72,18 @@ class SbomInput:
         )
 
     @classmethod
-    def get_sbom_resolver(cls, args):
+    def create_sbom_processor(cls, args, processor_cls, *proc_args):
         if args.bomin == "-":
             if not args.sbom_type:
                 raise RuntimeError("If reading from stdin, the '--sbom-type' needs to be set")
-            return PackageResolver.from_stream(sys.stdin, SBOMType.from_str(args.sbom_type))
-        return PackageResolver.create(Path(args.bomin))
+            return processor_cls.from_stream(
+                sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
+            )
+        return processor_cls.create(Path(args.bomin), *proc_args)
+
+    @classmethod
+    def get_sbom_resolver(cls, args) -> PackageResolver:
+        return cls.create_sbom_processor(args, PackageResolver)
 
     @classmethod
     def has_bomin(cls, args):
@@ -116,6 +118,9 @@ class GenerateCmd:
         cdx_standard = BOM_Standard.DEFAULT
         if args.cdx_standard == "standard-bom":
             cdx_standard = BOM_Standard.STANDARD_BOM
+
+        if not HAS_PYTHON_APT:
+            logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
         debsbom = Debsbom(
             distro_name=args.distro_name,
@@ -451,10 +456,11 @@ def setup_parser():
         DownloadCmd.setup_parser(
             subparser.add_parser("download", help="download referenced packages")
         )
-        MergeCmd.setup_parser(
-            subparser.add_parser("source-merge", help="merge referenced source packages")
-        )
-        RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
+
+    MergeCmd.setup_parser(
+        subparser.add_parser("source-merge", help="merge referenced source packages")
+    )
+    RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
 
     return parser
 
@@ -471,9 +477,6 @@ def main():
         level = logging.DEBUG
 
     logging.basicConfig(level=level)
-
-    if not HAS_PYTHON_APT:
-        logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
     try:
         if args.cmd == "generate":

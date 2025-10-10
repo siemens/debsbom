@@ -8,11 +8,10 @@ from pathlib import Path
 import pytest
 from debsbom.download import (
     PackageDownloader,
-    PackageResolver,
-    PackageStreamResolver,
     PersistentResolverCache,
     UpstreamResolver,
 )
+from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo, SourcePackage
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom

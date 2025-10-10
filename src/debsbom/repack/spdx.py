@@ -4,14 +4,13 @@
 
 from collections.abc import Iterable
 import logging
-from packageurl import PackageURL
 import spdx_tools.spdx.model.document as spdx_document
 import spdx_tools.spdx.model.package as spdx_package
 from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 from ..generate.spdx import spdx_package_repr
-from ..download.spdx import SpdxPackageResolver
+from ..resolver.spdx import SpdxPackageResolver
 from ..sbom import SPDX_REFERENCE_TYPE_DISTRIBUTION, SPDXType, SPDX_REFERENCE_TYPE_PURL
 from .packer import BomTransformer
 from ..dpkg.package import ChecksumAlgo, Package, SourcePackage
