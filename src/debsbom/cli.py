@@ -18,7 +18,9 @@ from pathlib import Path
 from .sbom import BOM_Standard
 from .dpkg import package
 from .resolver import PackageResolver, PackageStreamResolver
+from .repack import Packer, BomTransformer, SourceArchiveMerger, DscFileNotFoundError
 from .generate import Debsbom, SBOMType
+from .util import Compression
 from . import HAS_PYTHON_APT
 from .util import Compression
 
@@ -29,11 +31,8 @@ try:
         PackageDownloader,
         PersistentResolverCache,
         UpstreamResolver,
-        SourceArchiveMerger,
-        DscFileNotFoundError,
     )
     from .snapshot import client as sdlclient
-    from .repack import Packer, BomTransformer
 
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError as e:
