@@ -17,6 +17,7 @@ from pathlib import Path
 
 from .sbom import BOM_Standard
 from .dpkg import package
+from .resolver import PackageResolver, PackageStreamResolver
 from .generate import Debsbom, SBOMType
 from . import HAS_PYTHON_APT
 from .util import Compression
@@ -26,8 +27,6 @@ try:
     import requests
     from .download import (
         PackageDownloader,
-        PackageResolver,
-        PackageStreamResolver,
         PersistentResolverCache,
         UpstreamResolver,
         SourceArchiveMerger,

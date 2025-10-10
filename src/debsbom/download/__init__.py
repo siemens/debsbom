@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from .resolver import (
-    PackageResolver,
-    PackageStreamResolver,
     PackageResolverCache,
     PersistentResolverCache,
     UpstreamResolver,
