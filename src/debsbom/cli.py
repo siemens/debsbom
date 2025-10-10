@@ -447,10 +447,11 @@ def setup_parser():
         DownloadCmd.setup_parser(
             subparser.add_parser("download", help="download referenced packages")
         )
-        MergeCmd.setup_parser(
-            subparser.add_parser("source-merge", help="merge referenced source packages")
-        )
-        RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
+
+    MergeCmd.setup_parser(
+        subparser.add_parser("source-merge", help="merge referenced source packages")
+    )
+    RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
 
     return parser
 
