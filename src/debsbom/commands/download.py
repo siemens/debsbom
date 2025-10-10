@@ -18,6 +18,7 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.download import PackageDownloader
     from ..download.resolver import PersistentResolverCache, UpstreamResolver
+    from debsbom.download.download import DownloadStatus, DownloadResult
 except ModuleNotFoundError:
     pass
 
@@ -76,6 +77,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         pkgs = list(filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries), resolver))
 
         logger.info("Resolving upstream packages...")
+        dl_results: list[DownloadResult] = []
         for idx, pkg in enumerate(pkgs):
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
@@ -85,15 +87,24 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
                 logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
+                dl_results.append(
+                    DownloadResult(
+                        status=DownloadStatus.NOT_FOUND, package=pkg, filename="", path=None
+                    )
+                )
 
-        nfiles, nbytes, cfiles, cbytes = downloader.stat()
-        print(
-            f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
-            f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
-        )
-        dl_files = downloader.download(progress_cb=progress_cb if args.progress else None)
-        for p in dl_files:
-            logger.debug(f"downloaded {p}")
+        if not args.json:
+            nfiles, nbytes, cfiles, cbytes = downloader.stat()
+            print(
+                f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
+                f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
+            )
+
+        dl_results.extend(downloader.download(progress_cb=progress_cb if args.progress else None))
+
+        if args.json:
+            for result in dl_results:
+                print(result.json())
 
     @classmethod
     def setup_parser(cls, parser):

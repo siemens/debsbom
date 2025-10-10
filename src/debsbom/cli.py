@@ -39,9 +39,15 @@ def setup_parser():
         "--version", action="version", version="%(prog)s {}".format(version("debsbom"))
     )
     parser.add_argument("-v", "--verbose", action="count", default=0, help="be more verbose")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "--progress",
         help="report progress",
+        action="store_true",
+    )
+    group.add_argument(
+        "--json",
+        help="make output machine readable",
         action="store_true",
     )
     subparser = parser.add_subparsers(help="sub command help", dest="cmd", required=True)
