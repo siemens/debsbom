@@ -35,6 +35,20 @@ runs:
     run: |
       coverage run $(which debsbom) -v generate -t spdx -t cdx -o sbom --validate
 
+  - name: test repack flow
+    shell: bash
+    run: |
+      # run repack against known data
+      export COVERAGE_FILE=".coverage.generate2.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v generate -t spdx -o sbom-rp --root tests/root/tree --validate
+      export COVERAGE_FILE=".coverage.smoke-download2.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v download --sources --binaries sbom-rp.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-source-merge.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v source-merge sbom-rp.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-repack.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v repack sbom-rp.spdx.json sbom-rp.repacked.spdx.json
+      grep -q "file:///sources/" sbom-rp.repacked.spdx.json
+
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@v4
     with:
