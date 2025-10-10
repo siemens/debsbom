@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
 from collections.abc import Callable, Iterable
 from datetime import datetime
 from io import TextIOWrapper

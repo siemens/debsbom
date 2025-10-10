@@ -7,9 +7,7 @@ from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import CDXType
 from .resolver import PackageResolver
 
-import json
 import logging
-from pathlib import Path
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component
 from cyclonedx.model import HashAlgorithm as cdx_hashalgo
