@@ -115,6 +115,9 @@ class GenerateCmd:
         if args.cdx_standard == "standard-bom":
             cdx_standard = BOM_Standard.STANDARD_BOM
 
+        if not HAS_PYTHON_APT:
+            logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
+
         debsbom = Debsbom(
             distro_name=args.distro_name,
             sbom_types=sbom_types,
@@ -464,9 +467,6 @@ def main():
         level = logging.DEBUG
 
     logging.basicConfig(level=level)
-
-    if not HAS_PYTHON_APT:
-        logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
     try:
         if args.cmd == "generate":
