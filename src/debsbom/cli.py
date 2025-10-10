@@ -62,9 +62,11 @@ class SbomInput:
     """
 
     @classmethod
-    def parser_add_sbom_input_args(cls, parser):
+    def parser_add_sbom_input_args(cls, parser, required=False):
         parser.add_argument(
-            "bomin", help="sbom file to process ('-' to read SBOM from stdin)", nargs="?"
+            "bomin",
+            help="sbom file to process. Use '-' to read SBOM from stdin",
+            nargs=None if required else "?",
         )
         parser.add_argument(
             "-t",
@@ -396,7 +398,7 @@ class RepackCmd(SbomInput):
 
     @classmethod
     def setup_parser(cls, parser):
-        cls.parser_add_sbom_input_args(parser)
+        cls.parser_add_sbom_input_args(parser, required=True)
         parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
         parser.add_argument(
             "--dldir", default="downloads", help="download directory from 'download'"
