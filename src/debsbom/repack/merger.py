@@ -11,8 +11,8 @@ import sys
 import tempfile
 from debian import deb822
 
-from debsbom.dpkg import package
-from debsbom.util import Compression
+from ..dpkg import package
+from ..util import Compression
 
 
 logger = logging.getLogger(__name__)
