@@ -4,7 +4,6 @@
 
 from collections import namedtuple
 from collections.abc import Iterable
-import os
 from pathlib import Path
 import subprocess
 
