@@ -21,7 +21,10 @@ from debsbom.sbom import BOM_Standard
 @pytest.fixture
 def sbom_generator():
     def setup_sbom_generator(
-        test_root: Path, uuid: UUID = None, timestamp: datetime | None = None
+        test_root: Path,
+        uuid: UUID = None,
+        timestamp: datetime | None = None,
+        sbom_types: [SBOMType] = [SBOMType.SPDX, SBOMType.CycloneDX],
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
@@ -31,7 +34,7 @@ def sbom_generator():
 
         return Debsbom(
             distro_name="pytest-distro",
-            sbom_types=[SBOMType.SPDX, SBOMType.CycloneDX],
+            sbom_types=sbom_types,
             root=str(test_root),
             spdx_namespace=url,
             cdx_serialnumber=uuid,
