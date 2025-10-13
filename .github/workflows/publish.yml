@@ -41,6 +41,9 @@ jobs:
     permissions:
       id-token: write
 
+    # Run only on the official repository (skip forks)
+    if: github.repository == 'siemens/debsbom'
+
     environment:
       name: pypi
       url: https://pypi.org/project/debsbom/${{ github.ref_name }}
