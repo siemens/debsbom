@@ -11,9 +11,13 @@ documented in https://salsa.debian.org/snapshot-team/snapshot/raw/master/API.
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-import requests
 from datetime import datetime
-from requests.exceptions import RequestException
+
+try:
+    import requests
+    from requests.exceptions import RequestException
+except ModuleNotFoundError:
+    pass
 
 
 class SnapshotDataLakeError(Exception):

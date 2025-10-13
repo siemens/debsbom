@@ -8,11 +8,15 @@ import io
 import json
 import logging
 from pathlib import Path
-from zstandard import ZstdCompressor, ZstdDecompressor
 
 from ..dpkg import package
-from ..snapshot import client as sdlclient
 from ..snapshot.client import RemoteFile
+
+try:
+    from zstandard import ZstdCompressor, ZstdDecompressor
+    from ..snapshot import client as sdlclient
+except ModuleNotFoundError:
+    pass
 
 
 logger = logging.getLogger(__name__)
