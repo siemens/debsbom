@@ -42,6 +42,7 @@ class PkgListType(Enum):
     STATUS_FILE = (0,)
     PKG_LIST = (1,)
     PURL_LIST = (2,)
+    ISAR_MANIFEST = (3,)
 
 
 class PkgListStream:
@@ -153,9 +154,10 @@ class Package(ABC):
     def parse_pkglist_stream(cls, stream: IO) -> PkgListStream:
         """
         Parses a stream of space separated tuples describing packages
-        (name, version, arch) or PURLs alternatively or a dpkg-status file.
-        If not passing a dpkg-status file, each line describes one
-        package. Example:
+        (name, version, arch), PURLs, isar manifest data
+        (<src name>|<src version>|<bin name>:<bin arch>|<bin version>) or a
+        dpkg-status file. If not passing a dpkg-status file, each line describes
+        one package. Example:
         gcc 15.0-1 amd64
         g++ 15.0-1 amd64
         """
@@ -176,6 +178,10 @@ class Package(ABC):
             return PkgListStream(
                 stream, PkgListType.PURL_LIST, map(lambda l: Package.from_purl(l.decode()), bstream)
             )
+        elif sum(c == b"|"[0] for c in bstream.peek(128).split(b"\n")[0]) == 3:
+            return PkgListStream(
+                bstream, PkgListType.ISAR_MANIFEST, cls._parse_manifest_line_stream(bstream)
+            )
         return PkgListStream(bstream, PkgListType.PKG_LIST, cls._parse_pkglist_line_stream(bstream))
 
     @classmethod
@@ -193,6 +199,27 @@ class Package(ABC):
                     architecture=arch,
                     version=version,
                 )
+
+    @classmethod
+    def _parse_manifest_line_stream(cls, stream: IO[bytes]) -> Iterable["Package"]:
+        """
+        Parse isar manifest file entries. The format is:
+        <src name>|<src version>|<bin name>:<bin arch>|<bin version>
+        Example:
+        json-c|0.16-2|libjson-c5:amd64|0.16-2
+        """
+        for line in stream:
+            print(line.decode())
+            src, srcv, bin, binv = line.decode().split("|")
+            yield SourcePackage(name=src, version=srcv)
+            bin_parts = bin.split(":")
+            if len(bin_parts) != 2:
+                logger.error(f"Binary package '{bin}' misses the architecture specifier")
+            yield BinaryPackage(
+                name=bin_parts[0],
+                architecture=bin_parts[1] if len(bin_parts) == 2 else "unknown",
+                version=binv,
+            )
 
     @classmethod
     def from_purl(cls, purl: str) -> "Package":
