@@ -17,13 +17,13 @@ Virtual Environment
 3. Install the dependencies in the virtual environment with one of the following commands:
 
    - ``pip3 install -e .``
-        Installs the dependencies for the generate command.
+        Installs the dependencies for all but the download command.
 
    - ``pip3 install -e .[download]``
-        Installs the dependencies for all four commands (generate, download, source-merge and repack).
+        Installs the dependencies for all commands.
 
    - ``pip3 install -e .[dev]``
-        Installs the dependencies for all four commands (generate, download, source-merge and repack), as well as dependencies for testing and documentation building
+        Installs the dependencies for all commands, as well as dependencies for testing and documentation building
 
 4. test installation with:
 
