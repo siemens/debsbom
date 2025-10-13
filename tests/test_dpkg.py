@@ -139,18 +139,22 @@ def test_package_merge():
             "pkg:deb/debian/binutils-arm-none-eabi@2.40-2+18+b1?arch=amd64",
             "pkg:deb/debian/binutils-bpf@2.40-2+1?arch=amd64",
         ],
+        [
+            "binutils-arm-none-eabi|2.40-2+18+b1|binutils-arm-none-eabi:amd64|2.40-2+18+b1",
+            "binutils-bpf|2.40-2+1|binutils-bpf:amd64|2.40-2+1",
+        ],
     ],
 )
 def test_parse_pkgs_stream(data):
     stream = io.BytesIO("\n".join(data).encode())
     pkgs_it = Package.parse_pkglist_stream(stream)
 
-    pkg: BinaryPackage = next(pkgs_it)
+    pkg: BinaryPackage = next(filter(lambda p: isinstance(p, BinaryPackage), pkgs_it))
     assert pkg.name == "binutils-arm-none-eabi"
     assert pkg.version.debian_revision == "2+18+b1"
     assert pkg.architecture == "amd64"
 
-    pkg: BinaryPackage = next(pkgs_it)
+    pkg: BinaryPackage = next(filter(lambda p: isinstance(p, BinaryPackage), pkgs_it))
     assert pkg.name == "binutils-bpf"
     assert pkg.version.upstream_version == "2.40"
     assert pkg.architecture == "amd64"
