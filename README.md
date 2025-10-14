@@ -89,26 +89,6 @@ In the CDX format it is currently not possible to mark a component as a source p
 
 We differentiate a source package by setting `"primaryPackagePurpose": "SOURCE"` as opposed to `LIBRARY` for binary packages. Their relationship is expressed with the `GENERATES` relation. For packages that are marked as `Built-Using` in the dpkg status file, we use the `GENERATED_FROM` relation. This expresses the same semantic in SPDX, but this way it can still be identified if it is a proper source/binary relationship or a built-using one.
 
-## Generate from Package List
-
-In addition to parsing the list of installed packages from the dpkg status file, we also support to provide a list of packages that should be resolved
-from the apt-cache: When running `debsbom generate --from-pkglist`, the tool
-processes package entries passed via stdin as line separated items. The format
-for each entry is:
-
-```
-<package-name> <package-version> <package-arch>
-```
-
-Example:
-
-```bash
-cat <<EOF | debsbom generate --from-pkglist -t cdx -t spdx -o sbom
-cpp 4:15.2.0-4 amd64
-htop 3.4.1-5 amd64
-EOF
-```
-
 ## Limitations
 
 ### License Information
