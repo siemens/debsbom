@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 
 class RepackCmd(SbomInput):
     """
-    Repacks the downloaded files into a uniform source archive.
+    Repacks the downloaded files into a uniform source archive, merging the
+    referenced source packages into a single archive and optionally applying
+    patches.
     The layout of the source archive is controlled by the 'format' argument.
     If an input SBOM is provided and data is passed via stdin, only the packages passed via
     stdin are resolved and updated in the final SBOM.
