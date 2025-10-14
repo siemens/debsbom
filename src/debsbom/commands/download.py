@@ -50,6 +50,8 @@ class DownloadCmd(SbomInput, PkgStreamInput):
 
     @staticmethod
     def _filter_pkg(p: package.Package, sources: bool, binaries: bool) -> bool:
+        if not sources and not binaries:
+            return True
         if sources and isinstance(p, package.SourcePackage):
             return True
         if binaries and isinstance(p, package.BinaryPackage):
