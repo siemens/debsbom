@@ -137,6 +137,6 @@ class GenerateCmd:
         )
         parser.add_argument(
             "--from-pkglist",
-            help="create SBOM from a package list passed via stdin instead of dpkg data",
+            help="create SBOM from a package list passed via stdin",
             action="store_true",
         )
