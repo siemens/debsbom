@@ -209,7 +209,6 @@ class Package(ABC):
         json-c|0.16-2|libjson-c5:amd64|0.16-2
         """
         for line in stream:
-            print(line.decode())
             src, srcv, bin, binv = line.decode().strip().split("|")
             yield SourcePackage(name=src, version=srcv)
             bin_parts = bin.split(":")
