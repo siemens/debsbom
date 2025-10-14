@@ -2,14 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datetime import datetime
 import logging
 import sys
-from urllib.parse import urlparse
-from uuid import UUID
 
 from debsbom import HAS_PYTHON_APT
-from .input import warn_if_tty
+from .input import GenerateInput, warn_if_tty
 from ..generate.generate import Debsbom
 from ..sbom import BOM_Standard, SBOMType
 from ..util.progress import progress_cb
@@ -18,7 +15,7 @@ from ..util.progress import progress_cb
 logger = logging.getLogger(__name__)
 
 
-class GenerateCmd:
+class GenerateCmd(GenerateInput):
     """
     Generate SBOMs from the dpkg package list
     """
@@ -59,8 +56,9 @@ class GenerateCmd:
             pkgs_stream=sys.stdin if args.from_pkglist else None,
         )
 
-    @staticmethod
-    def setup_parser(parser):
+    @classmethod
+    def setup_parser(cls, parser):
+        cls.parser_add_generate_input_args(parser, default_out="sbom")
         parser.add_argument(
             "-t",
             "--sbom-type",
@@ -74,66 +72,6 @@ class GenerateCmd:
             type=str,
             help="root directory to look for dpkg status file and apt cache",
             default="/",
-        )
-        parser.add_argument(
-            "-o",
-            "--out",
-            type=str,
-            help="filename for output (default: %(default)s). Use '-' to write to stdout",
-            default="sbom",
-        )
-        parser.add_argument(
-            "--distro-name",
-            type=str,
-            help="distro name (default: %(default)s)",
-            default="Debian",
-        )
-        parser.add_argument(
-            "--distro-supplier",
-            type=str,
-            help="supplier for the root component",
-            default=None,
-        )
-        parser.add_argument(
-            "--distro-version",
-            type=str,
-            help="version for the root component",
-            default=None,
-        )
-        parser.add_argument(
-            "--base-distro-vendor",
-            choices=["debian", "ubuntu"],
-            help="vendor of debian distribution (debian or ubuntu)",
-            default="debian",
-        )
-        parser.add_argument(
-            "--cdx-standard",
-            choices=["default", "standard-bom"],
-            help="generate SBOM according to this spec (only for CDX)",
-            default="default",
-        )
-        parser.add_argument(
-            "--spdx-namespace",
-            type=urlparse,
-            help="document namespace, must be a valid URI (only for SPDX)",
-            default=None,
-        )
-        parser.add_argument(
-            "--cdx-serialnumber",
-            type=UUID,
-            help="document serial number, must be a UUID in 8-4-4-4-12 format (only for CDX)",
-            default=None,
-        )
-        parser.add_argument(
-            "--timestamp",
-            type=datetime.fromisoformat,
-            help="document timestamp in ISO 8601 format",
-            default=None,
-        )
-        parser.add_argument(
-            "--validate",
-            help="validate generated SBOM (only for SPDX)",
-            action="store_true",
         )
         parser.add_argument(
             "--from-pkglist",
