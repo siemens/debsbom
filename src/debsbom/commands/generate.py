@@ -72,7 +72,7 @@ class GenerateCmd:
             "-r",
             "--root",
             type=str,
-            help="root directory to look for dpkg status file",
+            help="root directory to look for dpkg status file and apt cache",
             default="/",
         )
         parser.add_argument(
