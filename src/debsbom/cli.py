@@ -12,7 +12,7 @@ import traceback
 
 from .commands.generate import GenerateCmd
 from .commands.download import DownloadCmd
-from .commands.merge import MergeCmd
+from .commands.merge import SourceMergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
 
@@ -49,7 +49,7 @@ def setup_parser():
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
     DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
-    MergeCmd.setup_parser(
+    SourceMergeCmd.setup_parser(
         subparser.add_parser("source-merge", help="merge referenced source packages")
     )
     RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
@@ -80,7 +80,7 @@ def main():
             else:
                 raise RuntimeError(f"{MISSING_MODULE}. {args.cmd} not available")
         elif args.cmd == "source-merge":
-            MergeCmd.run(args)
+            SourceMergeCmd.run(args)
         elif args.cmd == "repack":
             RepackCmd.run(args)
         elif args.cmd == "export":
