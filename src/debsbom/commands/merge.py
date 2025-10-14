@@ -15,7 +15,7 @@ from ..util.progress import progress_cb
 logger = logging.getLogger(__name__)
 
 
-class MergeCmd(SbomInput, PkgStreamInput):
+class SourceMergeCmd(SbomInput, PkgStreamInput):
     """
     Processes an SBOM and merges the .orig and .debian tarballs. The tarballs have to be
     downloaded first.
