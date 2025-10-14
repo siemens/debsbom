@@ -187,7 +187,7 @@ class Package(ABC):
     @classmethod
     def _parse_pkglist_line_stream(cls, stream: IO[bytes]) -> Iterable["Package"]:
         for line in stream:
-            name, version, arch = line.decode().split()
+            name, version, arch = line.decode().strip().split()
             if arch == "source":
                 yield SourcePackage(
                     name=name,
