@@ -12,7 +12,7 @@ import traceback
 
 from .commands.generate import GenerateCmd
 from .commands.download import DownloadCmd
-from .commands.merge import SourceMergeCmd
+from .commands.source_merge import SourceMergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
 
