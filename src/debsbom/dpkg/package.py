@@ -210,7 +210,7 @@ class Package(ABC):
         """
         for line in stream:
             print(line.decode())
-            src, srcv, bin, binv = line.decode().split("|")
+            src, srcv, bin, binv = line.decode().strip().split("|")
             yield SourcePackage(name=src, version=srcv)
             bin_parts = bin.split(":")
             if len(bin_parts) != 2:
