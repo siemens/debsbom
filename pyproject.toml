@@ -17,7 +17,7 @@ authors = [
 ]
 maintainers = [
   { name="Christoph Steiger", email="christoph.steiger@siemens.com" },
-  { name="Gernot Hillier", email="gernot.hillier@siemens.com" },
+  { name="Felix Moessbauer", email="felix.moessbauer@siemens.com" },
 ]
 description = "Generate SBOMs for Debian-based distributions."
 readme = "README.md"
