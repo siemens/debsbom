@@ -46,11 +46,9 @@ def test_parse_minimal_status_file(mode):
         Dependency("binutils-x86-64-linux-gnu", None, ("=", bpkg.version)),
     ]
     assert (
-        bpkg.description
-        == """GNU assembler, linker and binary utilities
- The programs in this package are used to assemble, link and manipulate
- binary and object files.  They may be used in conjunction with a compiler
- and various libraries to build programs."""
+        bpkg.description == "GNU assembler, linker and binary utilities\n"
+        "The programs in this package are used to assemble, link and manipulate binary and object files.  "
+        "They may be used in conjunction with a compiler and various libraries to build programs."
     )
     assert bpkg.homepage == "https://www.gnu.org/software/binutils/"
 
@@ -78,16 +76,14 @@ def test_parse_source_status_file():
         Dependency("libstdc++6", None, (">=", Version("11"))),
     ]
     assert (
-        bpkg.description
-        == """package management related utility programs
- This package contains some less used commandline utilities related
- to package management with APT.
- .
-  * apt-extracttemplates is used by debconf to prompt for configuration
-    questions before installation.
-  * apt-ftparchive is used to create Packages and other index files
-    needed to publish an archive of Debian packages
-  * apt-sortpkgs is a Packages/Sources file normalizer."""
+        bpkg.description == "package management related utility programs\n"
+        "This package contains some less used commandline utilities related "
+        "to package management with APT.\n\n"
+        " * apt-extracttemplates is used by debconf to prompt for configuration\n"
+        "   questions before installation.\n"
+        " * apt-ftparchive is used to create Packages and other index files\n"
+        "   needed to publish an archive of Debian packages\n"
+        " * apt-sortpkgs is a Packages/Sources file normalizer."
     )
     assert bpkg.homepage is None
 
