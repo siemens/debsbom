@@ -15,7 +15,7 @@ from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
-from ..dpkg.package import Package, ChecksumAlgo
+from ..dpkg.package import Package, ChecksumAlgo, DpkgStatus, filter_binaries
 from ..sbom import (
     Reference,
     SPDX_REF_PREFIX,
@@ -154,7 +154,11 @@ def spdx_bom(
 
     data.append(distro_package)
 
-    binary_packages = [p for p in packages if p.is_binary()]
+    binary_packages = [
+        p
+        for p in filter_binaries(packages)
+        if p.status in (DpkgStatus.INSTALLED, DpkgStatus.DEBSBOM_UNKNOWN)
+    ]
 
     # progress tracking
     num_steps = len(packages) + len(binary_packages)
