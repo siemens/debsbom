@@ -14,6 +14,7 @@ from debsbom.dpkg.package import (
     BinaryPackage,
     SourcePackage,
     Package,
+    DpkgStatus,
     filter_binaries,
 )
 from debsbom.sbom import Reference
@@ -58,6 +59,7 @@ def test_parse_minimal_status_file(mode):
         "They may be used in conjunction with a compiler and various libraries to build programs."
     )
     assert bpkg.homepage == "https://www.gnu.org/software/binutils/"
+    assert bpkg.status == DpkgStatus.INSTALLED
 
     spkg = packages[1]
     assert spkg.name == "binutils"
