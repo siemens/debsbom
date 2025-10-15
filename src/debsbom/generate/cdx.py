@@ -19,7 +19,7 @@ from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
 from collections.abc import Callable
 
-from ..dpkg.package import ChecksumAlgo, Package
+from ..dpkg.package import ChecksumAlgo, Package, DpkgStatus, filter_binaries
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
 
@@ -103,7 +103,11 @@ def cyclonedx_bom(
     data = SortedSet([])
     dependencies = SortedSet([])
 
-    binary_packages = [p for p in packages if p.is_binary()]
+    binary_packages = [
+        p
+        for p in filter_binaries(packages)
+        if p.status in (DpkgStatus.INSTALLED, DpkgStatus.DEBSBOM_UNKNOWN)
+    ]
 
     # progress tracking
     num_steps = len(packages) + len(binary_packages)
