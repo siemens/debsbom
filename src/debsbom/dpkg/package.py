@@ -40,6 +40,40 @@ class ChecksumAlgo(Enum):
         raise NotImplementedError()
 
 
+class DpkgStatus(Enum):
+    NOT_INSTALLED = "n"
+    CONFIG_FILES = "c"
+    HALF_INSTALLED = "H"
+    UNPACKED = "U"
+    HALF_CONFIGURED = "F"
+    TRIGGERS_AWAITING = "W"
+    TRIGGERS_PENDING = "t"
+    INSTALLED = "i"
+    DEBSBOM_UNKNOWN = "0"
+
+    @classmethod
+    def from_dpkg(cls, status: str) -> "DpkgStatus":
+        if len(status) > 1:
+            status = status.lower()
+        if status in ["n", "not-installed"]:
+            return cls.NOT_INSTALLED
+        if status in ["c", "config-files"]:
+            return cls.CONFIG_FILES
+        if status in ["H", "half-installed"]:
+            return cls.HALF_INSTALLED
+        if status in ["U", "unpacked"]:
+            return cls.UNPACKED
+        if status in ["F", "half-configured"]:
+            return cls.HALF_CONFIGURED
+        if status in ["W", "triggers-awaiting"]:
+            return cls.TRIGGERS_AWAITING
+        if status in ["t", "triggers-pending"]:
+            return cls.TRIGGERS_PENDING
+        if status in ["i", "installed"]:
+            return cls.INSTALLED
+        raise ValueError(f"Unknown dpkg status '{status}'")
+
+
 class PkgListType(Enum):
     """Type of package list data (e.g. PURL or dpkg status file)"""
 
@@ -453,6 +487,7 @@ class BinaryPackage(Package):
     built_using: list[Dependency]
     description: str | None
     manually_installed: bool
+    status: DpkgStatus
     _locator: str | None = None
 
     def __init__(
@@ -469,6 +504,7 @@ class BinaryPackage(Package):
         homepage: str | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
         manually_installed: bool = True,
+        status: DpkgStatus = DpkgStatus.DEBSBOM_UNKNOWN,
     ):
         self.name = name
         self.section = section
@@ -482,6 +518,7 @@ class BinaryPackage(Package):
         self.homepage = homepage
         self.checksums = checksums or {}
         self.manually_installed = manually_installed
+        self.status = status
 
     def __hash__(self):
         return hash(self.purl())
@@ -527,6 +564,13 @@ class BinaryPackage(Package):
             self.description = other.description
         self.checksums |= other.checksums
         self.manually_installed |= other.manually_installed
+        # we cannot merge the status, but if the other package is
+        # marked as installed, consider all as installed.
+        if self.status == DpkgStatus.DEBSBOM_UNKNOWN:
+            self.status = other.status
+        elif other.status != DpkgStatus.DEBSBOM_UNKNOWN and self.status != other.status:
+            # this indicates an internal error
+            logger.warning(f"package statuses are inconsistent: {self.status} != {other.status}")
 
         depends = list(self.depends)
         depends.extend(x for x in other.depends if x not in depends)
@@ -607,6 +651,13 @@ class BinaryPackage(Package):
             if chksum:
                 pkg_chksums[alg] = chksum
 
+        status_raw = package.get("Status")
+        if status_raw:
+            _, _, pkg_status = status_raw.split(" ")
+            status = DpkgStatus.from_dpkg(pkg_status)
+        else:
+            status = DpkgStatus.DEBSBOM_UNKNOWN
+
         return BinaryPackage(
             name=package.get("Package"),
             section=package.get("Section"),
@@ -619,4 +670,5 @@ class BinaryPackage(Package):
             description=cls._cleanup_description(package.get("Description")),
             homepage=package.get("Homepage"),
             checksums=pkg_chksums,
+            status=status,
         )
