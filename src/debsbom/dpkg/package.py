@@ -13,11 +13,15 @@ from typing import IO
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 import logging
+import re
 from packageurl import PackageURL
 
 from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
+
+# Debian policy 5.6.13, item 1
+DESC_REGEX_P1 = re.compile(r"^\s(\w.*)$")
 
 
 class ChecksumAlgo(Enum):
@@ -527,7 +531,35 @@ class BinaryPackage(Package):
         self._locator = loc
 
     @staticmethod
-    def from_dep822(package) -> "BinaryPackage":
+    def _cleanup_description(desc: str | None) -> str | None:
+        """
+        Parse description according to Debian policy 5.6.13
+        """
+        if desc is None:
+            return None
+        buffer = str()
+        in_paragraph = False
+        for line in desc.split("\n"):
+            matches = DESC_REGEX_P1.match(line)
+            if matches:
+                buffer += (" " if in_paragraph else "") + matches[1]
+                in_paragraph = True
+                continue
+
+            if len(line) == 0:
+                pass
+            elif line == " .":
+                buffer += "\n"
+            elif line[0] != " ":
+                # First line
+                buffer += line + "\n"
+            else:
+                buffer += "\n" + line[1:]
+            in_paragraph = False
+        return buffer.strip()
+
+    @classmethod
+    def from_dep822(cls, package) -> "BinaryPackage":
         """
         Create a ``BinaryPackage`` from a dep822 representation.
         """
@@ -562,7 +594,7 @@ class BinaryPackage(Package):
             version=package.get("Version"),
             depends=dependencies,
             built_using=sdepends,
-            description=package.get("Description"),
+            description=cls._cleanup_description(package.get("Description")),
             homepage=package.get("Homepage"),
             checksums=pkg_chksums,
         )
