@@ -12,6 +12,7 @@ import traceback
 
 from .commands.generate import GenerateCmd
 from .commands.download import DownloadCmd
+from .commands.merge import MergeCmd
 from .commands.source_merge import SourceMergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
@@ -54,6 +55,7 @@ def setup_parser():
     GenerateCmd.setup_parser(
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
     )
+    MergeCmd.setup_parser(subparser.add_parser("merge", help="merge multiple SBOMs"))
     DownloadCmd.setup_parser(subparser.add_parser("download", help="download referenced packages"))
     SourceMergeCmd.setup_parser(
         subparser.add_parser("source-merge", help="merge referenced source packages")
@@ -91,6 +93,8 @@ def main():
             RepackCmd.run(args)
         elif args.cmd == "export":
             ExportCmd.run(args)
+        elif args.cmd == "merge":
+            MergeCmd.run(args)
     except Exception as e:
         logger.error(e)
         if not args.json:
