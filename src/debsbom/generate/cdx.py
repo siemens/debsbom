@@ -80,6 +80,7 @@ def cdx_package_repr(
             cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
             for alg, dig in package.checksums.items()
         ]
+        entry.properties.add(cdx_model.Property(name="section", value=package.section))
         logger.debug(f"Created binary component: {entry}")
         return entry
     elif isinstance(package, SourcePackage):
