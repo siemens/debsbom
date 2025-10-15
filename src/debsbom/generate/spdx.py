@@ -69,7 +69,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             license_concluded=SpdxNoAssertion(),
             license_declared=SpdxNoAssertion(),
             copyright_text=SpdxNoAssertion(),
-            summary=package.description,
+            summary=package.description.split("\n")[0] if package.description else None,
             external_references=[
                 spdx_package.ExternalPackageRef(
                     category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
@@ -82,6 +82,9 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
                 Checksum(CHKSUM_TO_SPDX[alg], dig) for alg, dig in package.checksums.items()
             ],
         )
+        if package.description and "\n" in package.description:
+            _desc = package.description.split("\n")
+            spdx_pkg.description = "\n".join(_desc[1:])
         if package.homepage:
             url = urlparse(package.homepage)
             url = url._replace(netloc=url.netloc.lower())
