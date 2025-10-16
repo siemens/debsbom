@@ -1,0 +1,2355 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2025-10-16T14:39:54Z",
+        "creators": [
+            "Tool: debsbom-0.2.0"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "full",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.2.0-b86e3afb-424f-479a-b0ad-90f0605b75a8",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-full",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "full",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-morikuni-aec-1.0.0-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-morikuni-aec@1.0.0-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-morikuni-aec",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-morikuni-aec'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-docker-go-units-0.4.0-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-docker-go-units@0.4.0-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-docker-go-units",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-docker-go-units'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.4.0-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-docker-docker-credential-helpers-0.6.4.ds1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-docker-docker-credential-helpers@0.6.4%2Bds1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-docker-docker-credential-helpers",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-docker-docker-credential-helpers'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.6.4+ds1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-fullsailor-pkcs7-0.0.git20210826.33d0574-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-fullsailor-pkcs7@0.0~git20210826.33d0574-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-fullsailor-pkcs7",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-fullsailor-pkcs7'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20210826.33d0574-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-vbatts-tar-split-0.11.2.ds1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-vbatts-tar-split@0.11.2%2Bds1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-vbatts-tar-split",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-vbatts-tar-split'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "0.11.2+ds1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-go-zfs-3.0.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-go-zfs@3.0.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-go-zfs",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-go-zfs'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "3.0.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-klauspost-compress-1.15.12.ds1-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-klauspost-compress@1.15.12%2Bds1-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-klauspost-compress",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-klauspost-compress'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.15.12+ds1-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-docker-go-connections-0.4.0-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-docker-go-connections@0.4.0-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-docker-go-connections",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-docker-go-connections'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.4.0-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containers-common-0.50.1.ds1-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containers-common@0.50.1%2Bds1-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containers-common",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containers-common'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.50.1+ds1-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-disiqueira-gotree-3.0.2-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-disiqueira-gotree@3.0.2-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-disiqueira-gotree",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-disiqueira-gotree'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "3.0.2-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-modern-go-reflect2-1.0.2-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-modern-go-reflect2@1.0.2-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-modern-go-reflect2",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-modern-go-reflect2'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.2-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-pkg-errors-0.9.1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-pkg-errors@0.9.1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-pkg-errors",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-pkg-errors'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.9.1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-opencontainers-runtime-tools-0.9.0.git20220423.g0105384-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-opencontainers-runtime-tools@0.9.0%2Bgit20220423.g0105384-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-opencontainers-runtime-tools",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-opencontainers-runtime-tools'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "0.9.0+git20220423.g0105384-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-mattn-go-isatty-0.0.17-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-mattn-go-isatty@0.0.17-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-mattn-go-isatty",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-mattn-go-isatty'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0.17-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-logrus-1.9.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-logrus@1.9.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-logrus",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-logrus'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.9.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-moby-sys-0.0.git20220606.416188a-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-moby-sys@0.0~git20220606.416188a-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-moby-sys",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-moby-sys'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20220606.416188a-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-docker-libtrust-0.0.git20150526.0.9cbd2a1-3.1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-docker-libtrust@0.0~git20150526.0.9cbd2a1-3.1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-docker-libtrust",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-docker-libtrust'",
+            "supplier": "Person: pkg-go (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "0.0~git20150526.0.9cbd2a1-3.1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-openshift-imagebuilder-1.2.3.ds1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-openshift-imagebuilder@1.2.3%2Bds1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-openshift-imagebuilder",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-openshift-imagebuilder'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.2.3+ds1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-go-patricia-2.3.1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-go-patricia@2.3.1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-go-patricia",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-go-patricia'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "2.3.1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-golang-protobuf-1-3-1.3.5-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-golang-protobuf-1-3@1.3.5-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-golang-protobuf-1-3",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-golang-protobuf-1-3'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.3.5-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-google-grpc-1.33.3-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-google-grpc@1.33.3-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-google-grpc",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-google-grpc'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.33.3-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-google-uuid-1.3.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-google-uuid@1.3.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-google-uuid",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-google-uuid'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.3.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-juju-ansiterm-1.0.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-juju-ansiterm@1.0.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-juju-ansiterm",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-juju-ansiterm'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-mattn-go-shellwords-1.0.10-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-mattn-go-shellwords@1.0.10-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-mattn-go-shellwords",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-mattn-go-shellwords'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "1.0.10-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-xeipuuv-gojsonschema-1.2.0-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-xeipuuv-gojsonschema@1.2.0-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-xeipuuv-gojsonschema",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-xeipuuv-gojsonschema'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.2.0-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-mattn-go-runewidth-0.0.14-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-mattn-go-runewidth@0.0.14-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-mattn-go-runewidth",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-mattn-go-runewidth'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0.14-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-mattn-go-colorable-0.1.13-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-mattn-go-colorable@0.1.13-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-mattn-go-colorable",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-mattn-go-colorable'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.1.13-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-vividcortex-ewma-1.1.1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-vividcortex-ewma@1.1.1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-vividcortex-ewma",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-vividcortex-ewma'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "1.1.1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-opencontainers-specs-1.0.2.118.g5cfc4c3-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-opencontainers-specs@1.0.2.118.g5cfc4c3-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-opencontainers-specs",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-opencontainers-specs'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.2.118.g5cfc4c3-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-jinzhu-copier-0.3.2-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-jinzhu-copier@0.3.2-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-jinzhu-copier",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-jinzhu-copier'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.3.2-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containers-buildah-1.28.2.ds1-3.deb12u1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containers-buildah",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containers-buildah'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.28.2+ds1-3+deb12u1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-gocapability-dev-0.0.git20200815.42c35b4-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-gocapability-dev@0.0%2Bgit20200815.42c35b4-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-gocapability-dev",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-gocapability-dev'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0+git20200815.42c35b4-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-google-genproto-0.0.git20200413.b5235f6-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-google-genproto@0.0~git20200413.b5235f6-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-google-genproto",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-google-genproto'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20200413.b5235f6-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containerd-stargz-snapshotter-0.12.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containerd-stargz-snapshotter@0.12.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containerd-stargz-snapshotter",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containerd-stargz-snapshotter'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.12.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-appc-cni-1.1.2-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-appc-cni@1.1.2-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-appc-cni",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-appc-cni'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.2-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-opencontainers-selinux-1.10.0.ds1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-opencontainers-selinux@1.10.0%2Bds1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-opencontainers-selinux",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-opencontainers-selinux'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.10.0+ds1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-vbauerster-mpb-7.3.2-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-vbauerster-mpb@7.3.2-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-vbauerster-mpb",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-vbauerster-mpb'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "7.3.2-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-hashicorp-go-multierror-1.1.1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-hashicorp-go-multierror@1.1.1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-hashicorp-go-multierror",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-hashicorp-go-multierror'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-gorilla-mux-1.8.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-gorilla-mux@1.8.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-gorilla-mux",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-gorilla-mux'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.8.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-vishvananda-netns-0.0.git20211101.5004558-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-vishvananda-netns@0.0~git20211101.5004558-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-vishvananda-netns",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-vishvananda-netns'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20211101.5004558-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-opencontainers-image-spec-1.1.0.rc2-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-opencontainers-image-spec@1.1.0~rc2-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-opencontainers-image-spec",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-opencontainers-image-spec'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.0~rc2-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-sylabs-sif-2.8.3-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-sylabs-sif@2.8.3-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-sylabs-sif",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-sylabs-sif'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "2.8.3-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-vishvananda-netlink-1.1.0.125.gf243826-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-vishvananda-netlink@1.1.0.125.gf243826-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-vishvananda-netlink",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-vishvananda-netlink'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.0.125.gf243826-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-ulikunitz-xz-0.5.6-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-ulikunitz-xz@0.5.6-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-ulikunitz-xz",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-ulikunitz-xz'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.5.6-2"
+        },
+        {
+            "SPDXID": "SPDXRef-runc-1.1.5.ds1-1.deb12u1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/runc@1.1.5%2Bds1-1%2Bdeb12u1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "runc",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'runc'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.5+ds1-1+deb12u1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-spf13-pflag-1.0.6.git20210604-d5e0c0615ace-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-spf13-pflag@1.0.6~git20210604-d5e0c0615ace-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-spf13-pflag",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-spf13-pflag'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.6~git20210604-d5e0c0615ace-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-ghodss-yaml-1.0.0.git20220118.d8423dc-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-ghodss-yaml@1.0.0%2Bgit20220118.d8423dc-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-ghodss-yaml",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-ghodss-yaml'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0+git20220118.d8423dc-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-lunixbochs-vtclean-1.0.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-lunixbochs-vtclean@1.0.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-lunixbochs-vtclean",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-lunixbochs-vtclean'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-manifoldco-promptui-0.8.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-manifoldco-promptui@0.8.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-manifoldco-promptui",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-manifoldco-promptui'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.8.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-go.crypto-1.0.4.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-go.crypto@1:0.4.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-go.crypto",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-go.crypto'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1:0.4.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-rivo-uniseg-0.4.2-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-rivo-uniseg@0.4.2-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-rivo-uniseg",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-rivo-uniseg'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.4.2-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-davecgh-go-spew-1.1.1-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-davecgh-go-spew@1.1.1-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-davecgh-go-spew",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-davecgh-go-spew'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.1-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-modern-go-concurrent-1.0.3-1.1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-modern-go-concurrent@1.0.3-1.1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-modern-go-concurrent",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-modern-go-concurrent'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "1.0.3-1.1"
+        },
+        {
+            "SPDXID": "SPDXRef-docker-registry-2.8.2.ds1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/docker-registry@2.8.2%2Bds1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "docker-registry",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'docker-registry'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "2.8.2+ds1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-xeipuuv-gojsonpointer-0.0.git20190905.02993c4-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-xeipuuv-gojsonpointer@0.0~git20190905.02993c4-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-xeipuuv-gojsonpointer",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-xeipuuv-gojsonpointer'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20190905.02993c4-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containers-ocicrypt-1.0.3-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containers-ocicrypt@1.0.3-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containers-ocicrypt",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containers-ocicrypt'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.3-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-moby-term-0.0.git20221120.abb1982-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-moby-term@0.0~git20221120.abb1982-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-moby-term",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-moby-term'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20221120.abb1982-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-proglottis-gpgme-0.1.1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-proglottis-gpgme@0.1.1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-proglottis-gpgme",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-proglottis-gpgme'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.1.1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-hashicorp-errwrap-1.1.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-hashicorp-errwrap@1.1.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-hashicorp-errwrap",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-hashicorp-errwrap'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-containerd-1.6.20.ds1-1.deb12u1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/containerd@1.6.20~ds1-1%2Bdeb12u1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "containerd",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'containerd'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.6.20~ds1-1+deb12u1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-golang-x-sys-0.3.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-golang-x-sys@0.3.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-golang-x-sys",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-golang-x-sys'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.3.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containers-image-5.23.1-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containers-image@5.23.1-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containers-image",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containers-image'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "5.23.1-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-fsnotify-1.6.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-fsnotify@1.6.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-fsnotify",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-fsnotify'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.6.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-spf13-cobra-1.6.1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-spf13-cobra@1.6.1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-spf13-cobra",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-spf13-cobra'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.6.1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-gogoprotobuf-1.3.2-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-gogoprotobuf@1.3.2-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-gogoprotobuf",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-gogoprotobuf'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.3.2-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containers-storage-1.43.0.ds1-8-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containers-storage@1.43.0%2Bds1-8?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containers-storage",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containers-storage'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.43.0+ds1-8"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-cespare-xxhash-2.1.1-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-cespare-xxhash@2.1.1-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-cespare-xxhash",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-cespare-xxhash'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "2.1.1-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-json-iterator-go-1.1.12-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-json-iterator-go@1.1.12-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-json-iterator-go",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-json-iterator-go'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.12-1"
+        },
+        {
+            "SPDXID": "SPDXRef-docker.io-20.10.24.dfsg1-1.deb12u1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/docker.io@20.10.24%2Bdfsg1-1%2Bdeb12u1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "docker.io",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'docker.io'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "20.10.24+dfsg1-1+deb12u1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-klauspost-pgzip-1.2.5-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-klauspost-pgzip@1.2.5-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-klauspost-pgzip",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-klauspost-pgzip'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.2.5-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-chzyer-readline-1.4.39.g2972be2-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-chzyer-readline@1.4.39.g2972be2-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-chzyer-readline",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-chzyer-readline'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.4.39.g2972be2-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-yaml.v2-2.4.0-4-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-yaml.v2@2.4.0-4?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-yaml.v2",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-yaml.v2'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "2.4.0-4"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-golang-x-sync-0.1.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-golang-x-sync@0.1.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-golang-x-sync",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-golang-x-sync'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.1.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-google-go-intervals-0.0.2-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-google-go-intervals@0.0.2-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-google-go-intervals",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-google-go-intervals'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0.2-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-coreos-bbolt-1.3.6-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-coreos-bbolt@1.3.6-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-coreos-bbolt",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-coreos-bbolt'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.3.6-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-toml-1.2.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-toml@1.2.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-toml",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-toml'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.2.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-gopkg-square-go-jose.v2-2.6.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-gopkg-square-go-jose.v2@2.6.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-gopkg-square-go-jose.v2",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-gopkg-square-go-jose.v2'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "2.6.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-golang-x-net-1.0.7.0.dfsg-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-golang-x-net@1:0.7.0%2Bdfsg-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-golang-x-net",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-golang-x-net'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1:0.7.0+dfsg-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-acarl005-stripansi-0.0.git20180116.5a71ef0-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-acarl005-stripansi@0.0~git20180116.5a71ef0-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-acarl005-stripansi",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-acarl005-stripansi'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20180116.5a71ef0-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-blang-semver-4.0.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-blang-semver@4.0.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-blang-semver",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-blang-semver'",
+            "supplier": "Organization: Debian Go Packaging Team (pkg-go-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "4.0.0-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-containernetworking-plugins-1.1.1.ds1-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-containernetworking-plugins@1.1.1%2Bds1-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-containernetworking-plugins",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-containernetworking-plugins'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.1.1+ds1-3"
+        },
+        {
+            "SPDXID": "SPDXRef-buildah-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "84001d7c3ca96616a14ec050fa99b3f3"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "79b8d67f1152cfb8d03da289e875e245dbc788f105e0a062f2ab8a6053434d74"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/containers/buildah",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "buildah",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "CLI tool to facilitate building OCI images",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.28.2+ds1-3+deb12u1+b1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-xeipuuv-gojsonreference-0.0.git20180127.bd5ef7b-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-xeipuuv-gojsonreference@0.0~git20180127.bd5ef7b-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-xeipuuv-gojsonreference",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-xeipuuv-gojsonreference'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.0~git20180127.bd5ef7b-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-pmezard-go-difflib-1.0.0-3-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-pmezard-go-difflib@1.0.0-3?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-pmezard-go-difflib",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-pmezard-go-difflib'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0-3"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-1.19-1.19.8-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-1.19@1.19.8-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-1.19",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-1.19'",
+            "supplier": "Organization: Debian Go Compiler Team (team+go-compiler@tracker.debian.org)",
+            "versionInfo": "1.19.8-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-cyphar-filepath-securejoin-0.2.3-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-cyphar-filepath-securejoin@0.2.3-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-cyphar-filepath-securejoin",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-cyphar-filepath-securejoin'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.2.3-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-opencontainers-go-digest-1.0.0-2-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-opencontainers-go-digest@1.0.0-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-opencontainers-go-digest",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-opencontainers-go-digest'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.0.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-github-fsouza-go-dockerclient-1.8.1-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-github-fsouza-go-dockerclient@1.8.1-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-github-fsouza-go-dockerclient",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-github-fsouza-go-dockerclient'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "1.8.1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-golang-golang-x-term-0.3.0-1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/golang-golang-x-term@0.3.0-1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "golang-golang-x-term",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'golang-golang-x-term'",
+            "supplier": "Organization: Debian Go Packaging Team (team+pkg-go@tracker.debian.org)",
+            "versionInfo": "0.3.0-1"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "relatedSpdxElement": "SPDXRef-full",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-containerd-1.6.20.ds1-1.deb12u1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-docker-registry-2.8.2.ds1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-docker.io-20.10.24.dfsg1-1.deb12u1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-1.19-1.19.8-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-fsnotify-1.6.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-acarl005-stripansi-0.0.git20180116.5a71ef0-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-appc-cni-1.1.2-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-blang-semver-4.0.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-cespare-xxhash-2.1.1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-chzyer-readline-1.4.39.g2972be2-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containerd-stargz-snapshotter-0.12.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containernetworking-plugins-1.1.1.ds1-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containers-common-0.50.1.ds1-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containers-image-5.23.1-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containers-ocicrypt-1.0.3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-containers-storage-1.43.0.ds1-8-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-coreos-bbolt-1.3.6-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-cyphar-filepath-securejoin-0.2.3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-davecgh-go-spew-1.1.1-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-disiqueira-gotree-3.0.2-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-docker-docker-credential-helpers-0.6.4.ds1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-docker-go-connections-0.4.0-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-docker-go-units-0.4.0-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-docker-libtrust-0.0.git20150526.0.9cbd2a1-3.1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-fsouza-go-dockerclient-1.8.1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-fullsailor-pkcs7-0.0.git20210826.33d0574-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-ghodss-yaml-1.0.0.git20220118.d8423dc-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-golang-protobuf-1-3-1.3.5-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-google-go-intervals-0.0.2-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-google-uuid-1.3.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-gorilla-mux-1.8.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-hashicorp-errwrap-1.1.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-hashicorp-go-multierror-1.1.1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-jinzhu-copier-0.3.2-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-json-iterator-go-1.1.12-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-juju-ansiterm-1.0.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-klauspost-compress-1.15.12.ds1-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-klauspost-pgzip-1.2.5-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-lunixbochs-vtclean-1.0.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-manifoldco-promptui-0.8.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-mattn-go-colorable-0.1.13-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-mattn-go-isatty-0.0.17-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-mattn-go-runewidth-0.0.14-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-mattn-go-shellwords-1.0.10-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-moby-sys-0.0.git20220606.416188a-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-moby-term-0.0.git20221120.abb1982-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-modern-go-concurrent-1.0.3-1.1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-modern-go-reflect2-1.0.2-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-morikuni-aec-1.0.0-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-opencontainers-go-digest-1.0.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-opencontainers-image-spec-1.1.0.rc2-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-opencontainers-runtime-tools-0.9.0.git20220423.g0105384-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-opencontainers-selinux-1.10.0.ds1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-opencontainers-specs-1.0.2.118.g5cfc4c3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-openshift-imagebuilder-1.2.3.ds1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-pkg-errors-0.9.1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-pmezard-go-difflib-1.0.0-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-proglottis-gpgme-0.1.1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-rivo-uniseg-0.4.2-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-spf13-cobra-1.6.1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-spf13-pflag-1.0.6.git20210604-d5e0c0615ace-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-sylabs-sif-2.8.3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-ulikunitz-xz-0.5.6-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-vbatts-tar-split-0.11.2.ds1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-vbauerster-mpb-7.3.2-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-vishvananda-netlink-1.1.0.125.gf243826-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-vishvananda-netns-0.0.git20211101.5004558-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-vividcortex-ewma-1.1.1-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-xeipuuv-gojsonpointer-0.0.git20190905.02993c4-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-xeipuuv-gojsonreference-0.0.git20180127.bd5ef7b-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-github-xeipuuv-gojsonschema-1.2.0-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-go-patricia-2.3.1-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-go-zfs-3.0.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-go.crypto-1.0.4.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-gocapability-dev-0.0.git20200815.42c35b4-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-gogoprotobuf-1.3.2-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-golang-x-net-1.0.7.0.dfsg-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-golang-x-sync-0.1.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-golang-x-sys-0.3.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-golang-x-term-0.3.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-google-genproto-0.0.git20200413.b5235f6-3-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-google-grpc-1.33.3-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-gopkg-square-go-jose.v2-2.6.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-logrus-1.9.0-1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-toml-1.2.0-2-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-golang-yaml.v2-2.4.0-4-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64",
+            "comment": "built-using",
+            "relatedSpdxElement": "SPDXRef-runc-1.1.5.ds1-1.deb12u1-srcpkg",
+            "relationshipType": "GENERATED_FROM"
+        },
+        {
+            "spdxElementId": "SPDXRef-golang-github-containers-buildah-1.28.2.ds1-3.deb12u1-srcpkg",
+            "relatedSpdxElement": "SPDXRef-buildah-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-full",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}
