@@ -8,7 +8,14 @@ from debian.deb822 import PkgRelation
 from debian.debian_support import Version
 import pytest
 
-from debsbom.dpkg.package import ChecksumAlgo, Dependency, BinaryPackage, SourcePackage, Package
+from debsbom.dpkg.package import (
+    ChecksumAlgo,
+    Dependency,
+    BinaryPackage,
+    SourcePackage,
+    Package,
+    filter_binaries,
+)
 from debsbom.sbom import Reference
 
 
@@ -143,14 +150,14 @@ def test_package_merge():
 )
 def test_parse_pkgs_stream(data):
     stream = io.BytesIO("\n".join(data).encode())
-    pkgs_it = Package.parse_pkglist_stream(stream)
+    pkgs_it = filter_binaries(Package.parse_pkglist_stream(stream))
 
-    pkg: BinaryPackage = next(filter(lambda p: isinstance(p, BinaryPackage), pkgs_it))
+    pkg: BinaryPackage = next(pkgs_it)
     assert pkg.name == "binutils-arm-none-eabi"
     assert pkg.version.debian_revision == "2+18+b1"
     assert pkg.architecture == "amd64"
 
-    pkg: BinaryPackage = next(filter(lambda p: isinstance(p, BinaryPackage), pkgs_it))
+    pkg: BinaryPackage = next(pkgs_it)
     assert pkg.name == "binutils-bpf"
     assert pkg.version.upstream_version == "2.40"
     assert pkg.architecture == "amd64"
