@@ -15,10 +15,7 @@ from ..dpkg import package
 from ..dpkg.package import ChecksumAlgo
 from ..snapshot.client import RemoteFile
 
-try:
-    import requests
-except ModuleNotFoundError:
-    pass
+import requests
 
 
 logger = logging.getLogger(__name__)

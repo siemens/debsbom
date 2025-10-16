@@ -11,6 +11,9 @@ from ..dpkg import package
 from ..util.progress import progress_cb
 
 try:
+    # Attempt to import unused zstandard dependency to check their availability.
+    # If it is missing, dependent modules are skipped to prevent import errors.
+    from zstandard import ZstdCompressor, ZstdDecompressor
     import requests
     from ..snapshot import client as sdlclient
     from ..download.download import PackageDownloader

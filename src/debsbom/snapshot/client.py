@@ -13,11 +13,8 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 
-try:
-    import requests
-    from requests.exceptions import RequestException
-except ModuleNotFoundError:
-    pass
+import requests
+from requests.exceptions import RequestException
 
 
 class SnapshotDataLakeError(Exception):

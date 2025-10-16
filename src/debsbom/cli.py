@@ -16,7 +16,8 @@ from .commands.merge import MergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
 
-# Keep the set of required deps to a bare minimum, needed for SBOM generation
+# Attempt to import optional download dependencies to check their availability.
+# The success or failure of these imports determines if download features are enabled.
 try:
     import requests
     from zstandard import ZstdCompressor, ZstdDecompressor
