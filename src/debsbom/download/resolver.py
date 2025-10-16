@@ -12,11 +12,8 @@ from pathlib import Path
 from ..dpkg import package
 from ..snapshot.client import RemoteFile
 
-try:
-    from zstandard import ZstdCompressor, ZstdDecompressor
-    from ..snapshot import client as sdlclient
-except ModuleNotFoundError:
-    pass
+from zstandard import ZstdCompressor, ZstdDecompressor
+from ..snapshot import client as sdlclient
 
 
 logger = logging.getLogger(__name__)
