@@ -1,0 +1,2462 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
+            "description": "CLI tool to facilitate building OCI images",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/buildah"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "84001d7c3ca96616a14ec050fa99b3f3"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "79b8d67f1152cfb8d03da289e875e245dbc788f105e0a062f2ab8a6053434d74"
+                }
+            ],
+            "name": "buildah",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "devel"
+                }
+            ],
+            "purl": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.28.2+ds1-3+deb12u1+b1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/containerd@1.6.20~ds1-1%2Bdeb12u1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://containerd.io/"
+                }
+            ],
+            "group": "debian",
+            "name": "containerd",
+            "purl": "pkg:deb/debian/containerd@1.6.20~ds1-1%2Bdeb12u1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.6.20~ds1-1+deb12u1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/docker-registry@2.8.2%2Bds1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/docker/distribution"
+                }
+            ],
+            "group": "debian",
+            "name": "docker-registry",
+            "purl": "pkg:deb/debian/docker-registry@2.8.2%2Bds1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.8.2+ds1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/docker.io@20.10.24%2Bdfsg1-1%2Bdeb12u1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://mobyproject.org"
+                }
+            ],
+            "group": "debian",
+            "name": "docker.io",
+            "purl": "pkg:deb/debian/docker.io@20.10.24%2Bdfsg1-1%2Bdeb12u1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "20.10.24+dfsg1-1+deb12u1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-1.19@1.19.8-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://go.dev/"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-1.19",
+            "purl": "pkg:deb/debian/golang-1.19@1.19.8-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+go-compiler@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Compiler Team"
+            },
+            "type": "library",
+            "version": "1.19.8-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-fsnotify@1.6.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/fsnotify/fsnotify"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-fsnotify",
+            "purl": "pkg:deb/debian/golang-fsnotify@1.6.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.6.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-acarl005-stripansi@0.0~git20180116.5a71ef0-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/acarl005/stripansi"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-acarl005-stripansi",
+            "purl": "pkg:deb/debian/golang-github-acarl005-stripansi@0.0~git20180116.5a71ef0-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20180116.5a71ef0-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-appc-cni@1.1.2-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containernetworking/cni"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-appc-cni",
+            "purl": "pkg:deb/debian/golang-github-appc-cni@1.1.2-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.2-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-blang-semver@4.0.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/blang/semver"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-blang-semver",
+            "purl": "pkg:deb/debian/golang-github-blang-semver@4.0.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "4.0.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-cespare-xxhash@2.1.1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/cespare/xxhash"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-cespare-xxhash",
+            "purl": "pkg:deb/debian/golang-github-cespare-xxhash@2.1.1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.1.1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-chzyer-readline@1.4.39.g2972be2-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/chzyer/readline"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-chzyer-readline",
+            "purl": "pkg:deb/debian/golang-github-chzyer-readline@1.4.39.g2972be2-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.4.39.g2972be2-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containerd-stargz-snapshotter@0.12.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containerd/stargz-snapshotter"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containerd-stargz-snapshotter",
+            "purl": "pkg:deb/debian/golang-github-containerd-stargz-snapshotter@0.12.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.12.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containernetworking-plugins@1.1.1%2Bds1-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containernetworking/plugins"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containernetworking-plugins",
+            "purl": "pkg:deb/debian/golang-github-containernetworking-plugins@1.1.1%2Bds1-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.1+ds1-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/buildah"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containers-buildah",
+            "purl": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.28.2+ds1-3+deb12u1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-common@0.50.1%2Bds1-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/common"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containers-common",
+            "purl": "pkg:deb/debian/golang-github-containers-common@0.50.1%2Bds1-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.50.1+ds1-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-image@5.23.1-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/image"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containers-image",
+            "purl": "pkg:deb/debian/golang-github-containers-image@5.23.1-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "5.23.1-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-ocicrypt@1.0.3-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/ocicrypt"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containers-ocicrypt",
+            "purl": "pkg:deb/debian/golang-github-containers-ocicrypt@1.0.3-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.3-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-storage@1.43.0%2Bds1-8?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/containers/storage"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-containers-storage",
+            "purl": "pkg:deb/debian/golang-github-containers-storage@1.43.0%2Bds1-8?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.43.0+ds1-8"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-coreos-bbolt@1.3.6-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/etcd-io/bbolt"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-coreos-bbolt",
+            "purl": "pkg:deb/debian/golang-github-coreos-bbolt@1.3.6-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.3.6-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-cyphar-filepath-securejoin@0.2.3-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/cyphar/filepath-securejoin"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-cyphar-filepath-securejoin",
+            "purl": "pkg:deb/debian/golang-github-cyphar-filepath-securejoin@0.2.3-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.2.3-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-davecgh-go-spew@1.1.1-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/davecgh/go-spew"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-davecgh-go-spew",
+            "purl": "pkg:deb/debian/golang-github-davecgh-go-spew@1.1.1-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.1-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-disiqueira-gotree@3.0.2-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/disiqueira/gotree"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-disiqueira-gotree",
+            "purl": "pkg:deb/debian/golang-github-disiqueira-gotree@3.0.2-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "3.0.2-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-docker-docker-credential-helpers@0.6.4%2Bds1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/docker/docker-credential-helpers"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-docker-docker-credential-helpers",
+            "purl": "pkg:deb/debian/golang-github-docker-docker-credential-helpers@0.6.4%2Bds1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.6.4+ds1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-docker-go-connections@0.4.0-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/docker/go-connections"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-docker-go-connections",
+            "purl": "pkg:deb/debian/golang-github-docker-go-connections@0.4.0-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.4.0-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-docker-go-units@0.4.0-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/docker/go-units"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-docker-go-units",
+            "purl": "pkg:deb/debian/golang-github-docker-go-units@0.4.0-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.4.0-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-docker-libtrust@0.0~git20150526.0.9cbd2a1-3.1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/docker/libtrust"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-docker-libtrust",
+            "purl": "pkg:deb/debian/golang-github-docker-libtrust@0.0~git20150526.0.9cbd2a1-3.1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "pkg-go"
+            },
+            "type": "library",
+            "version": "0.0~git20150526.0.9cbd2a1-3.1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-fsouza-go-dockerclient@1.8.1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/fsouza/go-dockerclient"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-fsouza-go-dockerclient",
+            "purl": "pkg:deb/debian/golang-github-fsouza-go-dockerclient@1.8.1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.8.1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-fullsailor-pkcs7@0.0~git20210826.33d0574-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/fullsailor/pkcs7"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-fullsailor-pkcs7",
+            "purl": "pkg:deb/debian/golang-github-fullsailor-pkcs7@0.0~git20210826.33d0574-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20210826.33d0574-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-ghodss-yaml@1.0.0%2Bgit20220118.d8423dc-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/ghodss/yaml"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-ghodss-yaml",
+            "purl": "pkg:deb/debian/golang-github-ghodss-yaml@1.0.0%2Bgit20220118.d8423dc-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0+git20220118.d8423dc-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-golang-protobuf-1-3@1.3.5-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/golang/protobuf"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-golang-protobuf-1-3",
+            "purl": "pkg:deb/debian/golang-github-golang-protobuf-1-3@1.3.5-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.3.5-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-google-go-intervals@0.0.2-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/google/go-intervals"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-google-go-intervals",
+            "purl": "pkg:deb/debian/golang-github-google-go-intervals@0.0.2-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0.2-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-google-uuid@1.3.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/google/uuid"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-google-uuid",
+            "purl": "pkg:deb/debian/golang-github-google-uuid@1.3.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.3.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-gorilla-mux@1.8.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/gorilla/mux"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-gorilla-mux",
+            "purl": "pkg:deb/debian/golang-github-gorilla-mux@1.8.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.8.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-hashicorp-errwrap@1.1.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/hashicorp/errwrap"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-hashicorp-errwrap",
+            "purl": "pkg:deb/debian/golang-github-hashicorp-errwrap@1.1.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-hashicorp-go-multierror@1.1.1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/hashicorp/go-multierror"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-hashicorp-go-multierror",
+            "purl": "pkg:deb/debian/golang-github-hashicorp-go-multierror@1.1.1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-jinzhu-copier@0.3.2-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/jinzhu/copier"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-jinzhu-copier",
+            "purl": "pkg:deb/debian/golang-github-jinzhu-copier@0.3.2-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.3.2-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-json-iterator-go@1.1.12-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://jsoniter.com/"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-json-iterator-go",
+            "purl": "pkg:deb/debian/golang-github-json-iterator-go@1.1.12-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.12-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-juju-ansiterm@1.0.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/juju/ansiterm"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-juju-ansiterm",
+            "purl": "pkg:deb/debian/golang-github-juju-ansiterm@1.0.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-klauspost-compress@1.15.12%2Bds1-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/klauspost/compress"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-klauspost-compress",
+            "purl": "pkg:deb/debian/golang-github-klauspost-compress@1.15.12%2Bds1-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.15.12+ds1-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-klauspost-pgzip@1.2.5-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/klauspost/pgzip"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-klauspost-pgzip",
+            "purl": "pkg:deb/debian/golang-github-klauspost-pgzip@1.2.5-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.2.5-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-lunixbochs-vtclean@1.0.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/lunixbochs/vtclean"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-lunixbochs-vtclean",
+            "purl": "pkg:deb/debian/golang-github-lunixbochs-vtclean@1.0.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-manifoldco-promptui@0.8.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/manifoldco/promptui"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-manifoldco-promptui",
+            "purl": "pkg:deb/debian/golang-github-manifoldco-promptui@0.8.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.8.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-mattn-go-colorable@0.1.13-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/mattn/go-colorable"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-mattn-go-colorable",
+            "purl": "pkg:deb/debian/golang-github-mattn-go-colorable@0.1.13-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.1.13-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-mattn-go-isatty@0.0.17-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/mattn/go-isatty"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-mattn-go-isatty",
+            "purl": "pkg:deb/debian/golang-github-mattn-go-isatty@0.0.17-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0.17-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-mattn-go-runewidth@0.0.14-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/mattn/go-runewidth"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-mattn-go-runewidth",
+            "purl": "pkg:deb/debian/golang-github-mattn-go-runewidth@0.0.14-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0.14-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-mattn-go-shellwords@1.0.10-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/mattn/go-shellwords"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-mattn-go-shellwords",
+            "purl": "pkg:deb/debian/golang-github-mattn-go-shellwords@1.0.10-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.10-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-moby-sys@0.0~git20220606.416188a-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/moby/sys"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-moby-sys",
+            "purl": "pkg:deb/debian/golang-github-moby-sys@0.0~git20220606.416188a-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20220606.416188a-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-moby-term@0.0~git20221120.abb1982-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/moby/term"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-moby-term",
+            "purl": "pkg:deb/debian/golang-github-moby-term@0.0~git20221120.abb1982-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20221120.abb1982-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-modern-go-concurrent@1.0.3-1.1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/modern-go/concurrent"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-modern-go-concurrent",
+            "purl": "pkg:deb/debian/golang-github-modern-go-concurrent@1.0.3-1.1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.3-1.1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-modern-go-reflect2@1.0.2-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/modern-go/reflect2"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-modern-go-reflect2",
+            "purl": "pkg:deb/debian/golang-github-modern-go-reflect2@1.0.2-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.2-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-morikuni-aec@1.0.0-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/morikuni/aec"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-morikuni-aec",
+            "purl": "pkg:deb/debian/golang-github-morikuni-aec@1.0.0-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-opencontainers-go-digest@1.0.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/go-digest"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-opencontainers-go-digest",
+            "purl": "pkg:deb/debian/golang-github-opencontainers-go-digest@1.0.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-opencontainers-image-spec@1.1.0~rc2-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/image-spec"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-opencontainers-image-spec",
+            "purl": "pkg:deb/debian/golang-github-opencontainers-image-spec@1.1.0~rc2-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.0~rc2-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-opencontainers-runtime-tools@0.9.0%2Bgit20220423.g0105384-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/runtime-tools"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-opencontainers-runtime-tools",
+            "purl": "pkg:deb/debian/golang-github-opencontainers-runtime-tools@0.9.0%2Bgit20220423.g0105384-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.9.0+git20220423.g0105384-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-opencontainers-selinux@1.10.0%2Bds1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/selinux"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-opencontainers-selinux",
+            "purl": "pkg:deb/debian/golang-github-opencontainers-selinux@1.10.0%2Bds1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.10.0+ds1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-opencontainers-specs@1.0.2.118.g5cfc4c3-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/runtime-spec"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-opencontainers-specs",
+            "purl": "pkg:deb/debian/golang-github-opencontainers-specs@1.0.2.118.g5cfc4c3-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.2.118.g5cfc4c3-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-openshift-imagebuilder@1.2.3%2Bds1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/openshift/imagebuilder"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-openshift-imagebuilder",
+            "purl": "pkg:deb/debian/golang-github-openshift-imagebuilder@1.2.3%2Bds1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.2.3+ds1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-pkg-errors@0.9.1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/pkg/errors"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-pkg-errors",
+            "purl": "pkg:deb/debian/golang-github-pkg-errors@0.9.1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.9.1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-pmezard-go-difflib@1.0.0-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/pmezard/go-difflib"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-pmezard-go-difflib",
+            "purl": "pkg:deb/debian/golang-github-pmezard-go-difflib@1.0.0-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.0-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-proglottis-gpgme@0.1.1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/proglottis/gpgme"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-proglottis-gpgme",
+            "purl": "pkg:deb/debian/golang-github-proglottis-gpgme@0.1.1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.1.1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-rivo-uniseg@0.4.2-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/rivo/uniseg"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-rivo-uniseg",
+            "purl": "pkg:deb/debian/golang-github-rivo-uniseg@0.4.2-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.4.2-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-spf13-cobra@1.6.1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/spf13/cobra"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-spf13-cobra",
+            "purl": "pkg:deb/debian/golang-github-spf13-cobra@1.6.1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.6.1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-spf13-pflag@1.0.6~git20210604-d5e0c0615ace-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/spf13/pflag"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-spf13-pflag",
+            "purl": "pkg:deb/debian/golang-github-spf13-pflag@1.0.6~git20210604-d5e0c0615ace-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.0.6~git20210604-d5e0c0615ace-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-sylabs-sif@2.8.3-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/sylabs/sif"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-sylabs-sif",
+            "purl": "pkg:deb/debian/golang-github-sylabs-sif@2.8.3-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.8.3-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-ulikunitz-xz@0.5.6-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/ulikunitz/xz"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-ulikunitz-xz",
+            "purl": "pkg:deb/debian/golang-github-ulikunitz-xz@0.5.6-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.5.6-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-vbatts-tar-split@0.11.2%2Bds1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/vbatts/tar-split"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-vbatts-tar-split",
+            "purl": "pkg:deb/debian/golang-github-vbatts-tar-split@0.11.2%2Bds1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.11.2+ds1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-vbauerster-mpb@7.3.2-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/vbauerster/mpb"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-vbauerster-mpb",
+            "purl": "pkg:deb/debian/golang-github-vbauerster-mpb@7.3.2-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "7.3.2-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-vishvananda-netlink@1.1.0.125.gf243826-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/vishvananda/netlink"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-vishvananda-netlink",
+            "purl": "pkg:deb/debian/golang-github-vishvananda-netlink@1.1.0.125.gf243826-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.0.125.gf243826-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-vishvananda-netns@0.0~git20211101.5004558-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/vishvananda/netns"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-vishvananda-netns",
+            "purl": "pkg:deb/debian/golang-github-vishvananda-netns@0.0~git20211101.5004558-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20211101.5004558-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-vividcortex-ewma@1.1.1-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/vividcortex/ewma"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-vividcortex-ewma",
+            "purl": "pkg:deb/debian/golang-github-vividcortex-ewma@1.1.1-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "pkg-go-maintainers@lists.alioth.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.1-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonpointer@0.0~git20190905.02993c4-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/xeipuuv/gojsonpointer"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-xeipuuv-gojsonpointer",
+            "purl": "pkg:deb/debian/golang-github-xeipuuv-gojsonpointer@0.0~git20190905.02993c4-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20190905.02993c4-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonreference@0.0~git20180127.bd5ef7b-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/xeipuuv/gojsonreference"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-xeipuuv-gojsonreference",
+            "purl": "pkg:deb/debian/golang-github-xeipuuv-gojsonreference@0.0~git20180127.bd5ef7b-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20180127.bd5ef7b-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonschema@1.2.0-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/xeipuuv/gojsonschema"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-github-xeipuuv-gojsonschema",
+            "purl": "pkg:deb/debian/golang-github-xeipuuv-gojsonschema@1.2.0-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.2.0-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-go-patricia@2.3.1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/tchap/go-patricia"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-go-patricia",
+            "purl": "pkg:deb/debian/golang-go-patricia@2.3.1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.3.1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-go-zfs@3.0.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/mistifyio/go-zfs"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-go-zfs",
+            "purl": "pkg:deb/debian/golang-go-zfs@3.0.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "3.0.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-go.crypto@1:0.4.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://golang.org/x/crypto"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-go.crypto",
+            "purl": "pkg:deb/debian/golang-go.crypto@1:0.4.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1:0.4.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-gocapability-dev@0.0%2Bgit20200815.42c35b4-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/syndtr/gocapability"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-gocapability-dev",
+            "purl": "pkg:deb/debian/golang-gocapability-dev@0.0%2Bgit20200815.42c35b4-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0+git20200815.42c35b4-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-gogoprotobuf@1.3.2-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/gogo/protobuf"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-gogoprotobuf",
+            "purl": "pkg:deb/debian/golang-gogoprotobuf@1.3.2-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.3.2-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-golang-x-net@1:0.7.0%2Bdfsg-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://golang.org/x/net"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-golang-x-net",
+            "purl": "pkg:deb/debian/golang-golang-x-net@1:0.7.0%2Bdfsg-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1:0.7.0+dfsg-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-golang-x-sync@0.1.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://golang.org/x/sync"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-golang-x-sync",
+            "purl": "pkg:deb/debian/golang-golang-x-sync@0.1.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.1.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-golang-x-sys@0.3.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://golang.org/x/sys"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-golang-x-sys",
+            "purl": "pkg:deb/debian/golang-golang-x-sys@0.3.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.3.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-golang-x-term@0.3.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://golang.org/x/term"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-golang-x-term",
+            "purl": "pkg:deb/debian/golang-golang-x-term@0.3.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.3.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-google-genproto@0.0~git20200413.b5235f6-3?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://godoc.org/google.golang.org/genproto"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-google-genproto",
+            "purl": "pkg:deb/debian/golang-google-genproto@0.0~git20200413.b5235f6-3?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "0.0~git20200413.b5235f6-3"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-google-grpc@1.33.3-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://godoc.org/google.golang.org/grpc"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-google-grpc",
+            "purl": "pkg:deb/debian/golang-google-grpc@1.33.3-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.33.3-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-gopkg-square-go-jose.v2@2.6.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/square/go-jose"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-gopkg-square-go-jose.v2",
+            "purl": "pkg:deb/debian/golang-gopkg-square-go-jose.v2@2.6.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.6.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-logrus@1.9.0-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/sirupsen/logrus"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-logrus",
+            "purl": "pkg:deb/debian/golang-logrus@1.9.0-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.9.0-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-toml@1.2.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/BurntSushi/toml"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-toml",
+            "purl": "pkg:deb/debian/golang-toml@1.2.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.2.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-yaml.v2@2.4.0-4?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/go-yaml/yaml/tree/v2"
+                }
+            ],
+            "group": "debian",
+            "name": "golang-yaml.v2",
+            "purl": "pkg:deb/debian/golang-yaml.v2@2.4.0-4?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "2.4.0-4"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/runc@1.1.5%2Bds1-1%2Bdeb12u1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/opencontainers/runc"
+                }
+            ],
+            "group": "debian",
+            "name": "runc",
+            "purl": "pkg:deb/debian/runc@1.1.5%2Bds1-1%2Bdeb12u1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+pkg-go@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Go Packaging Team"
+            },
+            "type": "library",
+            "version": "1.1.5+ds1-1+deb12u1"
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64"
+            ],
+            "ref": "CDXRef-full"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/containerd@1.6.20~ds1-1%2Bdeb12u1?arch=source",
+                "pkg:deb/debian/docker-registry@2.8.2%2Bds1-1?arch=source",
+                "pkg:deb/debian/docker.io@20.10.24%2Bdfsg1-1%2Bdeb12u1?arch=source",
+                "pkg:deb/debian/golang-1.19@1.19.8-2?arch=source",
+                "pkg:deb/debian/golang-fsnotify@1.6.0-2?arch=source",
+                "pkg:deb/debian/golang-github-acarl005-stripansi@0.0~git20180116.5a71ef0-3?arch=source",
+                "pkg:deb/debian/golang-github-appc-cni@1.1.2-1?arch=source",
+                "pkg:deb/debian/golang-github-blang-semver@4.0.0-1?arch=source",
+                "pkg:deb/debian/golang-github-cespare-xxhash@2.1.1-2?arch=source",
+                "pkg:deb/debian/golang-github-chzyer-readline@1.4.39.g2972be2-3?arch=source",
+                "pkg:deb/debian/golang-github-containerd-stargz-snapshotter@0.12.0-2?arch=source",
+                "pkg:deb/debian/golang-github-containernetworking-plugins@1.1.1%2Bds1-3?arch=source",
+                "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+                "pkg:deb/debian/golang-github-containers-common@0.50.1%2Bds1-4?arch=source",
+                "pkg:deb/debian/golang-github-containers-image@5.23.1-4?arch=source",
+                "pkg:deb/debian/golang-github-containers-ocicrypt@1.0.3-1?arch=source",
+                "pkg:deb/debian/golang-github-containers-storage@1.43.0%2Bds1-8?arch=source",
+                "pkg:deb/debian/golang-github-coreos-bbolt@1.3.6-2?arch=source",
+                "pkg:deb/debian/golang-github-cyphar-filepath-securejoin@0.2.3-1?arch=source",
+                "pkg:deb/debian/golang-github-davecgh-go-spew@1.1.1-3?arch=source",
+                "pkg:deb/debian/golang-github-disiqueira-gotree@3.0.2-2?arch=source",
+                "pkg:deb/debian/golang-github-docker-docker-credential-helpers@0.6.4%2Bds1-1?arch=source",
+                "pkg:deb/debian/golang-github-docker-go-connections@0.4.0-4?arch=source",
+                "pkg:deb/debian/golang-github-docker-go-units@0.4.0-4?arch=source",
+                "pkg:deb/debian/golang-github-docker-libtrust@0.0~git20150526.0.9cbd2a1-3.1?arch=source",
+                "pkg:deb/debian/golang-github-fsouza-go-dockerclient@1.8.1-1?arch=source",
+                "pkg:deb/debian/golang-github-fullsailor-pkcs7@0.0~git20210826.33d0574-2?arch=source",
+                "pkg:deb/debian/golang-github-ghodss-yaml@1.0.0%2Bgit20220118.d8423dc-2?arch=source",
+                "pkg:deb/debian/golang-github-golang-protobuf-1-3@1.3.5-4?arch=source",
+                "pkg:deb/debian/golang-github-google-go-intervals@0.0.2-2?arch=source",
+                "pkg:deb/debian/golang-github-google-uuid@1.3.0-1?arch=source",
+                "pkg:deb/debian/golang-github-gorilla-mux@1.8.0-1?arch=source",
+                "pkg:deb/debian/golang-github-hashicorp-errwrap@1.1.0-1?arch=source",
+                "pkg:deb/debian/golang-github-hashicorp-go-multierror@1.1.1-2?arch=source",
+                "pkg:deb/debian/golang-github-jinzhu-copier@0.3.2-2?arch=source",
+                "pkg:deb/debian/golang-github-json-iterator-go@1.1.12-1?arch=source",
+                "pkg:deb/debian/golang-github-juju-ansiterm@1.0.0-1?arch=source",
+                "pkg:deb/debian/golang-github-klauspost-compress@1.15.12%2Bds1-3?arch=source",
+                "pkg:deb/debian/golang-github-klauspost-pgzip@1.2.5-2?arch=source",
+                "pkg:deb/debian/golang-github-lunixbochs-vtclean@1.0.0-1?arch=source",
+                "pkg:deb/debian/golang-github-manifoldco-promptui@0.8.0-2?arch=source",
+                "pkg:deb/debian/golang-github-mattn-go-colorable@0.1.13-1?arch=source",
+                "pkg:deb/debian/golang-github-mattn-go-isatty@0.0.17-1?arch=source",
+                "pkg:deb/debian/golang-github-mattn-go-runewidth@0.0.14-1?arch=source",
+                "pkg:deb/debian/golang-github-mattn-go-shellwords@1.0.10-2?arch=source",
+                "pkg:deb/debian/golang-github-moby-sys@0.0~git20220606.416188a-1?arch=source",
+                "pkg:deb/debian/golang-github-moby-term@0.0~git20221120.abb1982-1?arch=source",
+                "pkg:deb/debian/golang-github-modern-go-concurrent@1.0.3-1.1?arch=source",
+                "pkg:deb/debian/golang-github-modern-go-reflect2@1.0.2-2?arch=source",
+                "pkg:deb/debian/golang-github-morikuni-aec@1.0.0-3?arch=source",
+                "pkg:deb/debian/golang-github-opencontainers-go-digest@1.0.0-2?arch=source",
+                "pkg:deb/debian/golang-github-opencontainers-image-spec@1.1.0~rc2-3?arch=source",
+                "pkg:deb/debian/golang-github-opencontainers-runtime-tools@0.9.0%2Bgit20220423.g0105384-2?arch=source",
+                "pkg:deb/debian/golang-github-opencontainers-selinux@1.10.0%2Bds1-1?arch=source",
+                "pkg:deb/debian/golang-github-opencontainers-specs@1.0.2.118.g5cfc4c3-1?arch=source",
+                "pkg:deb/debian/golang-github-openshift-imagebuilder@1.2.3%2Bds1-2?arch=source",
+                "pkg:deb/debian/golang-github-pkg-errors@0.9.1-2?arch=source",
+                "pkg:deb/debian/golang-github-pmezard-go-difflib@1.0.0-3?arch=source",
+                "pkg:deb/debian/golang-github-proglottis-gpgme@0.1.1-2?arch=source",
+                "pkg:deb/debian/golang-github-rivo-uniseg@0.4.2-1?arch=source",
+                "pkg:deb/debian/golang-github-spf13-cobra@1.6.1-1?arch=source",
+                "pkg:deb/debian/golang-github-spf13-pflag@1.0.6~git20210604-d5e0c0615ace-1?arch=source",
+                "pkg:deb/debian/golang-github-sylabs-sif@2.8.3-1?arch=source",
+                "pkg:deb/debian/golang-github-ulikunitz-xz@0.5.6-2?arch=source",
+                "pkg:deb/debian/golang-github-vbatts-tar-split@0.11.2%2Bds1-1?arch=source",
+                "pkg:deb/debian/golang-github-vbauerster-mpb@7.3.2-1?arch=source",
+                "pkg:deb/debian/golang-github-vishvananda-netlink@1.1.0.125.gf243826-4?arch=source",
+                "pkg:deb/debian/golang-github-vishvananda-netns@0.0~git20211101.5004558-1?arch=source",
+                "pkg:deb/debian/golang-github-vividcortex-ewma@1.1.1-2?arch=source",
+                "pkg:deb/debian/golang-github-xeipuuv-gojsonpointer@0.0~git20190905.02993c4-3?arch=source",
+                "pkg:deb/debian/golang-github-xeipuuv-gojsonreference@0.0~git20180127.bd5ef7b-3?arch=source",
+                "pkg:deb/debian/golang-github-xeipuuv-gojsonschema@1.2.0-3?arch=source",
+                "pkg:deb/debian/golang-go-patricia@2.3.1-1?arch=source",
+                "pkg:deb/debian/golang-go-zfs@3.0.0-1?arch=source",
+                "pkg:deb/debian/golang-go.crypto@1:0.4.0-1?arch=source",
+                "pkg:deb/debian/golang-gocapability-dev@0.0%2Bgit20200815.42c35b4-2?arch=source",
+                "pkg:deb/debian/golang-gogoprotobuf@1.3.2-3?arch=source",
+                "pkg:deb/debian/golang-golang-x-net@1:0.7.0%2Bdfsg-1?arch=source",
+                "pkg:deb/debian/golang-golang-x-sync@0.1.0-1?arch=source",
+                "pkg:deb/debian/golang-golang-x-sys@0.3.0-1?arch=source",
+                "pkg:deb/debian/golang-golang-x-term@0.3.0-1?arch=source",
+                "pkg:deb/debian/golang-google-genproto@0.0~git20200413.b5235f6-3?arch=source",
+                "pkg:deb/debian/golang-google-grpc@1.33.3-2?arch=source",
+                "pkg:deb/debian/golang-gopkg-square-go-jose.v2@2.6.0-2?arch=source",
+                "pkg:deb/debian/golang-logrus@1.9.0-1?arch=source",
+                "pkg:deb/debian/golang-toml@1.2.0-2?arch=source",
+                "pkg:deb/debian/golang-yaml.v2@2.4.0-4?arch=source",
+                "pkg:deb/debian/runc@1.1.5%2Bds1-1%2Bdeb12u1?arch=source"
+            ],
+            "ref": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/containerd@1.6.20~ds1-1%2Bdeb12u1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/docker-registry@2.8.2%2Bds1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/docker.io@20.10.24%2Bdfsg1-1%2Bdeb12u1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-1.19@1.19.8-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-fsnotify@1.6.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-acarl005-stripansi@0.0~git20180116.5a71ef0-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-appc-cni@1.1.2-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-blang-semver@4.0.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-cespare-xxhash@2.1.1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-chzyer-readline@1.4.39.g2972be2-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containerd-stargz-snapshotter@0.12.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containernetworking-plugins@1.1.1%2Bds1-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containers-common@0.50.1%2Bds1-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containers-image@5.23.1-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containers-ocicrypt@1.0.3-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-containers-storage@1.43.0%2Bds1-8?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-coreos-bbolt@1.3.6-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-cyphar-filepath-securejoin@0.2.3-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-davecgh-go-spew@1.1.1-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-disiqueira-gotree@3.0.2-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-docker-docker-credential-helpers@0.6.4%2Bds1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-docker-go-connections@0.4.0-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-docker-go-units@0.4.0-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-docker-libtrust@0.0~git20150526.0.9cbd2a1-3.1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-fsouza-go-dockerclient@1.8.1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-fullsailor-pkcs7@0.0~git20210826.33d0574-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-ghodss-yaml@1.0.0%2Bgit20220118.d8423dc-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-golang-protobuf-1-3@1.3.5-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-google-go-intervals@0.0.2-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-google-uuid@1.3.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-gorilla-mux@1.8.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-hashicorp-errwrap@1.1.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-hashicorp-go-multierror@1.1.1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-jinzhu-copier@0.3.2-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-json-iterator-go@1.1.12-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-juju-ansiterm@1.0.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-klauspost-compress@1.15.12%2Bds1-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-klauspost-pgzip@1.2.5-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-lunixbochs-vtclean@1.0.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-manifoldco-promptui@0.8.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-mattn-go-colorable@0.1.13-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-mattn-go-isatty@0.0.17-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-mattn-go-runewidth@0.0.14-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-mattn-go-shellwords@1.0.10-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-moby-sys@0.0~git20220606.416188a-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-moby-term@0.0~git20221120.abb1982-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-modern-go-concurrent@1.0.3-1.1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-modern-go-reflect2@1.0.2-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-morikuni-aec@1.0.0-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-opencontainers-go-digest@1.0.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-opencontainers-image-spec@1.1.0~rc2-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-opencontainers-runtime-tools@0.9.0%2Bgit20220423.g0105384-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-opencontainers-selinux@1.10.0%2Bds1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-opencontainers-specs@1.0.2.118.g5cfc4c3-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-openshift-imagebuilder@1.2.3%2Bds1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-pkg-errors@0.9.1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-pmezard-go-difflib@1.0.0-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-proglottis-gpgme@0.1.1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-rivo-uniseg@0.4.2-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-spf13-cobra@1.6.1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-spf13-pflag@1.0.6~git20210604-d5e0c0615ace-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-sylabs-sif@2.8.3-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-ulikunitz-xz@0.5.6-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-vbatts-tar-split@0.11.2%2Bds1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-vbauerster-mpb@7.3.2-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-vishvananda-netlink@1.1.0.125.gf243826-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-vishvananda-netns@0.0~git20211101.5004558-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-vividcortex-ewma@1.1.1-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonpointer@0.0~git20190905.02993c4-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonreference@0.0~git20180127.bd5ef7b-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-github-xeipuuv-gojsonschema@1.2.0-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-go-patricia@2.3.1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-go-zfs@3.0.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-go.crypto@1:0.4.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-gocapability-dev@0.0%2Bgit20200815.42c35b4-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-gogoprotobuf@1.3.2-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-golang-x-net@1:0.7.0%2Bdfsg-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-golang-x-sync@0.1.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-golang-x-sys@0.3.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-golang-x-term@0.3.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-google-genproto@0.0~git20200413.b5235f6-3?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-google-grpc@1.33.3-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-gopkg-square-go-jose.v2@2.6.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-logrus@1.9.0-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-toml@1.2.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/golang-yaml.v2@2.4.0-4?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/runc@1.1.5%2Bds1-1%2Bdeb12u1?arch=source"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-full",
+            "name": "full",
+            "type": "operating-system"
+        },
+        "timestamp": "2025-10-20T14:59:01.676263+02:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.2.0",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.2.0"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:507fc912-92de-4aa0-9ad4-b7b453f71480",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6"
+}

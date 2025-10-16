@@ -1,0 +1,57 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64-different",
+            "group": "debian",
+            "name": "buildah",
+            "properties": [
+                {
+                    "name": "section"
+                }
+            ],
+            "purl": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
+            "type": "library",
+            "version": "1.28.2+ds1-3+deb12u1+b1"
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64"
+            ],
+            "ref": "CDXRef-minimal"
+        },
+        {
+            "ref": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-minimal",
+            "name": "minimal",
+            "type": "operating-system"
+        },
+        "timestamp": "2025-10-20T14:56:23.286478+02:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.2.0",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.2.0"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:da915b38-5a2d-4a3c-9c23-f436f173c50f",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6"
+}
