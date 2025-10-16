@@ -15,7 +15,7 @@ from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
-from ..dpkg.package import BinaryPackage, Package, SourcePackage, ChecksumAlgo
+from ..dpkg.package import Package, ChecksumAlgo
 from ..sbom import (
     Reference,
     SPDX_REF_PREFIX,
@@ -56,7 +56,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
     else:
         supplier = SpdxNoAssertion()
         logger.warning(f"no supplier for {package.name}@{package.version}")
-    if isinstance(package, BinaryPackage):
+    if package.is_binary():
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
@@ -91,7 +91,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             spdx_pkg.homepage = urlunparse(url)
         logger.debug(f"Created binary package: {spdx_pkg}")
         return spdx_pkg
-    elif isinstance(package, SourcePackage):
+    elif package.is_source():
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
@@ -154,7 +154,7 @@ def spdx_bom(
 
     data.append(distro_package)
 
-    binary_packages = [p for p in packages if isinstance(p, BinaryPackage)]
+    binary_packages = [p for p in packages if p.is_binary()]
 
     # progress tracking
     num_steps = len(packages) + len(binary_packages)

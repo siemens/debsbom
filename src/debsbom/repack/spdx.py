@@ -13,7 +13,7 @@ from ..generate.spdx import spdx_package_repr
 from ..resolver.spdx import SpdxPackageResolver
 from ..sbom import SPDX_REFERENCE_TYPE_DISTRIBUTION, SPDXType, SPDX_REFERENCE_TYPE_PURL
 from .packer import BomTransformer
-from ..dpkg.package import ChecksumAlgo, Package, SourcePackage
+from ..dpkg.package import ChecksumAlgo, Package
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ class StandardBomTransformerSPDX(BomTransformer, SPDXType):
         for p in packages:
             # as we iterate the same set of packages, we must have it
             spdx_pkg = self.pkgs_by_purl[str(p.purl())]
-            if isinstance(p, SourcePackage):
+            if p.is_source():
                 self._enhance(spdx_pkg, p)
 
             spdx_pkg.external_references.append(

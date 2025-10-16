@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 import re
 
-from .dpkg.package import BinaryPackage, Dependency, Package, SourcePackage
+from .dpkg.package import BinaryPackage, Dependency, Package
 
 CDX_REF_PREFIX = "CDXRef-"
 CDX_PACKAGE_EXTREF_TYPE_WEBSITE = "website"
@@ -102,9 +102,9 @@ class Reference:
         Return a reference to a package in the list of all packages.
         This representation must match the one returned by ``make_from_dep``.
         """
-        if isinstance(pkg, SourcePackage):
+        if pkg.is_source():
             return Reference(target=f"{pkg.name}-{pkg.version}", is_source=True)
-        elif isinstance(pkg, BinaryPackage):
+        elif pkg.is_binary():
             return Reference(target=f"{pkg.name}-{pkg.architecture}", is_source=False)
         raise NotImplementedError()
 

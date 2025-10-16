@@ -12,7 +12,7 @@ from cyclonedx.model import HashType as cdx_hashtype
 from ..generate.cdx import cdx_package_repr
 from ..sbom import CDXType
 from .packer import BomTransformer
-from ..dpkg.package import ChecksumAlgo, Package, SourcePackage
+from ..dpkg.package import ChecksumAlgo, Package
 
 
 CHKSUM_TO_CDX = {
@@ -55,7 +55,7 @@ class StandardBomTransformerCDX(BomTransformer, CDXType):
         for p in packages:
             # as we iterate the same set of packages, we must have it
             cdx_comp: cdx_component.Component = self._document.get_component_by_purl(p.purl())
-            if isinstance(p, SourcePackage):
+            if p.is_source():
                 self._enhance(cdx_comp, p)
 
             cdx_comp.external_references.add(
