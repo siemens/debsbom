@@ -63,11 +63,17 @@ class Debsbom:
     def _import_packages(self, stream=None):
         if stream:
             packages_it = Package.parse_pkglist_stream(stream)
+            # if we use packages from a stream we skip extended states since
+            # the apt cache is not directly related to the package list
+            merge_ext_states = False
         else:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
+            merge_ext_states = True
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
         self.packages = self._merge_apt_data(
-            pkgdict, inject_sources=packages_it.kind != PkgListType.STATUS_FILE
+            pkgdict,
+            inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
+            merge_ext_states=merge_ext_states,
         )
 
     def _create_apt_repos_it(self) -> Iterable[Repository]:
@@ -149,7 +155,10 @@ class Debsbom:
             p.manually_installed = ext_states.is_manual(p.name, p.architecture)
 
     def _merge_apt_data(
-        self, packages: dict[int, Package], inject_sources: bool = False
+        self,
+        packages: dict[int, Package],
+        inject_sources: bool = False,
+        merge_ext_states: bool = True,
     ) -> set[Package]:
         bin_names_apt = set(
             map(
@@ -201,10 +210,11 @@ class Debsbom:
             return pf in bin_names_apt
 
         # Even without apt-cache data, we still may have extended states. Add them.
-        self._merge_extended_states(
-            packages,
-            extended_states_filter,
-        )
+        if merge_ext_states:
+            self._merge_extended_states(
+                packages,
+                extended_states_filter,
+            )
         return set(packages.values())
 
     def generate(
