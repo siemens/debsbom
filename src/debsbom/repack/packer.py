@@ -12,7 +12,7 @@ import os
 import sys
 
 from ..sbom import BomSpecific, SBOMType
-from ..dpkg.package import Package, SourcePackage
+from ..dpkg.package import Package
 from ..dpkg.package import ChecksumAlgo as CSA
 from .merger import DscFileNotFoundError, SourceArchiveMerger
 from ..util import Compression
@@ -73,7 +73,7 @@ class StandardBomPacker(Packer):
         return f"file:///{str(prel)}"
 
     def _create_target(self, pkg: Package) -> Path:
-        if isinstance(pkg, SourcePackage):
+        if pkg.is_source():
             path = self.srcdir / pkg.checksums[CSA.SHA1SUM]
         else:
             path = self.bindir / pkg.checksums[CSA.SHA1SUM]
@@ -83,7 +83,7 @@ class StandardBomPacker(Packer):
     def repack(self, pkg: Package, symlink=True) -> Package | None:
         chkalgs = [CSA.SHA1SUM, CSA.SHA256SUM]
 
-        if isinstance(pkg, SourcePackage):
+        if pkg.is_source():
             try:
                 pkgpath = self.sam.merge(pkg, apply_patches=self.apply_patches)
                 pkg.locator = pkgpath.name

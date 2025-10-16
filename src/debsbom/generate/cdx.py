@@ -19,7 +19,7 @@ from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
 from collections.abc import Callable
 
-from ..dpkg.package import BinaryPackage, ChecksumAlgo, Package, SourcePackage
+from ..dpkg.package import ChecksumAlgo, Package
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
 
@@ -74,7 +74,7 @@ def cdx_package_repr(
                 comment="homepage",
             ),
         )
-    if isinstance(package, BinaryPackage):
+    if package.is_binary():
         entry.description = package.description
         entry.hashes = [
             cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
@@ -83,7 +83,7 @@ def cdx_package_repr(
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
         logger.debug(f"Created binary component: {entry}")
         return entry
-    elif isinstance(package, SourcePackage):
+    elif package.is_source():
         logger.debug(f"Created source component: {entry}")
         return entry
 
@@ -103,7 +103,7 @@ def cyclonedx_bom(
     data = SortedSet([])
     dependencies = SortedSet([])
 
-    binary_packages = [p for p in packages if isinstance(p, BinaryPackage)]
+    binary_packages = [p for p in packages if p.is_binary()]
 
     # progress tracking
     num_steps = len(packages) + len(binary_packages)

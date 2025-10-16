@@ -15,7 +15,12 @@ import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 from uuid import UUID
 
 from ..apt.cache import Repository, ExtendedStates
-from ..dpkg.package import BinaryPackage, Package, PkgListType, SourcePackage
+from ..dpkg.package import (
+    Package,
+    PkgListType,
+    filter_binaries,
+    filter_sources,
+)
 from ..sbom import SBOMType, BOM_Standard
 from .cdx import cyclonedx_bom
 from .spdx import spdx_bom
@@ -145,7 +150,7 @@ class Debsbom:
             )
             return
 
-        for p in filter(lambda pkg: isinstance(pkg, BinaryPackage), packages.values()):
+        for p in filter_binaries(packages.values()):
             p.manually_installed = ext_states.is_manual(p.name, p.architecture)
 
     def _merge_apt_data(
@@ -154,7 +159,7 @@ class Debsbom:
         bin_names_apt = set(
             map(
                 lambda p: (p.name, p.architecture, p.version),
-                filter(lambda p: isinstance(p, BinaryPackage), packages.values()),
+                filter_binaries(packages.values()),
             )
         )
 
@@ -171,9 +176,7 @@ class Debsbom:
         # add any newly discovered source packages, if needed
         if inject_sources:
             to_add = []
-            for source_pkg in Package.referenced_src_packages(
-                filter(lambda p: isinstance(p, BinaryPackage), packages.values())
-            ):
+            for source_pkg in Package.referenced_src_packages(filter_binaries(packages.values())):
                 shash = hash(source_pkg)
                 if shash not in packages:
                     to_add.append(source_pkg)
@@ -186,7 +189,7 @@ class Debsbom:
         sp_names_apt = set(
             map(
                 lambda p: (p.name, p.version),
-                filter(lambda p: isinstance(p, SourcePackage), packages.values()),
+                filter_sources(packages.values()),
             )
         )
 

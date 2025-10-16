@@ -43,18 +43,16 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         """
         all source packages should have a .dsc file. Warn if it is missing
         """
-        if isinstance(p, package.SourcePackage) and not any(
-            f.filename == p.dscfile() for f in files
-        ):
+        if p.is_source() and not any(f.filename == p.dscfile() for f in files):
             logger.warning(f"no .dsc file found for {p.name}@{p.version}")
 
     @staticmethod
     def _filter_pkg(p: package.Package, sources: bool, binaries: bool) -> bool:
         if not sources and not binaries:
             return True
-        if sources and isinstance(p, package.SourcePackage):
+        if sources and p.is_source():
             return True
-        if binaries and isinstance(p, package.BinaryPackage):
+        if binaries and p.is_binary():
             return True
         return False
 

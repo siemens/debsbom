@@ -112,7 +112,7 @@ class UpstreamResolver:
             return cached_files
 
         # Determine which type of package and fetch files
-        if isinstance(p, package.SourcePackage):
+        if p.is_source():
             files = sdlclient.SourcePackage(self.sdl, p.name, str(p.version)).srcfiles()
         else:
             files = sdlclient.BinaryPackage(self.sdl, p.name, str(p.version), None, None).files(
