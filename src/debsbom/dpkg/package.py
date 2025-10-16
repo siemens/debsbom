@@ -83,6 +83,16 @@ class PkgListStream:
         self._stream.close()
 
 
+def filter_sources(pkgs: Iterable["Package"]) -> Iterable["SourcePackage"]:
+    """Free function to only return source packages"""
+    return filter(lambda p: p.is_source(), pkgs)
+
+
+def filter_binaries(pkgs: Iterable["Package"]) -> Iterable["BinaryPackage"]:
+    """Free function to only return binary packages"""
+    return filter(lambda p: p.is_binary(), pkgs)
+
+
 @dataclass
 class Dependency:
     """Representation of a dependency for a package."""
@@ -304,6 +314,18 @@ class Package(ABC):
         if add_pkg:
             yield pkg
 
+    def is_binary(self) -> bool:
+        """Helper to check if the package is a binary package"""
+        if isinstance(self, BinaryPackage):
+            return True
+        return False
+
+    def is_source(self) -> bool:
+        """Helper to check if the package is a source package"""
+        if isinstance(self, SourcePackage):
+            return True
+        return False
+
     @abstractmethod
     def purl(self) -> PackageURL:
         raise NotImplementedError
@@ -353,7 +375,7 @@ class SourcePackage(Package):
 
     def __eq__(self, other):
         # For compatibility reasons
-        if isinstance(other, SourcePackage):
+        if other.is_source():
             return self.purl() == other.purl()
         return NotImplemented
 
@@ -465,7 +487,7 @@ class BinaryPackage(Package):
         return hash(self.purl())
 
     def __eq__(self, other):
-        if isinstance(other, BinaryPackage):
+        if other.is_binary():
             return self.purl() == other.purl()
         return NotImplemented
 
