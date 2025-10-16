@@ -12,7 +12,12 @@ from debsbom.download import (
     UpstreamResolver,
 )
 from debsbom.resolver import PackageResolver, PackageStreamResolver
-from debsbom.dpkg.package import BinaryPackage, ChecksumAlgo, SourcePackage
+from debsbom.dpkg.package import (
+    BinaryPackage,
+    ChecksumAlgo,
+    filter_binaries,
+    filter_sources,
+)
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
 from debsbom.repack.packer import BomTransformer, Packer
@@ -92,8 +97,8 @@ def test_download(tmpdir, http_session):
 def test_package_resolver_parse_spdx(spdx_bomfile):
     rs = PackageResolver.create(spdx_bomfile)
     pkgs = list(rs)
-    assert any(filter(lambda p: isinstance(p, SourcePackage) and p.name == "binutils", pkgs))
-    assert any(filter(lambda p: isinstance(p, BinaryPackage) and p.architecture == "amd64", pkgs))
+    assert any(filter(lambda p: p.name == "binutils", filter_sources(pkgs)))
+    assert any(filter(lambda p: p.architecture == "amd64", filter_binaries(pkgs)))
 
 
 def test_package_resolver_parse_cdx(cdx_bomfile):
@@ -109,8 +114,8 @@ def test_package_resolver_parse_stream():
     stream = io.BytesIO("\n".join(data).encode())
     rs = PackageStreamResolver(stream)
     pkgs = list(rs)
-    assert any(filter(lambda p: isinstance(p, SourcePackage) and p.name == "guestfs-tools", pkgs))
-    assert any(filter(lambda p: isinstance(p, BinaryPackage) and p.name == "binutils", pkgs))
+    assert any(filter(lambda p: p.name == "guestfs-tools", filter_sources(pkgs)))
+    assert any(filter(lambda p: p.name == "binutils", filter_binaries(pkgs)))
 
 
 @pytest.mark.online
@@ -187,7 +192,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
 
         # download a single package
         dl = PackageDownloader(dl_dir, session=http_session)
-        for p in filter(lambda p: isinstance(p, SourcePackage), pkgs):
+        for p in filter_sources(pkgs):
             dl.register(urs.resolve(p))
         files = list(dl.download())
         assert len(files) == 3
