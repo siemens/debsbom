@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-# Optional transitive dependency of dep822 which is only distributed
+# Optional transitive dependency of deb822 which is only distributed
 # via Debian (not pip). If not available but requested, the library
 # issues a warning which we want to avoid by checking upfront and
 # explicitly requesting the fallback mechanism.

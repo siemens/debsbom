@@ -107,7 +107,7 @@ class Repository:
             else sources
         )
         for source in _sources:
-            yield SourcePackage.from_dep822(Dsc(source))
+            yield SourcePackage.from_deb822(Dsc(source))
 
     @classmethod
     def _make_binpkgs(
@@ -126,7 +126,7 @@ class Repository:
             else packages
         )
         for pkg in _pkgs:
-            yield BinaryPackage.from_dep822(pkg)
+            yield BinaryPackage.from_deb822(pkg)
 
     @classmethod
     def _parse_sources(

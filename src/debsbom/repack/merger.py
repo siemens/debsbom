@@ -81,7 +81,7 @@ class SourceArchiveMerger:
         [self._check_hash(f) for f in files]
 
         # merge package with info from dsc file
-        p.merge_with(package.SourcePackage.from_dep822(d))
+        p.merge_with(package.SourcePackage.from_deb822(d))
 
         # metadata is now merged, archive can be skipped as we already have it
         if merged.is_file():
