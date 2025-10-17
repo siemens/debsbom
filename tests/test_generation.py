@@ -222,7 +222,7 @@ def test_apt_cache_parsing():
     repo = next(Repository.from_apt_cache(apt_lists_dir))
     src_pkgs = list(repo.sources(lambda p: p.name == "binutils"))
     assert len(src_pkgs) == 1
-    # this data is only available in apt sources dep822 data
+    # this data is only available in apt sources deb822 data
     assert "binutils-for-host" in src_pkgs[0].binaries
     assert (
         src_pkgs[0].checksums[ChecksumAlgo.SHA256SUM]
