@@ -45,12 +45,16 @@ class SourceArchiveMerger:
         if not self.dpkg_source:
             raise RuntimeError("'dpkg-source' from the 'dpkg-dev' package is missing.")
 
-    def _check_hash(self, dsc_entry):
-        file = self.dldir / dsc_entry["name"]
+    @staticmethod
+    def _check_sha256sum(file, expected: str):
         with open(file, "rb") as f:
             digest = hashlib.file_digest(f, "sha256")
-            if digest.hexdigest() != dsc_entry["sha256"]:
+            if digest.hexdigest() != expected:
                 raise CorruptedFileError(file)
+
+    def _check_hash(self, dsc_entry):
+        file = self.dldir / dsc_entry["name"]
+        self._check_sha256sum(file, dsc_entry["sha256"])
 
     def merge(self, p: package.SourcePackage, apply_patches: bool = False) -> Path:
         """
@@ -64,6 +68,10 @@ class SourceArchiveMerger:
 
         if not dsc.is_file():
             raise DscFileNotFoundError(dsc)
+
+        if package.ChecksumAlgo.SHA256SUM in p.checksums:
+            logger.debug(f"Checking sha256sum of '{dsc}'...")
+            self._check_sha256sum(dsc, p.checksums[package.ChecksumAlgo.SHA256SUM])
 
         logger.debug(f"Merging sources from '{dsc}'...")
         # get all referenced tarballs from dsc file (usually .orig and .debian and check digests)
