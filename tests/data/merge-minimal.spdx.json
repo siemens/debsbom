@@ -1,0 +1,56 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2025-10-16T11:05:10Z",
+        "creators": [
+            "Tool: debsbom-0.2.0"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "minimal",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.2.0-6fa0aa79-a42e-4bf9-8943-c65ee849c732",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-minimal",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "minimal",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-buildah-amd64-different",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "buildah",
+            "primaryPackagePurpose": "LIBRARY",
+            "supplier": "NOASSERTION",
+            "versionInfo": "1.28.2+ds1-3+deb12u1+b1"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64-different",
+            "relatedSpdxElement": "SPDXRef-minimal",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-minimal",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}

@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 import sys
 
+from ..bomwriter import BomWriter
 from .input import SbomInput
 from ..generate.generate import Debsbom
 from ..repack.packer import BomTransformer, Packer
@@ -57,9 +58,9 @@ class RepackCmd(SbomInput):
         )
         bom = packer.rewrite_sbom(bt, repacked)
         if args.bomout == "-":
-            Debsbom.write_to_stream(bom, resolver.sbom_type(), sys.stdout, validate=args.validate)
+            BomWriter.write_to_stream(bom, resolver.sbom_type(), sys.stdout, validate=args.validate)
         else:
-            Debsbom.write_to_file(
+            BomWriter.write_to_file(
                 bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
             )
 

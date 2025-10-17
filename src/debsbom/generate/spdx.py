@@ -35,6 +35,66 @@ CHKSUM_TO_SPDX = {
 logger = logging.getLogger(__name__)
 
 
+def make_distro_package(
+    distro_name: str, distro_version: str | None = None, distro_supplier: str | None = None
+) -> spdx_package.Package:
+    if distro_supplier is None:
+        supplier = None
+    else:
+        supplier = spdx_actor.Actor(
+            actor_type=spdx_actor.ActorType.ORGANIZATION,
+            name=distro_supplier,
+        )
+
+    # create an entry for the distribution
+    distro_ref = SPDX_REF_PREFIX + distro_name
+    distro_package = spdx_package.Package(
+        spdx_id=distro_ref,
+        name=distro_name,
+        download_location=SpdxNoAssertion(),
+        version=distro_version,
+        primary_package_purpose=spdx_package.PackagePurpose.OPERATING_SYSTEM,
+        supplier=supplier,
+        files_analyzed=False,
+        license_concluded=SpdxNoAssertion(),
+        license_declared=SpdxNoAssertion(),
+        copyright_text=SpdxNoAssertion(),
+    )
+    return distro_package
+
+
+def make_creation_info(
+    distro_name: str,
+    namespace: tuple | None = None,  # 6 item tuple representing an URL
+    timestamp: datetime | None = None,
+) -> spdx_document.CreationInfo:
+    if namespace is None:
+        namespace = urlparse(
+            "https://spdx.org/spdxdocs/debsbom-{}-{}".format(
+                version("debsbom"),
+                uuid4(),
+            )
+        )
+
+    if timestamp is None:
+        timestamp = datetime.now()
+
+    creation_info = spdx_document.CreationInfo(
+        spdx_version="SPDX-2.3",
+        spdx_id=SPDX_REF_DOCUMENT,
+        name=distro_name,
+        document_namespace=urlunparse(namespace),
+        creators=[
+            spdx_actor.Actor(
+                actor_type=spdx_actor.ActorType.TOOL,
+                name="debsbom-{}".format(version("debsbom")),
+            )
+        ],
+        created=timestamp,
+    )
+    return creation_info
+
+
 def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.Package:
     """Get the SPDX representation of a Package."""
     match = SUPPLIER_PATTERN.match(package.maintainer or "")
@@ -128,30 +188,12 @@ def spdx_bom(
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
 
-    if distro_supplier is None:
-        supplier = None
-    else:
-        supplier = spdx_actor.Actor(
-            actor_type=spdx_actor.ActorType.ORGANIZATION,
-            name=distro_supplier,
-        )
-
     data = []
-    # create an entry for the distribution
-    distro_ref = SPDX_REF_PREFIX + distro_name
-    distro_package = spdx_package.Package(
-        spdx_id=distro_ref,
-        name=distro_name,
-        download_location=SpdxNoAssertion(),
-        version=distro_version,
-        primary_package_purpose=spdx_package.PackagePurpose.OPERATING_SYSTEM,
-        supplier=supplier,
-        files_analyzed=False,
-        license_concluded=SpdxNoAssertion(),
-        license_declared=SpdxNoAssertion(),
-        copyright_text=SpdxNoAssertion(),
-    )
 
+    distro_package = make_distro_package(
+        distro_name=distro_name, distro_version=distro_version, distro_supplier=distro_supplier
+    )
+    distro_ref = distro_package.spdx_id
     data.append(distro_package)
 
     binary_packages = [
@@ -236,30 +278,7 @@ def spdx_bom(
     logger.debug(f"Created document relationship: {distro_relationship}")
     relationships.append(distro_relationship)
 
-    if namespace is None:
-        namespace = urlparse(
-            "https://spdx.org/spdxdocs/debsbom-{}-{}".format(
-                version("debsbom"),
-                uuid4(),
-            )
-        )
-
-    if timestamp is None:
-        timestamp = datetime.now()
-
-    creation_info = spdx_document.CreationInfo(
-        spdx_version="SPDX-2.3",
-        spdx_id=SPDX_REF_DOCUMENT,
-        name=distro_name,
-        document_namespace=urlunparse(namespace),
-        creators=[
-            spdx_actor.Actor(
-                actor_type=spdx_actor.ActorType.TOOL,
-                name="debsbom-{}".format(version("debsbom")),
-            )
-        ],
-        created=timestamp,
-    )
+    creation_info = make_creation_info(distro_name, namespace, timestamp)
     document = spdx_document.Document(
         creation_info=creation_info,
         packages=data,
