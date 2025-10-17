@@ -12,7 +12,7 @@ import subprocess
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
-from debsbom.apt.cache import ExtendedStates
+from debsbom.apt.cache import ExtendedStates, Repository
 from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
@@ -214,6 +214,15 @@ def test_apt_extended_states():
 
     noes = ExtendedStates(set())
     assert noes.is_manual("foo", "amd64")
+
+
+def test_apt_cache_parsing():
+    apt_lists_dir = "tests/root/apt-sources/var/lib/apt/lists"
+    repo = next(Repository.from_apt_cache(apt_lists_dir))
+    src_pkgs = list(repo.sources(lambda p: p.name == "binutils"))
+    assert len(src_pkgs) == 1
+    # this data is only available in apt sources dep822 data
+    assert "binutils-for-host" in src_pkgs[0].binaries
 
 
 compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
