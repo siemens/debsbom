@@ -327,6 +327,7 @@ class Package(ABC):
             self.maintainer = other.maintainer
         if not self.homepage:
             self.homepage = other.homepage
+        self.checksums |= other.checksums
 
     @classmethod
     def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
@@ -377,7 +378,10 @@ class Package(ABC):
 
 @dataclass(init=False)
 class SourcePackage(Package):
-    """Representation of a Debian Source package."""
+    """
+    Representation of a Debian Source package.
+    The checksums refer to the .dsc file.
+    """
 
     binaries: list[str] | None = None
     vcs_browser: str | None = None
@@ -466,6 +470,17 @@ class SourcePackage(Package):
         homepage = package.get("Homepage")
         vcs_browser = package.get("Vcs-Browser")
         vcs_git = package.get("Vcs-Git")
+
+        # Checksums according to Debian policy 5.6.24
+        pkg_chksums = {}
+        for alg, deb822_name in [
+            (ChecksumAlgo.SHA1SUM, "Sha1"),
+            (ChecksumAlgo.SHA256SUM, "Sha256"),
+        ]:
+            chksums = package.get(f"Checksums-{deb822_name}") or []
+            for c in filter(lambda c_: c_["name"].endswith(".dsc"), chksums):
+                pkg_chksums[alg] = c[deb822_name]
+
         return SourcePackage(
             name=name,
             version=version,
@@ -474,6 +489,7 @@ class SourcePackage(Package):
             homepage=homepage,
             vcs_browser=vcs_browser,
             vcs_git=vcs_git,
+            checksums=pkg_chksums,
         )
 
 
@@ -563,7 +579,6 @@ class BinaryPackage(Package):
             self.source = other.source
         if not self.description:
             self.description = other.description
-        self.checksums |= other.checksums
         self.manually_installed |= other.manually_installed
         # we cannot merge the status, but if the other package is
         # marked as installed, consider all as installed.
