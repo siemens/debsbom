@@ -96,6 +96,8 @@ class StandardBomPacker(Packer):
                 self._warn_missing_package(pkg)
                 return None
 
+        # clear checksums as they now refer to the merged artifact instead of the .dsc file
+        pkg.checksums = {}
         for alg in chkalgs:
             with open(pkgpath, "rb") as fd:
                 pkg.checksums[alg] = hashlib.file_digest(fd, CSA.to_hashlib(alg)).hexdigest()
