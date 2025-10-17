@@ -29,7 +29,7 @@ Virtual Environment
 
    ``debsbom -h``
 
-**Optional**: To significantly speedup the parsing of dep822 data, it is recommended to install the non-pip package python3-apt (e.g., ``apt install python3-apt`` on Debian-based systems)
+**Optional**: To significantly speedup the parsing of deb822 data, it is recommended to install the non-pip package python3-apt (e.g., ``apt install python3-apt`` on Debian-based systems)
 
 Container Image
 ---------------

@@ -65,6 +65,10 @@ def cdx_package_repr(
         version=str(package.version),
         purl=package.purl(vendor),
         group="debian",
+        hashes=[
+            cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
+            for alg, dig in package.checksums.items()
+        ],
     )
     if package.homepage:
         entry.external_references = (
@@ -76,10 +80,6 @@ def cdx_package_repr(
         )
     if package.is_binary():
         entry.description = package.description
-        entry.hashes = [
-            cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
-            for alg, dig in package.checksums.items()
-        ]
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
         logger.debug(f"Created binary component: {entry}")
         return entry

@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
 from debsbom.apt.cache import ExtendedStates, Repository
+from debsbom.dpkg.package import ChecksumAlgo
 from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
@@ -221,8 +222,12 @@ def test_apt_cache_parsing():
     repo = next(Repository.from_apt_cache(apt_lists_dir))
     src_pkgs = list(repo.sources(lambda p: p.name == "binutils"))
     assert len(src_pkgs) == 1
-    # this data is only available in apt sources dep822 data
+    # this data is only available in apt sources deb822 data
     assert "binutils-for-host" in src_pkgs[0].binaries
+    assert (
+        src_pkgs[0].checksums[ChecksumAlgo.SHA256SUM]
+        == "cd75da7829d819189ba6154d408666373b307e222b393223804c4c4a7156f421"
+    )
 
 
 compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]

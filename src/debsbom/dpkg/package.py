@@ -175,9 +175,9 @@ class Package(ABC):
         Parse a dpkg status file and returns packages with their relations.
         """
         logger.info(f"Parsing status file '{status_file}'...")
-        dep822_stream = open(status_file, "r")
-        pkgs_it = cls.inject_src_packages(cls._parse_dpkg_status(dep822_stream))
-        return PkgListStream(dep822_stream, PkgListType.STATUS_FILE, pkgs_it)
+        deb822_stream = open(status_file, "r")
+        pkgs_it = cls.inject_src_packages(cls._parse_dpkg_status(deb822_stream))
+        return PkgListStream(deb822_stream, PkgListType.STATUS_FILE, pkgs_it)
 
     @classmethod
     def _parse_dpkg_status(
@@ -194,7 +194,7 @@ class Package(ABC):
         """
         use_apt = HAS_PYTHON_APT and not force_no_apt
         for package in Packages.iter_paragraphs(stream, use_apt_pkg=use_apt):
-            bpkg = BinaryPackage.from_dep822(package)
+            bpkg = BinaryPackage.from_deb822(package)
             logger.debug(f"Found binary package: '{bpkg.name}'")
             yield bpkg
 
@@ -327,6 +327,7 @@ class Package(ABC):
             self.maintainer = other.maintainer
         if not self.homepage:
             self.homepage = other.homepage
+        self.checksums |= other.checksums
 
     @classmethod
     def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
@@ -377,7 +378,10 @@ class Package(ABC):
 
 @dataclass(init=False)
 class SourcePackage(Package):
-    """Representation of a Debian Source package."""
+    """
+    Representation of a Debian Source package.
+    The checksums refer to the .dsc file.
+    """
 
     binaries: list[str] | None = None
     vcs_browser: str | None = None
@@ -450,9 +454,9 @@ class SourcePackage(Package):
         self.binaries = binaries
 
     @staticmethod
-    def from_dep822(package) -> "SourcePackage":
+    def from_deb822(package) -> "SourcePackage":
         """
-        Create a package from a dep822 representation. If the dep822 input
+        Create a package from a deb822 representation. If the deb822 input
         is a .dsc file, the name is read from the source property.
         """
         name = package.get("Source") or package["Package"]
@@ -466,6 +470,17 @@ class SourcePackage(Package):
         homepage = package.get("Homepage")
         vcs_browser = package.get("Vcs-Browser")
         vcs_git = package.get("Vcs-Git")
+
+        # Checksums according to Debian policy 5.6.24
+        pkg_chksums = {}
+        for alg, deb822_name in [
+            (ChecksumAlgo.SHA1SUM, "Sha1"),
+            (ChecksumAlgo.SHA256SUM, "Sha256"),
+        ]:
+            chksums = package.get(f"Checksums-{deb822_name}") or []
+            for c in filter(lambda c_: c_["name"].endswith(".dsc"), chksums):
+                pkg_chksums[alg] = c[deb822_name]
+
         return SourcePackage(
             name=name,
             version=version,
@@ -474,6 +489,7 @@ class SourcePackage(Package):
             homepage=homepage,
             vcs_browser=vcs_browser,
             vcs_git=vcs_git,
+            checksums=pkg_chksums,
         )
 
 
@@ -563,7 +579,6 @@ class BinaryPackage(Package):
             self.source = other.source
         if not self.description:
             self.description = other.description
-        self.checksums |= other.checksums
         self.manually_installed |= other.manually_installed
         # we cannot merge the status, but if the other package is
         # marked as installed, consider all as installed.
@@ -626,9 +641,9 @@ class BinaryPackage(Package):
         return buffer.strip()
 
     @classmethod
-    def from_dep822(cls, package) -> "BinaryPackage":
+    def from_deb822(cls, package) -> "BinaryPackage":
         """
-        Create a ``BinaryPackage`` from a dep822 representation.
+        Create a ``BinaryPackage`` from a deb822 representation.
         """
         if package.source:
             srcdep = Dependency(package.source, None, ("=", package.source_version), arch="source")
@@ -643,12 +658,12 @@ class BinaryPackage(Package):
         sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
 
         pkg_chksums = {}
-        for alg, dep822_name in [
+        for alg, deb822_name in [
             (ChecksumAlgo.MD5SUM, "MD5sum"),
             (ChecksumAlgo.SHA1SUM, "SHA1"),
             (ChecksumAlgo.SHA256SUM, "SHA256"),
         ]:
-            chksum = package.get(dep822_name)
+            chksum = package.get(deb822_name)
             if chksum:
                 pkg_chksums[alg] = chksum
 
