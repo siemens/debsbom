@@ -110,6 +110,9 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
                     locator=package.purl(vendor).to_string(),
                 )
             ],
+            checksums=[
+                Checksum(CHKSUM_TO_SPDX[alg], dig) for alg, dig in package.checksums.items()
+            ],
             primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
         )
         logger.debug(f"Created source package: {spdx_pkg}")
