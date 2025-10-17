@@ -458,8 +458,9 @@ class SourcePackage(Package):
         name = package.get("Source") or package["Package"]
         version = Version(package.get("Version"))
         maintainer = package.get("Maintainer")
-        if package.get("Binaries") is not None:
-            binaries = [b.strip() for b in package["Binaries"].split(",")]
+        binary_entry = package.get("Binary")
+        if binary_entry is not None:
+            binaries = [b.strip() for b in binary_entry.split(",")]
         else:
             binaries = []
         homepage = package.get("Homepage")
