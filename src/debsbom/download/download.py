@@ -10,6 +10,8 @@ from hmac import compare_digest
 import logging
 import shutil
 from pathlib import Path
+import sys
+import os
 
 from ..dpkg import package
 from ..dpkg.package import ChecksumAlgo
@@ -31,22 +33,22 @@ class PackageDownloader:
     def __init__(
         self, outdir: Path | str = "downloads", session: requests.Session = requests.Session()
     ):
-        outdir = Path(outdir)
-        self.sources_dir = outdir / "sources"
-        self.binaries_dir = outdir / "binaries"
+        self.outdir = Path(outdir)
+        self.sources_dir = self.outdir / "sources"
+        self.binaries_dir = self.outdir / "binaries"
         self.to_download: list[tuple[package.Package, RemoteFile]] = []
         self.rs = session
         self.known_hashes = {}
 
-        outdir.mkdir(exist_ok=True)
+        self.outdir.mkdir(exist_ok=True)
         for p in [self.sources_dir, self.binaries_dir]:
             p.mkdir(exist_ok=True)
 
     def _target_path(self, f: RemoteFile):
         if f.architecture == "source":
-            return Path(self.sources_dir / f.filename)
+            return Path(self.sources_dir / f.archive_name / f.filename)
         else:
-            return Path(self.binaries_dir / f.filename)
+            return Path(self.binaries_dir / f.archive_name / f.filename)
 
     def register(self, files: list[RemoteFile], package: package.Package | None = None) -> None:
         """Register a list of files corresponding to a package for download."""
@@ -63,12 +65,14 @@ class PackageDownloader:
         return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
     @classmethod
-    def checksum_ok(cls, pkg: package.Package, file: Path) -> bool:
+    def checksum_ok(cls, pkg: package.Package, file: Path, remotefile: RemoteFile) -> bool:
         """
         Check if the checksum of a file matches the checksums of the package.
         If no checksums are provided, return true.
         """
         if not pkg.checksums:
+            return True
+        if pkg.is_source() and not remotefile.filename.endswith(".dsc"):
             return True
 
         dig_exp = None
@@ -106,12 +110,14 @@ class PackageDownloader:
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
             target = self._target_path(f)
+            if not target.parent.is_dir():
+                target.parent.mkdir()
             # check if we have the file under the exact filename
             if target.is_file():
                 with open(target, "rb") as fd:
                     digest = hashlib.file_digest(fd, "sha1")
                 if digest.hexdigest() == f.hash:
-                    self.known_hashes[f.hash] = f.filename
+                    self.known_hashes[f.hash] = target
                     yield target
                     continue
                 else:
@@ -119,11 +125,13 @@ class PackageDownloader:
                     self.known_hashes.pop(f.hash, None)
                     target.unlink()
             # check if we have a file with the same hash and link to it
-            o_filename = self.known_hashes.get(f.hash)
-            if o_filename:
-                basepath = target.parent
-                o_path = basepath / o_filename
-                target.symlink_to(o_path.relative_to(basepath))
+            o_target = self.known_hashes.get(f.hash)
+            if o_target:
+                if sys.version_info < (3, 12):
+                    o_target_rel = os.path.relpath(o_target, start=target.parent)
+                else:
+                    o_target_rel = o_target.relative_to(target.parent, walk_up=True)
+                target.symlink_to(o_target_rel)
                 yield target
                 continue
 
@@ -133,11 +141,11 @@ class PackageDownloader:
                 r.raise_for_status()
                 with open(fdst, "wb") as fp:
                     shutil.copyfileobj(r.raw, fp)
-            if pkg and not self.checksum_ok(pkg, fdst):
+            if pkg and not self.checksum_ok(pkg, fdst, f):
                 fdst.unlink()
                 continue
             fdst.rename(target)
-            self.known_hashes[f.hash] = f.filename
+            self.known_hashes[f.hash] = target
             yield target
         self.to_download = []
         self.known_hashes.clear()

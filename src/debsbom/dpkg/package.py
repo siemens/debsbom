@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from collections.abc import Iterable
-from enum import Enum
+from enum import Enum, IntEnum
 import io
 import itertools
 from pathlib import Path
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 DESC_REGEX_P1 = re.compile(r"^\s(\w.*)$")
 
 
-class ChecksumAlgo(Enum):
+class ChecksumAlgo(IntEnum):
     MD5SUM = 1
     SHA1SUM = 2
     SHA256SUM = 3

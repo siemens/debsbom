@@ -91,8 +91,8 @@ class StandardBomPacker(Packer):
                 self._warn_missing_package(pkg)
                 return None
         else:
-            pkgpath = Path(self.dldir / "binaries" / pkg.filename)
-            if not pkgpath.is_file():
+            pkgpath = self.sam.locate_artifact(pkg, self.dldir / "binaries")
+            if not pkgpath:
                 self._warn_missing_package(pkg)
                 return None
 

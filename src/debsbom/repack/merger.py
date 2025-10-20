@@ -46,28 +46,51 @@ class SourceArchiveMerger:
             raise RuntimeError("'dpkg-source' from the 'dpkg-dev' package is missing.")
 
     @staticmethod
-    def _check_sha256sum(file, expected: str):
+    def _file_sha256sum(file):
         with open(file, "rb") as f:
             digest = hashlib.file_digest(f, "sha256")
-            if digest.hexdigest() != expected:
-                raise CorruptedFileError(file)
+            return digest.hexdigest()
 
-    def _check_hash(self, dsc_entry):
-        file = self.dldir / dsc_entry["name"]
+    @classmethod
+    def _check_sha256sum(cls, file, expected: str):
+        hexdigest = cls._file_sha256sum(file)
+        if hexdigest != expected:
+            raise CorruptedFileError(file)
+
+    def _check_hash(self, base: Path, dsc_entry):
+        file = base / dsc_entry["name"]
         self._check_sha256sum(file, dsc_entry["sha256"])
+
+    @classmethod
+    def locate_artifact(cls, p: package.Package, basedir: Path) -> Path | None:
+        """
+        Locate a related .deb or .dsc file in the downloads dir.
+        """
+        for d in basedir.iterdir():
+            cand = d / p.filename
+            if not cand.is_file():
+                continue
+            if package.ChecksumAlgo.SHA256SUM not in p.checksums:
+                logger.warning(
+                    f"No SHA256 digest for {p.name}@{p.version}. Assume it is from archive '{d.name}'"
+                )
+                return cand
+            logger.debug(f"compute checksum of '{cand}'")
+            if cls._file_sha256sum(cand) == p.checksums[package.ChecksumAlgo.SHA256SUM]:
+                return cand
+        return None
 
     def merge(self, p: package.SourcePackage, apply_patches: bool = False) -> Path:
         """
         The provided package will also be updated with information from the .dsc file.
         """
         suffix = ".merged.patched.tar" if apply_patches else ".merged.tar"
-        merged = self.dldir / p.dscfile().replace(".dsc", suffix)
-        dsc = self.dldir / p.dscfile()
+        dsc = self.locate_artifact(p, self.dldir)
+        if not dsc:
+            raise DscFileNotFoundError(p.dscfile())
+        merged = dsc.with_suffix(suffix)
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
-
-        if not dsc.is_file():
-            raise DscFileNotFoundError(dsc)
 
         if package.ChecksumAlgo.SHA256SUM in p.checksums:
             logger.debug(f"Checking sha256sum of '{dsc}'...")
@@ -78,7 +101,7 @@ class SourceArchiveMerger:
         with open(dsc, "r") as f:
             d = deb822.Dsc(f)
         files = d["Checksums-Sha256"]
-        [self._check_hash(f) for f in files]
+        [self._check_hash(dsc.parent, f) for f in files]
 
         # merge package with info from dsc file
         p.merge_with(package.SourcePackage.from_deb822(d))
