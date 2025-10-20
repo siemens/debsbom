@@ -14,6 +14,7 @@ from debsbom.download import (
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom.dpkg.package import (
     BinaryPackage,
+    SourcePackage,
     ChecksumAlgo,
     filter_binaries,
     filter_sources,
@@ -225,3 +226,24 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
 
     assert found_spdx
     assert found_cdx
+
+
+@pytest.mark.online
+def test_srcpkg_with_checksum(sdl):
+    rs = UpstreamResolver(sdl)
+    # package with multiple src packages with equal version number
+    sratom = SourcePackage("sratom", "0.6.14-1")
+
+    # resolve without further information
+    files = list(rs.resolve(sratom))
+    for e in [".dsc", ".debian.tar.xz", ".orig.tar.xz", "orig.tar.xz.asc"]:
+        assert len(list(filter(lambda f: f.filename.endswith(e), files))) == 3
+    assert files[0].archive_name == "debian"
+
+    # resolve with checksum of debian-ports hurd-amd64 variant
+    sratom.checksums[ChecksumAlgo.SHA256SUM] = (
+        "4619ccf1ad73f96d08b7709ea768523f16c60ecac68eb269614c1950ba776508"
+    )
+    files = list(rs.resolve(sratom))
+    assert len(files) == 4
+    assert files[0].archive_name == "debian-ports"
