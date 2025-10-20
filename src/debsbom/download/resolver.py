@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Iterable
 import dataclasses
 import hashlib
 import io
@@ -11,12 +12,15 @@ from pathlib import Path
 
 from ..dpkg import package
 from ..snapshot.client import RemoteFile
+from .dscfilter import RemoteDscFile
 
 from zstandard import ZstdCompressor, ZstdDecompressor
 from ..snapshot import client as sdlclient
 
 
 logger = logging.getLogger(__name__)
+
+UPSTREAM_ARCHIVE_ORDER = ["debian", "debian-security", "debian-debug", "debian-ports"]
 
 
 class PackageResolverCache:
@@ -106,6 +110,58 @@ class UpstreamResolver:
         self.sdl = sdl
         self.cache = cache
 
+    @classmethod
+    def _sort_by_archive(
+        cls,
+        files: Iterable["RemoteFile"] | Iterable["RemoteDscFile"],
+    ) -> list["RemoteFile"] | list["RemoteDscFile"]:
+        """
+        Sort the input list by priority of the upstream archives. By that, we can iterate
+        the items in the most likely order to have checksum matches more likely early.
+        """
+        priority = {name: i for i, name in enumerate(UPSTREAM_ARCHIVE_ORDER)}
+        default_prio = len(UPSTREAM_ARCHIVE_ORDER)
+        return sorted(
+            files,
+            key=lambda f: priority.get(f.archive_name, default_prio),
+        )
+
+    @classmethod
+    def _resolve_dsc_files(
+        cls, pkg: sdlclient.SourcePackage, archive: str | None = None
+    ) -> Iterable["RemoteDscFile"]:
+        """
+        Locate all .dsc files associated with the source package and lazily create
+        RemoteDscFile instances to lookup associated artifacts.
+        """
+        files = cls._sort_by_archive(pkg.srcfiles(archive=archive))
+        for f in files:
+            if f.filename.endswith(".dsc"):
+                yield RemoteDscFile(sdl=pkg.sdl, dscfile=f, allfiles=files)
+
+    def _filter_rel_sources(
+        self, srcpkg: package.SourcePackage, sdlpkg: sdlclient.SourcePackage
+    ) -> Iterable[RemoteFile]:
+        """
+        A debian source package can be found in multiple snapshot archives with varying
+        content and checksum. In case we have a checksum, download all .dsc files until
+        we find the one with a matching checksum. Then use the .dsc file to locate all other
+        referenced artifacts.
+        """
+        if not srcpkg.checksums.get(package.ChecksumAlgo.SHA256SUM):
+            logger.warning(
+                f"no sha256 digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise"
+            )
+            yield from self._sort_by_archive(sdlpkg.srcfiles())
+            return
+
+        dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
+        for d in dscfiles:
+            if d.sha256 == srcpkg.checksums[package.ChecksumAlgo.SHA256SUM]:
+                yield d.dscfile
+                yield from d.srcfiles()
+                return
+
     def resolve(self, p: package.Package) -> list["RemoteFile"]:
         """
         Resolve a local package to references on the upstream snapshot mirror
@@ -116,7 +172,9 @@ class UpstreamResolver:
 
         # Determine which type of package and fetch files
         if p.is_source():
-            files = sdlclient.SourcePackage(self.sdl, p.name, str(p.version)).srcfiles()
+            files = self._filter_rel_sources(
+                p, sdlclient.SourcePackage(self.sdl, p.name, str(p.version))
+            )
         else:
             files = sdlclient.BinaryPackage(self.sdl, p.name, str(p.version), None, None).files(
                 arch=p.architecture
