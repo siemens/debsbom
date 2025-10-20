@@ -67,10 +67,14 @@ class SourcePackage:
         self.name = name
         self.version = version
 
-    def srcfiles(self) -> Iterable["RemoteFile"]:
+    def srcfiles(
+        self, archive: str | None = None, sha1: str | None = None
+    ) -> Iterable["RemoteFile"]:
         """
         All files associated with the source package. Returns multiple RemoteFile
         instances for a single hash in case the file is known under multiple names.
+        If the package is not known to the snapshot mirror, raises NotFoundOnSnapshotError.
+        If the filtering does not match any, return empty iterator.
         """
         try:
             r = self.sdl.rs.get(
@@ -87,6 +91,10 @@ class SourcePackage:
             hash = s["hash"]
             for res in fileinfo[hash]:
                 rf = RemoteFile.fromfileinfo(self.sdl, hash, res)
+                if archive and rf.archive_name != archive:
+                    continue
+                if sha1 and rf.hash != sha1:
+                    continue
                 rf.architecture = "source"
                 yield rf
 
