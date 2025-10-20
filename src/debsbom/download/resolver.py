@@ -49,9 +49,15 @@ class PersistentResolverCache(PackageResolverCache):
         cachedir.mkdir(exist_ok=True)
 
     @staticmethod
-    def _package_hash(p: package.SourcePackage | package.BinaryPackage) -> str:
+    def _package_hash(p: package.Package) -> str:
         return hashlib.sha256(
-            json.dumps(p.purl().to_string(), sort_keys=True).encode("utf-8")
+            json.dumps(
+                {
+                    "purl": p.purl().to_string(),
+                    "checksums": p.checksums,
+                },
+                sort_keys=True,
+            ).encode("utf-8")
         ).hexdigest()
 
     def _entry_path(self, hash: str) -> Path:
