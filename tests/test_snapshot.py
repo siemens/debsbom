@@ -77,3 +77,14 @@ def test_generic_package(sdl):
 
     with pytest.raises(NotFoundOnSnapshotError):
         next(Package(sdl, "python3-pytest").versions())
+
+
+@pytest.mark.online
+def test_srcpkg_limit_archive(sdl):
+    """
+    list all files related to a source package, but limit to a specific archive
+    """
+    pkg = SourcePackage(sdl, "sratom", "0.6.14-1")
+    files = list(pkg.srcfiles(archive="debian"))
+    # debian.tar.xz, .dsc, orig.tar.xz, .asc
+    assert len(files) == 4
