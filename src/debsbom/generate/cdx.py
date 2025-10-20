@@ -88,6 +88,58 @@ def cdx_package_repr(
         return entry
 
 
+def make_distro_component(
+    distro_name: str, distro_version: str | None, distro_supplier: str | None
+) -> cdx_component.Component:
+    distro_bom_ref = CDX_REF_PREFIX + distro_name
+
+    if distro_supplier:
+        supplier = cdx_contact.OrganizationalEntity(name=distro_supplier)
+    else:
+        supplier = None
+
+    distro_component = cdx_component.Component(
+        type=cdx_component.ComponentType.OPERATING_SYSTEM,
+        bom_ref=distro_bom_ref,
+        supplier=supplier,
+        name=distro_name,
+        version=distro_version,
+    )
+    return distro_component
+
+
+def make_metadata(
+    component: cdx_component.Component,
+    timestamp: datetime | None = None,
+) -> cdx_bom.BomMetaData:
+    if timestamp is None:
+        timestamp = datetime.now()
+
+    tool_urls = metadata("debsbom").get_all("Project-URL")
+    tool_component = cdx_component.Component(
+        bom_ref=cdx_bom_ref.BomRef(
+            Reference("debsbom-{}".format(version("debsbom"))).as_str(SBOMType.CycloneDX)
+        ),
+        type=cdx_component.ComponentType.APPLICATION,
+        name="debsbom",
+        version=version("debsbom"),
+    )
+    if tool_urls:
+        tool_component.external_references = (
+            cdx_model.ExternalReference(
+                url=cdx_model.XsUri(tool_urls[0].split(",")[1].strip()),
+                type=cdx_model.ExternalReferenceType.WEBSITE,
+            ),
+        )
+
+    bom_metadata = cdx_bom.BomMetaData(
+        timestamp=timestamp,
+        component=component,
+        tools=cdx_tool.ToolRepository(components=[tool_component]),
+    )
+    return bom_metadata
+
+
 def cyclonedx_bom(
     packages: set[Package],
     distro_name: str,
@@ -128,9 +180,6 @@ def cyclonedx_bom(
             continue
         data.add(entry)
 
-    distro_bom_ref = CDX_REF_PREFIX + distro_name
-    refs[distro_bom_ref] = cdx_bom_ref.BomRef(distro_bom_ref)
-
     distro_dependencies = []
     logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
@@ -168,56 +217,25 @@ def cyclonedx_bom(
             )
             logger.debug(f"Created dependency: {dependency}")
             dependencies.add(dependency)
+
+    distro_component = make_distro_component(distro_name, distro_version, distro_supplier)
+    refs[distro_component.bom_ref] = distro_component.bom_ref
+
     dependency = cdx_dependency.Dependency(
-        ref=refs[distro_bom_ref],
+        ref=refs[distro_component.bom_ref],
         dependencies=distro_dependencies,
     )
     logger.debug(f"Created distro dependency: {dependency}")
     dependencies.add(dependency)
 
-    if distro_supplier:
-        supplier = cdx_contact.OrganizationalEntity(name=distro_supplier)
-    else:
-        supplier = None
-
-    distro_component = cdx_component.Component(
-        type=cdx_component.ComponentType.OPERATING_SYSTEM,
-        bom_ref=refs[distro_bom_ref],
-        supplier=supplier,
-        name=distro_name,
-        version=distro_version,
-    )
+    bom_metadata = make_metadata(distro_component, timestamp)
 
     if serial_number is None:
         serial_number = uuid4()
 
-    if timestamp is None:
-        timestamp = datetime.now()
-
-    tool_urls = metadata("debsbom").get_all("Project-URL")
-    tool_component = cdx_component.Component(
-        bom_ref=cdx_bom_ref.BomRef(
-            Reference("debsbom-{}".format(version("debsbom"))).as_str(SBOMType.CycloneDX)
-        ),
-        type=cdx_component.ComponentType.APPLICATION,
-        name="debsbom",
-        version=version("debsbom"),
-    )
-    if tool_urls:
-        tool_component.external_references = (
-            cdx_model.ExternalReference(
-                url=cdx_model.XsUri(tool_urls[0].split(",")[1].strip()),
-                type=cdx_model.ExternalReferenceType.WEBSITE,
-            ),
-        )
-
     bom = cdx_bom.Bom(
         serial_number=serial_number,
-        metadata=cdx_bom.BomMetaData(
-            timestamp=timestamp,
-            component=distro_component,
-            tools=cdx_tool.ToolRepository(components=[tool_component]),
-        ),
+        metadata=bom_metadata,
         components=data,
         dependencies=dependencies,
     )
