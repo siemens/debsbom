@@ -9,3 +9,4 @@ Commands
   commands/source-merge
   commands/repack
   commands/export
+  commands/merge
