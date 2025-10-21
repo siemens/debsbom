@@ -62,8 +62,7 @@ def stream_compressed_file(path: Path) -> Iterable[str]:
         text=True,
     )
     try:
-        for line in compressor.stdout:
-            yield line
+        yield from compressor.stdout
     finally:
         compressor.stdout.close()
         compressor.wait()

@@ -138,8 +138,7 @@ class Repository:
                 with open(sources_path) as f:
                     logger.debug(f"Parsing apt cache source packages: {sources_file}")
                     sources_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
-                    for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
-                        yield s
+                    yield from Repository._make_srcpkgs(sources_raw, srcpkg_filter)
             else:
                 compressed_variant = find_compressed_file_variants(sources_path)[0]
                 content = stream_compressed_file(compressed_variant)
@@ -147,8 +146,7 @@ class Repository:
                 # TODO: in python-debian >= 1.0.0 it is possible to directly
                 # pass the filename of a compressed file when using apt_pkg
                 sources_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
-                for s in Repository._make_srcpkgs(sources_raw, srcpkg_filter):
-                    yield s
+                yield from Repository._make_srcpkgs(sources_raw, srcpkg_filter)
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache sources: {sources_file}")
 
@@ -162,8 +160,7 @@ class Repository:
                 with open(packages_path) as f:
                     packages_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
                     logger.debug(f"Parsing apt cache binary packages: {packages_file}")
-                    for s in Repository._make_binpkgs(packages_raw, binpkg_filter):
-                        yield s
+                    yield from Repository._make_binpkgs(packages_raw, binpkg_filter)
             else:
                 compressed_variant = find_compressed_file_variants(packages_path)[0]
                 content = stream_compressed_file(compressed_variant)
@@ -171,8 +168,7 @@ class Repository:
                 # pass the filename of a compressed file when using apt_pkg
                 packages_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
                 logger.debug(f"Parsing apt cache binary packages: {packages_file}")
-                for s in Repository._make_binpkgs(packages_raw, binpkg_filter):
-                    yield s
+                yield from Repository._make_binpkgs(packages_raw, binpkg_filter)
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache packages: {packages_file}")
 
@@ -184,8 +180,7 @@ class Repository:
         if self.components:
             for component in self.components:
                 sources_file = "_".join([repo_base, component, "source", "Sources"])
-                for s in self._parse_sources(sources_file, filter_fn):
-                    yield s
+                yield from self._parse_sources(sources_file, filter_fn)
         else:
             sources_file = "_".join([repo_base, "source", "Sources"])
             return self._parse_sources(sources_file, filter_fn)
