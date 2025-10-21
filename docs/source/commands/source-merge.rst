@@ -1,7 +1,7 @@
 ``source-merge`` command
 ========================
 
-.. automodule:: debsbom.cli.MergeCmd
+.. automodule:: debsbom.commands.source_merge.SourceMergeCmd
 
 .. argparse::
     :module: debsbom.cli
