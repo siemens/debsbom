@@ -200,3 +200,22 @@ Convert the SPDX SBOM to GraphML:
 .. code-block:: bash
 
     debsbom export sbom.spdx.json sbom-graph.graphml
+
+Merging multiple SBOMs
+~~~~~~~~~~~~~~~~~~~~~~
+
+The :doc:`commands/merge` merges multiple SBOMs hierarchically. The intended use-case is to
+combine multiple SBOMs describing a Debian-based distribution. A good example is the rootfs
+and the initrd of a Linux distribution.
+
+Merge two SBOMs representing the above case:
+
+.. code-block:: bash
+
+    debsbom merge rootfs.spdx.json initrd.spdx.json -o merged.spdx.json
+
+You can also pass SBOMs via stdin, but you also have to pass the SBOM type in this case:
+
+.. code-block:: bash
+
+    cat rootfs.spdx.json initrd.spdx.json | debsbom merge -t spdx -o merged.spdx.json -
