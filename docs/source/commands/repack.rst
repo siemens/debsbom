@@ -1,7 +1,7 @@
 ``repack`` command
 ==================
 
-.. automodule:: debsbom.cli.RepackCmd
+.. automodule:: debsbom.commands.repack.RepackCmd
 
 .. argparse::
     :module: debsbom.cli

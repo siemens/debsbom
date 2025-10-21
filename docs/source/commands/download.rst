@@ -1,7 +1,7 @@
 ``download`` command
 ====================
 
-.. automodule:: debsbom.cli.DownloadCmd
+.. automodule:: debsbom.commands.download.DownloadCmd
 
 .. argparse::
     :module: debsbom.cli

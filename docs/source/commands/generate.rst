@@ -8,7 +8,7 @@ These SBOM outputs are designed to serve as reliable input for vulnerability man
 .. note::
     This command can be executed in an air-gapped environment.
 
-.. automodule:: debsbom.cli.GenerateCmd
+.. automodule:: debsbom.commands.generate.GenerateCmd
 
 .. argparse::
     :module: debsbom.cli

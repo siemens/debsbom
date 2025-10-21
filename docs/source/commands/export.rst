@@ -1,7 +1,7 @@
 ``export`` command
 ==================
 
-.. automodule:: debsbom.cli.ExportCmd
+.. automodule:: debsbom.commands.export.ExportCmd
 
 .. argparse::
     :module: debsbom.cli
