@@ -21,3 +21,9 @@ class BomReader:
     def read_stream(cls, stream: IO[str]):
         """Parse and return a BOM instance from the stream"""
         raise NotImplementedError()
+
+    @classmethod
+    @abstractmethod
+    def from_json(cls, json_obj):
+        """Parse and return a BOM instance from a Json object"""
+        raise NotImplementedError

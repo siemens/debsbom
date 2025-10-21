@@ -22,4 +22,8 @@ class CdxBomReader(BomReader, CDXType):
 
     @classmethod
     def read_stream(cls, stream: IO[str]) -> Bom:
-        return Bom.from_json(json.load(stream))
+        return cls.from_json(json.load(stream))
+
+    @classmethod
+    def from_json(cls, json_obj) -> Bom:
+        return Bom.from_json(json_obj)
