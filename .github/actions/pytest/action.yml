@@ -35,6 +35,14 @@ runs:
     run: |
       coverage run $(which debsbom) -v generate -t spdx -t cdx -o sbom --validate
 
+  - name: smoke test merge
+    shell: bash
+    run: |
+      export COVERAGE_FILE=".coverage.merge.spdx.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v merge --validate tests/data/merge-full.spdx.json tests/data/merge-minimal.spdx.json
+      export COVERAGE_FILE=".coverage.merge.cdx.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v merge --validate tests/data/merge-full.cdx.json tests/data/merge-minimal.cdx.json
+
   - name: test repack flow
     shell: bash
     run: |
