@@ -219,3 +219,55 @@ You can also pass SBOMs via stdin, but you also have to pass the SBOM type in th
 .. code-block:: bash
 
     cat rootfs.spdx.json initrd.spdx.json | debsbom merge -t spdx -o merged.spdx.json -
+
+License-Clearing Workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``debsbom`` can be used for license clearing. The license clearing workflow could look like this:
+
+First, generate a CycloneDX SBOM of a rootfs:
+
+.. code-block:: bash
+
+    debsbom --progress generate -r path/to/the/rootfs -t cdx -o sbom
+    # output in sbom.cdx.json
+
+Use the generated SBOM to download all source packages:
+
+.. code-block:: bash
+
+    debsbom --progress download --outdir downloads --sources sbom.cdx.json
+    # the downloaded files will be in downloads/sources/<archive>
+
+You will notice that there is no single file for each source package. Instead there is multiple:
+the .dsc file, an .orig.tar tarball, maybe some patches and more. ``debsbom`` provides an easy
+way to combine them into a single tarball that can be used in most license clearing platforms:
+
+.. code-block:: bash
+
+    debsbom --progress source-merge --compress zstd --apply-patches sbom.cdx.json
+    # merged and patched compressed tarballs are in downloads/sources/<archive>
+
+Now there is a single compressed file for each source package.
+
+.. note::
+    If you only need to work on a smaller subset of packages you can pass a package list
+    via stdin. See the above sections for concrete examples how to do that.
+
+Alternatively you can use the :doc:`commands/repack` to rewrite the SBOM and repack the downloaded
+artifacts in a format-specific way:
+
+.. code-block:: bash
+
+    debsbom --progress repack \
+        --format standard-bom \
+        --dldir downloads \
+        --compress zstd \
+        --apply-patches \
+        --validate \
+        sbom.cdx.json sbom.packed.cdx.json
+
+This step is very specific to the actual use-case you have. Right now the only available format
+is ``standard-bom``, which created a directory structure and rewrites the SBOM to reference
+all source packages directly in there. If you want to see more formats you can open an issue,
+or even better, contribute it directly.
