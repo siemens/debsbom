@@ -86,11 +86,12 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
                 logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
-                print(
-                    DownloadResult(
-                        path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
-                    ).json()
-                )
+                if args.json:
+                    print(
+                        DownloadResult(
+                            path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
+                        ).json()
+                    )
 
         if not args.json:
             nfiles, nbytes, cfiles, cbytes = downloader.stat()
