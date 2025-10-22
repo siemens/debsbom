@@ -80,7 +80,12 @@ class Reference:
 
     @classmethod
     def lookup(
-        cls, pkg: BinaryPackage, dep: Dependency, sbom_type: SBOMType, known_refs: Set[str]
+        cls,
+        pkg: BinaryPackage,
+        dep: Dependency,
+        sbom_type: SBOMType,
+        known_refs: Set[str],
+        native_arch: str,
     ) -> str | None:
         """
         For imprecise references (without architecture), locate the matching
@@ -92,7 +97,7 @@ class Reference:
             return Reference.make_from_dep(dep).as_str(sbom_type)
         candidates = map(
             lambda a: Reference.make_from_dep(dep, a).as_str(sbom_type),
-            set([pkg.architecture, "all"]),
+            set([pkg.architecture, native_arch, "all"]),
         )
         return next(filter(lambda d: d in known_refs, candidates), None)
 

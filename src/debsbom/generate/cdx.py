@@ -143,6 +143,7 @@ def make_metadata(
 def cyclonedx_bom(
     packages: set[Package],
     distro_name: str,
+    distro_arch: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
     base_distro_vendor: str | None = "debian",
@@ -203,7 +204,9 @@ def cyclonedx_bom(
         deps = SortedSet([])
         for dep in pkg_deps:
             try:
-                ref_id = Reference.lookup(package, dep, SBOMType.CycloneDX, refs.keys())
+                ref_id = Reference.lookup(
+                    package, dep, SBOMType.CycloneDX, refs.keys(), distro_arch
+                )
                 dep_bom_ref = refs[ref_id]
             except KeyError:
                 # this means we have a virtual dependency, ignore it

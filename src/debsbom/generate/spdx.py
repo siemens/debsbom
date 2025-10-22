@@ -182,6 +182,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
 def spdx_bom(
     packages: set[Package],
     distro_name: str,
+    distro_arch: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
     base_distro_vendor: str | None = "debian",
@@ -238,7 +239,7 @@ def spdx_bom(
             )
         if package.depends:
             for dep in package.unique_depends:
-                ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs)
+                ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs, distro_arch)
                 if ref_id:
                     relationship = spdx_relationship.Relationship(
                         spdx_element_id=reference.as_str(SBOMType.SPDX),
