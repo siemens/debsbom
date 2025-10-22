@@ -17,7 +17,7 @@ from debsbom.dpkg.package import (
     DpkgStatus,
     filter_binaries,
 )
-from debsbom.sbom import Reference
+from debsbom.sbom import Reference, SBOMType
 
 
 def test_parse_dependency():
@@ -174,3 +174,16 @@ def test_unique_depends():
     pkg = BinaryPackage("foo", "1.0", architecture="amd64", depends=deps)
     assert len(pkg.depends) == 3
     assert len(pkg.unique_depends) == 2
+
+
+@pytest.mark.parametrize("sbom_type", [SBOMType.SPDX, SBOMType.CycloneDX])
+def test_cross_arch_lookup(sbom_type):
+    bar_dep = Dependency("bar", None, ("", Version("1.0")))
+    foo = BinaryPackage("foo", "1.0", architecture="all", depends=[bar_dep])
+    bar = BinaryPackage("bar", "1.0", architecture="riscv64")
+
+    refs = set(map(lambda p: Reference.make_from_pkg(p).as_str(sbom_type), [foo, bar]))
+    ref_bar = Reference.lookup(foo, bar_dep, sbom_type, refs, native_arch="riscv64")
+    assert "riscv64" in ref_bar
+    ref_bar = Reference.lookup(foo, bar_dep, sbom_type, refs, native_arch="amd64")
+    assert ref_bar is None
