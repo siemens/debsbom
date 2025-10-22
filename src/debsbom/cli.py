@@ -10,6 +10,8 @@ import logging
 import sys
 import traceback
 
+from .generate.generate import DistroArchUnknownError
+
 from .commands.generate import GenerateCmd
 from .commands.download import DownloadCmd
 from .commands.merge import MergeCmd
@@ -95,6 +97,9 @@ def main():
             ExportCmd.run(args)
         elif args.cmd == "merge":
             MergeCmd.run(args)
+    except DistroArchUnknownError as e:
+        logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
+        sys.exit(-2)
     except Exception as e:
         logger.error(e)
         if not args.json:
