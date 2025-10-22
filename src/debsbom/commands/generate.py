@@ -36,6 +36,7 @@ class GenerateCmd(GenerateInput):
 
         debsbom = Debsbom(
             distro_name=args.distro_name,
+            distro_arch=None if args.distro_arch == "auto" else args.distro_arch,
             sbom_types=sbom_types,
             root=args.root,
             distro_supplier=args.distro_supplier,
@@ -77,4 +78,10 @@ class GenerateCmd(GenerateInput):
             "--from-pkglist",
             help="create SBOM from a package list passed via stdin",
             action="store_true",
+        )
+        parser.add_argument(
+            "--distro-arch",
+            type=str,
+            help="native dpkg architecture of the distro (%(default)s)",
+            default="auto",
         )
