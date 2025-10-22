@@ -27,6 +27,13 @@ from .spdx import spdx_bom
 logger = logging.getLogger(__name__)
 
 
+class DistroArchUnknownError(RuntimeError):
+    """The distro arch is not set and could not be determined"""
+
+    def __init__(self):
+        super().__init__("Unable to auto detect distro architecture")
+
+
 class Debsbom:
     def __init__(
         self,
@@ -35,6 +42,7 @@ class Debsbom:
         root: str | Path = "/",
         distro_supplier: str = None,
         distro_version: str = None,
+        distro_arch: str | None = None,
         base_distro_vendor: str = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID = None,
@@ -46,6 +54,7 @@ class Debsbom:
         self.distro_name = distro_name
         self.distro_version = distro_version
         self.distro_supplier = distro_supplier
+        self.distro_arch = distro_arch
         self.base_distro_vendor = base_distro_vendor
         self.cdx_standard = cdx_standard
 
@@ -72,12 +81,25 @@ class Debsbom:
         else:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
             merge_ext_states = True
+        if not self.distro_arch:
+            if self.root:
+                self.distro_arch = self._parse_distro_arch(self.root / "var/lib/dpkg/arch-native")
+            if not self.distro_arch:
+                raise DistroArchUnknownError()
+        logger.debug(f"distro arch is '{self.distro_arch}'")
+
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
         self.packages = self._merge_apt_data(
             pkgdict,
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
         )
+
+    @classmethod
+    def _parse_distro_arch(cls, arch_native_file: Path) -> str | None:
+        if not arch_native_file.is_file():
+            return None
+        return arch_native_file.read_text().strip()
 
     def _create_apt_repos_it(self) -> Iterable[Repository]:
         apt_lists = self.root / "var/lib/apt/lists"
@@ -242,6 +264,7 @@ class Debsbom:
             bom = cyclonedx_bom(
                 self.packages,
                 self.distro_name,
+                distro_arch=self.distro_arch,
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 serial_number=self.cdx_serialnumber,
@@ -265,6 +288,7 @@ class Debsbom:
             bom = spdx_bom(
                 self.packages,
                 self.distro_name,
+                distro_arch=self.distro_arch,
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 namespace=self.spdx_namespace,

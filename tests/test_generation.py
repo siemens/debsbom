@@ -35,6 +35,7 @@ def sbom_generator():
 
         return Debsbom(
             distro_name="pytest-distro",
+            distro_arch="amd64",
             sbom_types=sbom_types,
             root=str(test_root),
             spdx_namespace=url,
@@ -138,6 +139,7 @@ def test_dependency_generation(tmpdir, sbom_generator):
 def test_standard_bom(tmpdir):
     dbom = Debsbom(
         distro_name="pytest-distro",
+        distro_arch="amd64",
         sbom_types=[SBOMType.CycloneDX],
         root="tests/root/dependency",
         spdx_namespace=urlparse("http://example.org"),
