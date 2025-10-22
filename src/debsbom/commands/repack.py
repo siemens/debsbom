@@ -71,7 +71,9 @@ class RepackCmd(SbomInput):
         parser.add_argument(
             "--dldir", default="downloads", help="download directory from 'download'"
         )
-        parser.add_argument("--outdir", default="packed", help="directory to repack into'")
+        parser.add_argument(
+            "--outdir", default="packed", help="directory to repack into (default: %(default)s)"
+        )
         parser.add_argument("--format", default="standard-bom", choices=["standard-bom"])
         parser.add_argument(
             "--compress",
