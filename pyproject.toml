@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "debsbom"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
   "cyclonedx-python-lib>=11.0.0",
   "packageurl-python>=0.16.0",
