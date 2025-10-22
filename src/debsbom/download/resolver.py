@@ -101,7 +101,29 @@ class PersistentResolverCache(PackageResolverCache):
 
 class UpstreamResolver:
     """
-    Helper to lookup packages on an upstream snapshot server.
+    Helper to lookup packages on an upstream snapshot server. The lookup works as following:
+
+    Binary package: ask the snapshot client for files of a binary package with name, version
+    and architecture
+
+    Source package (with checksum): ask the snapshot client for all files related to the source
+    package identified by name and version. Then, sort the list by to sorting order and
+    filter all .dsc files in the returned list. For each dsc file, fetch it and compute the
+    checksum. If the checksum is not matching, ignore it. If it is matching, yield it and yield
+    all referenced source files of the .dsc file.
+
+    Source package (without checksum): ask the snapshot client for all files related to the
+    source package identified by name and version. Then, sort the list by to sorting order and
+    deduplicate based on (archive_name, filename). Note, that each deduplication contains the
+    most recent file.
+
+    Sorting order: First by archive_name (priority), then by first_seen (descending).
+
+    Checksum computation: The checksums of the returned files are not checked at this stage
+    (except for the .dsc files for source packages with checksum information). This operation is
+    left to the caller (usually the downloader), as it creates potentially a lot of traffic
+    between the snapshot mirror and the downloader. The resolving operations itself are cached
+    in the cache, but the download artifacts have to be cached by the caller.
     """
 
     def __init__(
@@ -123,8 +145,26 @@ class UpstreamResolver:
         default_prio = len(UPSTREAM_ARCHIVE_ORDER)
         return sorted(
             files,
-            key=lambda f: priority.get(f.archive_name, default_prio),
+            key=lambda f: (
+                # Primary: archive priority
+                priority.get(f.archive_name, default_prio),
+                # Secondary: most recent “first_seen” first (descending)
+                -f.first_seen,
+            ),
         )
+
+    @classmethod
+    def _distinct_by_archive_filename(cls, files: Iterable[RemoteFile]) -> Iterable[RemoteFile]:
+        """
+        Return a list of RemoteFiles that is made unique on archive and filename key.
+        If multiple elements share the same keys, the first seen is returned.
+        """
+        seen: set[tuple[str, str]] = set()
+        for file in files:
+            key = (file.archive_name, file.filename)
+            if key not in seen:
+                seen.add(key)
+                yield file
 
     @classmethod
     def _resolve_dsc_files(
@@ -152,7 +192,7 @@ class UpstreamResolver:
             logger.warning(
                 f"no sha256 digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise"
             )
-            yield from self._sort_by_archive(sdlpkg.srcfiles())
+            yield from self._distinct_by_archive_filename(self._sort_by_archive(sdlpkg.srcfiles()))
             return
 
         dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
