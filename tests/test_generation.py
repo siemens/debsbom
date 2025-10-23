@@ -181,13 +181,25 @@ def test_apt_source_pkg(tmpdir, sbom_generator):
             filter(lambda p: p["SPDXID"].endswith("binutils-arm-none-eabi-amd64"), packages)
         )
         for pkg in packages:
-            if pkg["SPDXID"].endswith("-srcpkg"):
+            if pkg["SPDXID"].endswith("binutils-2.40-2-srcpkg"):
                 assert pkg["supplier"] != "NOASSERTION"
+                assert {
+                    "algorithm": "MD5",
+                    "checksumValue": "6adb372f47c7b4b980d6c0bffae3f691",
+                } in pkg["checksums"]
+                assert {
+                    "algorithm": "SHA256",
+                    "checksumValue": "cd75da7829d819189ba6154d408666373b307e222b393223804c4c4a7156f421",
+                } in pkg["checksums"]
             if pkg["SPDXID"].endswith("binutils-arm-none-eabi-amd64"):
                 assert {
                     "algorithm": "MD5",
                     "checksumValue": "041580298095f940c2c9c130e0d6e149",
                 } in pkg["checksums"]
+                assert {
+                    "algorithm": "SHA256",
+                    "checksumValue": "c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c",
+                }
 
 
 def test_apt_pkgs_stream(tmpdir, sbom_generator):
