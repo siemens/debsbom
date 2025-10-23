@@ -8,6 +8,16 @@ from datetime import datetime
 from uuid import UUID
 
 
+class ChecksumMismatchError(RuntimeError):
+    def __init__(self, name: str, purl: str | None, alg: str, checksum1: str, checksum2: str):
+        if purl:
+            super().__init__(
+                f"Checksum mismatch for '{name}' ({purl}): {alg}: {checksum1} != {checksum2}"
+            )
+        else:
+            super().__init__(f"Checksum mismatch for '{name}': {alg}: {checksum1} != {checksum2}")
+
+
 class SbomMerger:
     """Base class for merging SBOMs."""
 

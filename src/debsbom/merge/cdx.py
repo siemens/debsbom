@@ -11,7 +11,7 @@ import logging
 from sortedcontainers import SortedSet
 from uuid import uuid4
 
-from .merge import SbomMerger
+from .merge import ChecksumMismatchError, SbomMerger
 from ..generate.cdx import make_distro_component, make_metadata
 
 
@@ -23,19 +23,31 @@ class CdxSbomMerger(SbomMerger):
         # merge all fields that we use in our SBOMs, all other fields
         # are either part of the PURL or the PURL itself, and these
         # must match before merging
+
+        if component.hashes is None:
+            component.hashes = SortedSet([])
+        for other_hash in other.hashes or []:
+            for our_hash in component.hashes:
+                if our_hash.alg == other_hash.alg:
+                    if our_hash.content == other_hash.content:
+                        break
+                    else:
+                        purl = component.purl
+                        raise ChecksumMismatchError(
+                            component.name,
+                            str(purl),
+                            str(our_hash.alg),
+                            our_hash.content,
+                            other_hash.content,
+                        )
+                component.hashes.add(other_hash)
+
         if component.supplier is None:
             component.supplier = other.supplier
         if component.external_references is None:
             component.external_references = other.homepage
         if component.group is None:
             component.group = other.group
-
-        if component.hashes is None:
-            component.hashes = SortedSet([])
-        if other.hashes:
-            for component_hash in other.hashes:
-                if component_hash not in component.hashes:
-                    component.hashes.add(component_hash)
 
     def _merge_dependency(self, dependency: Dependency, other: Dependency):
         for dep in other.dependencies:
