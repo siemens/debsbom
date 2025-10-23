@@ -108,3 +108,33 @@ def test_cdx_merge():
     assert found_distro_ref
     assert found_full_ref
     assert found_minimal_ref
+
+
+def test_cdx_hash_merge():
+    distro_name = "cdx-merge-hash-merge"
+    merger = CdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in [
+        "tests/data/checksum-merge-md5.cdx.json",
+        "tests/data/checksum-merge-sha256.cdx.json",
+    ]:
+        docs.append(CdxBomReader.read_file(Path(sbom)))
+    bom = merger.merge(docs)
+
+    component = next(iter(bom.components))
+    assert len(component.hashes) == 2
+
+
+def test_spdx_checksum_merge():
+    distro_name = "spx-merge-checksum-merge"
+    merger = SpdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in [
+        "tests/data/checksum-merge-md5.spdx.json",
+        "tests/data/checksum-merge-sha256.spdx.json",
+    ]:
+        docs.append(SpdxBomReader.read_file(Path(sbom)))
+    bom = merger.merge(docs)
+
+    package = next(iter(filter(lambda p: p.name == "example-pkg", bom.packages)))
+    assert len(package.checksums) == 2
