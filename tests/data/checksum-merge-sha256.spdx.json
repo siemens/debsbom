@@ -1,0 +1,62 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2025-10-16T11:05:10Z",
+        "creators": [
+            "Tool: debsbom-0.2.0"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "sha256",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.2.0-6fa0aa79-a42e-4bf9-8943-c65ee849c732",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-md5",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "sha256",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-example-pkg",
+            "checksums": [
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "90b684e6d5a68698e9370585285f3bf858aecea6f25f70453bc9b204daa7d6f1"
+                }
+	    ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/example-pkg@1.0.0?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "example-pkg",
+            "primaryPackagePurpose": "LIBRARY",
+            "supplier": "NOASSERTION",
+            "versionInfo": "1.0.0"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-buildah-amd64-different",
+            "relatedSpdxElement": "SPDXRef-sha256",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-sha256",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}

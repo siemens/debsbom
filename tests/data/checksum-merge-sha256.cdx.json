@@ -1,0 +1,63 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/example-pkg@1.0.0?arch=amd64",
+            "group": "debian",
+            "name": "example-pkg",
+            "properties": [
+                {
+                    "name": "section"
+                }
+            ],
+            "purl": "pkg:deb/debian/example-pkg@1.0.0?arch=amd64",
+            "type": "library",
+            "version": "1.0.0",
+	    "hashes": [
+                {
+                    "alg": "SHA-256",
+                    "content": "90b684e6d5a68698e9370585285f3bf858aecea6f25f70453bc9b204daa7d6f1"
+                }
+	    ]
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/example-pkg@1.0.0?arch=amd64"
+            ],
+            "ref": "CDXRef-checksum-merge-sha256"
+        },
+        {
+            "ref": "pkg:deb/debian/example-pkg@1.0.0?arch=amd64"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-checksum-merge-sha256",
+            "name": "sha256",
+            "type": "operating-system"
+        },
+        "timestamp": "2025-10-23T09:32:24.371124+02:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.2.0",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.2.0"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:923d5b3a-1a8f-900f-1332-afff556785a9",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6"
+}
