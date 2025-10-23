@@ -4,12 +4,14 @@
 
 from cyclonedx.model.dependency import Dependency
 from pathlib import Path
+import pytest
 from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 
 from debsbom.bomreader.cdxbomreader import CdxBomReader
 from debsbom.bomreader.spdxbomreader import SpdxBomReader
 from debsbom.merge.cdx import CdxSbomMerger
 from debsbom.merge.spdx import SpdxSbomMerger
+from debsbom.merge.merge import ChecksumMismatchError
 
 
 def test_spdx_merge():
@@ -138,3 +140,30 @@ def test_spdx_checksum_merge():
 
     package = next(iter(filter(lambda p: p.name == "example-pkg", bom.packages)))
     assert len(package.checksums) == 2
+
+
+def test_cdx_bad_checksum():
+    distro_name = "cdx-merge-hash-merge"
+    merger = CdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in [
+        "tests/data/checksum-merge-md5.cdx.json",
+        "tests/data/checksum-merge-bad.cdx.json",
+    ]:
+        docs.append(CdxBomReader.read_file(Path(sbom)))
+    with pytest.raises(ChecksumMismatchError):
+        bom = merger.merge(docs)
+
+
+def test_spdx_bad_checksum():
+    distro_name = "cdx-merge-checksum-bad"
+    merger = SpdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in [
+        "tests/data/checksum-merge-md5.spdx.json",
+        "tests/data/checksum-merge-bad.spdx.json",
+    ]:
+        docs.append(SpdxBomReader.read_file(Path(sbom)))
+
+    with pytest.raises(ChecksumMismatchError):
+        bom = merger.merge(docs)
