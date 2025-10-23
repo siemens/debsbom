@@ -48,8 +48,14 @@ class SpdxSbomMerger(SbomMerger):
             package.download_location = other.download_location
         if package.supplier == SpdxNoAssertion():
             package.supplier = other.supplier
-        if package.checksums is None or package.checksums == []:
-            package.checksums = other.checksums
+
+        if package.checksums is None:
+            package.checksums = []
+        if other.checksums:
+            for checksum in other.checksums:
+                if checksum not in package.checksums:
+                    package.checksums.append(checksum)
+
         if package.homepage is None:
             package.homepage = other.homepage
         if not package.files_analyzed:
