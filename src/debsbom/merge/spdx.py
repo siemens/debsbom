@@ -5,13 +5,14 @@
 from collections.abc import Callable
 import itertools
 import logging
+from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.model.package import Package
 from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 
 from ..generate.spdx import make_creation_info, make_distro_package
-from .merge import SbomMerger
+from .merge import ChecksumMismatchError, SbomMerger
 from ..sbom import (
     SPDX_REF_DOCUMENT,
     SPDX_REFERENCE_TYPE_PURL,
@@ -44,17 +45,30 @@ class SpdxSbomMerger(SbomMerger):
     def _merge_package(self, package: Package, other: Package):
         # merge all fields that we use, missing fields must be the
         # same since they are part of the PURL
+
+        if package.checksums is None:
+            package.checksums = []
+        for other_chksum in other.checksums or []:
+            for checksum in package.checksums:
+                if checksum.algorithm == other_chksum.algorithm:
+                    if checksum.value == other_chksum.value:
+                        # we already have the checksum, continue
+                        break
+                    else:
+                        purl = self._purl_from_package(package)
+                        raise ChecksumMismatchError(
+                            package.name,
+                            purl,
+                            str(checksum.algorithm),
+                            checksum.value,
+                            other_chksum.value,
+                        )
+                package.checksums.append(other_chksum)
+
         if package.download_location == SpdxNoAssertion():
             package.download_location = other.download_location
         if package.supplier == SpdxNoAssertion():
             package.supplier = other.supplier
-
-        if package.checksums is None:
-            package.checksums = []
-        if other.checksums:
-            for checksum in other.checksums:
-                if checksum not in package.checksums:
-                    package.checksums.append(checksum)
 
         if package.homepage is None:
             package.homepage = other.homepage
