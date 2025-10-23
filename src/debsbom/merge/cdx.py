@@ -8,6 +8,7 @@ from cyclonedx.model.component import Component
 from cyclonedx.model.dependency import Dependency
 import itertools
 import logging
+from sortedcontainers import SortedSet
 from uuid import uuid4
 
 from .merge import SbomMerger
@@ -28,12 +29,13 @@ class CdxSbomMerger(SbomMerger):
             component.external_references = other.homepage
         if component.group is None:
             component.group = other.group
-        if component.hashes is None or component.hashes == []:
-            if component.hashes is None:
-                component.hashes = []
-            for component_hash in component.hashes:
+
+        if component.hashes is None:
+            component.hashes = SortedSet([])
+        if other.hashes:
+            for component_hash in other.hashes:
                 if component_hash not in component.hashes:
-                    component.hashes.append(component_hash)
+                    component.hashes.add(component_hash)
 
     def _merge_dependency(self, dependency: Dependency, other: Dependency):
         for dep in other.dependencies:
