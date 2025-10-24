@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 from debian import deb822
+from debian.changelog import Changelog
 
 from ..dpkg import package
 from ..util import Compression
@@ -127,7 +128,24 @@ class SourceArchiveMerger:
             # repack archive
             sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]
             tmpfile = merged.with_suffix(f"{merged.suffix}.tmp")
-            # options to build tar reproducible (TODO: timestamp)
+
+            # get timestamp from changelog for reproducible builds
+            # Find the first subdirectory within tmpdir (there should only be one)
+            subdir = next((t for t in Path(tmpdir).iterdir() if t.is_dir()), None)
+            if not subdir:
+                raise FileNotFoundError(f"No subdirectory found in {tmpdir} for package {p.name}")
+
+            # Construct the path to the changelog file
+            changelog_path = subdir / "debian" / "changelog"
+
+            # Open and parse the changelog
+            try:
+                with changelog_path.open() as changelog_file:
+                    changelog = Changelog(changelog_file, max_blocks=1)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Changelog file not found at {changelog_path}")
+
+            # options to build tar reproducible
             repro_tar_opts = [
                 "--force-local",
                 "--format=gnu",
@@ -135,6 +153,7 @@ class SourceArchiveMerger:
                 "--owner=0",
                 "--group=0",
                 "--numeric-owner",
+                f"--mtime={changelog.date}",
             ]
             with open(tmpfile, "wb") as outfile:
                 tar_writer = subprocess.Popen(
