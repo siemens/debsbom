@@ -49,6 +49,7 @@ class SourceArchiveMerger:
     ):
         self.dldir = dldir
         self.outdir = outdir or dldir
+        self.outdir.mkdir(exist_ok=True, parents=False)
         self.compress = compress
         self.dpkg_source = shutil.which("dpkg-source")
         if not self.dpkg_source:
@@ -124,7 +125,9 @@ class SourceArchiveMerger:
         dsc = self.locate_artifact(p, self.dldir)
         if not dsc:
             raise DscFileNotFoundError(p.dscfile())
-        merged = dsc.with_suffix(suffix)
+        dir = self.outdir / dsc.parent.name
+        dir.mkdir(exist_ok=True)
+        merged = dir / dsc.with_suffix(suffix).name
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
 
