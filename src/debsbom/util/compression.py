@@ -12,12 +12,12 @@ class Compression:
 
     Format = namedtuple("compression", "tool compress extract fileext")
     # fmt: off
-    NONE  = Format("cat",   [],     [],                 "")
-    BZIP2 = Format("bzip2", ["-q"], ["-q", "-d", "-c"], ".bz2")
-    GZIP  = Format("gzip",  ["-q"], ["-q", "-d", "-c"], ".gz")
-    XZ    = Format("xz",    ["-q"], ["-q", "-d", "-c"], ".xz")
-    ZSTD  = Format("zstd",  ["-q"], ["-q", "-d", "-c"], ".zst")
-    LZ4  = Format("lz4",    ["-q"], ["-q", "-d", "-c"], ".lz4")
+    NONE  = Format("cat",   [],           [],                 "")
+    BZIP2 = Format("bzip2", ["-q"],       ["-q", "-d", "-c"], ".bz2")
+    GZIP  = Format("gzip",  ["-q", "-n"], ["-q", "-d", "-c"], ".gz")
+    XZ    = Format("xz",    ["-q"],       ["-q", "-d", "-c"], ".xz")
+    ZSTD  = Format("zstd",  ["-q"],       ["-q", "-d", "-c"], ".zst")
+    LZ4   = Format("lz4",   ["-q"],       ["-q", "-d", "-c"], ".lz4")
     # fmt: on
 
     @staticmethod
