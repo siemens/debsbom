@@ -127,9 +127,18 @@ class SourceArchiveMerger:
             # repack archive
             sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]
             tmpfile = merged.with_suffix(f"{merged.suffix}.tmp")
+            # options to build tar reproducible (TODO: timestamp)
+            repro_tar_opts = [
+                "--force-local",
+                "--format=gnu",
+                "--sort=name",
+                "--owner=0",
+                "--group=0",
+                "--numeric-owner",
+            ]
             with open(tmpfile, "wb") as outfile:
                 tar_writer = subprocess.Popen(
-                    ["tar", "c"] + sorted(sources),
+                    ["tar", "c"] + repro_tar_opts + sorted(sources),
                     stdout=subprocess.PIPE,
                     cwd=tmpdir,
                 )
