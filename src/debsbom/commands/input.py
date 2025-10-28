@@ -163,3 +163,9 @@ class RepackInput:
             help="apply debian patches",
             action="store_true",
         )
+        parser.add_argument(
+            "--mtime",
+            type=datetime.fromisoformat,
+            help="set mtime for creating tar archives in ISO 8601 format. If this option is not set,"
+            " the timestamp from the most recent changelog entry is used for reproducible builds.",
+        )

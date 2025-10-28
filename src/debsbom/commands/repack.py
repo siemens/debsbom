@@ -52,7 +52,7 @@ class RepackCmd(SbomInput, RepackInput):
         repacked = filter(
             lambda p: p,
             map(
-                lambda p: packer.repack(p, symlink=linkonly),
+                lambda p: packer.repack(p, symlink=linkonly, mtime=args.mtime),
                 pkgs,
             ),
         )

@@ -4,6 +4,7 @@
 
 from abc import abstractmethod
 from collections.abc import Iterable
+from datetime import datetime
 import hashlib
 import logging
 from pathlib import Path
@@ -80,12 +81,12 @@ class StandardBomPacker(Packer):
         path.mkdir(exist_ok=True)
         return path / pkg.filename
 
-    def repack(self, pkg: Package, symlink=True) -> Package | None:
+    def repack(self, pkg: Package, symlink=True, mtime: datetime | None = None) -> Package | None:
         chkalgs = [CSA.SHA1SUM, CSA.SHA256SUM]
 
         if pkg.is_source():
             try:
-                pkgpath = self.sam.merge(pkg, apply_patches=self.apply_patches)
+                pkgpath = self.sam.merge(pkg, apply_patches=self.apply_patches, mtime=mtime)
                 pkg.locator = pkgpath.name
             except DscFileNotFoundError:
                 self._warn_missing_package(pkg)
