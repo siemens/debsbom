@@ -38,7 +38,7 @@ class SourceMergeCmd(SbomInput, PkgStreamInput, RepackInput):
             if args.progress:
                 progress_cb(idx, len(pkgs), f"{pkg}")
             try:
-                merger.merge(pkg, apply_patches=args.apply_patches)
+                merger.merge(pkg, apply_patches=args.apply_patches, mtime=args.mtime)
             except DscFileNotFoundError:
                 logger.warning(f"dsc file not found: {pkg}")
 

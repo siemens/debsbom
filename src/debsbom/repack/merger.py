@@ -117,7 +117,9 @@ class SourceArchiveMerger:
                 f"Could not parse changelog date '{changelog.date}' for package"
             )
 
-    def merge(self, p: package.SourcePackage, apply_patches: bool = False) -> Path:
+    def merge(
+        self, p: package.SourcePackage, apply_patches: bool = False, mtime: datetime | None = None
+    ) -> Path:
         """
         The provided package will also be updated with information from the .dsc file.
         """
@@ -167,13 +169,14 @@ class SourceArchiveMerger:
             sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]
             tmpfile = merged.with_suffix(f"{merged.suffix}.tmp")
 
-            # get timestamp from changelog for reproducible builds
-            try:
-                mtime = SourceArchiveMerger.extract_timestamp(Path(tmpdir))
-            except ChangelogTimestampError as e:
-                raise ValueError(
-                    f"{e} {p}",
-                ) from e
+            if not mtime:
+                # get timestamp from changelog for reproducible builds
+                try:
+                    mtime = SourceArchiveMerger.extract_timestamp(Path(tmpdir))
+                except ChangelogTimestampError as e:
+                    raise ValueError(
+                        f"Please use the '--mtime' option to specify a timestamp. {e} {p}",
+                    ) from e
 
             # options to build tar reproducible
             repro_tar_opts = [
