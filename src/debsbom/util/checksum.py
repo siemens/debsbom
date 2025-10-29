@@ -44,6 +44,9 @@ class ChecksumAlgo(IntEnum):
             return "sha256"
         raise NotImplementedError()
 
+    def __str__(self) -> str:
+        return self.to_hashlib(self)
+
 
 def best_digest(digests: Mapping[ChecksumAlgo, str]) -> tuple[ChecksumAlgo, str]:
     """
