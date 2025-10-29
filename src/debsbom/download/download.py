@@ -123,7 +123,7 @@ class PackageDownloader:
             dig_exp = pkg.checksums[ChecksumAlgo.MD5SUM]
             hl_algo = "md5"
         else:
-            logger.debug(f"No supported checksum on {pkg.name}@{pkg.version}")
+            logger.debug(f"No supported checksum on {pkg}")
             return True
 
         with open(file, "rb") as fd:

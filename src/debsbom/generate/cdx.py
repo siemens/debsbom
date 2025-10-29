@@ -56,7 +56,7 @@ def cdx_package_repr(
             supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
     else:
         supplier = None
-        logger.warning(f"no supplier for {package.name}@{package.version}")
+        logger.warning(f"no supplier for {package}")
     entry = cdx_component.Component(
         name=package.name,
         type=cdx_component.ComponentType.LIBRARY,

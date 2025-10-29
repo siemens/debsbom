@@ -71,9 +71,7 @@ class SourceArchiveMerger:
             if not cand.is_file():
                 continue
             if package.ChecksumAlgo.SHA256SUM not in p.checksums:
-                logger.warning(
-                    f"No SHA256 digest for {p.name}@{p.version}. Assume it is from archive '{d.name}'"
-                )
+                logger.warning(f"No SHA256 digest for {p}. Assume it is from archive '{d.name}'")
                 return cand
             logger.debug(f"compute checksum of '{cand}'")
             if cls._file_sha256sum(cand) == p.checksums[package.ChecksumAlgo.SHA256SUM]:

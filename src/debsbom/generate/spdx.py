@@ -115,7 +115,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
         )
     else:
         supplier = SpdxNoAssertion()
-        logger.warning(f"no supplier for {package.name}@{package.version}")
+        logger.warning(f"no supplier for {package}")
     if package.is_binary():
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),

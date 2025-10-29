@@ -80,7 +80,7 @@ class PersistentResolverCache(PackageResolverCache):
             try:
                 data = json.load(f)
             except json.decoder.JSONDecodeError:
-                logger.warning(f"cache file {entry.name} ({p.name}@{p.version}) is corrupted")
+                logger.warning(f"cache file {entry.name} ({p}) is corrupted")
                 return None
         logger.debug(f"Package '{p.name}' already cached")
         return [RemoteFile(**d) for d in data]

@@ -58,7 +58,7 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
         pkg = Package.from_purl(cls.package_manager_ref(p).locator)
         for cks in p.checksums:
             if cks.algorithm not in CHKSUM_TO_INTERNAL.keys():
-                logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")
+                logger.debug(f"ignoring unknown checksum on {pkg}")
                 continue
             pkg.checksums[CHKSUM_TO_INTERNAL[cks.algorithm]] = cks.value
         return pkg
