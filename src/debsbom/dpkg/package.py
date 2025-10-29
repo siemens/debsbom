@@ -375,6 +375,9 @@ class Package(ABC):
         """Return the filename part from the locator of a package."""
         return self.locator.split("/")[-1]
 
+    def __str__(self) -> str:
+        return f"{self.name}@{self.version}"
+
 
 @dataclass(init=False)
 class SourcePackage(Package):

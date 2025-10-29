@@ -187,3 +187,11 @@ def test_cross_arch_lookup(sbom_type):
     assert "riscv64" in ref_bar
     ref_bar = Reference.lookup(foo, bar_dep, sbom_type, refs, native_arch="amd64")
     assert ref_bar is None
+
+
+def test_package_str_repr():
+    spkg = SourcePackage("foo", "1.0")
+    assert str(spkg) == "foo@1.0"
+
+    bpkg = BinaryPackage("bar", "2.0")
+    assert str(bpkg) == "bar@2.0"
