@@ -16,7 +16,7 @@ from pathlib import Path
 import sys
 import os
 
-from ..util.checksum import ChecksumAlgo
+from ..util.checksum import best_digest
 from ..dpkg import package
 from ..dpkg.package import Package
 from ..snapshot.client import RemoteFile
@@ -113,28 +113,18 @@ class PackageDownloader:
         if pkg.is_source() and not remotefile.filename.endswith(".dsc"):
             return True
 
-        dig_exp = None
-        hl_algo = None
-        pkg_algs = pkg.checksums.keys()
-        if ChecksumAlgo.SHA256SUM in pkg_algs:
-            dig_exp = pkg.checksums[ChecksumAlgo.SHA256SUM]
-            hl_algo = "sha256"
-        elif ChecksumAlgo.SHA1SUM in pkg_algs:
-            dig_exp = pkg.checksums[ChecksumAlgo.SHA1SUM]
-            hl_algo = "sha1"
-        elif ChecksumAlgo.MD5SUM in pkg_algs:
-            dig_exp = pkg.checksums[ChecksumAlgo.MD5SUM]
-            hl_algo = "md5"
-        else:
+        try:
+            dig_algo, dig_value = best_digest(pkg.checksums)
+        except ValueError:
             logger.debug(f"No supported checksum on {pkg}")
             return True
 
         with open(file, "rb") as fd:
             logger.debug(f"compute checksum on {file.name}")
-            digest = hashlib.file_digest(fd, hl_algo).hexdigest()
-        if compare_digest(dig_exp, digest):
+            digest = hashlib.file_digest(fd, str(dig_algo)).hexdigest()
+        if compare_digest(dig_value, digest):
             return True
-        logger.error(f"Checksums mismatch on '{file.name}': {dig_exp} != {digest}")
+        logger.error(f"Checksums mismatch on '{file.name}': {dig_value} != {digest}")
         return False
 
     def download(self, progress_cb=None) -> Iterable[DownloadResult]:
