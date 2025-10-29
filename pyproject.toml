@@ -39,6 +39,7 @@ dev = [
   "pytest-cov>=6",
   "black",
   "beartype>=0.20",
+  "jsonschema>=3.2",
   "debsbom[download]",
   "debsbom[doc]",
 ]
