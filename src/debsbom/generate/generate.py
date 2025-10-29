@@ -40,13 +40,13 @@ class Debsbom:
         distro_name: str,
         sbom_types: set[SBOMType] | list[SBOMType] = [SBOMType.SPDX],
         root: str | Path = "/",
-        distro_supplier: str = None,
-        distro_version: str = None,
+        distro_supplier: str | None = None,
+        distro_version: str | None = None,
         distro_arch: str | None = None,
         base_distro_vendor: str = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
-        cdx_serialnumber: UUID = None,
-        timestamp: datetime = None,
+        cdx_serialnumber: UUID | None = None,
+        timestamp: datetime | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)

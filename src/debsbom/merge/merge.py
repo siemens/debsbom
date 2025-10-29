@@ -28,7 +28,7 @@ class SbomMerger:
         distro_version: str | None = None,
         base_distro_vendor: str | None = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
-        cdx_serialnumber: UUID = None,
+        cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
     ):
         self.distro_name = distro_name
