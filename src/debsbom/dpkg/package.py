@@ -127,6 +127,11 @@ def filter_binaries(pkgs: Iterable["Package"]) -> Iterable["BinaryPackage"]:
     return filter(lambda p: p.is_binary(), pkgs)
 
 
+def filter_installed(pkgs: Iterable["BinaryPackage"]) -> Iterable["BinaryPackage"]:
+    """Free function to only return installed binary packages."""
+    return filter(lambda p: p.status in (DpkgStatus.INSTALLED, DpkgStatus.DEBSBOM_UNKNOWN), pkgs)
+
+
 @dataclass
 class Dependency:
     """Representation of a dependency for a package."""
@@ -176,7 +181,7 @@ class Package(ABC):
         """
         logger.info(f"Parsing status file '{status_file}'...")
         deb822_stream = open(status_file, "r")
-        pkgs_it = cls.inject_src_packages(cls._parse_dpkg_status(deb822_stream))
+        pkgs_it = cls.inject_src_packages(filter_installed(cls._parse_dpkg_status(deb822_stream)))
         return PkgListStream(deb822_stream, PkgListType.STATUS_FILE, pkgs_it)
 
     @classmethod
