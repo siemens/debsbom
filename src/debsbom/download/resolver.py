@@ -10,6 +10,7 @@ import json
 import logging
 from pathlib import Path
 
+from ..util.checksum import ChecksumAlgo
 from ..dpkg import package
 from ..snapshot.client import RemoteFile
 from .dscfilter import RemoteDscFile
@@ -188,7 +189,7 @@ class UpstreamResolver:
         we find the one with a matching checksum. Then use the .dsc file to locate all other
         referenced artifacts.
         """
-        if not srcpkg.checksums.get(package.ChecksumAlgo.SHA256SUM):
+        if not srcpkg.checksums.get(ChecksumAlgo.SHA256SUM):
             # a source package should be uniquely identifiable by just its name + version,
             # so we do not want to emit a warning here;
             # see https://lists.debian.org/debian-devel/2025/10/msg00236.html
