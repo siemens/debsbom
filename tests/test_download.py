@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import io
+import json
 from pathlib import Path
+import jsonschema
 
 import pytest
 from debsbom.download import (
@@ -11,7 +13,7 @@ from debsbom.download import (
     PersistentResolverCache,
     UpstreamResolver,
 )
-from debsbom.download.download import DownloadStatus
+from debsbom.download.download import DownloadResult, DownloadStatus
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom.dpkg.package import (
     BinaryPackage,
@@ -252,3 +254,40 @@ def test_srcpkg_with_checksum(sdl):
     files = list(rs.resolve(sratom))
     assert len(files) == 4
     assert files[0].archive_name == "debian-ports"
+
+
+@pytest.fixture(scope="session")
+def dlschema():
+    schemapath = Path(__file__).parent / "../src/debsbom/schema/schema-download.json"
+    with open(schemapath) as f:
+        schema = json.load(f)
+    return schema
+
+
+@pytest.mark.parametrize(
+    "dlresult",
+    [
+        DownloadResult(
+            Path("/tmp/foo.tar"), DownloadStatus.OK, SourcePackage("foo", "1.0"), "foo.tar"
+        ),
+        DownloadResult(None, DownloadStatus.NOT_FOUND, SourcePackage("foo", "1.0"), "bar.tar"),
+        DownloadResult(
+            None, DownloadStatus.CHECKSUM_MISMATCH, BinaryPackage("bar", "1.0"), "bar.tar"
+        ),
+    ],
+)
+def test_download_result_format(dlschema, dlresult):
+    data = json.loads(dlresult.json())
+    if data["status"] == DownloadStatus.OK:
+        assert data["status"] == "ok"
+
+    jsonschema.validate(data, schema=dlschema)
+
+
+def test_download_result_invalid(dlschema):
+    data = {
+        "status": "unknown",
+        "package": {"name": "foo", "version": "1.0"},
+    }
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(data, schema=dlschema)
