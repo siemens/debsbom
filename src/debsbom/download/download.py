@@ -41,13 +41,12 @@ class DownloadResult:
     path: Path | None
     status: DownloadStatus
     package: Package | None
-    filename: str
+    filename: str | None
 
     def json(self) -> str:
-        result = {
-            "status": str(self.status),
-            "filename": self.filename,
-        }
+        result = {"status": str(self.status)}
+        if self.filename:
+            result["filename"] = self.filename
         if self.path:
             result["path"] = str(self.path.absolute())
         if self.package:
