@@ -66,7 +66,7 @@ class StandardBomPacker(Packer):
 
     @staticmethod
     def _warn_missing_package(pkg: Package):
-        logger.warning(f"Package {pkg.name}@{pkg.version} not found")
+        logger.warning(f"Package {pkg} not found")
 
     def _path_to_local_uri(self, p: Path) -> str:
         prel = p.relative_to(self.outdir)

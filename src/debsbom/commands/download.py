@@ -48,7 +48,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         all source packages should have a .dsc file. Warn if it is missing
         """
         if p.is_source() and not any(f.filename == p.dscfile() for f in files):
-            logger.warning(f"no .dsc file found for {p.name}@{p.version}")
+            logger.warning(f"no .dsc file found for {p}")
 
     @staticmethod
     def _filter_pkg(p: package.Package, sources: bool, binaries: bool) -> bool:
@@ -85,7 +85,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
-                logger.warning(f"not found upstream: {pkg.name}@{pkg.version}")
+                logger.warning(f"not found upstream: {pkg}")
                 if args.json:
                     print(
                         DownloadResult(

@@ -36,11 +36,11 @@ class SourceMergeCmd(SbomInput, PkgStreamInput):
         logger.info("Merging...")
         for idx, pkg in enumerate(pkgs):
             if args.progress:
-                progress_cb(idx, len(pkgs), f"{pkg.name}@{pkg.version}")
+                progress_cb(idx, len(pkgs), f"{pkg}")
             try:
                 merger.merge(pkg, apply_patches=args.apply_patches)
             except DscFileNotFoundError:
-                logger.warning(f"dsc file not found: {pkg.name}@{pkg.version}")
+                logger.warning(f"dsc file not found: {pkg}")
 
     @classmethod
     def setup_parser(cls, parser):

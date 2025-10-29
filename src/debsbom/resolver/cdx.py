@@ -51,7 +51,7 @@ class CdxPackageResolver(PackageResolver, CDXType):
         pkg = Package.from_purl(str(c.purl))
         for cks in c.hashes:
             if cks.alg not in CHKSUM_TO_INTERNAL.keys():
-                logger.debug(f"ignoring unknown checksum on {pkg.name}@{pkg.version}")
+                logger.debug(f"ignoring unknown checksum on {pkg}")
                 continue
             pkg.checksums[CHKSUM_TO_INTERNAL[cks.alg]] = cks.content
         return pkg
