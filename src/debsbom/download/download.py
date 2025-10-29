@@ -44,6 +44,8 @@ class DownloadResult:
     filename: str | None
 
     def json(self) -> str:
+        if not self.filename and not self.package:
+            raise ValueError("No filename or package info provided")
         result = {"status": str(self.status)}
         if self.filename:
             result["filename"] = self.filename

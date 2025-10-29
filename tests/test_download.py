@@ -283,10 +283,16 @@ def test_download_result_format(dlschema, dlresult):
     jsonschema.validate(data, schema=dlschema)
 
 
-def test_download_result_invalid(dlschema):
-    data = {
-        "status": "unknown",
-        "package": {"name": "foo", "version": "1.0"},
-    }
+@pytest.mark.parametrize(
+    "dloutput",
+    [
+        {
+            "status": "unknown",
+            "package": {"name": "foo", "version": "1.0"},
+        },
+        {"status": "ok"},
+    ],
+)
+def test_download_result_invalid(dlschema, dloutput):
     with pytest.raises(jsonschema.ValidationError):
-        jsonschema.validate(data, schema=dlschema)
+        jsonschema.validate(dloutput, schema=dlschema)

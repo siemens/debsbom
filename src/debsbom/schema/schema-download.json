@@ -30,12 +30,20 @@
     },
     "filename": {
       "type": "string",
-      "description": "The name of the processed file or an empty string if the package is unavailable."
+      "description": "The name of the processed file on success."
     },
     "path": {
       "type": "string",
       "description": "The absolute path to the downloaded file on success."
     }
   },
-  "required": ["status"]
+  "required": ["status"],
+  "anyOf": [
+    {
+      "required": ["filename"]
+    },
+    {
+      "required": ["package"]
+    }
+  ]
 }
