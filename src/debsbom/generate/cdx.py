@@ -156,11 +156,7 @@ def cyclonedx_bom(
     data = SortedSet([])
     dependencies = SortedSet([])
 
-    binary_packages = [
-        p
-        for p in filter_binaries(packages)
-        if p.status in (DpkgStatus.INSTALLED, DpkgStatus.DEBSBOM_UNKNOWN)
-    ]
+    binary_packages = list(filter_binaries(packages))
 
     # progress tracking
     num_steps = len(packages) + len(binary_packages)
