@@ -23,9 +23,9 @@ from debsbom.sbom import BOM_Standard
 def sbom_generator():
     def setup_sbom_generator(
         test_root: Path,
-        uuid: UUID = None,
+        uuid: UUID | None = None,
         timestamp: datetime | None = None,
-        sbom_types: [SBOMType] = [SBOMType.SPDX, SBOMType.CycloneDX],
+        sbom_types: list[SBOMType] = [SBOMType.SPDX, SBOMType.CycloneDX],
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
