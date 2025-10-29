@@ -316,3 +316,21 @@ def test_pkglist_apt_cache(tmpdir, sbom_generator):
     assert binutils_bpf["versionInfo"] == "2.40-2+1-custom"
     # make sure we have no additional information
     assert binutils_bpf["supplier"] == "NOASSERTION"
+
+
+def test_residual_config_packages(tmpdir, sbom_generator):
+    dbom = sbom_generator("tests/root/apt-sources")
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+        assert "openssh-server" not in [p["name"] for p in packages]
+        # source package for openssh-server
+        assert "openssh" not in [p["name"] for p in packages]
+    with open(outdir / "sbom.cdx.json") as file:
+        spdx_json = json.loads(file.read())
+        components = spdx_json["components"]
+        assert "openssh-server" not in [c["name"] for c in components]
+        # source package for openssh-server
+        assert "openssh" not in [c["name"] for c in components]
