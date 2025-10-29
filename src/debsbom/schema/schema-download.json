@@ -33,5 +33,5 @@
       "description": "The absolute path to the downloaded file on success."
     }
   },
-  "required": ["status", "package"]
+  "required": ["status"]
 }

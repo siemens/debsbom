@@ -46,14 +46,12 @@ class DownloadResult:
     def json(self) -> str:
         result = {
             "status": str(self.status),
-            "package": {
-                "name": self.package.name if self.package else "",
-                "version": str(self.package.version) if self.package else "",
-            },
             "filename": self.filename,
         }
         if self.path:
             result["path"] = str(self.path.absolute())
+        if self.package:
+            result["package"] = {"name": self.package.name, "version": str(self.package.version)}
         return json.dumps(result)
 
 
