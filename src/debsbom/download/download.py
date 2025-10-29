@@ -40,15 +40,15 @@ class DownloadStatus(str, Enum):
 class DownloadResult:
     path: Path | None
     status: DownloadStatus
-    package: Package | None
+    package: Package
     filename: str
 
     def json(self) -> str:
         result = {
             "status": str(self.status),
             "package": {
-                "name": self.package.name if self.package else "",
-                "version": str(self.package.version) if self.package else "",
+                "name": self.package.name,
+                "version": str(self.package.version),
             },
             "filename": self.filename,
         }
@@ -85,7 +85,7 @@ class PackageDownloader:
         else:
             return Path(self.binaries_dir / f.archive_name / f.filename)
 
-    def register(self, files: list[RemoteFile], package: package.Package | None = None) -> None:
+    def register(self, files: list[RemoteFile], package: package.Package) -> None:
         """Register a list of files corresponding to a package for download."""
         self.to_download.extend([(package, f) for f in files])
 
