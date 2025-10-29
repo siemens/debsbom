@@ -49,6 +49,7 @@ class DownloadResult:
             "package": {
                 "name": self.package.name,
                 "version": str(self.package.version),
+                "purl": str(self.package.purl()),
             },
             "filename": self.filename,
         }
