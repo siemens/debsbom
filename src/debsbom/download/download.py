@@ -16,8 +16,9 @@ from pathlib import Path
 import sys
 import os
 
+from ..util.checksum import ChecksumAlgo
 from ..dpkg import package
-from ..dpkg.package import ChecksumAlgo, Package
+from ..dpkg.package import Package
 from ..snapshot.client import RemoteFile
 
 import requests

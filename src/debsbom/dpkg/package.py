@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from collections.abc import Iterable
-from enum import Enum, IntEnum
+from enum import Enum
 import io
 import itertools
 from pathlib import Path
@@ -16,28 +16,13 @@ import logging
 import re
 from packageurl import PackageURL
 
+from ..util.checksum import ChecksumAlgo
 from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
 
 # Debian policy 5.6.13, item 1
 DESC_REGEX_P1 = re.compile(r"^\s(\w.*)$")
-
-
-class ChecksumAlgo(IntEnum):
-    MD5SUM = 1
-    SHA1SUM = 2
-    SHA256SUM = 3
-
-    @classmethod
-    def to_hashlib(cls, algo):
-        if algo == cls.MD5SUM:
-            return "md5"
-        if algo == cls.SHA1SUM:
-            return "sha1"
-        if algo == cls.SHA256SUM:
-            return "sha256"
-        raise NotImplementedError()
 
 
 class DpkgStatus(Enum):
