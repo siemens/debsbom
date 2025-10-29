@@ -20,9 +20,13 @@
         "version": {
           "type": "string",
           "description": "The version of the package."
+        },
+        "purl": {
+          "type": "string",
+          "description": "The package url of the package."
         }
       },
-      "required": ["name", "version"]
+      "required": ["name", "version", "purl"]
     },
     "filename": {
       "type": "string",

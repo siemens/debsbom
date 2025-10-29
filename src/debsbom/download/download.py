@@ -51,7 +51,11 @@ class DownloadResult:
         if self.path:
             result["path"] = str(self.path.absolute())
         if self.package:
-            result["package"] = {"name": self.package.name, "version": str(self.package.version)}
+            result["package"] = {
+                "name": self.package.name,
+                "version": str(self.package.version),
+                "purl": str(self.package.purl()),
+            }
         return json.dumps(result)
 
 
