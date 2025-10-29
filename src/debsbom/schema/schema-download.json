@@ -30,7 +30,7 @@
     },
     "path": {
       "type": "string",
-      "description": "The absolute path to the downloaded file or an empty string if nothing could be downloaded."
+      "description": "The absolute path to the downloaded file on success."
     }
   },
   "required": ["status", "package"]
