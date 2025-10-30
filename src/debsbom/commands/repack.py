@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 from ..bomwriter import BomWriter
-from .input import SbomInput
+from .input import SbomInput, RepackInput
 from ..generate.generate import Debsbom
 from ..repack.packer import BomTransformer, Packer
 from ..resolver.resolver import PackageStreamResolver
@@ -17,7 +17,7 @@ from ..util.compression import Compression
 logger = logging.getLogger(__name__)
 
 
-class RepackCmd(SbomInput):
+class RepackCmd(SbomInput, RepackInput):
     """
     Repacks the downloaded files into a uniform source archive, merging the
     referenced source packages into a single archive and optionally applying
@@ -67,6 +67,7 @@ class RepackCmd(SbomInput):
     @classmethod
     def setup_parser(cls, parser):
         cls.parser_add_sbom_input_args(parser, required=True)
+        cls.parser_add_repack_input_args(parser)
         parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
         parser.add_argument(
             "--dldir", default="downloads", help="download directory from 'download'"
@@ -75,17 +76,6 @@ class RepackCmd(SbomInput):
             "--outdir", default="packed", help="directory to repack into (default: %(default)s)"
         )
         parser.add_argument("--format", default="standard-bom", choices=["standard-bom"])
-        parser.add_argument(
-            "--compress",
-            help="compress merged tarballs (default: gzip)",
-            choices=["no"] + [c.tool for c in Compression.formats()],
-            default="gzip",
-        )
-        parser.add_argument(
-            "--apply-patches",
-            help="apply debian patches",
-            action="store_true",
-        )
         parser.add_argument(
             "--copy",
             help="copy artifacts into deploy tree instead of symlinking",

@@ -5,7 +5,7 @@
 import logging
 from pathlib import Path
 
-from .input import PkgStreamInput, SbomInput
+from .input import PkgStreamInput, SbomInput, RepackInput
 from ..dpkg import package
 from ..repack.merger import DscFileNotFoundError, SourceArchiveMerger
 from ..util.compression import Compression
@@ -15,7 +15,7 @@ from ..util.progress import progress_cb
 logger = logging.getLogger(__name__)
 
 
-class SourceMergeCmd(SbomInput, PkgStreamInput):
+class SourceMergeCmd(SbomInput, PkgStreamInput, RepackInput):
     """
     Processes an SBOM and merges the .orig and .debian tarballs. The tarballs have to be
     downloaded first.
@@ -45,20 +45,10 @@ class SourceMergeCmd(SbomInput, PkgStreamInput):
     @classmethod
     def setup_parser(cls, parser):
         cls.parser_add_sbom_input_args(parser)
+        cls.parser_add_repack_input_args(parser)
         parser.add_argument(
             "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
         )
         parser.add_argument(
             "--outdir", default="downloads/sources", help="directory to store the merged files"
-        )
-        parser.add_argument(
-            "--compress",
-            help="compress merged tarballs (default: gzip)",
-            choices=["no"] + [c.tool for c in Compression.formats()],
-            default="gzip",
-        )
-        parser.add_argument(
-            "--apply-patches",
-            help="apply debian patches",
-            action="store_true",
         )
