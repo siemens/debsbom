@@ -35,10 +35,9 @@ def dldir(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def some_packages(dldir):
-    rs = requests.session()
-    sdl = sdlclient.SnapshotDataLake(session=rs)
-    dl = PackageDownloader(dldir, rs)
+def some_packages(dldir, http_session):
+    sdl = sdlclient.SnapshotDataLake(session=http_session)
+    dl = PackageDownloader(dldir, http_session)
 
     packages = [
         # .orig.tar and .debian.tar
