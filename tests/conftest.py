@@ -22,7 +22,7 @@ bt_conf = BeartypeConf(
 beartype_package("debsbom", conf=bt_conf)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def http_session():
     with requests.Session() as rs:
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}+test"})
