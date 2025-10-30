@@ -24,9 +24,9 @@ beartype_package("debsbom", conf=bt_conf)
 
 @pytest.fixture(scope="module")
 def http_session():
-    rs = requests.Session()
-    rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}+test"})
-    return rs
+    with requests.Session() as rs:
+        rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}+test"})
+        yield rs
 
 
 @pytest.fixture(scope="module")
