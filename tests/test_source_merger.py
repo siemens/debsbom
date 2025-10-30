@@ -55,7 +55,7 @@ def some_packages(dldir, http_session):
     return packages
 
 
-@pytest.mark.parametrize("compress", [None, "bzip2", "gzip", "xz", "zstd"])
+@pytest.mark.parametrize("compress", [None, "bzip2", "gzip", "xz", "zstd", "lz4"])
 @pytest.mark.online
 def test_merger(tmpdir, some_packages, dldir, compress):
     outdir = Path(tmpdir / "merged")
