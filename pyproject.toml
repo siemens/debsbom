@@ -39,6 +39,7 @@ dev = [
   "pytest-cov>=6",
   "black",
   "beartype>=0.20",
+  "lz4",
   "debsbom[download]",
   "debsbom[doc]",
 ]
