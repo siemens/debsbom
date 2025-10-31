@@ -9,6 +9,8 @@ import sys
 from urllib.parse import urlparse
 from uuid import UUID
 
+from debsbom.util.compression import Compression
+
 from ..resolver.resolver import PackageResolver, PackageStreamResolver
 from ..sbom import SBOMType
 
@@ -140,4 +142,30 @@ class GenerateInput:
             "--validate",
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
+        )
+
+
+class RepackInput:
+    """
+    Mixin for SBOM repacking commands.
+    """
+
+    @classmethod
+    def parser_add_repack_input_args(cls, parser):
+        parser.add_argument(
+            "--compress",
+            help="compress merged tarballs (default: gzip)",
+            choices=["no"] + [c.tool for c in Compression.formats()],
+            default="gzip",
+        )
+        parser.add_argument(
+            "--apply-patches",
+            help="apply debian patches",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--mtime",
+            type=datetime.fromisoformat,
+            help="set mtime for creating tar archives in ISO 8601 format. If this option is not set,"
+            " the timestamp from the most recent changelog entry is used for reproducible builds.",
         )

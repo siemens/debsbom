@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datetime import datetime
+from email.utils import parsedate_to_datetime
 import hashlib
 import logging
 from pathlib import Path
@@ -10,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 from debian import deb822
+from debian.changelog import Changelog
 
 from ..dpkg import package
 from ..util import Compression
@@ -23,6 +26,12 @@ class CorruptedFileError(RuntimeError):
 
 
 class DscFileNotFoundError(FileNotFoundError):
+    pass
+
+
+class ChangelogTimestampError(Exception):
+    """Raised when mtime cannot be extracted from the changelog for reproducible builds."""
+
     pass
 
 
@@ -40,6 +49,7 @@ class SourceArchiveMerger:
     ):
         self.dldir = dldir
         self.outdir = outdir or dldir
+        self.outdir.mkdir(exist_ok=True, parents=False)
         self.compress = compress
         self.dpkg_source = shutil.which("dpkg-source")
         if not self.dpkg_source:
@@ -78,7 +88,38 @@ class SourceArchiveMerger:
                 return cand
         return None
 
-    def merge(self, p: package.SourcePackage, apply_patches: bool = False) -> Path:
+    @staticmethod
+    def extract_timestamp(path: Path) -> datetime | None:
+        changelog_path = None
+        for d in path.iterdir():
+            if not d.is_dir():
+                continue
+            cand = d / "debian" / "changelog"
+            if cand.is_file():
+                changelog_path = cand
+                break
+        if not changelog_path:
+            raise ChangelogTimestampError(f"No changelog file found for package")
+        # Open and parse the changelog
+        try:
+            with open(changelog_path) as changelog_file:
+                changelog = Changelog(changelog_file, max_blocks=1)
+        except Exception as e:
+            raise ChangelogTimestampError(f"Error processing changelog for package")
+        if not changelog or not changelog.date:
+            raise ChangelogTimestampError(
+                f"Could not extract a valid date from changelog for package'"
+            )
+        try:
+            return parsedate_to_datetime(changelog.date)
+        except ValueError as e:
+            raise ChangelogTimestampError(
+                f"Could not parse changelog date '{changelog.date}' for package"
+            )
+
+    def merge(
+        self, p: package.SourcePackage, apply_patches: bool = False, mtime: datetime | None = None
+    ) -> Path:
         """
         The provided package will also be updated with information from the .dsc file.
         """
@@ -86,7 +127,9 @@ class SourceArchiveMerger:
         dsc = self.locate_artifact(p, self.dldir)
         if not dsc:
             raise DscFileNotFoundError(p.dscfile())
-        merged = dsc.with_suffix(suffix)
+        dir = self.outdir / dsc.parent.name
+        dir.mkdir(exist_ok=True)
+        merged = dir / dsc.with_suffix(suffix).name
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
 
@@ -125,9 +168,29 @@ class SourceArchiveMerger:
             # repack archive
             sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]
             tmpfile = merged.with_suffix(f"{merged.suffix}.tmp")
+
+            if not mtime:
+                # get timestamp from changelog for reproducible builds
+                try:
+                    mtime = SourceArchiveMerger.extract_timestamp(Path(tmpdir))
+                except ChangelogTimestampError as e:
+                    raise ValueError(
+                        f"Please use the '--mtime' option to specify a timestamp. {e} {p}",
+                    ) from e
+
+            # options to build tar reproducible
+            repro_tar_opts = [
+                "--force-local",
+                "--format=gnu",
+                "--sort=name",
+                "--owner=0",
+                "--group=0",
+                "--numeric-owner",
+                f"--mtime={mtime}" if mtime else None,
+            ]
             with open(tmpfile, "wb") as outfile:
                 tar_writer = subprocess.Popen(
-                    ["tar", "c"] + sorted(sources),
+                    ["tar", "c"] + repro_tar_opts + sorted(sources),
                     stdout=subprocess.PIPE,
                     cwd=tmpdir,
                 )
