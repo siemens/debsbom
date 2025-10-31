@@ -41,20 +41,23 @@ class DownloadResult:
     path: Path | None
     status: DownloadStatus
     package: Package | None
-    filename: str
+    filename: str | None
 
     def json(self) -> str:
-        return json.dumps(
-            {
-                "status": str(self.status),
-                "package": {
-                    "name": self.package.name if self.package else "",
-                    "version": str(self.package.version) if self.package else "",
-                },
-                "filename": self.filename,
-                "path": str(self.path.absolute()) if self.path else "",
+        if not self.filename and not self.package:
+            raise ValueError("No filename or package info provided")
+        result = {"status": str(self.status)}
+        if self.filename:
+            result["filename"] = self.filename
+        if self.path:
+            result["path"] = str(self.path.absolute())
+        if self.package:
+            result["package"] = {
+                "name": self.package.name,
+                "version": str(self.package.version),
+                "purl": str(self.package.purl()),
             }
-        )
+        return json.dumps(result)
 
 
 class PackageDownloader:
