@@ -50,10 +50,8 @@ def some_packages(dldir):
         # debian dir via compressed .diff
         dpkg.SourcePackage("pcre2", "10.45-1"),
     ]
-    srcfiles = []
     for p in packages:
-        srcfiles.extend(list(sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()))
-    dl.register(srcfiles)
+        dl.register(list(sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()), p)
     list(dl.download())
     return packages
 
