@@ -6,24 +6,18 @@ from collections.abc import Iterable
 import logging
 import spdx_tools.spdx.model.document as spdx_document
 import spdx_tools.spdx.model.package as spdx_package
-from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
+from spdx_tools.spdx.model.checksum import Checksum
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 from ..generate.spdx import spdx_package_repr
 from ..resolver.spdx import SpdxPackageResolver
 from ..sbom import SPDX_REFERENCE_TYPE_DISTRIBUTION, SPDXType, SPDX_REFERENCE_TYPE_PURL
 from .packer import BomTransformer
-from ..dpkg.package import ChecksumAlgo, Package
+from ..dpkg.package import Package
+from ..util.checksum_spdx import checksum_to_spdx
 
 
 logger = logging.getLogger(__name__)
-
-
-CHKSUM_TO_SPDX = {
-    ChecksumAlgo.MD5SUM: ChecksumAlgorithm.MD5,
-    ChecksumAlgo.SHA1SUM: ChecksumAlgorithm.SHA1,
-    ChecksumAlgo.SHA256SUM: ChecksumAlgorithm.SHA256,
-}
 
 
 class StandardBomTransformerSPDX(BomTransformer, SPDXType):
@@ -73,6 +67,6 @@ class StandardBomTransformerSPDX(BomTransformer, SPDXType):
                 )
             )
             spdx_pkg.checksums = [
-                Checksum(CHKSUM_TO_SPDX[alg], dig) for alg, dig in p.checksums.items()
+                Checksum(checksum_to_spdx(alg), dig) for alg, dig in p.checksums.items()
             ]
         return self.document

@@ -2,24 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-from ..dpkg.package import ChecksumAlgo, Package
+from ..dpkg.package import Package
+from ..util.checksum_spdx import checksum_from_spdx, ChecksumNotSupportedError
 from ..sbom import SPDXType
 from .resolver import PackageResolver
 
 import logging
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.document as spdx_document
-from spdx_tools.spdx.model.checksum import ChecksumAlgorithm
 
 
 logger = logging.getLogger(__name__)
-
-
-CHKSUM_TO_INTERNAL = {
-    ChecksumAlgorithm.MD5: ChecksumAlgo.MD5SUM,
-    ChecksumAlgorithm.SHA1: ChecksumAlgo.SHA1SUM,
-    ChecksumAlgorithm.SHA256: ChecksumAlgo.SHA256SUM,
-}
 
 
 class SpdxPackageResolver(PackageResolver, SPDXType):
@@ -57,8 +50,8 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
     def create_package(cls, p: spdx_package.Package) -> Package:
         pkg = Package.from_purl(cls.package_manager_ref(p).locator)
         for cks in p.checksums:
-            if cks.algorithm not in CHKSUM_TO_INTERNAL.keys():
+            try:
+                pkg.checksums[checksum_from_spdx(cks.algorithm)] = cks.value
+            except ChecksumNotSupportedError:
                 logger.debug(f"ignoring unknown checksum on {pkg}")
-                continue
-            pkg.checksums[CHKSUM_TO_INTERNAL[cks.algorithm]] = cks.value
         return pkg

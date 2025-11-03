@@ -11,11 +11,12 @@ import spdx_tools.spdx.model.document as spdx_document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.relationship as spdx_relationship
-from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
+from spdx_tools.spdx.model.checksum import Checksum
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
-from ..dpkg.package import Package, ChecksumAlgo, DpkgStatus, filter_binaries
+from ..dpkg.package import Package, DpkgStatus, filter_binaries
+from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
     Reference,
     SPDX_REF_PREFIX,
@@ -25,12 +26,6 @@ from ..sbom import (
     SPDX_SUPPLIER_ORG_CUE,
     SBOMType,
 )
-
-CHKSUM_TO_SPDX = {
-    ChecksumAlgo.MD5SUM: ChecksumAlgorithm.MD5,
-    ChecksumAlgo.SHA1SUM: ChecksumAlgorithm.SHA1,
-    ChecksumAlgo.SHA256SUM: ChecksumAlgorithm.SHA256,
-}
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +134,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             ],
             primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
             checksums=[
-                Checksum(CHKSUM_TO_SPDX[alg], dig) for alg, dig in package.checksums.items()
+                Checksum(checksum_to_spdx(alg), dig) for alg, dig in package.checksums.items()
             ],
         )
         if package.description and "\n" in package.description:
@@ -171,7 +166,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
                 )
             ],
             checksums=[
-                Checksum(CHKSUM_TO_SPDX[alg], dig) for alg, dig in package.checksums.items()
+                Checksum(checksum_to_spdx(alg), dig) for alg, dig in package.checksums.items()
             ],
             primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
         )

@@ -3,24 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 from typing import IO
-from ..dpkg.package import ChecksumAlgo, Package
+from ..dpkg.package import Package
+from ..util.checksum_cdx import checksum_from_cdx, ChecksumNotSupportedError
 from ..sbom import CDXType
 from .resolver import PackageResolver
 
 import logging
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component
-from cyclonedx.model import HashAlgorithm as cdx_hashalgo
 
 
 logger = logging.getLogger(__name__)
-
-
-CHKSUM_TO_INTERNAL = {
-    cdx_hashalgo.MD5: ChecksumAlgo.MD5SUM,
-    cdx_hashalgo.SHA_1: ChecksumAlgo.SHA1SUM,
-    cdx_hashalgo.SHA_256: ChecksumAlgo.SHA256SUM,
-}
 
 
 class CdxPackageResolver(PackageResolver, CDXType):
@@ -50,8 +43,8 @@ class CdxPackageResolver(PackageResolver, CDXType):
     def create_package(cls, c: Component) -> Package:
         pkg = Package.from_purl(str(c.purl))
         for cks in c.hashes:
-            if cks.alg not in CHKSUM_TO_INTERNAL.keys():
+            try:
+                pkg.checksums[checksum_from_cdx(cks.alg)] = cks.content
+            except ChecksumNotSupportedError:
                 logger.debug(f"ignoring unknown checksum on {pkg}")
-                continue
-            pkg.checksums[CHKSUM_TO_INTERNAL[cks.alg]] = cks.content
         return pkg
