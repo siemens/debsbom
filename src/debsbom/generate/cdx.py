@@ -19,15 +19,9 @@ from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
 from collections.abc import Callable
 
-from ..dpkg.package import ChecksumAlgo, Package, DpkgStatus, filter_binaries
+from ..util.checksum_cdx import checksum_to_cdx
+from ..dpkg.package import Package, DpkgStatus, filter_binaries
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
-
-
-CHKSUM_TO_CDX = {
-    ChecksumAlgo.MD5SUM: cdx_hashalgo.MD5,
-    ChecksumAlgo.SHA1SUM: cdx_hashalgo.SHA_1,
-    ChecksumAlgo.SHA256SUM: cdx_hashalgo.SHA_256,
-}
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +60,7 @@ def cdx_package_repr(
         purl=package.purl(vendor),
         group="debian",
         hashes=[
-            cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
+            cdx_hashtype(alg=checksum_to_cdx(alg), content=dig)
             for alg, dig in package.checksums.items()
         ],
     )

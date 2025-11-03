@@ -6,20 +6,13 @@ from collections.abc import Iterable
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.component as cdx_component
 import cyclonedx.model as cdx_model
-from cyclonedx.model import HashAlgorithm as cdx_hashalgo
 from cyclonedx.model import HashType as cdx_hashtype
 
 from ..generate.cdx import cdx_package_repr
 from ..sbom import CDXType
 from .packer import BomTransformer
-from ..dpkg.package import ChecksumAlgo, Package
-
-
-CHKSUM_TO_CDX = {
-    ChecksumAlgo.MD5SUM: cdx_hashalgo.MD5,
-    ChecksumAlgo.SHA1SUM: cdx_hashalgo.SHA_1,
-    ChecksumAlgo.SHA256SUM: cdx_hashalgo.SHA_256,
-}
+from ..dpkg.package import Package
+from ..util.checksum_cdx import checksum_to_cdx
 
 
 class StandardBomTransformerCDX(BomTransformer, CDXType):
@@ -64,7 +57,7 @@ class StandardBomTransformerCDX(BomTransformer, CDXType):
                     type=cdx_model.ExternalReferenceType.DISTRIBUTION,
                     comment="source archive (local copy)",
                     hashes=[
-                        cdx_hashtype(alg=CHKSUM_TO_CDX[alg], content=dig)
+                        cdx_hashtype(alg=checksum_to_cdx(alg), content=dig)
                         for alg, dig in p.checksums.items()
                     ],
                 ),
