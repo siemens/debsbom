@@ -72,7 +72,8 @@ def test_download(tmpdir, http_session):
         downloadurl="https://snapshot.debian.org/file/1f3a43c181b81e3578d609dc0931ff147623eb38/pytest_8.4.2-1.dsc",
         architecture=None,
     )
-    dl.register([test_file])
+    pkg = BinaryPackage("foo", "1.0")
+    dl.register([test_file], pkg)
     assert dl.stat() == (1, 2757, 0, 0)
     mock_cb = mock.Mock()
     downloaded = list(dl.download(mock_cb))
@@ -85,7 +86,7 @@ def test_download(tmpdir, http_session):
     assert downloaded[0].status == DownloadStatus.OK
 
     # now download again (which should not actually download)
-    dl.register([test_file])
+    dl.register([test_file], pkg)
     downloaded = list(dl.download(None))
     assert int(downloaded[0].path.stat().st_mtime_ns) == int(stat_orig.st_mtime_ns)
     assert downloaded[0].status == DownloadStatus.OK
@@ -93,7 +94,7 @@ def test_download(tmpdir, http_session):
     # tamper the checksum of the downloaded file. Must result in re-download
     with open(downloaded[0].path, "w+") as f:
         f.write("append")
-    dl.register([test_file])
+    dl.register([test_file], pkg)
     downloaded = list(dl.download(None))
     assert int(downloaded[0].path.stat().st_mtime_ns) != int(stat_orig.st_mtime_ns)
     assert downloaded[0].status == DownloadStatus.OK
@@ -198,7 +199,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
         # download a single package
         dl = PackageDownloader(dl_dir, session=http_session)
         for p in filter_sources(pkgs):
-            dl.register(urs.resolve(p))
+            dl.register(urs.resolve(p), p)
         files = list(dl.download())
         assert len(files) == 3
 
