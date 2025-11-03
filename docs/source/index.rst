@@ -6,6 +6,7 @@ debsbom documentation
 
    intro
    starting
+   design-decisions
    commands
    examples
    api
