@@ -41,13 +41,13 @@ def some_packages(dldir, http_session):
 
     packages = [
         # .orig.tar and .debian.tar
-        dpkg.SourcePackage("sed", "4.9-2"),
+        dpkg.SourcePackage("libnet-smtp-ssl-perl", "1.04-2"),
         # .orig.tar and .debian.tar with epoch
-        dpkg.SourcePackage("shadow", "1:4.17.4-2"),
+        dpkg.SourcePackage("libcap2", "1:2.75-10"),
         # debian dir in sources
         dpkg.SourcePackage("dgit", "13.13"),
         # debian dir via compressed .diff
-        dpkg.SourcePackage("pcre2", "10.45-1"),
+        dpkg.SourcePackage("libdata-validate-domain-perl", "0.10-1.1"),
     ]
     for p in packages:
         dl.register(list(sdlclient.SourcePackage(sdl, p.name, str(p.version)).srcfiles()), p)
