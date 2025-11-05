@@ -36,8 +36,8 @@ Non-Goals
 - Real-time vulnerability database integration
 - Signing and attestation of generated artifacts
 
-Package Relations
------------------
+Package Relationships
+---------------------
 
 A Debian distribution is composed of source packages and binary packages.
 Binary packages are installed into the root filesystem, while the source packages are the originals from which those binaries are built.
@@ -45,7 +45,7 @@ Binary packages are installed into the root filesystem, while the source package
 Some binary packages are installed explicitly by the user; others appear automatically as dependencies of the explicitly‑installed packages.
 The SBOM mirrors this relationship, using the ``distro-package`` entry as the single central node for traversing the package graph.
 
-Relations hierarchy::
+Relationship hierarchy::
 
     distro-package
     ├─ binary-package-foo
