@@ -185,6 +185,26 @@ And the same list of packages can be repacked:
         sbom.cdx.json \
         sbom.cdx.repacked.json
 
+Delta SBOMs
+~~~~~~~~~~~
+
+The :doc:`/commands/delta` compares a base (reference) SBOM with a target (new) SBOM and produces
+a new SBOM containing only the components present in the target. The typical use-case is identifying
+newly added or changed components between two builds or releases.
+
+Use ``debsbom delta`` when you only want to see changed or added components, e.g., to generate an
+SBOM for license clearance.
+
+.. code-block:: bash
+
+   debsbom delta sbom.old.cdx.json sbom.cdx.json extras.cdx.json
+
+You can also pass SBOMs via stdin, but you also have to pass the SBOM type in this case:
+
+.. code-block:: bash
+
+   cat sbom.old.spdx.json sbom.spdx.json | debsbom delta -t spdx - - -o -
+
 Export as Graph
 ~~~~~~~~~~~~~~~
 
