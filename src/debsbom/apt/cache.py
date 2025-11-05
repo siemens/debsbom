@@ -107,7 +107,11 @@ class Repository:
             else sources
         )
         for source in _sources:
-            yield SourcePackage.from_deb822(Dsc(source))
+            try:
+                yield SourcePackage.from_deb822(Dsc(source))
+            except KeyError as e:
+                logger.error("control file in is not valid deb822, skip entry")
+                logger.debug(e)
 
     @classmethod
     def _make_binpkgs(
@@ -126,7 +130,11 @@ class Repository:
             else packages
         )
         for pkg in _pkgs:
-            yield BinaryPackage.from_deb822(pkg)
+            try:
+                yield BinaryPackage.from_deb822(pkg)
+            except KeyError as e:
+                logger.error("control file in is not valid deb822, skip entry")
+                logger.debug(e)
 
     @classmethod
     def _parse_sources(
