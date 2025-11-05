@@ -334,3 +334,10 @@ def test_residual_config_packages(tmpdir, sbom_generator):
         assert "openssh-server" not in [c["name"] for c in components]
         # source package for openssh-server
         assert "openssh" not in [c["name"] for c in components]
+
+
+def test_illformed_sources():
+    srcfile = "tests/root/illformed-sources/source_Sources"
+    srcpkgs = list(Repository._parse_sources(srcfile))
+    assert any(filter(lambda p: p.name == "argon2", srcpkgs))
+    assert any(filter(lambda p: p.name == "at-spi2-core", srcpkgs))

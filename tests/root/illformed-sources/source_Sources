@@ -1,0 +1,94 @@
+Package: argon2
+Binary: libargon2-dev, libargon2-0, libargon2-1, argon2, libargon2-1-udeb
+Version: 0~20171227-0.3+deb12u1
+Priority: optional
+Section: misc
+Maintainer: Luca Bruno <lucab@debian.org>
+Build-Depends: debhelper (>= 9), dh-exec (>= 0.3)
+Architecture: any
+Standards-Version: 4.1.4
+Format: 3.0 (quilt)
+Directory: pool/main/a/argon2
+Files:
+ a770349b832e8731fe433a92370edf44 7268 argon2_0~20171227-0.3+deb12u1.debian.tar.xz
+ 8681e51bcc4e912425ccf26c6f8eac2c 2140 argon2_0~20171227-0.3+deb12u1.dsc
+ 7d0a85aa3fa02a5962ff751a6e2078c8 1503745 argon2_0~20171227.orig.tar.gz
+Checksums-Sha1:
+ f79deca75557f7c7ae2d43614c0b89b64be1cad8 7268 argon2_0~20171227-0.3+deb12u1.debian.tar.xz
+ e15a8182669f18a5f5dee7afebf99885e6fd44ee 2140 argon2_0~20171227-0.3+deb12u1.dsc
+ c398df55c8fffe70c9a952dd3f696115437234d8 1503745 argon2_0~20171227.orig.tar.gz
+Checksums-Sha256:
+ 7283479e5a4f3dd6294b1b74cb69e1324a62022d8e7f4b59a7de1ddbc64ed1e7 7268 argon2_0~20171227-0.3+deb12u1.debian.tar.xz
+ 64b82cae9e03543f045506391398472f5659a391d626b4ad701c845bd5cfb862 2140 argon2_0~20171227-0.3+deb12u1.dsc
+ eaea0172c1f4ee4550d1b6c9ce01aab8d1ab66b4207776aa67991eb5872fdcd8 1503745 argon2_0~20171227.orig.tar.gz
+Checksums-Sha512:
+ 2b91f473e7e4c0a415339fe16777dac44eac8db2a11c4104cc2a6662f7ea456ee702d356bc21a9cb4b86157fe4c42d5d7054675a021829691c1c26b46c4ba921 7268 argon2_0~20171227-0.3+deb12u1.debian.tar.xz
+ da04ff93080d2e5c98a265d1b4a84f3a6561da0b5c5ce167a4a90678bb8c05918168ec6057d0658071b409d5193a9de7c2887cfcfe0c04e70ef9d636ec42f6de 2140 argon2_0~20171227-0.3+deb12u1.dsc
+ 9c9e1a3905e61ac6913d1e073c104477e419ddd0506adc4487e88e98d19165ed8901fe8bb11246ed0cc71b3523c190da9692d5926642f86be09c3e67510afe4d 1503745 argon2_0~20171227.orig.tar.gz
+Extra-Source-Only: yes
+Homepage: https://github.com/P-H-C/phc-winner-argon2
+Package-List:
+
+ argon2 deb utils optional arch=any
+ libargon2-0 deb libdevel optional arch=any
+ libargon2-1 deb libs optional arch=any
+ libargon2-1-udeb udeb debian-installer optional arch=any
+ libargon2-dev deb libdevel optional arch=any
+Vcs-Browser: https://salsa.debian.org/debian/argon2
+Vcs-Git: https://salsa.debian.org/debian/argon2.git
+
+
+Package: at-spi2-core
+Binary: at-spi2-core, at-spi2-common, at-spi2-core-udeb, libatspi2.0-0, libatspi0-udeb, libatspi2.0-dev, gir1.2-atspi-2.0, at-spi2-doc, libatk-adaptor, libatk-adaptor-udeb, libatk-bridge2.0-0, libatk-bridge-2.0-0-udeb, libatk-bridge2.0-dev, libatk1.0-0, libatk1.0-udeb, libatk1.0-dev, libatk1.0-doc, gir1.2-atk-1.0
+Version: 2.56.2-1~bpo12+1
+Priority: optional
+Section: misc
+Maintainer: Debian Accessibility Team <pkg-a11y-devel@alioth-lists.debian.net>
+Build-Depends: debhelper-compat (= 13), dbus, libdbus-1-dev, dbus-broker [linux-any], libsystemd-dev [linux-any], libglib2.0-dev (>= 2.62), libxml2-dev, libx11-dev, libxtst-dev, meson (>= 0.63.0), pkgconf, libgirepository1.0-dev, gobject-introspection | dh-sequence-gir, xauth <!nocheck>, xvfb <!nocheck>, at-spi2-core <!nocheck>
+Build-Depends-Indep: docbook-xml <!nodoc>, gi-docgen, gtk-doc-tools, libglib2.0-doc <!nodoc>, libglib2.0-dev-bin <!nodoc>, python3-sphinx
+Architecture: any all
+Standards-Version: 4.6.2
+Format: 3.0 (quilt)
+Directory: pool/main/a/at-spi2-core
+Files:
+ 1181002c234f70fcfe33e457a18ea716 20380 at-spi2-core_2.56.2-1~bpo12+1.debian.tar.xz
+ 0fa9644561a0e60f8f55169b96e2a937 3724 at-spi2-core_2.56.2-1~bpo12+1.dsc
+ 3ef1456569fe0824142d5f6fe82ae941 581968 at-spi2-core_2.56.2.orig.tar.xz
+Checksums-Sha1:
+ f2224f29060a0aa6432bc0690569063a59abbbe7 20380 at-spi2-core_2.56.2-1~bpo12+1.debian.tar.xz
+ 5d269cebaef351cce402f6375138a6493b43a526 3724 at-spi2-core_2.56.2-1~bpo12+1.dsc
+ 521757c0cdb4031717ac2e3b595a7f43c025608f 581968 at-spi2-core_2.56.2.orig.tar.xz
+Checksums-Sha256:
+ 0206ac0e10aa6d87296bb7e4af7466fd3979de1428718ff400aecc5f1fba49ee 20380 at-spi2-core_2.56.2-1~bpo12+1.debian.tar.xz
+ c7a03d47095b3666afdca6fadc4bb0d6f61408b5c9e7a9d3669ab915753fc307 3724 at-spi2-core_2.56.2-1~bpo12+1.dsc
+ e1b1c9836a8947852f7440c32e23179234c76bd98cd9cc4001f376405f8b783b 581968 at-spi2-core_2.56.2.orig.tar.xz
+Checksums-Sha512:
+ f5853b6d3733af6987de42b9fe5410af38de4db87f71a931902e339934644c6118f515739a29cf3b8ef52a852da66a12c3fe3d7d326d93977b08065aeb2781fe 20380 at-spi2-core_2.56.2-1~bpo12+1.debian.tar.xz
+ 58bbec87cac970c936691a6bdba7c8c31300be22681bd0f1416f9173d99f56500e497c2aafdf0aa58bded030699a9fbd75e04acaf21f01303a44b75f409ed0cb 3724 at-spi2-core_2.56.2-1~bpo12+1.dsc
+ 223908ebf65b6e44681deec4ec0cbcc55300f8a53b5b60f6d7720cbbed4588110dca2d3d8fb7470718abe0b35fe6ca819051570a5c4ee62707b7d6d99fecc8d0 581968 at-spi2-core_2.56.2.orig.tar.xz
+Homepage: https://wiki.gnome.org/Accessibility
+Package-List:
+
+ at-spi2-common deb misc optional arch=all
+ at-spi2-core deb misc optional arch=any
+ at-spi2-core-udeb udeb debian-installer optional arch=any
+ at-spi2-doc deb doc optional arch=all
+ gir1.2-atk-1.0 deb introspection optional arch=any
+ gir1.2-atspi-2.0 deb introspection optional arch=any
+ libatk-adaptor deb misc optional arch=any
+ libatk-adaptor-udeb udeb debian-installer optional arch=any
+ libatk-bridge-2.0-0-udeb udeb debian-installer optional arch=any
+ libatk-bridge2.0-0 deb libs optional arch=any
+ libatk-bridge2.0-dev deb libdevel optional arch=any
+ libatk1.0-0 deb libs optional arch=any
+ libatk1.0-dev deb libdevel optional arch=any
+ libatk1.0-doc deb doc optional arch=all profile=!nodoc
+ libatk1.0-udeb udeb debian-installer optional arch=any
+ libatspi0-udeb udeb debian-installer optional arch=any
+ libatspi2.0-0 deb libs optional arch=any
+ libatspi2.0-dev deb libdevel optional arch=any
+Testsuite: autopkgtest
+Testsuite-Triggers: @builddeps@, build-essential, dbus, dbus-daemon, xauth, xvfb
+Uploaders: Samuel Thibault <sthibault@debian.org>, Jordi Mallach <jordi@debian.org>
+Vcs-Browser: https://salsa.debian.org/a11y-team/at-spi2-core
+Vcs-Git: https://salsa.debian.org/a11y-team/at-spi2-core.git
