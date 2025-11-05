@@ -10,3 +10,4 @@ Commands
   commands/repack
   commands/export
   commands/merge
+  commands/compare

@@ -71,6 +71,7 @@ man_pages = [
     ("man/debsbom-generate", "debsbom-generate", "debsbom generate command", [author], 1),
     ("man/debsbom-merge", "debsbom-merge", "debsbom merge command", [author], 1),
     ("man/debsbom-repack", "debsbom-repack", "debsbom repack command", [author], 1),
+    ("man/debsbom-compare", "debsbom-compare", "debsbom compare command", [author], 1),
     (
         "man/debsbom-source-merge",
         "debsbom-source-merge",
