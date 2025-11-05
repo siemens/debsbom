@@ -18,6 +18,7 @@ from .commands.merge import MergeCmd
 from .commands.source_merge import SourceMergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
+from .commands.delta import DeltaCmd
 
 # Attempt to import optional download dependencies to check their availability.
 # The success or failure of these imports determines if download features are enabled.
@@ -64,6 +65,9 @@ def setup_parser():
     )
     RepackCmd.setup_parser(subparser.add_parser("repack", help="repack sources and sbom"))
     ExportCmd.setup_parser(subparser.add_parser("export", help="export SBOM as graph"))
+    DeltaCmd.setup_parser(
+        subparser.add_parser("delta", help="list components changed in target SBOM")
+    )
 
     return parser
 
@@ -97,6 +101,8 @@ def main():
             ExportCmd.run(args)
         elif args.cmd == "merge":
             MergeCmd.run(args)
+        elif args.cmd == "delta":
+            DeltaCmd.run(args)
     except DistroArchUnknownError as e:
         logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
         sys.exit(-2)
