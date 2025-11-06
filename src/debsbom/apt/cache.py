@@ -96,7 +96,7 @@ class Repository:
     @classmethod
     def _make_srcpkgs(
         cls,
-        sources: Iterable[Sources],
+        sources: Iterable[Packages],
         filter_fn: Callable[[SourcePackageFilter], bool] | None = None,
     ) -> Iterable[SourcePackage]:
         _sources = (
