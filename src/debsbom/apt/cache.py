@@ -94,18 +94,41 @@ class Repository:
                 )
 
     @classmethod
+    def _safe_srcpkg_filter(
+        cls, p: Packages, filter_fn: Callable[[SourcePackageFilter], bool] | None
+    ) -> bool:
+        try:
+            package = p["Package"]
+            version = p["Version"]
+        except KeyError as e:
+            logger.warning(f"skipping invalid source package: {e}")
+            return False
+        if filter_fn is None:
+            return True
+        return filter_fn(cls.SourcePackageFilter(package, version))
+
+    @classmethod
+    def _safe_binpkg_filter(
+        cls, p: Packages, filter_fn: Callable[[BinaryPackageFilter], bool] | None
+    ) -> bool:
+        try:
+            package = p["Package"]
+            arch = p["Architecture"]
+            version = p["Version"]
+        except KeyError as e:
+            logger.warning(f"skipping invalid binary package: {e}")
+            return False
+        if filter_fn is None:
+            return True
+        return filter_fn(cls.BinaryPackageFilter(package, arch, version))
+
+    @classmethod
     def _make_srcpkgs(
         cls,
         sources: Iterable[Packages],
         filter_fn: Callable[[SourcePackageFilter], bool] | None = None,
     ) -> Iterable[SourcePackage]:
-        _sources = (
-            filter(
-                lambda p: filter_fn(cls.SourcePackageFilter(p["Package"], p["Version"])), sources
-            )
-            if filter_fn
-            else sources
-        )
+        _sources = filter(lambda p: cls._safe_srcpkg_filter(p, filter_fn), sources)
         for source in _sources:
             try:
                 yield SourcePackage.from_deb822(Dsc(source))
@@ -119,16 +142,7 @@ class Repository:
         packages: Iterable[Packages],
         filter_fn: Callable[[BinaryPackageFilter], bool] | None = None,
     ) -> Iterable[BinaryPackage]:
-        _pkgs = (
-            filter(
-                lambda p: filter_fn(
-                    cls.BinaryPackageFilter(p["Package"], p["Architecture"], p["Version"])
-                ),
-                packages,
-            )
-            if filter_fn
-            else packages
-        )
+        _pkgs = filter(lambda p: cls._safe_binpkg_filter(p, filter_fn), packages)
         for pkg in _pkgs:
             try:
                 yield BinaryPackage.from_deb822(pkg)
