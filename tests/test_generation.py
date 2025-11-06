@@ -11,6 +11,7 @@ import pytest
 import subprocess
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
+from debian import deb822
 
 from debsbom.apt.cache import ExtendedStates, Repository
 from debsbom.dpkg.package import ChecksumAlgo
@@ -341,3 +342,7 @@ def test_illformed_sources():
     srcpkgs = list(Repository._parse_sources(srcfile))
     assert any(filter(lambda p: p.name == "argon2", srcpkgs))
     assert any(filter(lambda p: p.name == "at-spi2-core", srcpkgs))
+
+    # parse incomplete packages. Must not raise
+    assert len(list(Repository._make_srcpkgs([deb822.Packages()]))) == 0
+    assert len(list(Repository._make_binpkgs([deb822.Packages()]))) == 0
