@@ -145,7 +145,6 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             url = url._replace(netloc=url.netloc.lower())
             spdx_pkg.homepage = urlunparse(url)
         logger.debug(f"Created binary package: {spdx_pkg}")
-        return spdx_pkg
     elif package.is_source():
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
@@ -171,7 +170,9 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             primary_package_purpose=spdx_package.PackagePurpose.SOURCE,
         )
         logger.debug(f"Created source package: {spdx_pkg}")
-        return spdx_pkg
+    else:
+        raise RuntimeError(f"The package {package} is neither a source nor a binary package")
+    return spdx_pkg
 
 
 def spdx_bom(
