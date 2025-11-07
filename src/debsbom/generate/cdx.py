@@ -76,10 +76,11 @@ def cdx_package_repr(
         entry.description = package.description
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
         logger.debug(f"Created binary component: {entry}")
-        return entry
     elif package.is_source():
         logger.debug(f"Created source component: {entry}")
-        return entry
+    else:
+        raise RuntimeError(f"The package {package} is neither a source nor a binary package")
+    return entry
 
 
 def make_distro_component(
