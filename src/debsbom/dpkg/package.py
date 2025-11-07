@@ -40,22 +40,11 @@ class DpkgStatus(Enum):
     def from_dpkg(cls, status: str) -> "DpkgStatus":
         if len(status) > 1:
             status = status.lower()
-        if status in ["n", "not-installed"]:
-            return cls.NOT_INSTALLED
-        if status in ["c", "config-files"]:
-            return cls.CONFIG_FILES
-        if status in ["H", "half-installed"]:
-            return cls.HALF_INSTALLED
-        if status in ["U", "unpacked"]:
-            return cls.UNPACKED
-        if status in ["F", "half-configured"]:
-            return cls.HALF_CONFIGURED
-        if status in ["W", "triggers-awaiting"]:
-            return cls.TRIGGERS_AWAITING
-        if status in ["t", "triggers-pending"]:
-            return cls.TRIGGERS_PENDING
-        if status in ["i", "installed"]:
-            return cls.INSTALLED
+        for checkStatus in DpkgStatus:
+            if checkStatus == DpkgStatus.DEBSBOM_UNKNOWN:
+                continue
+            if status in [checkStatus.value, checkStatus.name.lower().replace("_", "-")]:
+                return checkStatus
         raise ValueError(f"Unknown dpkg status '{status}'")
 
 
