@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from importlib.metadata import version
+from io import BytesIO
 import logging
 from pathlib import Path
 
 from .input import PkgStreamInput, SbomInput
 from ..dpkg import package
+from ..resolver.resolver import PackageStreamResolver
 from ..util.progress import progress_cb
 
 try:
@@ -51,7 +53,12 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             logger.warning(f"no .dsc file found for {p}")
 
     @staticmethod
-    def _filter_pkg(p: package.Package, sources: bool, binaries: bool) -> bool:
+    def _filter_pkg(
+        p: package.Package, sources: bool, binaries: bool, skip: list[package.Package] | None = None
+    ) -> bool:
+        if skip and p in skip:
+            return False
+
         if not sources and not binaries:
             return True
         if sources and p.is_source():
@@ -74,7 +81,14 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         sdl = sdlclient.SnapshotDataLake(session=rs)
         u_resolver = UpstreamResolver(sdl, cache)
         downloader = PackageDownloader(args.outdir, session=rs)
-        pkgs = list(filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries), resolver))
+
+        if args.skip_pkgs:
+            skip = list(PackageStreamResolver(BytesIO(args.skip_pkgs.encode())))
+        else:
+            skip = None
+        pkgs = list(
+            filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries, skip), resolver)
+        )
 
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
@@ -115,3 +129,8 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         )
         parser.add_argument("--sources", help="download source packages", action="store_true")
         parser.add_argument("--binaries", help="download binary packages", action="store_true")
+        parser.add_argument(
+            "--skip-pkgs",
+            metavar="SKIP",
+            help="packages to exclude from the download, in package-list format",
+        )
