@@ -74,4 +74,7 @@ class PackageStreamResolver(PackageResolver):
         self.packages = package.Package.parse_pkglist_stream(pkgstream)
 
     def __next__(self) -> package.Package:
-        return next(self.packages)
+        try:
+            return next(self.packages)
+        except ValueError as e:
+            raise ValueError(f"invalid package-list format: {e}")
