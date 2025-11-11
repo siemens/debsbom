@@ -358,6 +358,25 @@ class Package(ABC):
         return f"{self.name}@{self.version}"
 
 
+class VcsType(Enum):
+    Arch = "Arch"
+    Bzr = "Bazaar"
+    Cvs = "CVS"
+    Darcs = "Darcs"
+    Git = "Git"
+    Hg = "Mercurial"
+    Mtn = "Monotone"
+    Svn = "Subversion"
+
+
+@dataclass
+class VcsInfo:
+    """Internal representation of the Vcs-<type> information for a source package."""
+
+    type: VcsType
+    locator: str
+
+
 @dataclass(init=False)
 class SourcePackage(Package):
     """
@@ -366,8 +385,7 @@ class SourcePackage(Package):
     """
 
     binaries: list[str] | None = None
-    vcs_browser: str | None = None
-    vcs_git: str | None = None
+    vcs: VcsInfo | None = None
     _locator: str | None = None
 
     def __init__(
@@ -377,8 +395,7 @@ class SourcePackage(Package):
         maintainer: str | None = None,
         binaries: list[str] = [],
         homepage: str | None = None,
-        vcs_browser: str | None = None,
-        vcs_git: str | None = None,
+        vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
     ):
         self.name = name
@@ -386,8 +403,7 @@ class SourcePackage(Package):
         self.maintainer = maintainer
         self.binaries = binaries
         self.homepage = homepage
-        self.vcs_browser = vcs_browser
-        self.vcs_git = vcs_git
+        self.vcs = vcs
         self.checksums = checksums or {}
 
     def __hash__(self):
@@ -426,10 +442,8 @@ class SourcePackage(Package):
     def merge_with(self, other: "SourcePackage"):
         """Copy properties from other which are unset on our side. Merge lists."""
         super().merge_with(other)
-        if not self.vcs_browser:
-            self.vcs_browser = other.vcs_browser
-        if not self.vcs_git:
-            self.vcs_git = other.vcs_git
+        if not self.vcs:
+            self.vcs = other.vcs
         # add binaries from other
         binaries = list(self.binaries)
         binaries.extend(x for x in other.binaries if x not in binaries)
@@ -450,8 +464,15 @@ class SourcePackage(Package):
         else:
             binaries = []
         homepage = package.get("Homepage")
-        vcs_browser = package.get("Vcs-Browser")
-        vcs_git = package.get("Vcs-Git")
+        vcs = None
+        for type in VcsType:
+            locator = package.get(f"Vcs-{type.name}")
+            if locator:
+                if vcs:
+                    logger.warning(
+                        f"Multiple VCS types found for package {name}: {vcs.type} and {type}"
+                    )
+                vcs = VcsInfo(type, locator)
 
         # Checksums according to Debian policy 5.6.24
         pkg_chksums = {}
@@ -470,8 +491,7 @@ class SourcePackage(Package):
             maintainer=maintainer,
             binaries=binaries,
             homepage=homepage,
-            vcs_browser=vcs_browser,
-            vcs_git=vcs_git,
+            vcs=vcs,
             checksums=pkg_chksums,
         )
 

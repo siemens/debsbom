@@ -96,7 +96,7 @@ In the same fashion, this table shows how fields in a Debian source package are 
     ``Format``, \-, \-
     ``Files``, \-, \-
     ``Vcs-Browser``, \-, \-
-    ``Vcs-Git``, \-, \-
+    ``Vcs-<type>``, ``externalRefs.referenceType`` = ``vcs``, ``externalReferences.type`` = ``vcs``
     ``Checksums-Sha256``, ``checksums``, ``hashes``
     ``Homepage``, ``homepage``, ``externalReferences.type`` = ``website``
     ``Package-List``, \-, \-
