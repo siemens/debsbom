@@ -192,6 +192,14 @@ def test_apt_source_pkg(tmpdir, sbom_generator):
                     "algorithm": "SHA256",
                     "checksumValue": "cd75da7829d819189ba6154d408666373b307e222b393223804c4c4a7156f421",
                 } in pkg["checksums"]
+                externalRefs = pkg["externalRefs"]
+                assert len(externalRefs) == 2
+                for ref in externalRefs:
+                    if ref["referenceType"] == "vcs":
+                        assert (
+                            ref["referenceLocator"]
+                            == "https://salsa.debian.org/toolchain-team/binutils.git"
+                        )
             if pkg["SPDXID"].endswith("binutils-arm-none-eabi-amd64"):
                 assert {
                     "algorithm": "MD5",
@@ -201,6 +209,16 @@ def test_apt_source_pkg(tmpdir, sbom_generator):
                     "algorithm": "SHA256",
                     "checksumValue": "c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c",
                 }
+    with open(outdir / "sbom.cdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["components"]
+        for pkg in packages:
+            if pkg["bom-ref"].endswith("binutils@2.40-2?arch=source"):
+                externalRefs = pkg["externalReferences"]
+                assert len(externalRefs) == 2
+                for ref in externalRefs:
+                    if ref["type"] == "vcs":
+                        assert ref["url"] == "https://salsa.debian.org/toolchain-team/binutils.git"
 
 
 def test_apt_pkgs_stream(tmpdir, sbom_generator):
