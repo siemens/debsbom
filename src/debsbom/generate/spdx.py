@@ -15,7 +15,7 @@ from spdx_tools.spdx.model.checksum import Checksum
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
-from ..dpkg.package import Package, DpkgStatus, filter_binaries
+from ..dpkg.package import Package, filter_binaries
 from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
     Reference,
@@ -23,6 +23,7 @@ from ..sbom import (
     SPDX_REF_DOCUMENT,
     SUPPLIER_PATTERN,
     SPDX_REFERENCE_TYPE_PURL,
+    SPDX_REFERENCE_TYPE_VCS,
     SPDX_SUPPLIER_ORG_CUE,
     SBOMType,
 )
@@ -146,6 +147,22 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             spdx_pkg.homepage = urlunparse(url)
         logger.debug(f"Created binary package: {spdx_pkg}")
     elif package.is_source():
+        external_refs = [
+            spdx_package.ExternalPackageRef(
+                category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                reference_type=SPDX_REFERENCE_TYPE_PURL,
+                locator=package.purl(vendor).to_string(),
+            )
+        ]
+        if package.vcs:
+            external_refs.append(
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.OTHER,
+                    reference_type=SPDX_REFERENCE_TYPE_VCS,
+                    locator=package.vcs.locator,
+                    comment=f"Version control system of type {package.vcs.type.value}",
+                ),
+            )
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
@@ -157,13 +174,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             download_location=SpdxNoAssertion(),
             copyright_text=SpdxNoAssertion(),
             summary="Debian source code package '{}'".format(package.name),
-            external_references=[
-                spdx_package.ExternalPackageRef(
-                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
-                    reference_type=SPDX_REFERENCE_TYPE_PURL,
-                    locator=package.purl(vendor).to_string(),
-                )
-            ],
+            external_references=external_refs,
             checksums=[
                 Checksum(checksum_to_spdx(alg), dig) for alg, dig in package.checksums.items()
             ],

@@ -15,6 +15,7 @@ CDX_PACKAGE_EXTREF_TYPE_WEBSITE = "website"
 SPDX_REF_PREFIX = "SPDXRef-"
 SPDX_REF_DOCUMENT = SPDX_REF_PREFIX + "DOCUMENT"
 SPDX_REFERENCE_TYPE_PURL = "purl"
+SPDX_REFERENCE_TYPE_VCS = "vcs"
 SPDX_REFERENCE_TYPE_DISTRIBUTION = "distribution"
 # SPDX IDs only allow alphanumeric, '.' and '-'
 SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
