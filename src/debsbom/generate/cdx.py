@@ -64,8 +64,9 @@ def cdx_package_repr(
             for alg, dig in package.checksums.items()
         ],
     )
+    external_refs = []
     if package.homepage:
-        entry.external_references = (
+        external_refs.append(
             cdx_model.ExternalReference(
                 url=cdx_model.XsUri(package.homepage),
                 type=cdx_model.ExternalReferenceType.WEBSITE,
@@ -77,9 +78,27 @@ def cdx_package_repr(
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
         logger.debug(f"Created binary component: {entry}")
     elif package.is_source():
+        if package.vcs:
+            if package.vcs.browser:
+                external_refs.append(
+                    cdx_model.ExternalReference(
+                        url=cdx_model.XsUri(package.vcs.browser),
+                        type=cdx_model.ExternalReferenceType.VCS,
+                        comment="URL of a web interface for browsing the repository",
+                    ),
+                )
+            if package.vcs.type:
+                external_refs.append(
+                    cdx_model.ExternalReference(
+                        url=cdx_model.XsUri(package.vcs.locator),
+                        type=cdx_model.ExternalReferenceType.VCS,
+                        comment=f"Version control system of type {package.vcs.type.value}",
+                    ),
+                )
         logger.debug(f"Created source component: {entry}")
     else:
         raise RuntimeError(f"The package {package} is neither a source nor a binary package")
+    entry.external_references = external_refs
     return entry
 
 
