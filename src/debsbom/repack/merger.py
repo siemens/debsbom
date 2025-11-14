@@ -166,7 +166,9 @@ class SourceArchiveMerger:
             )
 
             # repack archive
-            sources = [s.name for s in Path(tmpdir).iterdir() if s.is_dir() or s.is_file()]
+            sources = [
+                s.name for s in Path(tmpdir).iterdir() if s.is_dir() and (s / "debian").is_dir()
+            ]
             tmpfile = merged.with_suffix(f"{merged.suffix}.tmp")
 
             if not mtime:
