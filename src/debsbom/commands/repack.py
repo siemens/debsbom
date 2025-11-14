@@ -41,7 +41,11 @@ class RepackCmd(SbomInput, RepackInput):
             pkg_subset = None
 
         packer = Packer.from_format(
-            fmt=args.format, dldir=Path(args.dldir), outdir=Path(args.outdir), compress=compress
+            fmt=args.format,
+            dldir=Path(args.dldir),
+            outdir=Path(args.outdir),
+            compress=compress,
+            apply_patches=args.apply_patches,
         )
         resolver = cls.get_sbom_resolver(args)
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
