@@ -28,6 +28,14 @@ except ModuleNotFoundError:
 logger = logging.getLogger(__name__)
 
 
+def setup_snapshot_resolver(session, cache):
+    sdl = sdlclient.SnapshotDataLake(session=session)
+    return sdlclient.UpstreamResolver(sdl, cache)
+
+
+RESOLVERS = {"debian-snapshot": setup_snapshot_resolver}
+
+
 class DownloadCmd(SbomInput, PkgStreamInput):
     """
     Processes a SBOM and downloads the referenced packages.
@@ -79,8 +87,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs = requests.Session()
         rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
-        sdl = sdlclient.SnapshotDataLake(session=rs)
-        u_resolver = sdlclient.UpstreamResolver(sdl, cache)
+        u_resolver = RESOLVERS[args.resolver](rs, cache)
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:
@@ -134,4 +141,10 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             "--skip-pkgs",
             metavar="SKIP",
             help="packages to exclude from the download, in package-list format",
+        )
+        parser.add_argument(
+            "--resolver",
+            choices=RESOLVERS.keys(),
+            default="debian-snapshot",
+            help="resolver to use to find upstream packages (default: %(default)s)",
         )
