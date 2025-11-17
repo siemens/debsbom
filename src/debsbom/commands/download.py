@@ -19,9 +19,8 @@ try:
     import requests
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
-    from ..download.download import PackageDownloader
-    from ..download.resolver import PersistentResolverCache, UpstreamResolver
-    from ..download.download import DownloadStatus, DownloadResult
+    from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
+    from ..download.resolver import PersistentResolverCache
 except ModuleNotFoundError:
     pass
 
@@ -81,7 +80,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
-        u_resolver = UpstreamResolver(sdl, cache)
+        u_resolver = sdlclient.UpstreamResolver(sdl, cache)
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:
@@ -97,7 +96,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(u_resolver.resolve(pkg))
+                files = list(u_resolver._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except sdlclient.NotFoundOnSnapshotError:
