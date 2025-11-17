@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (C) 2025 Siemens
 #
 # SPDX-License-Identifier: MIT
