@@ -15,9 +15,9 @@ import sys
 import os
 
 from ..util.checksum import check_hash_from_path
+from .resolver import RemoteFile
 from ..dpkg import package
 from ..dpkg.package import Package
-from ..snapshot.client import RemoteFile
 
 import requests
 
