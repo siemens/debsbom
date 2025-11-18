@@ -20,7 +20,7 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
-    from ..download.resolver import PackageResolverCache, PersistentResolverCache
+    from ..download.resolver import PackageResolverCache, PersistentResolverCache, ResolveError
 except ModuleNotFoundError:
     pass
 
@@ -110,7 +110,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 files = list(u_resolver._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
-            except sdlclient.NotFoundOnSnapshotError:
+            except ResolveError:
                 logger.warning(f"not found upstream: {pkg}")
                 if args.json:
                     print(

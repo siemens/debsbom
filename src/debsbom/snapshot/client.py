@@ -23,7 +23,7 @@ from ..util.checksum import (
     checksums_from_dsc,
     verify_best_matching_digest,
 )
-from ..download.resolver import RemoteFile, PackageResolverCache, Resolver
+from ..download.resolver import RemoteFile, PackageResolverCache, Resolver, ResolveError
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,10 @@ class NotFoundOnSnapshotError(SnapshotDataLakeError, FileNotFoundError):
     The requested file is not found on the snapshot mirror
     """
 
+    pass
+
+
+class SnapshotResolveError(ResolveError):
     pass
 
 
@@ -420,11 +424,14 @@ class UpstreamResolver(Resolver):
         Resolve a local package to references on the upstream snapshot mirror
         """
         # Determine which type of package and fetch files
-        if p.is_source():
-            files = self._filter_rel_sources(p, SourcePackage(self.sdl, p.name, str(p.version)))
-        else:
-            files = BinaryPackage(self.sdl, p.name, str(p.version), None, None).files(
-                arch=p.architecture
-            )
-        files_list = list(files)
+        try:
+            if p.is_source():
+                files = self._filter_rel_sources(p, SourcePackage(self.sdl, p.name, str(p.version)))
+            else:
+                files = BinaryPackage(self.sdl, p.name, str(p.version), None, None).files(
+                    arch=p.architecture
+                )
+            files_list = list(files)
+        except SnapshotDataLakeError as e:
+            raise SnapshotResolveError(e)
         return files_list
