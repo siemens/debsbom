@@ -19,6 +19,10 @@ from zstandard import ZstdCompressor, ZstdDecompressor
 logger = logging.getLogger(__name__)
 
 
+class ResolveError(Exception):
+    """Exception for any expected error during resolving."""
+
+
 @dataclasses.dataclass
 class RemoteFile:
     #: Available checksums for the remote file.
