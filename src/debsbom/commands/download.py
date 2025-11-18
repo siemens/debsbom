@@ -79,7 +79,9 @@ class DownloadCmd(SbomInput, PkgStreamInput):
     def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
-        cache = PersistentResolverCache(outdir / ".cache")
+        cachedir = outdir / ".cache"
+        cachedir.mkdir(exist_ok=True)
+        cache = PersistentResolverCache(cachedir / args.resolver)
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolver(args)
         else:
