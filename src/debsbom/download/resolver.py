@@ -32,6 +32,16 @@ class RemoteFile:
     #: Size of the file, if available.
     size: int | None = None
 
+    def as_base(self) -> "RemoteFile":
+        """Upcast to the RemoteFile base, dropping all additional fields."""
+        return RemoteFile(
+            checksums=self.checksums,
+            filename=self.filename,
+            archive_name=self.archive_name,
+            downloadurl=self.downloadurl,
+            size=self.size,
+        )
+
 
 class PackageResolverCache:
     """
@@ -105,7 +115,7 @@ class PersistentResolverCache(PackageResolverCache):
             self.cctx.stream_writer(_f) as cf,
             io.TextIOWrapper(cf, encoding="utf-8") as f,
         ):
-            json.dump([dataclasses.asdict(rf) for rf in files], f)
+            json.dump([dataclasses.asdict(rf.as_base()) for rf in files], f)
         entry.with_suffix(".tmp").rename(entry)
 
 
