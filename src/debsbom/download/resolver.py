@@ -113,7 +113,15 @@ class Resolver(ABC):
     """Base class for resolvers."""
 
     def __init__(self, cache: PackageResolverCache = PackageResolverCache()):
-        self.cache = cache
+        self._cache = cache
+
+    @property
+    def cache(self):
+        return self._cache
+
+    @cache.setter
+    def cache(self, cache: PackageResolverCache):
+        self._cache = cache
 
     def _resolve_pkg(self, p: package.Package) -> list[RemoteFile]:
         cached_files = self.cache.lookup(p)
