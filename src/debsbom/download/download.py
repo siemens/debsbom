@@ -80,8 +80,8 @@ class PackageDownloader:
         for p in [self.sources_dir, self.binaries_dir]:
             p.mkdir(exist_ok=True)
 
-    def _target_path(self, f: RemoteFile):
-        if f.architecture == "source":
+    def _target_path(self, pkg: package.Package, f: RemoteFile):
+        if pkg.is_source():
             return Path(self.sources_dir / f.archive_name / f.filename)
         else:
             return Path(self.binaries_dir / f.archive_name / f.filename)
@@ -94,10 +94,12 @@ class PackageDownloader:
         """
         Returns a tuple (files to download, total size, cached files, cached bytes)
         """
-        unique_dl = list({frozenset(v.checksums.items()): v for _, v in self.to_download}.values())
-        nbytes = reduce(lambda acc, x: acc + x.size, unique_dl, 0)
-        cfiles = list(filter(lambda f: self._target_path(f).is_file(), unique_dl))
-        cbytes = reduce(lambda acc, x: acc + x.size, cfiles, 0)
+        unique_dl = list(
+            {frozenset(v.checksums.items()): (pkg, v) for pkg, v in self.to_download}.values()
+        )
+        nbytes = reduce(lambda acc, x: acc + x[1].size if x[1].size else 0, unique_dl, 0)
+        cfiles = list(filter(lambda x: self._target_path(x[0], x[1]).is_file(), unique_dl))
+        cbytes = reduce(lambda acc, x: acc + x[1].size if x[1].size else 0, cfiles, 0)
         return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
     def download(self, progress_cb=None) -> Iterable[DownloadResult]:
@@ -110,7 +112,7 @@ class PackageDownloader:
         for idx, (pkg, f) in enumerate(self.to_download):
             if progress_cb:
                 progress_cb(idx, len(self.to_download), f.filename)
-            target = self._target_path(f)
+            target = self._target_path(pkg, f)
             if not target.parent.is_dir():
                 target.parent.mkdir()
             hashable_file_checksums = frozenset(f.checksums.items())
