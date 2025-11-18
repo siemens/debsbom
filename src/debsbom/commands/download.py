@@ -20,7 +20,7 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
-    from ..download.resolver import PersistentResolverCache
+    from ..download.resolver import PackageResolverCache, PersistentResolverCache
 except ModuleNotFoundError:
     pass
 
@@ -28,9 +28,9 @@ except ModuleNotFoundError:
 logger = logging.getLogger(__name__)
 
 
-def setup_snapshot_resolver(session, cache):
+def setup_snapshot_resolver(session):
     sdl = sdlclient.SnapshotDataLake(session=session)
-    return sdlclient.UpstreamResolver(sdl, cache)
+    return sdlclient.UpstreamResolver(sdl)
 
 
 RESOLVERS = {"debian-snapshot": setup_snapshot_resolver}
@@ -79,9 +79,6 @@ class DownloadCmd(SbomInput, PkgStreamInput):
     def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
-        cachedir = outdir / ".cache"
-        cachedir.mkdir(exist_ok=True)
-        cache = PersistentResolverCache(cachedir / args.resolver)
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolver(args)
         else:
@@ -89,7 +86,12 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs = requests.Session()
         rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
-        u_resolver = RESOLVERS[args.resolver](rs, cache)
+        u_resolver = RESOLVERS[args.resolver](rs)
+        if type(u_resolver.cache) is PackageResolverCache:
+            cachedir = outdir / ".cache"
+            cachedir.mkdir(exist_ok=True)
+            cache = PersistentResolverCache(cachedir / args.resolver)
+            u_resolver.cache = cache
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:
