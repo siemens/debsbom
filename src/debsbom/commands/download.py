@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from importlib.metadata import version
+from importlib.metadata import entry_points, version
+
 from io import BytesIO
 import logging
 from pathlib import Path
@@ -34,6 +35,11 @@ def setup_snapshot_resolver(session):
 
 
 RESOLVERS = {"debian-snapshot": setup_snapshot_resolver}
+
+resolver_endpoints = entry_points(group="debsbom.download.resolver")
+for ep in resolver_endpoints:
+    setup_fn = ep.load()
+    RESOLVERS[ep.name] = setup_fn
 
 
 class DownloadCmd(SbomInput, PkgStreamInput):
