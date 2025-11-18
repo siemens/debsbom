@@ -9,6 +9,7 @@ debsbom documentation
    design-decisions
    commands
    examples
+   plugins
    api
 
 Indices and tables
