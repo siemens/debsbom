@@ -28,6 +28,8 @@ Package Downloader
 .. automodule:: debsbom.download.download
    :members:
 
+.. _package-resolving-label:
+
 Package Resolving
 -----------------
 
