@@ -11,7 +11,9 @@ import logging
 from sortedcontainers import SortedSet
 from uuid import uuid4
 
-from .merge import ChecksumMismatchError, SbomMerger
+from ..util.checksum import ChecksumMismatchError
+
+from .merge import SbomMerger
 from ..generate.cdx import make_distro_component, make_metadata
 
 
