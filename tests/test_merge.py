@@ -11,7 +11,7 @@ from debsbom.bomreader.cdxbomreader import CdxBomReader
 from debsbom.bomreader.spdxbomreader import SpdxBomReader
 from debsbom.merge.cdx import CdxSbomMerger
 from debsbom.merge.spdx import SpdxSbomMerger
-from debsbom.merge.merge import ChecksumMismatchError
+from debsbom.util.checksum import ChecksumMismatchError
 
 
 def test_spdx_merge():

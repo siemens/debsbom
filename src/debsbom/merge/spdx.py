@@ -12,7 +12,8 @@ from spdx_tools.spdx.model.package import Package
 from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 
 from ..generate.spdx import make_creation_info, make_distro_package
-from .merge import ChecksumMismatchError, SbomMerger
+from ..util.checksum import ChecksumMismatchError
+from .merge import SbomMerger
 from ..sbom import (
     SPDX_REF_DOCUMENT,
     SPDX_REFERENCE_TYPE_PURL,
