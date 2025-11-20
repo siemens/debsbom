@@ -4,6 +4,9 @@
 
 from collections.abc import Mapping
 from enum import IntEnum
+import hashlib
+from hmac import compare_digest
+from pathlib import Path
 
 
 class ChecksumNotSupportedError(ValueError):
@@ -69,7 +72,7 @@ def best_digest(digests: Mapping[ChecksumAlgo, str]) -> tuple[ChecksumAlgo, str]
     return best_algo, digests[best_algo]
 
 
-def best_matching_digest(
+def _best_matching_digest(
     digests_a: Mapping[ChecksumAlgo, str], digests_b: Mapping[ChecksumAlgo, str]
 ) -> tuple[ChecksumAlgo, str, str]:
     """
@@ -84,3 +87,37 @@ def best_matching_digest(
 
     best_algo = max(common_algos)
     return best_algo, digests_a[best_algo], digests_b[best_algo]
+
+
+def verify_best_matching_digest(
+    digests_a: Mapping[ChecksumAlgo, str],
+    digests_b: Mapping[ChecksumAlgo, str],
+    name: str | None = None,
+    purl: str | None = None,
+) -> bool:
+    """
+    Verifies if the best matching digest between two sets matches.
+
+    Returns True if a common algorithm is found and its digests match.
+    Returns False if no common digest algorithms are found.
+    Raises NoMatchingDigestError if no common digest algorithms are found.
+    If `name` is set and a mismatch occurs, a `ChecksumMismatchError`
+    is raised, with the corresponding 'name' and 'purl'.
+    """
+    alg, digest_a, digest_b = _best_matching_digest(digests_a, digests_b)
+    result = compare_digest(digest_a, digest_b)
+    if name and not result:
+        raise ChecksumMismatchError(name, purl, str(alg), digest_a, digest_b)
+    return result
+
+
+def check_hash_from_path(file: Path, checksums: Mapping[ChecksumAlgo, str]) -> bool:
+    """
+    Check if the hash of a file matches the best digest provided.
+    """
+    try:
+        best, digest = best_digest(checksums)
+    except ValueError:
+        return False
+    with open(file, "rb") as fd:
+        return compare_digest(digest, hashlib.file_digest(fd, str(best)).hexdigest())
