@@ -34,18 +34,17 @@ class ChecksumAlgo(IntEnum):
             return cls.SHA256SUM
         raise ChecksumNotSupportedError(algo)
 
-    @classmethod
-    def to_hashlib(cls, algo):
-        if algo == cls.MD5SUM:
+    def to_hashlib(self) -> str:
+        if self == ChecksumAlgo.MD5SUM:
             return "md5"
-        if algo == cls.SHA1SUM:
+        if self == ChecksumAlgo.SHA1SUM:
             return "sha1"
-        if algo == cls.SHA256SUM:
+        if self == ChecksumAlgo.SHA256SUM:
             return "sha256"
         raise NotImplementedError()
 
     def __str__(self) -> str:
-        return self.to_hashlib(self)
+        return self.to_hashlib()
 
 
 def best_digest(digests: Mapping[ChecksumAlgo, str]) -> tuple[ChecksumAlgo, str]:
