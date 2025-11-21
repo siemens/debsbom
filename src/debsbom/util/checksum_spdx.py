@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .checksum import ChecksumAlgo, ChecksumNotSupportedError
-from spdx_tools.spdx.model.checksum import ChecksumAlgorithm
+from .checksum import ChecksumAlgo, ChecksumNotSupportedError, checksum_dict_from_iterable
+from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 
 _CHKSUM_TO_SPDX = {
     ChecksumAlgo.MD5SUM: ChecksumAlgorithm.MD5,
@@ -25,3 +25,15 @@ def checksum_from_spdx(alg: ChecksumAlgorithm) -> ChecksumAlgo:
             return cs_algo
 
     raise ChecksumNotSupportedError(str(alg))
+
+
+def checksum_dict_from_spdx(checksums: list[Checksum]) -> dict[ChecksumAlgo, str]:
+    """
+    Processes a list of SPDX Checksum objects into a dictionary.
+    """
+    return checksum_dict_from_iterable(
+        items=checksums,
+        get_algo_str=lambda c: c.algorithm,
+        get_value_str=lambda c: c.value,
+        checksum_parser=checksum_from_spdx,
+    )

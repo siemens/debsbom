@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .checksum import ChecksumAlgo, ChecksumNotSupportedError
-from cyclonedx.model import HashAlgorithm as cdx_hashalgo
+from sortedcontainers import SortedSet
+from .checksum import ChecksumAlgo, ChecksumNotSupportedError, checksum_dict_from_iterable
+from cyclonedx.model import HashAlgorithm as cdx_hashalgo, HashType as cdx_hashtype
 
 _CHKSUM_TO_CDX = {
     ChecksumAlgo.MD5SUM: cdx_hashalgo.MD5,
@@ -25,3 +26,15 @@ def checksum_from_cdx(alg: cdx_hashalgo) -> ChecksumAlgo:
             return cs_algo
 
     raise ChecksumNotSupportedError(str(alg))
+
+
+def checksum_dict_from_cdx(checksums: SortedSet[cdx_hashtype]) -> dict[ChecksumAlgo, str]:
+    """
+    Processes a list of CDX Hash objects into a dictionary.
+    """
+    return checksum_dict_from_iterable(
+        items=checksums,
+        get_algo_str=lambda c: c.alg,
+        get_value_str=lambda c: c.content,
+        checksum_parser=checksum_from_cdx,
+    )

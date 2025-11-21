@@ -11,7 +11,8 @@ import logging
 from sortedcontainers import SortedSet
 from uuid import uuid4
 
-from ..util.checksum import ChecksumMismatchError
+from ..util.checksum import verify_best_matching_digest
+from ..util.checksum_cdx import checksum_dict_from_cdx
 
 from .merge import SbomMerger
 from ..generate.cdx import make_distro_component, make_metadata
@@ -25,23 +26,17 @@ class CdxSbomMerger(SbomMerger):
         # merge all fields that we use in our SBOMs, all other fields
         # are either part of the PURL or the PURL itself, and these
         # must match before merging
-
+        verify_best_matching_digest(
+            checksum_dict_from_cdx(component.hashes),
+            checksum_dict_from_cdx(other.hashes),
+            raise_on_mismatch=True,
+            name=component.name,
+            purl=str(component.purl),
+        )
         if component.hashes is None:
             component.hashes = SortedSet([])
         for other_hash in other.hashes or []:
-            for our_hash in component.hashes:
-                if our_hash.alg == other_hash.alg:
-                    if our_hash.content == other_hash.content:
-                        break
-                    else:
-                        purl = component.purl
-                        raise ChecksumMismatchError(
-                            component.name,
-                            str(purl),
-                            str(our_hash.alg),
-                            our_hash.content,
-                            other_hash.content,
-                        )
+            if other_hash not in component.hashes:
                 component.hashes.add(other_hash)
 
         if component.supplier is None:

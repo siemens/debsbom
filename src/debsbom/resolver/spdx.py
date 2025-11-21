@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from ..dpkg.package import Package
-from ..util.checksum_spdx import checksum_from_spdx, ChecksumNotSupportedError
+from ..util.checksum_spdx import checksum_dict_from_spdx
 from ..sbom import SPDXType
 from .resolver import PackageResolver
 
@@ -49,9 +49,5 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
     @classmethod
     def create_package(cls, p: spdx_package.Package) -> Package:
         pkg = Package.from_purl(cls.package_manager_ref(p).locator)
-        for cks in p.checksums:
-            try:
-                pkg.checksums[checksum_from_spdx(cks.algorithm)] = cks.value
-            except ChecksumNotSupportedError:
-                logger.debug(f"ignoring unknown checksum on {pkg}")
+        pkg.checksums = checksum_dict_from_spdx(p.checksums)
         return pkg
