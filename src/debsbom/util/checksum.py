@@ -7,9 +7,11 @@ from typing import Any, ContextManager
 from enum import IntEnum
 import hashlib
 from hmac import compare_digest
+from collections import defaultdict
 import hashlib
 import io
 from pathlib import Path
+from debian import deb822
 
 
 class ChecksumNotSupportedError(ValueError):
@@ -170,6 +172,46 @@ def calculate_checksums(
                 h_obj.update(chunk)
 
     return {algo: h_obj.hexdigest() for algo, h_obj in hash_objects.items()}
+
+
+deb882_table = [
+    (ChecksumAlgo.MD5SUM, "Files", "md5sum"),
+    (ChecksumAlgo.SHA1SUM, "Checksums-Sha1", "sha1"),
+    (ChecksumAlgo.SHA256SUM, "Checksums-Sha256", "sha256"),
+]
+
+
+def checksums_from_dsc(package) -> dict[str, dict[ChecksumAlgo, str]]:
+    """
+    Extract checksums from a deb822 representation according to Debian policy 5.6.24
+    """
+    chksums: dict[str, dict["ChecksumAlgo", str]] = defaultdict(dict)
+    for alg, deb822_field, chksm_name in deb882_table:
+        _chksums = package.get(deb822_field) or []
+        for c in _chksums:
+            chksums[c["name"]][alg] = c[chksm_name]
+    return dict(chksums)
+
+
+def checksums_from_package(package) -> dict[ChecksumAlgo, str]:
+    pkg_chksums = {}
+    for alg, _, chksm_name in deb882_table:
+        chksum = package.get(chksm_name)
+        if chksum:
+            pkg_chksums[alg] = chksum
+    return pkg_chksums
+
+
+def verify_dsc_files(dsc: deb822.Dsc, base_path: Path) -> bool:
+    """
+    Check the integrity of all files listed in a dsc deb822 representation.
+    """
+    files_checksums = checksums_from_dsc(dsc)
+    for file_name, checksums in files_checksums.items():
+        file_path = base_path / file_name
+        if not checksums and not check_hash_from_path(file_path, checksums):
+            return False
+    return True
 
 
 def checksum_dict_from_iterable(

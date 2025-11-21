@@ -14,6 +14,7 @@ import tempfile
 from debian import deb822
 from debian.changelog import Changelog
 
+from ..util.checksum import verify_dsc_files, check_hash_from_path
 from ..dpkg import package
 from ..util import Compression
 
@@ -55,22 +56,6 @@ class SourceArchiveMerger:
         if not self.dpkg_source:
             raise RuntimeError("'dpkg-source' from the 'dpkg-dev' package is missing.")
 
-    @staticmethod
-    def _file_sha256sum(file):
-        with open(file, "rb") as f:
-            digest = hashlib.file_digest(f, "sha256")
-            return digest.hexdigest()
-
-    @classmethod
-    def _check_sha256sum(cls, file, expected: str):
-        hexdigest = cls._file_sha256sum(file)
-        if hexdigest != expected:
-            raise CorruptedFileError(file)
-
-    def _check_hash(self, base: Path, dsc_entry):
-        file = base / dsc_entry["name"]
-        self._check_sha256sum(file, dsc_entry["sha256"])
-
     @classmethod
     def locate_artifact(cls, p: package.Package, basedir: Path) -> Path | None:
         """
@@ -80,11 +65,11 @@ class SourceArchiveMerger:
             cand = d / p.filename
             if not cand.is_file():
                 continue
-            if package.ChecksumAlgo.SHA256SUM not in p.checksums:
-                logger.warning(f"No SHA256 digest for {p}. Assume it is from archive '{d.name}'")
+            if not p.checksums or len(p.checksums) == 0:
+                logger.warning(f"No hash digest for {p}. Assume it is from archive '{d.name}'")
                 return cand
             logger.debug(f"compute checksum of '{cand}'")
-            if cls._file_sha256sum(cand) == p.checksums[package.ChecksumAlgo.SHA256SUM]:
+            if check_hash_from_path(cand, p.checksums):
                 return cand
         return None
 
@@ -135,14 +120,15 @@ class SourceArchiveMerger:
 
         if package.ChecksumAlgo.SHA256SUM in p.checksums:
             logger.debug(f"Checking sha256sum of '{dsc}'...")
-            self._check_sha256sum(dsc, p.checksums[package.ChecksumAlgo.SHA256SUM])
+            if not p.checksums and not check_hash_from_path(dsc, p.checksums):
+                raise CorruptedFileError(dsc)
 
         logger.debug(f"Merging sources from '{dsc}'...")
         # get all referenced tarballs from dsc file (usually .orig and .debian and check digests)
         with open(dsc, "r") as f:
             d = deb822.Dsc(f)
-        files = d["Checksums-Sha256"]
-        [self._check_hash(dsc.parent, f) for f in files]
+        if not verify_dsc_files(d, dsc.parent):
+            raise CorruptedFileError(dsc)
 
         # merge package with info from dsc file
         p.merge_with(package.SourcePackage.from_deb822(d))

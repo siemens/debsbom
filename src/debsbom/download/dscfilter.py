@@ -5,7 +5,12 @@
 from collections.abc import Iterable
 from requests import RequestException
 from debian import deb822
-from ..util.checksum import ChecksumAlgo, calculate_checksums
+from ..util.checksum import (
+    NoMatchingDigestError,
+    calculate_checksums,
+    checksums_from_dsc,
+    verify_best_matching_digest,
+)
 from ..snapshot.client import (
     NotFoundOnSnapshotError,
     RemoteFile,
@@ -52,10 +57,14 @@ class RemoteDscFile:
         return self.dscfile.path
 
     def srcfiles(self) -> Iterable["RemoteFile"]:
+        """
+        Yields RemoteFile objects from self.allfiles that match
+        checksums defined in self._dsc.
+        """
+        dsc_checksums = checksums_from_dsc(self._dsc)
         for rf in self.allfiles:
-            for entry in self._dsc.get("checksums-sha1", []):
-                if (
-                    rf.checksums.get(ChecksumAlgo.SHA1SUM) == entry["sha1"]
-                    and rf.filename == entry["name"]
-                ):
+            try:
+                if verify_best_matching_digest(rf.checksums, dsc_checksums.get(rf.filename)):
                     yield rf
+            except NoMatchingDigestError:
+                continue
