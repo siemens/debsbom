@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Iterable
-import hashlib
 from requests import RequestException
 from debian import deb822
+from ..util.checksum import calculate_checksums
 from ..snapshot.client import (
     NotFoundOnSnapshotError,
     RemoteFile,
@@ -36,7 +36,7 @@ class RemoteDscFile:
                 raise NotFoundOnSnapshotError()
         except RequestException as e:
             raise SnapshotDataLakeError(e)
-        self.sha256 = hashlib.sha256(r.content).hexdigest()
+        self.checksums = calculate_checksums(r.content)
         self._dsc = deb822.Dsc(r.content)
 
     @property

@@ -201,7 +201,7 @@ class UpstreamResolver:
 
         dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
         for d in dscfiles:
-            if d.sha256 == srcpkg.checksums[package.ChecksumAlgo.SHA256SUM]:
+            if d.checksums.get(ChecksumAlgo.SHA256SUM) == srcpkg.checksums[ChecksumAlgo.SHA256SUM]:
                 yield d.dscfile
                 yield from d.srcfiles()
                 return

@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Mapping, Callable, Iterable
-from typing import Any
+from typing import Any, ContextManager
 from enum import IntEnum
 import hashlib
 from hmac import compare_digest
+import hashlib
+import io
 from pathlib import Path
 
 
@@ -122,6 +124,52 @@ def check_hash_from_path(file: Path, checksums: Mapping[ChecksumAlgo, str]) -> b
         return False
     with open(file, "rb") as fd:
         return compare_digest(digest, hashlib.file_digest(fd, str(best)).hexdigest())
+
+
+def _get_byte_stream(source: Path | bytes) -> ContextManager[io.BytesIO | io.BufferedReader]:
+    """
+    Provides a seekable, readable byte stream from either a Path or raw bytes.
+    """
+    if isinstance(source, Path):
+        return open(source, "rb")
+    elif isinstance(source, bytes):
+        return io.BytesIO(source)
+    else:
+        raise TypeError(f"Unsupported source type for checksum calculation: {type(source)}.")
+
+
+def calculate_checksums(
+    source: Path | bytes,
+    algorithms: Iterable[ChecksumAlgo] | None = None,
+    chunk_size: int = 65536,  # A common default chunk size (64KB)
+) -> dict[ChecksumAlgo, str]:
+    """
+    Calculate supported checksums for either raw file content or a file path.
+    """
+    if algorithms is None:
+        algorithms_to_calculate = list(ChecksumAlgo)
+    else:
+        algorithms_to_calculate = list(algorithms)
+
+    if not algorithms_to_calculate:
+        return {}
+
+    hash_objects = {}
+    for algo in algorithms_to_calculate:
+        try:
+            hash_objects[algo] = hashlib.new(str(algo))
+        except ValueError:
+            raise ValueError(f"Unsupported checksum algorithm: '{algo.value}'")
+
+    with _get_byte_stream(source) as stream:
+        while True:
+            chunk = stream.read(chunk_size)
+            if not chunk:
+                break
+            for h_obj in hash_objects.values():
+                h_obj.update(chunk)
+
+    return {algo: h_obj.hexdigest() for algo, h_obj in hash_objects.items()}
 
 
 def checksum_dict_from_iterable(
