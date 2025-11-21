@@ -4,7 +4,7 @@
 
 from typing import IO
 from ..dpkg.package import Package
-from ..util.checksum_cdx import checksum_from_cdx, ChecksumNotSupportedError
+from ..util.checksum_cdx import checksum_dict_from_cdx
 from ..sbom import CDXType
 from .resolver import PackageResolver
 
@@ -42,9 +42,5 @@ class CdxPackageResolver(PackageResolver, CDXType):
     @classmethod
     def create_package(cls, c: Component) -> Package:
         pkg = Package.from_purl(str(c.purl))
-        for cks in c.hashes:
-            try:
-                pkg.checksums[checksum_from_cdx(cks.alg)] = cks.content
-            except ChecksumNotSupportedError:
-                logger.debug(f"ignoring unknown checksum on {pkg}")
+        pkg.checksums = checksum_dict_from_cdx(c.hashes)
         return pkg

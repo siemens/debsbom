@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Callable, Iterable
+from typing import Any
 from enum import IntEnum
 import hashlib
 from hmac import compare_digest
@@ -121,3 +122,25 @@ def check_hash_from_path(file: Path, checksums: Mapping[ChecksumAlgo, str]) -> b
         return False
     with open(file, "rb") as fd:
         return compare_digest(digest, hashlib.file_digest(fd, str(best)).hexdigest())
+
+
+def checksum_dict_from_iterable(
+    items: Iterable[Any],
+    get_algo_str: Callable[[Any], str],
+    get_value_str: Callable[[Any], str],
+    checksum_parser: Callable[[str], ChecksumAlgo],
+) -> dict[ChecksumAlgo, str]:
+    """
+    Generic function to process a list or set of checksum-like items and return a dictionary
+    mapping ChecksumAlgo to their string values.
+    """
+    result: list[tuple[ChecksumAlgo, str]] = []
+    for item in items:
+        try:
+            algo_str = get_algo_str(item)
+            value_str = get_value_str(item)
+            algo = checksum_parser(algo_str)
+            result.append((algo, value_str))
+        except ChecksumNotSupportedError:
+            pass
+    return dict(result)
