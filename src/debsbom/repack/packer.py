@@ -5,13 +5,13 @@
 from abc import abstractmethod
 from collections.abc import Iterable
 from datetime import datetime
-import hashlib
 import logging
 from pathlib import Path
 import shutil
 import os
 import sys
 
+from ..util.checksum import calculate_checksums
 from ..sbom import BomSpecific, SBOMType
 from ..dpkg.package import Package
 from ..dpkg.package import ChecksumAlgo as CSA
@@ -82,8 +82,6 @@ class StandardBomPacker(Packer):
         return path / pkg.filename
 
     def repack(self, pkg: Package, symlink=True, mtime: datetime | None = None) -> Package | None:
-        chkalgs = [CSA.SHA1SUM, CSA.SHA256SUM]
-
         if pkg.is_source():
             try:
                 pkgpath = self.sam.merge(pkg, apply_patches=self.apply_patches, mtime=mtime)
@@ -98,10 +96,7 @@ class StandardBomPacker(Packer):
                 return None
 
         # clear checksums as they now refer to the merged artifact instead of the .dsc file
-        pkg.checksums = {}
-        for alg in chkalgs:
-            with open(pkgpath, "rb") as fd:
-                pkg.checksums[alg] = hashlib.file_digest(fd, CSA.to_hashlib(alg)).hexdigest()
+        pkg.checksums = calculate_checksums(pkgpath)
 
         # update the locator to the merged / linked file
         target = self._create_target(pkg)
