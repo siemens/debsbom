@@ -10,7 +10,7 @@ import json
 import logging
 from pathlib import Path
 
-from ..util.checksum import ChecksumAlgo
+from ..util.checksum import NoMatchingDigestError, verify_best_matching_digest
 from ..dpkg import package
 from ..snapshot.client import RemoteFile
 from .dscfilter import RemoteDscFile
@@ -189,22 +189,26 @@ class UpstreamResolver:
         we find the one with a matching checksum. Then use the .dsc file to locate all other
         referenced artifacts.
         """
-        if not srcpkg.checksums.get(ChecksumAlgo.SHA256SUM):
+        # mostly done, only testing!
+        if not srcpkg.checksums or len(srcpkg.checksums) == 0:
             # a source package should be uniquely identifiable by just its name + version,
             # so we do not want to emit a warning here;
             # see https://lists.debian.org/debian-devel/2025/10/msg00236.html
             logger.info(
-                f"no sha256 digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise"
+                f"no checksum digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise"
             )
             yield from self._distinct_by_archive_filename(self._sort_by_archive(sdlpkg.srcfiles()))
             return
 
         dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
         for d in dscfiles:
-            if d.checksums.get(ChecksumAlgo.SHA256SUM) == srcpkg.checksums[ChecksumAlgo.SHA256SUM]:
-                yield d.dscfile
-                yield from d.srcfiles()
-                return
+            try:
+                if verify_best_matching_digest(d.checksums, srcpkg.checksums):
+                    yield d.dscfile
+                    yield from d.srcfiles()
+                    return
+            except NoMatchingDigestError:
+                continue
 
     def resolve(self, p: package.Package) -> list["RemoteFile"]:
         """

@@ -16,7 +16,7 @@ import logging
 import re
 from packageurl import PackageURL
 
-from ..util.checksum import ChecksumAlgo
+from ..util.checksum import ChecksumAlgo, checksums_from_dsc, checksums_from_package
 from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
@@ -476,14 +476,9 @@ class SourcePackage(Package):
 
         # Checksums according to Debian policy 5.6.24
         pkg_chksums = {}
-        for alg, deb822_field, chksm_name in [
-            (ChecksumAlgo.MD5SUM, "Files", "md5sum"),
-            (ChecksumAlgo.SHA1SUM, "Checksums-Sha1", "sha1"),
-            (ChecksumAlgo.SHA256SUM, "Checksums-Sha256", "sha256"),
-        ]:
-            chksums = package.get(deb822_field) or []
-            for c in filter(lambda c_: c_["name"].endswith(".dsc"), chksums):
-                pkg_chksums[alg] = c[chksm_name]
+        chksums = checksums_from_dsc(package)
+        for c in filter(lambda c_: c_.endswith(".dsc"), chksums):
+            pkg_chksums = chksums[c]
 
         return SourcePackage(
             name=name,
@@ -660,16 +655,6 @@ class BinaryPackage(Package):
         s_built_using = package.relations["built-using"] or []
         sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
 
-        pkg_chksums = {}
-        for alg, deb822_name in [
-            (ChecksumAlgo.MD5SUM, "MD5sum"),
-            (ChecksumAlgo.SHA1SUM, "SHA1"),
-            (ChecksumAlgo.SHA256SUM, "SHA256"),
-        ]:
-            chksum = package.get(deb822_name)
-            if chksum:
-                pkg_chksums[alg] = chksum
-
         status_raw = package.get("Status")
         if status_raw:
             _, _, pkg_status = status_raw.split(" ")
@@ -688,6 +673,6 @@ class BinaryPackage(Package):
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
             homepage=package.get("Homepage"),
-            checksums=pkg_chksums,
+            checksums=checksums_from_package(package),
             status=status,
         )
