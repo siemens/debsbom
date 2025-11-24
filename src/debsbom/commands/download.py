@@ -20,7 +20,7 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.download import PackageDownloader
     from ..download.resolver import PersistentResolverCache, UpstreamResolver
-    from debsbom.download.download import DownloadStatus, DownloadResult
+    from ..download.download import DownloadStatus, DownloadResult
 except ModuleNotFoundError:
     pass
 
