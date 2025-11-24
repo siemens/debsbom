@@ -117,7 +117,8 @@ class DownloadCmd(SbomInput, PkgStreamInput):
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except ResolveError:
-                logger.warning(f"not found upstream: {pkg}")
+                pkg_type = "source" if pkg.is_source() else "binary"
+                logger.warning(f"failed to resolve {pkg_type} package: {pkg}")
                 if args.json:
                     print(
                         DownloadResult(
