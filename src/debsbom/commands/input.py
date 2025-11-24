@@ -9,8 +9,7 @@ import sys
 from urllib.parse import urlparse
 from uuid import UUID
 
-from debsbom.util.compression import Compression
-
+from ..util.compression import Compression
 from ..resolver.resolver import PackageResolver, PackageStreamResolver
 from ..sbom import SBOMType
 
