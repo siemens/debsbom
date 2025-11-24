@@ -5,7 +5,7 @@
 from collections.abc import Iterable
 from requests import RequestException
 from debian import deb822
-from ..util.checksum import calculate_checksums
+from ..util.checksum import ChecksumAlgo, calculate_checksums
 from ..snapshot.client import (
     NotFoundOnSnapshotError,
     RemoteFile,
@@ -54,5 +54,8 @@ class RemoteDscFile:
     def srcfiles(self) -> Iterable["RemoteFile"]:
         for rf in self.allfiles:
             for entry in self._dsc.get("checksums-sha1", []):
-                if rf.hash == entry["sha1"] and rf.filename == entry["name"]:
+                if (
+                    rf.checksums.get(ChecksumAlgo.SHA1SUM) == entry["sha1"]
+                    and rf.filename == entry["name"]
+                ):
                     yield rf

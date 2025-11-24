@@ -16,6 +16,8 @@ from datetime import datetime
 import requests
 from requests.exceptions import RequestException
 
+from ..util.checksum import ChecksumAlgo
+
 
 class SnapshotDataLakeError(Exception):
     """
@@ -181,7 +183,7 @@ class RemoteFile:
     File on the snapshot farm
     """
 
-    hash: str
+    checksums: dict[ChecksumAlgo, str]
     filename: str
     size: int
     archive_name: str
@@ -196,7 +198,7 @@ class RemoteFile:
         Factory to create a ``RemoteFile`` from a fileinfo object.
         """
         return RemoteFile(
-            hash,
+            {ChecksumAlgo.SHA1SUM: hash},
             fileinfo["name"],
             fileinfo["size"],
             fileinfo["archive_name"],

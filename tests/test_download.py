@@ -67,7 +67,7 @@ def cdx_bomfile(tmpdir):
 def test_download(tmpdir, http_session):
     dl = PackageDownloader(Path(tmpdir), session=http_session)
     test_file = RemoteFile(
-        hash="1f3a43c181b81e3578d609dc0931ff147623eb38",
+        checksums={ChecksumAlgo.SHA1SUM: "1f3a43c181b81e3578d609dc0931ff147623eb38"},
         filename="pytest_8.4.2-1.dsc",
         size=2757,
         archive_name="debian",

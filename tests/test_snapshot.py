@@ -11,6 +11,7 @@ from debsbom.snapshot.client import (
     SnapshotDataLakeError,
     SourcePackage,
 )
+from debsbom.util.checksum import ChecksumAlgo
 
 
 @pytest.mark.online
@@ -35,12 +36,12 @@ def test_binary_package(sdl):
     pkg_hash = "c9e30e325d77dca96d85d094037ae2f7eac919ff"
     pkg_nosrc = BinaryPackage(sdl, "python3-pytest", "8.4.2-1", None, None)
     files = list(pkg_nosrc.files())
-    assert files[0].hash == pkg_hash
+    assert files[0].checksums.get(ChecksumAlgo.SHA1SUM) == pkg_hash
 
     # with relation to src package
     pkg = BinaryPackage(sdl, pkg_nosrc.binname, pkg_nosrc.binversion, "pytest", "8.4.2-1")
     files = list(pkg.files())
-    assert files[0].hash == pkg_hash
+    assert files[0].checksums.get(ChecksumAlgo.SHA1SUM) == pkg_hash
 
     pkg = BinaryPackage(sdl, "sed", "4.9-2", "sed", "4.9-2")
     assert all(map(lambda f: f.architecture == "riscv64", pkg.files(arch="riscv64")))
@@ -54,7 +55,7 @@ def test_source_package(sdl):
     pkg = SourcePackage(sdl, "pytest", "8.4.2-1")
     dsc_hash = "1f3a43c181b81e3578d609dc0931ff147623eb38"
     src_files = list(pkg.srcfiles())
-    assert any(filter(lambda s: s.hash == dsc_hash, src_files))
+    assert any(filter(lambda s: s.checksums.get(ChecksumAlgo.SHA1SUM) == dsc_hash, src_files))
 
     binpkgs = list(pkg.binpackages())
     assert any(filter(lambda b: b.binname == "python3-pytest", binpkgs))
