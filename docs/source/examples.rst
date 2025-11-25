@@ -116,7 +116,7 @@ The following example generates a ``standard-bom`` source distribution archive.
         --compress zstd \
         --apply-patches \
         --validate \
-        sbom.spdx.json sbom.packed.spdx.json
+        sbom.cdx.json sbom.packed.cdx.json
 
 It further is possible to only repack (and update in the SBOM) a subset of packages.
 For that, provide both an SBOM, as well as a set of "to-be-processed" packages via stdin.
