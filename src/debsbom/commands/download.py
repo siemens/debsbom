@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from importlib.metadata import version
+from importlib.metadata import entry_points, version
+
 from io import BytesIO
 import logging
 from pathlib import Path
@@ -19,14 +20,26 @@ try:
     import requests
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
-    from ..download.download import PackageDownloader
-    from ..download.resolver import PersistentResolverCache, UpstreamResolver
-    from ..download.download import DownloadStatus, DownloadResult
+    from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
+    from ..download.resolver import PackageResolverCache, PersistentResolverCache, ResolveError
 except ModuleNotFoundError:
     pass
 
 
 logger = logging.getLogger(__name__)
+
+
+def setup_snapshot_resolver(session):
+    sdl = sdlclient.SnapshotDataLake(session=session)
+    return sdlclient.UpstreamResolver(sdl)
+
+
+RESOLVERS = {"debian-snapshot": setup_snapshot_resolver}
+
+resolver_endpoints = entry_points(group="debsbom.download.resolver")
+for ep in resolver_endpoints:
+    setup_fn = ep.load()
+    RESOLVERS[ep.name] = setup_fn
 
 
 class DownloadCmd(SbomInput, PkgStreamInput):
@@ -72,7 +85,6 @@ class DownloadCmd(SbomInput, PkgStreamInput):
     def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
-        cache = PersistentResolverCache(outdir / ".cache")
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolver(args)
         else:
@@ -80,8 +92,12 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         rs = requests.Session()
         rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
-        sdl = sdlclient.SnapshotDataLake(session=rs)
-        u_resolver = UpstreamResolver(sdl, cache)
+        u_resolver = RESOLVERS[args.resolver](rs)
+        if type(u_resolver.cache) is PackageResolverCache:
+            cachedir = outdir / ".cache"
+            cachedir.mkdir(exist_ok=True)
+            cache = PersistentResolverCache(cachedir / args.resolver)
+            u_resolver.cache = cache
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:
@@ -97,11 +113,12 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             if args.progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(u_resolver.resolve(pkg))
+                files = list(u_resolver._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
-            except sdlclient.NotFoundOnSnapshotError:
-                logger.warning(f"not found upstream: {pkg}")
+            except ResolveError:
+                pkg_type = "source" if pkg.is_source() else "binary"
+                logger.warning(f"failed to resolve {pkg_type} package: {pkg}")
                 if args.json:
                     print(
                         DownloadResult(
@@ -135,4 +152,10 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             "--skip-pkgs",
             metavar="SKIP",
             help="packages to exclude from the download, in package-list format",
+        )
+        parser.add_argument(
+            "--resolver",
+            choices=RESOLVERS.keys(),
+            default="debian-snapshot",
+            help="resolver to use to find upstream packages (default: %(default)s)",
         )

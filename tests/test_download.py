@@ -12,7 +12,6 @@ from debsbom.download.adapters import LocalFileAdapter
 from debsbom.download import (
     PackageDownloader,
     PersistentResolverCache,
-    UpstreamResolver,
 )
 from debsbom.download.download import DownloadResult, DownloadStatus
 from debsbom.resolver import PackageResolver, PackageStreamResolver
@@ -26,7 +25,7 @@ from debsbom.dpkg.package import (
 from debsbom.generate.spdx import spdx_bom
 from debsbom.generate.cdx import cyclonedx_bom
 from debsbom.repack.packer import BomTransformer, Packer
-from debsbom.snapshot.client import RemoteFile
+from debsbom.snapshot.client import SnapshotRemoteFile, UpstreamResolver
 import debsbom.snapshot.client as sdlclient
 
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
@@ -66,7 +65,7 @@ def cdx_bomfile(tmpdir):
 @pytest.mark.online
 def test_download(tmpdir, http_session):
     dl = PackageDownloader(Path(tmpdir), session=http_session)
-    test_file = RemoteFile(
+    test_file = SnapshotRemoteFile(
         checksums={ChecksumAlgo.SHA1SUM: "1f3a43c181b81e3578d609dc0931ff147623eb38"},
         filename="pytest_8.4.2-1.dsc",
         size=2757,
