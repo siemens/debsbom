@@ -8,6 +8,7 @@ from pathlib import Path
 import jsonschema
 
 import pytest
+from debsbom.download.adapters import LocalFileAdapter
 from debsbom.download import (
     PackageDownloader,
     PersistentResolverCache,
@@ -31,6 +32,7 @@ import debsbom.snapshot.client as sdlclient
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
+from requests import Session
 
 from unittest import mock
 
@@ -291,3 +293,18 @@ def test_download_result_invalid(dlschema):
     }
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(data, schema=dlschema)
+
+
+def test_local_file():
+    session = Session()
+    session.mount("file:///", LocalFileAdapter())
+    with session.get("file://" + str(Path("tests/data/local-download").absolute())) as r:
+        assert r.status_code == 200
+        assert r.content == b"This is a test file for the local file adapter test.\n"
+
+
+def test_local_file_404():
+    session = Session()
+    session.mount("file:///", LocalFileAdapter())
+    with session.get("file:///does-not-exist") as r:
+        assert r.status_code == 404
