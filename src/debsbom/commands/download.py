@@ -18,6 +18,7 @@ try:
     from zstandard import ZstdCompressor, ZstdDecompressor
     import requests
     from ..snapshot import client as sdlclient
+    from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader
     from ..download.resolver import PersistentResolverCache, UpstreamResolver
     from debsbom.download.download import DownloadStatus, DownloadResult
@@ -77,6 +78,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         else:
             resolver = cls.get_pkgstream_resolver()
         rs = requests.Session()
+        rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
         sdl = sdlclient.SnapshotDataLake(session=rs)
         u_resolver = UpstreamResolver(sdl, cache)
