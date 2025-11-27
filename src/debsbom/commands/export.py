@@ -15,7 +15,7 @@ class ExportCmd(SbomInput):
 
     @classmethod
     def run(cls, args):
-        from ..export.spdx import GraphExporter
+        from ..export.exporter import GraphExporter
         from ..export.exporter import GraphOutputFormat
 
         exporter = cls.create_sbom_processor(
