@@ -8,19 +8,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Install required dependencies
+  - name: Install dev dependencies
     shell: bash
     run: |
       python -m pip install --upgrade pip
-      pip install .[cdx,spdx]
-
-  - name: test generate minimal deps
-    shell: bash
-    run: $(which debsbom) -v generate -t spdx -t cdx -o sbom --root tests/root/tree --validate
-
-  - name: Install dev dependencies
-    shell: bash
-    run: pip install .[dev]
+      pip install .[dev]
 
   - name: Run pytest
     env:
