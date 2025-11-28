@@ -20,8 +20,6 @@ from ..dpkg.package import (
 )
 from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
-from .cdx import cyclonedx_bom
-from .spdx import spdx_bom
 
 
 logger = logging.getLogger(__name__)
@@ -254,6 +252,8 @@ class Debsbom:
 
         write_to_stdout = out == "-"
         if SBOMType.CycloneDX in self.sbom_types:
+            from .cdx import cyclonedx_bom
+
             cdx_out = out
             if cdx_out != "-" and not cdx_out.endswith(".cdx.json"):
                 cdx_out += ".cdx.json"
@@ -278,6 +278,8 @@ class Debsbom:
             else:
                 BomWriter.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
         if SBOMType.SPDX in self.sbom_types:
+            from .spdx import spdx_bom
+
             spdx_out = out
             if spdx_out != "-" and not spdx_out.endswith(".spdx.json"):
                 spdx_out += ".spdx.json"

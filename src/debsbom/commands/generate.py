@@ -23,9 +23,20 @@ class GenerateCmd(GenerateInput):
     @staticmethod
     def run(args):
         if args.sbom_type is None:
-            sbom_types = [SBOMType.SPDX, SBOMType.CycloneDX]
+            sbom_types: list[SBOMType] = []
+            missing_deps: list[str] = []
+            for stype in [SBOMType.SPDX, SBOMType.CycloneDX]:
+                try:
+                    stype.validate_dependency_availability()
+                    sbom_types.append(stype)
+                except RuntimeError as e:
+                    missing_deps.append(str(e))
+            if sbom_types == []:
+                raise RuntimeError(f"Cannot generate any SBOM due to {', '.join(missing_deps)}")
         else:
-            sbom_types = [SBOMType.from_str(stype) for stype in args.sbom_type]
+            sbom_types: list[SBOMType] = [SBOMType.from_str(stype) for stype in args.sbom_type]
+            for stype in sbom_types:
+                stype.validate_dependency_availability()
 
         cdx_standard = BOM_Standard.DEFAULT
         if args.cdx_standard == "standard-bom":
