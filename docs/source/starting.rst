@@ -14,22 +14,25 @@ Virtual Environment
 
    ``source <env_name>/bin/activate``
 
-3. Install the dependencies in the virtual environment with one of the following commands:
+3. Install debsbom and its dependencies in the virtual environment with one of the following commands:
 
-   - ``pip3 install -e .``
-        Installs the dependencies for all but the download command.
+   - Installs the debsbom pip package with its core dependencies:
 
-   - ``pip3 install -e .[download]``
-        Installs the dependencies for all commands.
+      ``pip3 install debsbom[cdx,spdx,download]``
 
-   - ``pip3 install -e .[dev]``
-        Installs the dependencies for all commands, as well as dependencies for testing and documentation building
+      If you do not need CycloneDX, SPDX, or download support, you can omit the respective extras.
 
-4. test installation with:
+   - Installs the debsbom package in editable mode with all dependencies, including development dependencies for testing and documentation building:
+
+      ``pip3 install -e .[dev]``
+
+      Replace the dot (.) with the path to the debsbom source code if not executing from within the source directory.
+
+4. Test the installation with:
 
    ``debsbom -h``
 
-**Optional**: To significantly speedup the parsing of deb822 data, it is recommended to install the non-pip package python3-apt (e.g., ``apt install python3-apt`` on Debian-based systems)
+**Optional**: To significantly speed up the parsing of deb822 data, it is recommended to install the system package python3-apt (e.g., ``apt install python3-apt`` on Debian-based systems)
 
 Container Image
 ---------------
