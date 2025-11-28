@@ -6,9 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "debsbom"
 version = "0.4.0"
 dependencies = [
-  "cyclonedx-python-lib>=9.0.0",
   "packageurl-python>=0.16.0",
-  "spdx-tools>=0.8.3",
   "python-debian>=0.1.49",
 ]
 requires-python = ">=3.11"
@@ -43,6 +41,14 @@ dev = [
   "lz4",
   "debsbom[download]",
   "debsbom[doc]",
+  "debsbom[cdx]",
+  "debsbom[spdx]",
+]
+cdx = [
+  "cyclonedx-python-lib>=9.0.0",
+]
+spdx = [
+  "spdx-tools>=0.8.3",
 ]
 download = [
     "requests>=2.25.1",

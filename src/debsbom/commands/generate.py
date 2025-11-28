@@ -23,9 +23,23 @@ class GenerateCmd(GenerateInput):
     @staticmethod
     def run(args):
         if args.sbom_type is None:
-            sbom_types = [SBOMType.SPDX, SBOMType.CycloneDX]
+            sbom_types: list[SBOMType] = []
+            for stype in [SBOMType.SPDX, SBOMType.CycloneDX]:
+                try:
+                    stype.validate_dependency_availability()
+                    sbom_types.append(stype)
+                except RuntimeError:
+                    pass
+            if sbom_types == []:
+                raise RuntimeError(
+                    "Cannot generate any SBOM because no SBOM format dependencies are available. "
+                    "Install them by enabling the dependency extras `cdx` and/or `spdx`: "
+                    "`pip install debsbom[spdx]`, `pip install debsbom[cdx]`."
+                )
         else:
-            sbom_types = [SBOMType.from_str(stype) for stype in args.sbom_type]
+            sbom_types: list[SBOMType] = [SBOMType.from_str(stype) for stype in args.sbom_type]
+            for stype in sbom_types:
+                stype.validate_dependency_availability()
 
         cdx_standard = BOM_Standard.DEFAULT
         if args.cdx_standard == "standard-bom":

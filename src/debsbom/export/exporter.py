@@ -33,14 +33,16 @@ class GraphExporter:
         Factory to create a GraphExporter for the given SBOM type (based on the filename extension).
         """
         if filename.name.endswith("spdx.json"):
-            from ..bomreader import SpdxBomReader
+            SBOMType.SPDX.validate_dependency_availability()
+            from ..bomreader.spdxbomreader import SpdxBomReader
             from .spdx import SpdxGraphMLExporter
 
             bom = SpdxBomReader.read_file(filename)
             if format == GraphOutputFormat.GRAPHML:
                 return SpdxGraphMLExporter(bom)
         elif filename.name.endswith("cdx.json"):
-            from ..bomreader import CdxBomReader
+            SBOMType.CycloneDX.validate_dependency_availability()
+            from ..bomreader.cdxbomreader import CdxBomReader
             from .cdx import CdxGraphMLExporter
 
             bom = CdxBomReader.read_file(filename)
@@ -56,15 +58,16 @@ class GraphExporter:
         """
         Factory to create a GraphExporter for the given SBOM type that takes the SBOM as stream.
         """
+        bomtype.validate_dependency_availability()
         if bomtype == SBOMType.SPDX:
-            from ..bomreader import SpdxBomReader
+            from ..bomreader.spdxbomreader import SpdxBomReader
             from .spdx import SpdxGraphMLExporter
 
             bom = SpdxBomReader.read_stream(stream)
             if format == GraphOutputFormat.GRAPHML:
                 return SpdxGraphMLExporter(bom)
         else:
-            from ..bomreader import CdxBomReader
+            from ..bomreader.cdxbomreader import CdxBomReader
             from .cdx import CdxGraphMLExporter
 
             bom = CdxBomReader.read_stream(stream)

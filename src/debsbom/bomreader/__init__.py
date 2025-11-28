@@ -3,5 +3,3 @@
 # SPDX-License-Identifier: MIT
 
 from .bomreader import BomReader
-from .spdxbomreader import SpdxBomReader
-from .cdxbomreader import CdxBomReader
