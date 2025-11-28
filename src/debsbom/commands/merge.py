@@ -7,12 +7,8 @@ import json
 from pathlib import Path
 import sys
 
-from ..bomreader.cdxbomreader import CdxBomReader
-from ..bomreader.spdxbomreader import SpdxBomReader
 from ..bomwriter import BomWriter
 from .input import GenerateInput, warn_if_tty
-from ..merge.spdx import SpdxSbomMerger
-from ..merge.cdx import CdxSbomMerger
 from ..sbom import SBOMType
 from ..util.progress import progress_cb
 
@@ -44,14 +40,20 @@ class MergeCmd(GenerateInput):
             else:
                 sbom_path = Path(sbom)
                 if ".spdx" in sbom_path.suffixes:
+                    SBOMType.SPDX.validate_dependency_availability()
                     spdx_paths.append(sbom_path)
                 elif ".cdx" in sbom_path.suffixes:
+                    SBOMType.CycloneDX.validate_dependency_availability()
                     cdx_paths.append(sbom_path)
 
         docs = []
         if len(spdx_paths) > 0 and len(cdx_paths) > 0:
             raise ValueError("can not merge mixed SPDX and CycloneDX documents")
         elif len(spdx_paths) > 0 or args.sbom_type == "spdx":
+            SBOMType.SPDX.validate_dependency_availability()
+            from ..bomreader.spdxbomreader import SpdxBomReader
+            from ..merge.spdx import SpdxSbomMerger
+
             if json_sboms:
                 for obj in json_sboms:
                     docs.append(SpdxBomReader.from_json(obj))
@@ -75,6 +77,10 @@ class MergeCmd(GenerateInput):
                     out += ".spdx.json"
                 BomWriter.write_to_file(bom, SBOMType.SPDX, Path(out), args.validate)
         elif len(cdx_paths) > 0 or args.sbom_type == "cdx":
+            SBOMType.CycloneDX.validate_dependency_availability()
+            from ..bomreader.cdxbomreader import CdxBomReader
+            from ..merge.cdx import CdxSbomMerger
+
             if json_sboms:
                 for obj in json_sboms:
                     docs.append(CdxBomReader.from_json(obj))

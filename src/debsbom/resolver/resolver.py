@@ -31,13 +31,15 @@ class PackageResolver:
         Factory to create a PackageResolver for the given SBOM type (based on the filename extension).
         """
         if filename.name.endswith("spdx.json"):
+            SBOMType.SPDX.validate_dependency_availability()
             from .spdx import SpdxPackageResolver
-            from ..bomreader import SpdxBomReader
+            from ..bomreader.spdxbomreader import SpdxBomReader
 
             return SpdxPackageResolver(SpdxBomReader.read_file(filename))
         elif filename.name.endswith("cdx.json"):
+            SBOMType.CycloneDX.validate_dependency_availability()
             from .cdx import CdxPackageResolver
-            from ..bomreader import CdxBomReader
+            from ..bomreader.cdxbomreader import CdxBomReader
 
             return CdxPackageResolver(CdxBomReader.read_file(filename))
         else:
@@ -48,14 +50,15 @@ class PackageResolver:
         """
         Factory to create a PackageResolver for the given SBOM type that parses a stream.
         """
+        bomtype.validate_dependency_availability()
         if bomtype == SBOMType.SPDX:
             from .spdx import SpdxPackageResolver
-            from ..bomreader import SpdxBomReader
+            from ..bomreader.spdxbomreader import SpdxBomReader
 
             return SpdxPackageResolver(SpdxBomReader.read_stream(stream))
         else:
             from .cdx import CdxPackageResolver
-            from ..bomreader import CdxBomReader
+            from ..bomreader.cdxbomreader import CdxBomReader
 
             return CdxPackageResolver(CdxBomReader.read_stream(stream))
 

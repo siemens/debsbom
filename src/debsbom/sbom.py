@@ -53,6 +53,22 @@ class SBOMType(Enum):
             return SBOMType.SPDX
         raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
 
+    def validate_dependency_availability(self) -> None:
+        """
+        Check if the required imports for the SBOM type are available.
+        Raises RuntimeError if not available.
+        """
+        if self == SBOMType.CycloneDX:
+            try:
+                import cyclonedx.model.component
+            except ModuleNotFoundError as e:
+                raise RuntimeError(f"Missing dependency: {e}")
+        elif self == SBOMType.SPDX:
+            try:
+                import spdx_tools.spdx.model.package
+            except ModuleNotFoundError as e:
+                raise RuntimeError(f"Missing dependency: {e}")
+
 
 class BOM_Standard(Enum):
     """Controls the data representation and added values in the SBOM"""
