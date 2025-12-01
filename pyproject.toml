@@ -56,7 +56,7 @@ apt = [
 
 # dependencies to build documentation
 doc = [
-  "sphinx>=7,<8",
+  "sphinx>=7",
   "sphinx-rtd-theme>=2.0.0",
   "sphinx-autodoc-typehints>=2.0.0",
   "sphinx-argparse>=0.2.1",
