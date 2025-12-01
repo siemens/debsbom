@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import IO
+from io import TextIOBase
 
 from .bomreader import BomReader
 from ..sbom import CDXType
@@ -21,7 +21,7 @@ class CdxBomReader(BomReader, CDXType):
             return cls.read_stream(f)
 
     @classmethod
-    def read_stream(cls, stream: IO[str]) -> Bom:
+    def read_stream(cls, stream: TextIOBase) -> Bom:
         return cls.from_json(json.load(stream))
 
     @classmethod

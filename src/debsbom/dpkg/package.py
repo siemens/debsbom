@@ -9,7 +9,6 @@ from enum import Enum
 import io
 import itertools
 from pathlib import Path
-from typing import IO
 from debian.deb822 import Packages, PkgRelation
 from debian.debian_support import Version
 import logging
@@ -64,7 +63,7 @@ class PkgListStream:
     to return the source type of data from which the packages are created.
     """
 
-    def __init__(self, stream: IO, kind: PkgListType, pkgs: Iterable["Package"]):
+    def __init__(self, stream: io.IOBase, kind: PkgListType, pkgs: Iterable["Package"]):
         self._stream = stream
         self.kind = kind
         self._pkgs = pkgs
@@ -160,7 +159,7 @@ class Package(ABC):
 
     @classmethod
     def _parse_dpkg_status(
-        cls, stream: IO, force_no_apt: bool = False
+        cls, stream: io.IOBase, force_no_apt: bool = False
     ) -> Iterable["BinaryPackage"]:
         """
         Parse a dpkg status file and returns binary packages with their relations.
@@ -178,7 +177,7 @@ class Package(ABC):
             yield bpkg
 
     @classmethod
-    def parse_pkglist_stream(cls, stream: IO) -> PkgListStream:
+    def parse_pkglist_stream(cls, stream: io.IOBase) -> PkgListStream:
         """
         Parses a stream of space separated tuples describing packages
         (name, version, arch), PURLs, isar manifest data
@@ -212,7 +211,7 @@ class Package(ABC):
         return PkgListStream(bstream, PkgListType.PKG_LIST, cls._parse_pkglist_line_stream(bstream))
 
     @classmethod
-    def _parse_pkglist_line_stream(cls, stream: IO[bytes]) -> Iterable["Package"]:
+    def _parse_pkglist_line_stream(cls, stream: io.IOBase) -> Iterable["Package"]:
         for line in stream:
             name, version, arch = line.decode().strip().split()
             if arch == "source":
@@ -228,7 +227,7 @@ class Package(ABC):
                 )
 
     @classmethod
-    def _parse_manifest_line_stream(cls, stream: IO[bytes]) -> Iterable["Package"]:
+    def _parse_manifest_line_stream(cls, stream: io.IOBase) -> Iterable["Package"]:
         """
         Parse isar manifest file entries. The format is:
         <src name>|<src version>|<bin name>:<bin arch>|<bin version>
