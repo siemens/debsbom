@@ -4,7 +4,7 @@
 
 import json
 from pathlib import Path
-from typing import IO
+from io import TextIOBase
 
 from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file as spdx_parse_file
@@ -23,7 +23,7 @@ class SpdxBomReader(BomReader, SPDXType):
         return spdx_parse_file(str(filename))
 
     @classmethod
-    def read_stream(cls, stream: IO[str]) -> Document:
+    def read_stream(cls, stream: TextIOBase) -> Document:
         return cls.from_json(json.load(stream))
 
     @classmethod

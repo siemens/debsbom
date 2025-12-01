@@ -5,7 +5,7 @@
 from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import IO
+from io import IOBase
 
 from ..sbom import SBOMType
 
@@ -50,7 +50,9 @@ class GraphExporter:
             raise RuntimeError("Cannot determine file format")
 
     @staticmethod
-    def from_stream(stream: IO, bomtype: SBOMType, format: GraphOutputFormat) -> "GraphExporter":
+    def from_stream(
+        stream: IOBase, bomtype: SBOMType, format: GraphOutputFormat
+    ) -> "GraphExporter":
         """
         Factory to create a GraphExporter for the given SBOM type that takes the SBOM as stream.
         """
@@ -70,6 +72,6 @@ class GraphExporter:
                 return CdxGraphMLExporter(bom)
 
     @abstractmethod
-    def export(self, output: IO):
+    def export(self, output: IOBase):
         """Export the graph. Abstract method."""
         raise NotImplementedError()

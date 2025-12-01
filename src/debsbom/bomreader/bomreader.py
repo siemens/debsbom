@@ -4,7 +4,7 @@
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import IO
+from io import TextIOBase
 
 
 class BomReader:
@@ -18,7 +18,7 @@ class BomReader:
 
     @classmethod
     @abstractmethod
-    def read_stream(cls, stream: IO[str]):
+    def read_stream(cls, stream: TextIOBase):
         """Parse and return a BOM instance from the stream"""
         raise NotImplementedError()
 

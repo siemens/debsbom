@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import IO
 from ..dpkg.package import Package
 from ..util.checksum_cdx import checksum_dict_from_cdx
 from ..sbom import CDXType

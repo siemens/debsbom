@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
-from typing import IO
+from io import IOBase
 import xml.etree.ElementTree as ET
 
 
@@ -42,7 +42,7 @@ class GraphMLExporter:
         self.add_dependencies(graph)
         return root
 
-    def export(self, output: IO):
+    def export(self, output: IOBase):
         root = self._create_root_node()
         tree = ET.ElementTree(root)
         ET.indent(tree, level=0)

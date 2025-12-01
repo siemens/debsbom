@@ -4,7 +4,7 @@
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import IO
+from io import IOBase
 
 from ..dpkg import package
 from ..sbom import SBOMType
@@ -44,7 +44,7 @@ class PackageResolver:
             raise RuntimeError("Cannot determine file format")
 
     @staticmethod
-    def from_stream(stream: IO, bomtype=SBOMType) -> "PackageResolver":
+    def from_stream(stream: IOBase, bomtype=SBOMType) -> "PackageResolver":
         """
         Factory to create a PackageResolver for the given SBOM type that parses a stream.
         """
@@ -66,7 +66,7 @@ class PackageStreamResolver(PackageResolver):
     instances, depending on input. Iterable class.
     """
 
-    def __init__(self, pkgstream: IO):
+    def __init__(self, pkgstream: IOBase):
         """
         The input can be either be newline separated pkg-list entries
         (name version architecture) or newline separated PURLs.
