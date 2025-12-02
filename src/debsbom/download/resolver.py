@@ -103,6 +103,8 @@ class PersistentResolverCache(PackageResolverCache):
         ):
             try:
                 data = json.load(f)
+                for d in data:
+                    d["checksums"] = {ChecksumAlgo(int(k)): v for k, v in d["checksums"].items()}
             except json.decoder.JSONDecodeError:
                 logger.warning(f"cache file {entry.name} ({p}) is corrupted")
                 return None
