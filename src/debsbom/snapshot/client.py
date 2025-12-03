@@ -11,7 +11,6 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from debian import deb822
-import hashlib
 import logging
 import requests
 from requests.exceptions import RequestException
@@ -20,6 +19,7 @@ from ..dpkg import package
 from ..util.checksum import (
     ChecksumAlgo,
     NoMatchingDigestError,
+    calculate_checksums,
     checksums_from_dsc,
     verify_best_matching_digest,
 )
@@ -260,7 +260,7 @@ class SnapshotRemoteDscFile:
 
     def _fetch(self):
         r = self.sdl.get(url=self.dscfile.downloadurl)
-        self.sha256 = hashlib.sha256(r.content).hexdigest()
+        self.checksums = calculate_checksums(r.content)
         self._dsc = deb822.Dsc(r.content)
 
     @property
@@ -378,22 +378,23 @@ class UpstreamResolver(Resolver):
         we find the one with a matching checksum. Then use the .dsc file to locate all other
         referenced artifacts.
         """
-        if not srcpkg.checksums.get(ChecksumAlgo.SHA256SUM):
+        if not srcpkg.checksums or len(srcpkg.checksums) == 0:
             # a source package should be uniquely identifiable by just its name + version,
             # so we do not want to emit a warning here;
             # see https://lists.debian.org/debian-devel/2025/10/msg00236.html
-            logger.info(
-                f"no sha256 digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise"
-            )
+            logger.info(f"no digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise")
             yield from self._distinct_by_archive_filename(self._sort_by_archive(sdlpkg.srcfiles()))
             return
 
         dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
         for d in dscfiles:
-            if d.sha256 == srcpkg.checksums[package.ChecksumAlgo.SHA256SUM]:
-                yield d.dscfile
-                yield from d.srcfiles()
-                return
+            try:
+                if verify_best_matching_digest(d.checksums, srcpkg.checksums):
+                    yield d.dscfile
+                    yield from d.srcfiles()
+                    return
+            except NoMatchingDigestError:
+                continue
 
     def resolve(self, p: package.Package) -> list["RemoteFile"]:
         """

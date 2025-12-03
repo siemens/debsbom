@@ -118,8 +118,8 @@ class SourceArchiveMerger:
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
 
-        if package.ChecksumAlgo.SHA256SUM in p.checksums:
-            logger.debug(f"Checking sha256sum of '{dsc}'...")
+        if len(p.checksums) > 0:
+            logger.debug(f"Checking checksums of '{dsc}'...")
             if not p.checksums and not check_hash_from_path(dsc, p.checksums):
                 raise CorruptedFileError(dsc)
 
