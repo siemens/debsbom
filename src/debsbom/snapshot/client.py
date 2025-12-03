@@ -65,13 +65,7 @@ class Package:
         """
         Iterate all versions of a ``SourcePackage``.
         """
-        try:
-            r = self.sdl.rs.get(self.sdl.url + f"/mr/package/{self.name}/")
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        data = self.sdl.get(path=f"/mr/package/{self.name}/").json()
         for v in data["result"]:
             yield SourcePackage(self.sdl, self.name, v["version"])
 
@@ -95,16 +89,9 @@ class SourcePackage:
         If the package is not known to the snapshot mirror, raises NotFoundOnSnapshotError.
         If the filtering does not match any, return empty iterator.
         """
-        try:
-            r = self.sdl.rs.get(
-                self.sdl.url + f"/mr/package/{self.name}/{self.version}" "/srcfiles?fileinfo=1"
-            )
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
-
+        data = self.sdl.get(
+            path=f"/mr/package/{self.name}/{self.version}/srcfiles?fileinfo=1"
+        ).json()
         fileinfo = data.get("fileinfo")
         for s in data.get("result", []):
             hash = s["hash"]
@@ -121,15 +108,7 @@ class SourcePackage:
         """
         All binary packages created from this source package
         """
-        try:
-            r = self.sdl.rs.get(
-                self.sdl.url + f"/mr/package/{self.name}/{self.version}" "/binpackages"
-            )
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        data = self.sdl.get(path=f"/mr/package/{self.name}/{self.version}/binpackages").json()
         for b in data.get("result", []):
             yield BinaryPackage(self.sdl, b["name"], b["version"], self.name, self.version)
 
@@ -169,20 +148,14 @@ class BinaryPackage:
         if self.srcname and self.srcversion:
             # resolve via source package
             api = (
-                self.sdl.url + f"/mr/package/{self.srcname}/{self.srcversion}"
+                f"/mr/package/{self.srcname}/{self.srcversion}"
                 f"/binfiles/{self.binname}/{self.binversion}"
                 "?fileinfo=1"
             )
         else:
             # resolve via binary only
-            api = self.sdl.url + f"/mr/binary/{self.binname}/{self.binversion}/binfiles?fileinfo=1"
-        try:
-            r = self.sdl.rs.get(api)
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+            api = f"/mr/binary/{self.binname}/{self.binversion}/binfiles?fileinfo=1"
+        data = self.sdl.get(path=api).json()
         fileinfo = data.get("fileinfo")
         for f in data.get("result"):
             hash = f["hash"]
@@ -234,16 +207,28 @@ class SnapshotDataLake:
         # reuse the same connection for all requests
         self.rs = session
 
+    def get(self, path: str = None, url: str = None) -> requests.Response:
+        """
+        Perform a GET request on the snapshot server. Either a full URL or a path relative to the
+        base URL must be provided.
+        """
+        if (url is None) == (path is None):
+            raise ValueError("either path or url must be provided")
+        try:
+            response: requests.Response = self.rs.get(self.url + path if path else url)
+            if response.status_code == 404:
+                raise NotFoundOnSnapshotError()
+            response.raise_for_status()
+            return response
+        except RequestException as e:
+            raise SnapshotDataLakeError(e)
+
     def packages(self) -> Iterable[Package]:
         """
         Iterate all known packages on the mirror. The request is costly.
         If you need to access a package by name, create the ``Package`` directly.
         """
-        try:
-            r = self.rs.get(self.url + "/mr/package/")
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        data = self.get(path="/mr/package/").json()
         for p in data.get("result", []):
             yield Package(self, p["package"])
 
@@ -251,11 +236,7 @@ class SnapshotDataLake:
         """
         Retrieve information about a file by hash.
         """
-        try:
-            r = self.rs.get(self.url + f"/mr/file/{hash}/info")
-            data = r.json()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        data = self.get(path=f"/mr/file/{hash}/info").json()
         for f in data.get("result", []):
             yield SnapshotRemoteFile.fromfileinfo(self, hash, f)
 
@@ -278,12 +259,7 @@ class SnapshotRemoteDscFile:
         self._fetch()
 
     def _fetch(self):
-        try:
-            r = self.sdl.rs.get(self.dscfile.downloadurl)
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        r = self.sdl.get(url=self.dscfile.downloadurl)
         self.sha256 = hashlib.sha256(r.content).hexdigest()
         self._dsc = deb822.Dsc(r.content)
 

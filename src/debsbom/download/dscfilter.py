@@ -12,10 +12,8 @@ from ..util.checksum import (
     verify_best_matching_digest,
 )
 from ..snapshot.client import (
-    NotFoundOnSnapshotError,
     RemoteFile,
     SnapshotDataLake,
-    SnapshotDataLakeError,
 )
 
 
@@ -35,12 +33,7 @@ class RemoteDscFile:
         self._fetch()
 
     def _fetch(self):
-        try:
-            r = self.sdl.rs.get(self.dscfile.downloadurl)
-            if r.status_code == 404:
-                raise NotFoundOnSnapshotError()
-        except RequestException as e:
-            raise SnapshotDataLakeError(e)
+        r = self.sdl.get(url=self.dscfile.downloadurl)
         self.checksums = calculate_checksums(r.content)
         self._dsc = deb822.Dsc(r.content)
 
