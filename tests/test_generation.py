@@ -321,6 +321,10 @@ def test_apt_lists_compression(tmpdir, sbom_generator, tool):
                     "algorithm": "MD5",
                     "checksumValue": "041580298095f940c2c9c130e0d6e149",
                 } in pkg["checksums"]
+                assert {
+                    "algorithm": "SHA512",
+                    "checksumValue": "98432f5466d899b96031702e3bb3d75b398a691b295bc248edbc5254f5460f1f4affce98246e95cd51f10e09636e7cdee0b6df2423842179314236485b3fb1d1",
+                } in pkg["checksums"]
 
 
 def test_pkglist_apt_cache(tmpdir, sbom_generator):
