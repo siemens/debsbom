@@ -41,6 +41,7 @@ class ChecksumAlgo(IntEnum):
     MD5SUM = 1
     SHA1SUM = 2
     SHA256SUM = 3
+    SHA512SUM = 4
 
     @classmethod
     def from_hashlib(cls, algo: str):
@@ -50,6 +51,8 @@ class ChecksumAlgo(IntEnum):
             return cls.SHA1SUM
         if algo == "sha256":
             return cls.SHA256SUM
+        if algo == "sha512":
+            return cls.SHA512SUM
         raise ChecksumNotSupportedError(algo)
 
     def to_hashlib(self) -> str:
@@ -59,6 +62,8 @@ class ChecksumAlgo(IntEnum):
             return "sha1"
         if self == ChecksumAlgo.SHA256SUM:
             return "sha256"
+        if self == ChecksumAlgo.SHA512SUM:
+            return "sha512"
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -178,6 +183,7 @@ deb882_table = [
     (ChecksumAlgo.MD5SUM, "Files", "md5sum"),
     (ChecksumAlgo.SHA1SUM, "Checksums-Sha1", "sha1"),
     (ChecksumAlgo.SHA256SUM, "Checksums-Sha256", "sha256"),
+    (ChecksumAlgo.SHA512SUM, "Checksums-Sha512", "sha512"),
 ]
 
 

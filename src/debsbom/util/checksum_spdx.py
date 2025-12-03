@@ -9,6 +9,7 @@ _CHKSUM_TO_SPDX = {
     ChecksumAlgo.MD5SUM: ChecksumAlgorithm.MD5,
     ChecksumAlgo.SHA1SUM: ChecksumAlgorithm.SHA1,
     ChecksumAlgo.SHA256SUM: ChecksumAlgorithm.SHA256,
+    ChecksumAlgo.SHA512SUM: ChecksumAlgorithm.SHA512,
 }
 
 
