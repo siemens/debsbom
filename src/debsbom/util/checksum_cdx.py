@@ -10,6 +10,7 @@ _CHKSUM_TO_CDX = {
     ChecksumAlgo.MD5SUM: cdx_hashalgo.MD5,
     ChecksumAlgo.SHA1SUM: cdx_hashalgo.SHA_1,
     ChecksumAlgo.SHA256SUM: cdx_hashalgo.SHA_256,
+    ChecksumAlgo.SHA512SUM: cdx_hashalgo.SHA_512,
 }
 
 
