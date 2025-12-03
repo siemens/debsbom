@@ -16,6 +16,7 @@ Filename: pool/main/b/binutils-arm-none-eabi/binutils-arm-none-eabi_2.40-2+18+b1
 Size: 2851564
 MD5sum: 041580298095f940c2c9c130e0d6e149
 SHA256: c8f9da2a434366bfe5a66a8267cb3b1df028f1d95278715050c222b43e1c221c
+SHA512: 98432f5466d899b96031702e3bb3d75b398a691b295bc248edbc5254f5460f1f4affce98246e95cd51f10e09636e7cdee0b6df2423842179314236485b3fb1d1
 
 Package: binutils-bpf
 Source: binutils-bpf (10)
