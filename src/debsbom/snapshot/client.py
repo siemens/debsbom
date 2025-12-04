@@ -382,7 +382,7 @@ class UpstreamResolver(Resolver):
             # a source package should be uniquely identifiable by just its name + version,
             # so we do not want to emit a warning here;
             # see https://lists.debian.org/debian-devel/2025/10/msg00236.html
-            logger.info(f"no digest for {srcpkg.name}@{srcpkg.version}. Lookup will be imprecise")
+            logger.info(f"no digest for {srcpkg}. Lookup will be imprecise")
             yield from self._distinct_by_archive_filename(self._sort_by_archive(sdlpkg.srcfiles()))
             return
 
