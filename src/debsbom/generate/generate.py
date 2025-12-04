@@ -45,6 +45,7 @@ class Debsbom:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
+        add_meta_data: dict[str, str] | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
@@ -66,9 +67,32 @@ class Debsbom:
 
         self.cdx_serialnumber = cdx_serialnumber
         self.timestamp = timestamp
+        self.add_meta_data: dict[str, str] = self._parse_meta_data(add_meta_data)
 
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
+
+    @staticmethod
+    def _parse_meta_data(meta_args: list[str] | None) -> dict[str, str]:
+        metadata: dict[str, str] = {}
+
+        if not meta_args:
+            return metadata
+
+        for item in meta_args:
+            if "=" not in item:
+                raise ValueError(f"invalid --add-meta-data '{item}', expected key=value")
+
+            key, value = item.split("=", 1)
+
+            if not key:
+                raise ValueError(f"invalid --add-meta-data '{item}', key must be non-empty")
+            if not value:
+                raise ValueError(f"invalid --add-meta-data '{item}', value must be non-empty")
+
+            metadata[key] = value
+
+        return metadata
 
     def _import_packages(self, stream=None):
         if stream:
@@ -270,6 +294,7 @@ class Debsbom:
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                add_meta_data=self.add_meta_data,
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
@@ -296,6 +321,7 @@ class Debsbom:
                 namespace=self.spdx_namespace,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                add_meta_data=self.add_meta_data,
                 progress_cb=progress_cb,
             )
             if write_to_stdout:
