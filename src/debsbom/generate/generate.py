@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 from io import TextIOWrapper
 import itertools
+import re
 import sys
 import logging
 from pathlib import Path
@@ -21,6 +22,7 @@ from ..dpkg.package import (
 from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
 
+SNAPSHOT_RE = re.compile(r'(\d{8}T\d{6}Z)')
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,8 @@ class Debsbom:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
+        snapshot_main: str | None = None,
+        snapshot_security: str | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
@@ -66,6 +70,8 @@ class Debsbom:
 
         self.cdx_serialnumber = cdx_serialnumber
         self.timestamp = timestamp
+        self.snapshot_main = snapshot_main
+        self.snapshot_security = snapshot_security
 
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
@@ -92,6 +98,7 @@ class Debsbom:
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
         )
+
 
     @classmethod
     def _parse_distro_arch(cls, arch_native_file: Path) -> str | None:
@@ -270,6 +277,8 @@ class Debsbom:
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                snapshot_main=self.snapshot_main,
+                snapshot_security=self.snapshot_security,
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
@@ -296,6 +305,8 @@ class Debsbom:
                 namespace=self.spdx_namespace,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                snapshot_main=self.snapshot_main,
+                snapshot_security=self.snapshot_security,
                 progress_cb=progress_cb,
             )
             if write_to_stdout:

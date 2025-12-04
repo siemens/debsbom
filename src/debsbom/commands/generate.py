@@ -59,6 +59,8 @@ class GenerateCmd(GenerateInput):
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,
             timestamp=args.timestamp,
+            snapshot_main=args.snapshot_main,
+            snapshot_security=args.snapshot_security,
             cdx_standard=cdx_standard,
         )
         if args.from_pkglist:

@@ -63,6 +63,8 @@ def make_creation_info(
     distro_name: str,
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
+    snapshot_main: str | None = None,
+    snapshot_security: str | None = None,
 ) -> spdx_document.CreationInfo:
     if namespace is None:
         namespace = urlparse(
@@ -88,7 +90,29 @@ def make_creation_info(
         ],
         created=timestamp,
     )
+    snapshot=_make_creator_comment(snapshot_main,snapshot_security)
+    if snapshot:
+        creation_info.creator_comment=snapshot
+
     return creation_info
+
+
+def _make_creator_comment(
+    snapshot_main: str | None,
+    snapshot_security: str | None,
+) -> str | None:
+
+    if not snapshot_main and snapshot_security:
+        return None
+
+    # build combined comment if available
+    repos = []
+    if snapshot_main:
+        repos.append(f"snapshot_main={snapshot_main}")
+    if snapshot_security:
+        repos.append(f"snapshot_security={snapshot_security}")
+
+    return ", ".join(repos)
 
 
 def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.Package:
@@ -195,6 +219,8 @@ def spdx_bom(
     base_distro_vendor: str | None = "debian",
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
+    snapshot_main: str | None = None,
+    snapshot_security: str | None = None,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
@@ -285,7 +311,7 @@ def spdx_bom(
     logger.debug(f"Created document relationship: {distro_relationship}")
     relationships.append(distro_relationship)
 
-    creation_info = make_creation_info(distro_name, namespace, timestamp)
+    creation_info = make_creation_info(distro_name, namespace, timestamp, snapshot_main, snapshot_security)
     document = spdx_document.Document(
         creation_info=creation_info,
         packages=data,

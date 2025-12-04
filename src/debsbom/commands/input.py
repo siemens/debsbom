@@ -138,6 +138,18 @@ class GenerateInput:
             default=None,
         )
         parser.add_argument(
+            "--snapshot-main",
+            type=str,
+            help="Debian main snapshot date from which the packages were built",
+            default=None,
+        )
+        parser.add_argument(
+            "--snapshot-security",
+            type=str,
+            help="Debian security snapshot date from which the packages were built",
+            default=None,
+        )
+        parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
