@@ -13,6 +13,7 @@ import cyclonedx.model.dependency as cdx_dependency
 import cyclonedx.model.definition as cdx_definition
 from cyclonedx.model import HashAlgorithm as cdx_hashalgo
 from cyclonedx.model import HashType as cdx_hashtype
+from cyclonedx.model import Property
 from datetime import datetime
 import logging
 from sortedcontainers import SortedSet
@@ -116,6 +117,7 @@ def make_distro_component(
 def make_metadata(
     component: cdx_component.Component,
     timestamp: datetime | None = None,
+    add_meta_data: list[str] | None = None,
 ) -> cdx_bom.BomMetaData:
     if timestamp is None:
         timestamp = datetime.now()
@@ -129,6 +131,7 @@ def make_metadata(
         name="debsbom",
         version=version("debsbom"),
     )
+
     if tool_urls:
         tool_component.external_references = (
             cdx_model.ExternalReference(
@@ -142,6 +145,20 @@ def make_metadata(
         component=component,
         tools=cdx_tool.ToolRepository(components=[tool_component]),
     )
+
+    # add meta-data as cyclonedx property
+    properties = []
+
+    if add_meta_data:
+        for item in add_meta_data:
+            if "=" not in item:
+                raise RuntimeError(f"Invalid --add-meta-data entry: '{item}', expected key=value")
+            key, value = item.split("=", 1)
+            properties.append(Property(name=key, value=value))
+
+    if properties:
+        bom_metadata.properties = properties
+
     return bom_metadata
 
 
@@ -154,6 +171,7 @@ def cyclonedx_bom(
     base_distro_vendor: str | None = "debian",
     serial_number: UUID | None = None,
     timestamp: datetime | None = None,
+    add_meta_data: list[str] | None = None,
     standard: BOM_Standard = BOM_Standard.DEFAULT,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> cdx_bom.Bom:
@@ -232,7 +250,7 @@ def cyclonedx_bom(
     logger.debug(f"Created distro dependency: {dependency}")
     dependencies.add(dependency)
 
-    bom_metadata = make_metadata(distro_component, timestamp)
+    bom_metadata = make_metadata(distro_component, timestamp, add_meta_data)
 
     if serial_number is None:
         serial_number = uuid4()

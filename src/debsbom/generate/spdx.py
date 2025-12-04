@@ -63,6 +63,7 @@ def make_creation_info(
     distro_name: str,
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
+    add_meta_data: list[str] | None = None,
 ) -> spdx_document.CreationInfo:
     if namespace is None:
         namespace = urlparse(
@@ -88,6 +89,20 @@ def make_creation_info(
         ],
         created=timestamp,
     )
+
+    comments = []
+
+    # arbitrary metadata handling
+    if add_meta_data:
+        for item in add_meta_data:
+            if "=" not in item:
+                raise RuntimeError(f"Invalid --add-meta-data entry '{item}', expected key=value")
+            key, value = item.split("=", 1)
+            comments.append(f"{key}={value}")
+
+    if comments:
+        creation_info.creator_comment = ", ".join(comments)
+
     return creation_info
 
 
@@ -195,6 +210,7 @@ def spdx_bom(
     base_distro_vendor: str | None = "debian",
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
+    add_meta_data: list[str] | None = None,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
@@ -285,7 +301,7 @@ def spdx_bom(
     logger.debug(f"Created document relationship: {distro_relationship}")
     relationships.append(distro_relationship)
 
-    creation_info = make_creation_info(distro_name, namespace, timestamp)
+    creation_info = make_creation_info(distro_name, namespace, timestamp, add_meta_data)
     document = spdx_document.Document(
         creation_info=creation_info,
         packages=data,

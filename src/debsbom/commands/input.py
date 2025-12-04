@@ -138,6 +138,12 @@ class GenerateInput:
             default=None,
         )
         parser.add_argument(
+            "--add-meta-data",
+            action="append",
+            metavar="key=value",
+            help="Add arbitrary metadata properties to the SBOM (Snapshot value)",
+        )
+        parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
