@@ -26,7 +26,7 @@ def sbom_generator():
         test_root: Path,
         uuid: UUID | None = None,
         timestamp: datetime | None = None,
-        sbom_types: list[SBOMType] = [SBOMType.SPDX, SBOMType.CycloneDX],
+        sbom_types: list[SBOMType] = list(SBOMType),
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
