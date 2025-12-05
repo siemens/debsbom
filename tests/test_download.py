@@ -22,15 +22,10 @@ from debsbom.dpkg.package import (
     filter_binaries,
     filter_sources,
 )
-from debsbom.generate.spdx import spdx_bom
-from debsbom.generate.cdx import cyclonedx_bom
 from debsbom.repack.packer import BomTransformer, Packer
 from debsbom.snapshot.client import SnapshotRemoteFile, UpstreamResolver
 import debsbom.snapshot.client as sdlclient
 
-import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
-import cyclonedx.output as cdx_output
-import cyclonedx.schema as cdx_schema
 from requests import Session
 
 from unittest import mock
@@ -41,6 +36,12 @@ def spdx_bomfile(tmpdir):
     """
     Return the path to a minimal spdx sbom file
     """
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.generate.spdx import spdx_bom
+
+    import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
+
     pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
     bom = spdx_bom(set(pkgs), "debian", "amd64")
     outfile = Path(tmpdir) / "bom.spdx.json"
@@ -53,6 +54,13 @@ def cdx_bomfile(tmpdir):
     """
     Return the path to a cdx minimal sbom file
     """
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.generate.cdx import cyclonedx_bom
+
+    import cyclonedx.output as cdx_output
+    import cyclonedx.schema as cdx_schema
+
     pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
     bom = cyclonedx_bom(set(pkgs), "debian", "amd64")
     outfile = Path(tmpdir) / "bom.cdx.json"

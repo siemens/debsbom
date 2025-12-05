@@ -20,12 +20,17 @@ def test_export_format_from_str():
 
 @pytest.mark.parametrize(
     "sbom_type",
-    [
-        "spdx",
-        "cdx",
-    ],
+    list(SBOMType)
 )
 def test_export_graphml(tmpdir, sbom_generator, sbom_type):
+    match sbom_type:
+        case SBOMType.SPDX:
+            _spdx_tools = pytest.importorskip("spdx_tools")
+        case SBOMType.CycloneDX:
+            _cyclonedx = pytest.importorskip("cyclonedx")
+        case _:
+            assert False, "unreachable"
+
     NAMESPACE = "http://graphml.graphdrawing.org/xmlns"
 
     def get_name(node):
@@ -34,7 +39,7 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
                 return data.text
         return None
 
-    dbom = sbom_generator("tests/root/tree", sbom_types=[SBOMType.from_str(sbom_type)])
+    dbom = sbom_generator("tests/root/tree", sbom_types=[sbom_type])
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=False)
 
