@@ -2,19 +2,19 @@
 #
 # SPDX-License-Identifier: MIT
 
-from cyclonedx.model.dependency import Dependency
 from pathlib import Path
 import pytest
-from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 
-from debsbom.bomreader.cdxbomreader import CdxBomReader
-from debsbom.bomreader.spdxbomreader import SpdxBomReader
-from debsbom.merge.cdx import CdxSbomMerger
-from debsbom.merge.spdx import SpdxSbomMerger
 from debsbom.util.checksum import ChecksumMismatchError
 
 
 def test_spdx_merge():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
+    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
     # The test files are created with
     # `echo "buildah 1.28.2+ds1-3+deb12u1+b1 amd64" | debsbom -v generate --distro-name <full|minimal> --from-pkglist`
     # once with apt-cache available and once without ('full' is with cache, 'minimal' without).
@@ -70,6 +70,12 @@ def test_spdx_merge():
 
 
 def test_cdx_merge():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from cyclonedx.model.dependency import Dependency
+    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
     # The test files are created with
     # `echo "buildah 1.28.2+ds1-3+deb12u1+b1 amd64" | debsbom -v generate --distro-name <full|minimal> --from-pkglist`
     # once with apt-cache available and once without ('full' is with cache, 'minimal' without).
@@ -113,6 +119,11 @@ def test_cdx_merge():
 
 
 def test_cdx_hash_merge():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
     distro_name = "cdx-merge-hash-merge"
     merger = CdxSbomMerger(distro_name=distro_name)
     docs = []
@@ -128,6 +139,11 @@ def test_cdx_hash_merge():
 
 
 def test_spdx_checksum_merge():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
     distro_name = "spx-merge-checksum-merge"
     merger = SpdxSbomMerger(distro_name=distro_name)
     docs = []
@@ -143,6 +159,11 @@ def test_spdx_checksum_merge():
 
 
 def test_cdx_bad_checksum():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
     distro_name = "cdx-merge-hash-merge"
     merger = CdxSbomMerger(distro_name=distro_name)
     docs = []
@@ -156,6 +177,11 @@ def test_cdx_bad_checksum():
 
 
 def test_spdx_bad_checksum():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
     distro_name = "cdx-merge-checksum-bad"
     merger = SpdxSbomMerger(distro_name=distro_name)
     docs = []
