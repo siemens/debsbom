@@ -46,12 +46,15 @@ class SBOMType(Enum):
     SPDX = (1,)
     """SPDX"""
 
-    def from_str(bomtype: str):
-        if bomtype.lower() == "cdx":
-            return SBOMType.CycloneDX
-        if bomtype.lower() == "spdx":
-            return SBOMType.SPDX
-        raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
+    @classmethod
+    def from_str(cls, bomtype: str):
+        match bomtype.lower():
+            case "cdx":
+                return cls.CycloneDX
+            case "spdx":
+                return cls.SPDX
+            case _:
+                raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
 
     def validate_dependency_availability(self) -> None:
         """
