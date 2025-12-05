@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 from io import TextIOWrapper
 import itertools
+import re
 import sys
 import logging
 from pathlib import Path
@@ -21,6 +22,7 @@ from ..dpkg.package import (
 from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
 
+SNAPSHOT_RE = re.compile(r'(\d{8}T\d{6}Z)')
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,7 @@ class Debsbom:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
+        snapshot_date: str | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
@@ -66,6 +69,7 @@ class Debsbom:
 
         self.cdx_serialnumber = cdx_serialnumber
         self.timestamp = timestamp
+        self.snapshot_date = snapshot_date
 
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
@@ -92,6 +96,19 @@ class Debsbom:
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
         )
+
+    def _extract_snapshot_from_sources_file(self):
+        if not self.snapshot_date:
+            sources_path = Path(self.root / "etc/apt/sources.list.d/0000bootstrap.list")
+            if not sources_path.exists():
+                return None
+
+            for line in sources_path.read_text().splitlines():
+                match = SNAPSHOT_RE.search(line)
+                if match:
+                    self.snapshot_date = match.group(1)
+                    return
+            return None
 
     @classmethod
     def _parse_distro_arch(cls, arch_native_file: Path) -> str | None:
@@ -249,6 +266,7 @@ class Debsbom:
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
         self._import_packages(stream=pkgs_stream)
+        self._extract_snapshot_from_sources_file()
 
         write_to_stdout = out == "-"
         if SBOMType.CycloneDX in self.sbom_types:
@@ -270,6 +288,7 @@ class Debsbom:
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                snapshot_date=self.snapshot_date,
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
