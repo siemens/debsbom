@@ -48,6 +48,9 @@ def sbom_generator():
 
 
 def test_tree_generation(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
     uuid = uuid4()
     dbom = sbom_generator("tests/root/tree", uuid, timestamp)
@@ -75,6 +78,9 @@ def test_tree_generation(tmpdir, sbom_generator):
 
 
 def test_dependency_generation(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/dependency")
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=True)
@@ -138,6 +144,8 @@ def test_dependency_generation(tmpdir, sbom_generator):
 
 
 def test_standard_bom(tmpdir):
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = Debsbom(
         distro_name="pytest-distro",
         distro_arch="amd64",
@@ -158,6 +166,9 @@ def test_standard_bom(tmpdir):
 
 
 def test_homepage_regression(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/homepage-lowercase")
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=True)
@@ -172,6 +183,9 @@ def test_homepage_regression(tmpdir, sbom_generator):
 
 
 def test_apt_source_pkg(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/apt-sources")
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=True)
@@ -222,6 +236,9 @@ def test_apt_source_pkg(tmpdir, sbom_generator):
 
 
 def test_apt_pkgs_stream(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/apt-sources")
     with open("tests/data/pkgs-stream", "r") as stream:
         outdir = Path(tmpdir)
@@ -268,6 +285,9 @@ compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
 
 @pytest.mark.parametrize("tool", compressions)
 def test_apt_lists_compression(tmpdir, sbom_generator, tool):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     comp = Compression.from_tool(tool)
 
     # create a temporary rootfs copied from tests/root/apt-sources and
@@ -328,6 +348,9 @@ def test_apt_lists_compression(tmpdir, sbom_generator, tool):
 
 
 def test_pkglist_apt_cache(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/apt-sources")
     with open("tests/data/pkgs-custom-stream", "r") as stream:
         outdir = Path(tmpdir)
@@ -342,6 +365,9 @@ def test_pkglist_apt_cache(tmpdir, sbom_generator):
 
 
 def test_residual_config_packages(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
     dbom = sbom_generator("tests/root/apt-sources")
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=True)
