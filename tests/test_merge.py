@@ -173,7 +173,7 @@ def test_cdx_bad_checksum():
     ]:
         docs.append(CdxBomReader.read_file(Path(sbom)))
     with pytest.raises(ChecksumMismatchError):
-        bom = merger.merge(docs)
+        _bom = merger.merge(docs)
 
 
 def test_spdx_bad_checksum():
@@ -192,4 +192,4 @@ def test_spdx_bad_checksum():
         docs.append(SpdxBomReader.read_file(Path(sbom)))
 
     with pytest.raises(ChecksumMismatchError):
-        bom = merger.merge(docs)
+        _bom = merger.merge(docs)
