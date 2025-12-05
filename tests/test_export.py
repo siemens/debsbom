@@ -18,13 +18,7 @@ def test_export_format_from_str():
         GraphOutputFormat.from_str("foo")
 
 
-@pytest.mark.parametrize(
-    "sbom_type",
-    [
-        "spdx",
-        "cdx",
-    ],
-)
+@pytest.mark.parametrize("sbom_type", list(SBOMType))
 def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     NAMESPACE = "http://graphml.graphdrawing.org/xmlns"
 
@@ -34,7 +28,7 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
                 return data.text
         return None
 
-    dbom = sbom_generator("tests/root/tree", sbom_types=[SBOMType.from_str(sbom_type)])
+    dbom = sbom_generator("tests/root/tree", sbom_types=[sbom_type])
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=False)
 
