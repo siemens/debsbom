@@ -23,6 +23,14 @@ def test_export_format_from_str():
     list(SBOMType)
 )
 def test_export_graphml(tmpdir, sbom_generator, sbom_type):
+    match sbom_type:
+        case SBOMType.SPDX:
+            _spdx_tools = pytest.importorskip("spdx_tools")
+        case SBOMType.CycloneDX:
+            _cyclonedx = pytest.importorskip("cyclonedx")
+        case _:
+            assert False, "unreachable"
+
     NAMESPACE = "http://graphml.graphdrawing.org/xmlns"
 
     def get_name(node):
