@@ -56,6 +56,15 @@ class SBOMType(Enum):
             case _:
                 raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
 
+    def __str__(self):
+        match self:
+            case self.CycloneDX:
+                return "cdx"
+            case self.SPDX:
+                return "spdx"
+            case _:
+                assert False, "unreachable"
+
     def validate_dependency_availability(self) -> None:
         """
         Check if the required imports for the SBOM type are available.
