@@ -7,12 +7,8 @@ from ..util.checksum_spdx import checksum_dict_from_spdx
 from ..sbom import SPDXType
 from .resolver import PackageResolver
 
-import logging
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.document as spdx_document
-
-
-logger = logging.getLogger(__name__)
 
 
 class SpdxPackageResolver(PackageResolver, SPDXType):
