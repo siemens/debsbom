@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Iterable
-import logging
 import spdx_tools.spdx.model.document as spdx_document
 import spdx_tools.spdx.model.package as spdx_package
 from spdx_tools.spdx.model.checksum import Checksum
@@ -15,9 +14,6 @@ from ..sbom import SPDX_REFERENCE_TYPE_DISTRIBUTION, SPDXType, SPDX_REFERENCE_TY
 from .packer import BomTransformer
 from ..dpkg.package import Package
 from ..util.checksum_spdx import checksum_to_spdx
-
-
-logger = logging.getLogger(__name__)
 
 
 class StandardBomTransformerSPDX(BomTransformer, SPDXType):

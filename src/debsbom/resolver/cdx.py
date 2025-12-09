@@ -7,12 +7,8 @@ from ..util.checksum_cdx import checksum_dict_from_cdx
 from ..sbom import CDXType
 from .resolver import PackageResolver
 
-import logging
 from cyclonedx.model.bom import Bom
 from cyclonedx.model.component import Component
-
-
-logger = logging.getLogger(__name__)
 
 
 class CdxPackageResolver(PackageResolver, CDXType):

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging
 import json
 from pathlib import Path
 import sys
@@ -11,9 +10,6 @@ from ..bomwriter import BomWriter
 from .input import GenerateInput, warn_if_tty
 from ..sbom import SBOMType
 from ..util.progress import progress_cb
-
-
-logger = logging.getLogger(__name__)
 
 
 class MergeCmd(GenerateInput):
