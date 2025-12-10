@@ -33,16 +33,20 @@ Repository = "https://github.com/siemens/debsbom.git"
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=6.0",
   "pytest-cov>=6",
   "black",
+  "debsbom[mindev]",
+  "debsbom[cdx]",
+  "debsbom[spdx]",
+]
+# minimal set of dependencies to run pytest
+mindev = [
+  "pytest>=6.0",
   "beartype>=0.20",
   "jsonschema>=3.2",
   "lz4",
   "debsbom[download]",
   "debsbom[doc]",
-  "debsbom[cdx]",
-  "debsbom[spdx]",
 ]
 cdx = [
   "cyclonedx-python-lib>=9.0.0",
