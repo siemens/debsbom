@@ -5,7 +5,17 @@
 from collections import namedtuple
 from collections.abc import Iterable
 from pathlib import Path
+import shutil
 import subprocess
+
+
+class CompressionToolMissing(RuntimeError):
+    """
+    Error indicating that a needed compression / decompression tool is missing.
+    """
+
+    def __init__(self, tool):
+        super().__init__(f'Compression tool "{tool}" missing')
 
 
 class Compression:
@@ -53,11 +63,14 @@ def stream_compressed_file(path: Path) -> Iterable[str]:
     """Streams the decompressed content of a compressed file."""
     try:
         comp = Compression.from_ext(path.suffix)
+        tool = shutil.which(comp.tool)
+        if not tool:
+            raise CompressionToolMissing(comp.tool)
     except ValueError:
         comp = Compression.NONE
 
     compressor = subprocess.Popen(
-        [comp.tool] + comp.extract + [path],
+        [tool] + comp.extract + [path],
         stdout=subprocess.PIPE,
         text=True,
     )
