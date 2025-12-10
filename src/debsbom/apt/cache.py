@@ -10,7 +10,11 @@ from debian.debian_support import Version
 import logging
 from pathlib import Path
 
-from ..util.compression import find_compressed_file_variants, stream_compressed_file
+from ..util.compression import (
+    CompressionToolMissing,
+    find_compressed_file_variants,
+    stream_compressed_file,
+)
 from ..dpkg.package import BinaryPackage, SourcePackage
 from .. import HAS_PYTHON_APT
 
@@ -169,6 +173,8 @@ class Repository:
                 # pass the filename of a compressed file when using apt_pkg
                 sources_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
                 yield from Repository._make_srcpkgs(sources_raw, srcpkg_filter)
+        except CompressionToolMissing as e:
+            logger.warning(f'{e}: skipping path "{compressed_variant}"')
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache sources: {sources_file}")
 
@@ -191,6 +197,8 @@ class Repository:
                 packages_raw = Packages.iter_paragraphs(content, use_apt_pkg=False)
                 logger.debug(f"Parsing apt cache binary packages: {packages_file}")
                 yield from Repository._make_binpkgs(packages_raw, binpkg_filter)
+        except CompressionToolMissing as e:
+            logger.warning(f'{e}: skipping path "{compressed_variant}"')
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache packages: {packages_file}")
 
