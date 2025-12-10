@@ -32,6 +32,13 @@ jobs:
         shell: bash
         run: $(which debsbom) -v generate -t ${{ matrix.sbom-type }} -o sbom --root tests/root/tree --validate
 
+      - name: Install test dependencies for ${{ matrix.sbom-type }}
+        shell: bash
+        run: pip install .[mindev]
+      - name: Test pytest for subset ${{ matrix.sbom-type }}
+        shell: bash
+        run: pytest
+
   test:
     runs-on: ubuntu-24.04
     strategy:
