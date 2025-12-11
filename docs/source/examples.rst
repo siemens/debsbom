@@ -86,8 +86,8 @@ Merge Source Packages
 ~~~~~~~~~~~~~~~~~~~~~
 
 Debian source packages consist of a ``.dsc`` file along with one or more related artifacts.
-The :doc:`commands/source-merge` takes care of merging all referenced artifacts of a debian source package into a single archive.
-All referenced files have to be downloaded upfront, by using the :doc:`commands/download`.
+The :doc:`/commands/source-merge` takes care of merging all referenced artifacts of a debian source package into a single archive.
+All referenced files have to be downloaded upfront, by using the :doc:`/commands/download`.
 
 .. note::
     Internally, the ``dpkg-source`` command from the ``dpkg-dev`` package is used to perform the merge.
@@ -105,7 +105,7 @@ The following example merges all debian source packages referenced in the ``sbom
 Repack Artifacts
 ~~~~~~~~~~~~~~~~
 
-The :doc:`commands/repack` is similar to the :doc:`commands/source-merge` but performs additional steps to re-layout the downloaded artifacts and recreate the SBOM.
+The :doc:`/commands/repack` is similar to the :doc:`/commands/source-merge` but performs additional steps to re-layout the downloaded artifacts and recreate the SBOM.
 The following example generates a ``standard-bom`` source distribution archive.
 
 .. code-block:: bash
@@ -188,7 +188,7 @@ And the same list of packages can be repacked:
 Export as Graph
 ~~~~~~~~~~~~~~~
 
-The :doc:`commands/export` allows to convert the SBOM into various graph representations.
+The :doc:`/commands/export` allows to convert the SBOM into various graph representations.
 These can be used as input to graph visualization and analysis tooling (like Gephi).
 
 .. note::
@@ -204,7 +204,7 @@ Convert the SPDX SBOM to GraphML:
 Merging multiple SBOMs
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The :doc:`commands/merge` merges multiple SBOMs hierarchically. The intended use-case is to
+The :doc:`/commands/merge` merges multiple SBOMs hierarchically. The intended use-case is to
 combine multiple SBOMs describing a Debian-based distribution. A good example is the rootfs
 and the initrd of a Linux distribution.
 
@@ -254,7 +254,7 @@ Now there is a single compressed file for each source package.
     If you only need to work on a smaller subset of packages you can pass a package list
     via stdin. See the above sections for concrete examples how to do that.
 
-Alternatively you can use the :doc:`commands/repack` to rewrite the SBOM and repack the downloaded
+Alternatively you can use the :doc:`/commands/repack` to rewrite the SBOM and repack the downloaded
 artifacts in a format-specific way:
 
 .. code-block:: bash
