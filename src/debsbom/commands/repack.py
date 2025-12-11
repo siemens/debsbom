@@ -48,6 +48,24 @@ class RepackCmd(SbomInput, RepackInput):
             apply_patches=args.apply_patches,
         )
         resolver = cls.get_sbom_resolver(args)
+        if args.only_sources:
+            sbom_type = resolver.sbom_type().name
+            if sbom_type == "CycloneDX":
+                resolver.document.components = [
+                    comp
+                    for comp in resolver.document.components
+                    if "arch=source" in str(comp.bom_ref.value)
+                ]
+            elif sbom_type == "SPDX":
+                resolver.document.packages = [
+                    pkg
+                    for pkg in resolver.document.packages
+                    if any(
+                        "arch=source" in ref.locator
+                        for ref in pkg.external_references
+                        if getattr(ref, "reference_type", "") == "purl"
+                    )
+                ]
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
         if pkg_subset:
             pkgs = filter(lambda p: p in pkg_subset, resolver)
@@ -88,5 +106,10 @@ class RepackCmd(SbomInput, RepackInput):
         parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--only-sources",
+            help="include only source components (skip binary)",
             action="store_true",
         )
