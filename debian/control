@@ -40,6 +40,8 @@ Depends:
  python3-packageurl (>= 0.16.0),
  ${python3:Depends},
  ${misc:Depends},
+Recommends:
+ python-debsbom-doc,
 Description: SBOM generator for Debian-based distributions
  debsbom generates SBOMs (Software Bill of Materials) for distributions based on
  Debian in the two standard formats SPDX and CycloneDX.
@@ -48,3 +50,23 @@ Description: SBOM generator for Debian-based distributions
  Debian Source packages.
  .
  This package contains the debsbom CLI.
+
+Package: python-debsbom-doc
+Section: doc
+Architecture: all
+Multi-Arch: foreign
+Built-Using:
+ ${sphinxdoc:Built-Using},
+Depends:
+ ${misc:Depends},
+ ${sphinxdoc:Depends},
+Recommends:
+ debsbom,
+Description: SBOM generator for Debian-based distributions
+ debsbom generates SBOMs (Software Bill of Materials) for distributions based on
+ Debian in the two standard formats SPDX and CycloneDX.
+ .
+ The generated SBOM includes all installed binary packages and also contains
+ Debian Source packages.
+ .
+ This package contains the documentation for debsbom.

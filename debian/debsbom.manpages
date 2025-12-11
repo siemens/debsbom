@@ -1,0 +1,8 @@
+docs/build/man/debsbom.1
+docs/build/man/debsbom-decisions.1
+docs/build/man/debsbom-download.1
+docs/build/man/debsbom-export.1
+docs/build/man/debsbom-generate.1
+docs/build/man/debsbom-merge.1
+docs/build/man/debsbom-repack.1
+docs/build/man/debsbom-source-merge.1
