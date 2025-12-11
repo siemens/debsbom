@@ -20,7 +20,7 @@ import debsbom
 
 project = "debsbom"
 copyright = "2025, Siemens"
-author = "Christoph Steiger"
+author = "Christoph Steiger, Felix Moessbauer"
 
 # Derive the version from the installed package metadata.
 # If the package is not installed, fall back to a placeholder.
