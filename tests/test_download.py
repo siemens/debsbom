@@ -15,6 +15,7 @@ from debsbom.download import (
 )
 from debsbom.download.download import DownloadResult, DownloadStatus
 from debsbom.resolver import PackageResolver, PackageStreamResolver
+from debsbom import schema
 from debsbom.dpkg.package import (
     BinaryPackage,
     SourcePackage,
@@ -265,14 +266,6 @@ def test_srcpkg_with_checksum(sdl):
     assert files[0].archive_name == "debian-ports"
 
 
-@pytest.fixture(scope="session")
-def dlschema():
-    schemapath = Path(__file__).parent / "../src/debsbom/schema/schema-download.json"
-    with open(schemapath) as f:
-        schema = json.load(f)
-    return schema
-
-
 @pytest.mark.parametrize(
     "dlresult",
     [
@@ -285,21 +278,21 @@ def dlschema():
         ),
     ],
 )
-def test_download_result_format(dlschema, dlresult):
+def test_download_result_format(dlresult):
     data = json.loads(dlresult.json())
     if data["status"] == DownloadStatus.OK:
         assert data["status"] == "ok"
 
-    jsonschema.validate(data, schema=dlschema)
+    jsonschema.validate(data, schema=schema.download)
 
 
-def test_download_result_invalid(dlschema):
+def test_download_result_invalid():
     data = {
         "status": "unknown",
         "package": {"name": "foo", "version": "1.0"},
     }
     with pytest.raises(jsonschema.ValidationError):
-        jsonschema.validate(data, schema=dlschema)
+        jsonschema.validate(data, schema=schema.download)
 
 
 def test_local_file():
