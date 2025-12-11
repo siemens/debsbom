@@ -41,7 +41,9 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = ["man/man"]
+if tags.has("man/man"):
+    exclude_patterns.remove("man/man")
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
@@ -58,3 +60,22 @@ html_theme = "sphinx_rtd_theme"
 # }
 
 html_static_path = ["_static"]
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    ("man/debsbom", "debsbom", "a SBOM tool for Debian", [author], 1),
+    ("man/debsbom-decisions", "debsbom-decisions", "debsbom design decisions", [author], 1),
+    ("man/debsbom-download", "debsbom-download", "debsbom download command", [author], 1),
+    ("man/debsbom-export", "debsbom-export", "debsbom export command", [author], 1),
+    ("man/debsbom-generate", "debsbom-generate", "debsbom generate command", [author], 1),
+    ("man/debsbom-merge", "debsbom-merge", "debsbom merge command", [author], 1),
+    ("man/debsbom-repack", "debsbom-repack", "debsbom repack command", [author], 1),
+    (
+        "man/debsbom-source-merge",
+        "debsbom-source-merge",
+        "debsbom source-merge command",
+        [author],
+        1,
+    ),
+]
