@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+# export DH_VERBOSE = 1
+export PYBUILD_NAME = debsbom
+export PYBUILD_TEST_PYTEST = 1
+export PYBUILD_DESTDIR=debian/debsbom/
+
+# pybuild by default exports the http_proxy, https_proxy and no_proxy env vars
+# in order to try to prevent builds from accessing the internet. (See `man 1 pybuild`)
+#
+# Passing the argument below to the PYBUILD_TEST_ARGS env var deselects all of
+# the tests marked as 'online' in order to prevent them from failing.
+# For more information, see: https://docs.pytest.org/en/7.1.x/example/markers.html
+export PYBUILD_TEST_ARGS='-k not online'
+
+%:
+	dh $@ --buildsystem=pybuild
+
