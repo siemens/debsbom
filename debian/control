@@ -1,0 +1,50 @@
+Source: debsbom
+Section: python
+Priority: optional
+Maintainer: Felix Moessbauer <felix.moessbauer@siemens.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-python3,
+ black,
+ python3-all,
+ python3-apt (>= 2.6.0),
+ python3-beartype (>= 0.20),
+ python3-cyclonedx-lib (>= 9.0.0),
+ python3-debian (>= 0.1.49),
+ python3-docutils,
+ python3-jsonschema (>= 3.2),
+ python3-lz4,
+ python3-packageurl (>= 0.16.0),
+ python3-pytest (>= 6.0),
+ python3-pytest-cov (>= 5.0),
+ python3-requests (>= 2.25.1),
+ python3-setuptools,
+ python3-sphinx,
+ python3-sphinx-argparse (>= 0.2.1),
+ python3-sphinx-autodoc-typehints (>= 2.0.0),
+ python3-sphinx-rtd-theme (>= 2.0.0),
+ python3-zstandard (>= 0.20),
+Standards-Version: 4.7.2
+Homepage: https://github.com/siemens/debsbom
+Vcs-Browser: https://github.com/siemens/debsbom
+Vcs-Git: https://github.com/siemens/debsbom -b main
+Testsuite: autopkgtest-pkg-pybuild
+X-Python3-Version: >= 3.11
+
+Package: debsbom
+Architecture: any
+Depends:
+ python3-cyclonedx-lib (>= 9.0.0),
+ python3-debian (>= 0.1.49),
+ python3-packageurl (>= 0.16.0),
+ ${python3:Depends},
+ ${misc:Depends},
+Description: SBOM generator for Debian-based distributions
+ debsbom generates SBOMs (Software Bill of Materials) for distributions based on
+ Debian in the two standard formats SPDX and CycloneDX.
+ .
+ The generated SBOM includes all installed binary packages and also contains
+ Debian Source packages.
+ .
+ This package contains the debsbom CLI.
