@@ -18,6 +18,12 @@ help:
 
 .PHONY: help Makefile
 
+.PHONY: man
+man:
+	$(SPHINXBUILD) -M $@ -t man "$(SOURCEDIR)" "$(BUILDDIR)/man" $(SPHINXOPTS) $(O)
+	@echo
+	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
