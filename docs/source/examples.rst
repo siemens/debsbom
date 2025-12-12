@@ -37,11 +37,11 @@ Create the SBOM from a package list. The so provided packages will still be enri
 
 .. code-block:: bash
 
-    echo "htop 3.4.1-5 amd64" | debsbom generate --from-pkglist
+    echo "htop 3.4.1-5 amd64" | debsbom generate --from-pkglist --distro-arch=amd64
     # or in isar manifest format
-    echo "json-c|0.16-2|libjson-c5:amd64|0.16-2" | debsbom generate --from-pkglist
+    echo "json-c|0.16-2|libjson-c5:amd64|0.16-2" | debsbom generate --from-pkglist --distro-arch=amd64
     # or with PURLs
-    echo "pkg:deb/debian/htop@3.4.1-5?arch=amd64" | debsbom generate --from-pkglist
+    echo "pkg:deb/debian/htop@3.4.1-5?arch=amd64" | debsbom generate --from-pkglist --distro-arch=amd64
 
 It further is possible to inject a dpkg status file via stdin (e.g. if you only have that file).
 The data is then also resolved from the apt-cache (if available), but this usually only makes sense if you don't have a
@@ -49,7 +49,7 @@ chroot and want to create the sbom just from the data in the file.
 
 .. code-block:: bash
 
-    cat path/to/dpkg/status | debsbom generate --from-pkglist
+    cat path/to/dpkg/status | debsbom generate --from-pkglist --distro-arch=amd64
 
 Download
 ~~~~~~~~
