@@ -21,7 +21,6 @@ from ..dpkg.package import (
 from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -45,6 +44,7 @@ class Debsbom:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
+        add_meta_data: list[str] | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
     ):
         self.sbom_types = set(sbom_types)
@@ -66,6 +66,7 @@ class Debsbom:
 
         self.cdx_serialnumber = cdx_serialnumber
         self.timestamp = timestamp
+        self.add_meta_data = add_meta_data
 
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
@@ -92,6 +93,7 @@ class Debsbom:
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
         )
+
 
     @classmethod
     def _parse_distro_arch(cls, arch_native_file: Path) -> str | None:
@@ -270,6 +272,7 @@ class Debsbom:
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                add_meta_data=self.add_meta_data,
                 standard=self.cdx_standard,
                 progress_cb=progress_cb,
             )
@@ -296,6 +299,7 @@ class Debsbom:
                 namespace=self.spdx_namespace,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
+                add_meta_data=self.add_meta_data,
                 progress_cb=progress_cb,
             )
             if write_to_stdout:
