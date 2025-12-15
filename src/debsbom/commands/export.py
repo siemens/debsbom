@@ -18,14 +18,15 @@ class ExportCmd(SbomInput):
         from ..export.exporter import GraphExporter
         from ..export.exporter import GraphOutputFormat
 
-        exporter = cls.create_sbom_processor(
+        exporters = cls.create_sbom_processors(
             args, GraphExporter, GraphOutputFormat.from_str(args.format)
         )
-        if args.out and args.out != "-":
-            with open(args.out, "w") as f:
-                exporter.export(f)
-        else:
-            exporter.export(sys.stdout)
+        for exporter in exporters:
+            if args.out and args.out != "-":
+                with open(args.out, "w") as f:
+                    exporter.export(f)
+            else:
+                exporter.export(sys.stdout)
 
     @classmethod
     def setup_parser(cls, parser):

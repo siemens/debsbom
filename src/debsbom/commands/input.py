@@ -28,36 +28,68 @@ class SbomInput:
     """
 
     @classmethod
-    def parser_add_sbom_input_args(cls, parser, required=False):
-        parser.add_argument(
-            "bomin",
-            help="sbom file to process. Use '-' to read SBOM from stdin",
-            nargs=None if required else "?",
-        )
+    def parser_add_sbom_input_args(cls, parser, required=False, sbom_args=None, multi_input=False):
+        sbom_args = sbom_args or ["bomin"]
+
+        if multi_input:
+            nargs = "+" if required else "*"
+        else:
+            nargs = None if required else "?"
+
+        for arg in sbom_args:
+            parser.add_argument(
+                arg,
+                help=f"sbom file(s) to process for '{arg}'. Use '-' to read from stdin",
+                nargs=nargs,
+                metavar=arg.upper(),
+            )
         parser.add_argument(
             "-t",
             "--sbom-type",
             choices=["cdx", "spdx"],
-            help="SBOM type to process (default: auto-detect)",
+            help="SBOM type to process (default: auto-detect), required when reading from stdin",
         )
 
     @classmethod
-    def create_sbom_processor(cls, args, processor_cls, *proc_args):
-        if args.bomin == "-":
-            if not args.sbom_type:
-                raise RuntimeError("If reading from stdin, the '--sbom-type' needs to be set")
-            return processor_cls.from_stream(
-                sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
-            )
-        return processor_cls.create(Path(args.bomin), *proc_args)
+    def create_sbom_processors(cls, args, processor_cls, *proc_args, sbom_args=None):
+        sbom_args = sbom_args or ["bomin"]
+        processors = []
+
+        for arg_name in sbom_args:
+            arg_value = getattr(args, arg_name, None)
+            if not arg_value:
+                continue
+            # Wrap single value in a list for uniform iteration
+            sbom_files = arg_value if isinstance(arg_value, list) else [arg_value]
+
+            for sbom_file in sbom_files:
+                if sbom_file == "-":
+                    if not args.sbom_type:
+                        raise RuntimeError(
+                            "If reading from stdin, the '--sbom-type' needs to be set"
+                        )
+                    processors.append(
+                        processor_cls.from_stream(
+                            sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
+                        )
+                    )
+                else:
+                    processors.append(processor_cls.create(Path(sbom_file), *proc_args))
+
+        return processors
 
     @classmethod
-    def get_sbom_resolver(cls, args) -> PackageResolver:
-        return cls.create_sbom_processor(args, PackageResolver)
+    def get_sbom_resolvers(cls, args) -> list[PackageResolver]:
+        return cls.create_sbom_processors(args, PackageResolver)
 
     @classmethod
-    def has_bomin(cls, args):
-        return args.bomin is not None
+    def has_sboms(cls, args, sbom_args=None) -> bool:
+        sbom_args = sbom_args or ["bomin"]
+        return any(getattr(args, arg, None) is not None for arg in sbom_args)
+
+    @classmethod
+    def has_bomin(cls, args) -> bool:
+        return cls.has_sboms(args)
 
 
 class PkgStreamInput:

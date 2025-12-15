@@ -86,9 +86,9 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
         if cls.has_bomin(args):
-            resolver = cls.get_sbom_resolver(args)
+            resolvers = cls.get_sbom_resolvers(args)
         else:
-            resolver = cls.get_pkgstream_resolver()
+            resolvers = [cls.get_pkgstream_resolver()]
         rs = requests.Session()
         rs.mount("file:///", LocalFileAdapter())
         rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
@@ -104,9 +104,16 @@ class DownloadCmd(SbomInput, PkgStreamInput):
             skip = list(PackageStreamResolver(BytesIO(args.skip_pkgs.encode())))
         else:
             skip = None
-        pkgs = list(
-            filter(lambda p: cls._filter_pkg(p, args.sources, args.binaries, skip), resolver)
-        )
+
+        pkgs = []
+        for resolver in resolvers:
+            pkgs.extend(
+                list(
+                    filter(
+                        lambda p: cls._filter_pkg(p, args.sources, args.binaries, skip), resolver
+                    )
+                )
+            )
 
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):

@@ -27,11 +27,13 @@ class SourceMergeCmd(SbomInput, PkgStreamInput, RepackInput):
         outdir = Path(args.outdir or args.pkgdir)
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
         if cls.has_bomin(args):
-            resolver = cls.get_sbom_resolver(args)
+            resolvers = cls.get_sbom_resolvers(args)
         else:
-            resolver = cls.get_pkgstream_resolver()
+            resolvers = [cls.get_pkgstream_resolver()]
         merger = SourceArchiveMerger(pkgdir, outdir, compress)
-        pkgs = list(package.filter_sources(resolver))
+        pkgs = []
+        for resolver in resolvers:
+            pkgs.extend(list(package.filter_sources(resolver)))
 
         logger.info("Merging...")
         for idx, pkg in enumerate(pkgs):
