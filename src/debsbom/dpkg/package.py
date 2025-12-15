@@ -313,9 +313,10 @@ class Package(ABC):
         Returns an iterator to resolve the source package of a binary package.
         If add_pkg=True is set, the passed binary package is returned as well.
         """
-        if pkg.source:
+        src_pkg = pkg.source_package()
+        if src_pkg:
             logger.debug(f"Found source package: '{pkg.source.name}'")
-            yield SourcePackage(pkg.source.name, pkg.source.version[1], pkg.maintainer)
+            yield src_pkg
         for bu in pkg.built_using:
             # When creating the source package from a built-depends, we don't know the maintainer.
             # If we now create a source package first via a built-using relation and later
@@ -550,6 +551,13 @@ class BinaryPackage(Package):
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
         return PackageURL.from_string(purl)
+
+    def source_package(self) -> SourcePackage | None:
+        """Construct a source package from the referenced source dependency."""
+        if self.source:
+            return SourcePackage(self.source.name, self.source.version[1], self.maintainer)
+        else:
+            return None
 
     @property
     def unique_depends(self):
