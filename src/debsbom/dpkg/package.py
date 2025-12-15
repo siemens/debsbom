@@ -15,6 +15,7 @@ import logging
 import re
 from packageurl import PackageURL
 
+from ..apt.copyright import Copyright
 from ..util.checksum import ChecksumAlgo, checksums_from_dsc, checksums_from_package
 from .. import HAS_PYTHON_APT
 
@@ -386,6 +387,7 @@ class SourcePackage(Package):
 
     binaries: list[str] | None = None
     vcs: VcsInfo | None = None
+    copyright: Copyright | None = None
     _locator: str | None = None
 
     def __init__(
@@ -397,6 +399,7 @@ class SourcePackage(Package):
         homepage: str | None = None,
         vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
+        copyright: Copyright | None = None,
     ):
         self.name = name
         self.version = Version(version)
@@ -405,6 +408,7 @@ class SourcePackage(Package):
         self.homepage = homepage
         self.vcs = vcs
         self.checksums = checksums or {}
+        self.copyright = copyright
 
     def __hash__(self):
         return hash(self.purl())
