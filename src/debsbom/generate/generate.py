@@ -4,6 +4,7 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
+from debian.copyright import MachineReadableFormatError, NotMachineReadableError
 from io import TextIOWrapper
 import itertools
 import sys
@@ -12,6 +13,7 @@ from pathlib import Path
 from uuid import UUID
 
 from ..apt.cache import Repository, ExtendedStates
+from ..apt.copyright import CopyrightDirectory
 from ..dpkg.package import (
     Package,
     PkgListType,
@@ -23,6 +25,10 @@ from ..sbom import SBOMType, BOM_Standard
 
 
 logger = logging.getLogger(__name__)
+
+# disable noisy URL format warnings
+deb_logger = logging.getLogger("debian.copyright")
+deb_logger.setLevel(logging.ERROR)
 
 
 class DistroArchUnknownError(RuntimeError):
@@ -206,6 +212,7 @@ class Debsbom:
         packages: dict[int, Package],
         inject_sources: bool = False,
         merge_ext_states: bool = True,
+        with_licenses: bool = False,
     ) -> set[Package]:
         bin_names_apt = set(
             map(
@@ -244,6 +251,10 @@ class Debsbom:
             )
         )
 
+        # wait for the copyright merging until we have all source packages
+        if with_licenses:
+            self._add_copyright(packages)
+
         def source_filter(spf: Repository.SourcePackageFilter) -> bool:
             return spf in sp_names_apt
 
@@ -261,6 +272,32 @@ class Debsbom:
                 extended_states_filter,
             )
         return set(packages.values())
+
+    def _add_copyright(self, packages: dict[int, Package]):
+        logger.info("Adding copyright information...")
+        cr_dir = CopyrightDirectory.for_rootdir(self.root)
+        to_add = {}
+        for bin_pkg in filter_binaries(packages.values()):
+            src_pkg = bin_pkg.source_package()
+            if not src_pkg:
+                continue
+            try:
+                cr = cr_dir.copyright(bin_pkg)
+            except FileNotFoundError:
+                logger.debug(f"no copyright information for {bin_pkg}")
+                continue
+            except NotMachineReadableError:
+                logger.debug(f"non-machine-readable copyright file for {bin_pkg}")
+                continue
+            except (MachineReadableFormatError, ValueError):
+                logger.debug(f"bad format for machine-readable copyright file for {bin_pkg}")
+                continue
+            src_pkg = packages.get(hash(src_pkg))
+            if src_pkg:
+                src_pkg.copyright = cr
+
+        for k, v in to_add.items():
+            packages[k].copyright = v
 
     def generate(
         self,
