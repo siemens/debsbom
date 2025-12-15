@@ -7,12 +7,12 @@ from pathlib import Path
 import sys
 
 from ..bomwriter import BomWriter
-from .input import GenerateInput, warn_if_tty
+from .input import GenerateInput, SbomInput, warn_if_tty
 from ..sbom import SBOMType
 from ..util.progress import progress_cb
 
 
-class MergeCmd(GenerateInput):
+class MergeCmd(GenerateInput, SbomInput):
     """Merge multiple SBOMs into a single one."""
 
     @staticmethod
@@ -103,15 +103,4 @@ class MergeCmd(GenerateInput):
     @classmethod
     def setup_parser(cls, parser):
         cls.parser_add_generate_input_args(parser, default_out="merged")
-        parser.add_argument(
-            "-t",
-            "--sbom-type",
-            choices=["cdx", "spdx"],
-            help="expected SBOM type when reading SBOMs from stdin, required when reading from stdin",
-        )
-        parser.add_argument(
-            "sboms",
-            metavar="SBOM",
-            nargs="+",
-            help="SBOMs to merge, pass '-' to also read SBOMs from stdin",
-        )
+        cls.parser_add_sbom_input_args(parser, required=True, sbom_args=["sboms"], multi_input=True)

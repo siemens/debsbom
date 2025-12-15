@@ -47,26 +47,29 @@ class RepackCmd(SbomInput, RepackInput):
             compress=compress,
             apply_patches=args.apply_patches,
         )
-        resolver = cls.get_sbom_resolver(args)
-        bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
-        if pkg_subset:
-            pkgs = filter(lambda p: p in pkg_subset, resolver)
-        else:
-            pkgs = resolver
-        repacked = filter(
-            lambda p: p,
-            map(
-                lambda p: packer.repack(p, symlink=linkonly, mtime=args.mtime),
-                pkgs,
-            ),
-        )
-        bom = packer.rewrite_sbom(bt, repacked)
-        if args.bomout == "-":
-            BomWriter.write_to_stream(bom, resolver.sbom_type(), sys.stdout, validate=args.validate)
-        else:
-            BomWriter.write_to_file(
-                bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
+        resolvers = cls.get_sbom_resolvers(args)
+        for resolver in resolvers:
+            bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
+            if pkg_subset:
+                pkgs = filter(lambda p: p in pkg_subset, resolver)
+            else:
+                pkgs = resolver
+            repacked = filter(
+                lambda p: p,
+                map(
+                    lambda p: packer.repack(p, symlink=linkonly, mtime=args.mtime),
+                    pkgs,
+                ),
             )
+            bom = packer.rewrite_sbom(bt, repacked)
+            if args.bomout == "-":
+                BomWriter.write_to_stream(
+                    bom, resolver.sbom_type(), sys.stdout, validate=args.validate
+                )
+            else:
+                BomWriter.write_to_file(
+                    bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
+                )
 
     @classmethod
     def setup_parser(cls, parser):
