@@ -471,6 +471,8 @@ class SourcePackage(Package):
                     logger.warning(
                         f"Multiple VCS types found for package {name}: {vcs.type} and {type}"
                     )
+                # remove additional details (e.g., branch, path)
+                locator = locator.split()[0]
                 vcs = VcsInfo(type, locator)
 
         # Checksums according to Debian policy 5.6.24
