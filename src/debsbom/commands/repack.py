@@ -12,7 +12,8 @@ from ..generate.generate import Debsbom
 from ..repack.packer import BomTransformer, Packer
 from ..resolver.resolver import PackageStreamResolver
 from ..util.compression import Compression
-
+from .download import DownloadCmd
+from ..sbom import SBOMType
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +49,69 @@ class RepackCmd(SbomInput, RepackInput):
             apply_patches=args.apply_patches,
         )
         resolver = cls.get_sbom_resolver(args)
+        filtered_pkgs = list(
+            filter(lambda p: DownloadCmd._filter_pkg(p, args.sources, args.binaries), resolver)
+        )
+        if not (args.sources and args.binaries):
+            if resolver.sbom_type() == SBOMType.CycloneDX:
+                if args.sources:
+                    resolver.document.components = [
+                        comp
+                        for comp in resolver.document.components
+                        if "arch=source" in str(comp.bom_ref.value)
+                    ]
+                    resolver.document.dependencies = []
+                elif args.binaries:
+                    resolver.document.components = [
+                        comp
+                        for comp in resolver.document.components
+                        if "arch=source" not in str(comp.bom_ref.value)
+                    ]
+                    resolver.document.dependencies = [
+                        dep
+                        for dep in resolver.document.dependencies
+                        if "arch=source" not in str(dep.ref.value)
+                    ]
+                    for dep in resolver.document.dependencies:
+                        dep.dependencies = [
+                            deps
+                            for deps in dep.dependencies
+                            if "arch=source" not in str(deps.ref.value)
+                        ]
+            elif resolver.sbom_type() == SBOMType.SPDX:
+                if args.sources:
+                    resolver.document.packages = [
+                        pkg
+                        for pkg in resolver.document.packages
+                        if any(
+                            "arch=source" in ref.locator
+                            for ref in pkg.external_references
+                            if ref.reference_type == "purl"
+                        )
+                    ]
+                    resolver.document.relationships = []
+                elif args.binaries:
+                    resolver.document.packages = [
+                        pkg
+                        for pkg in resolver.document.packages
+                        if any(
+                            "arch=source" not in ref.locator
+                            for ref in pkg.external_references
+                            if ref.reference_type == "purl"
+                        )
+                    ]
+                    binary_ids = {pkg.spdx_id for pkg in resolver.document.packages}
+                    resolver.document.relationships = [
+                        rel
+                        for rel in resolver.document.relationships
+                        if rel.spdx_element_id in binary_ids
+                        and rel.related_spdx_element_id in binary_ids
+                    ]
         bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
         if pkg_subset:
-            pkgs = filter(lambda p: p in pkg_subset, resolver)
+            pkgs = filter(lambda p: p in pkg_subset, filtered_pkgs)
         else:
-            pkgs = resolver
+            pkgs = filtered_pkgs
         repacked = filter(
             lambda p: p,
             map(
@@ -88,5 +147,15 @@ class RepackCmd(SbomInput, RepackInput):
         parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--sources",
+            help="repack only source components (skip binaries)",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--binaries",
+            help="repack only binary components (skip sources)",
             action="store_true",
         )

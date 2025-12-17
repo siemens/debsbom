@@ -52,6 +52,8 @@ class StandardBomTransformerSPDX(BomTransformer, SPDXType):
         for p in packages:
             # as we iterate the same set of packages, we must have it
             spdx_pkg = self.pkgs_by_purl[str(p.purl())]
+            if not spdx_pkg:
+                continue
             if p.is_source():
                 self._enhance(spdx_pkg, p)
 
