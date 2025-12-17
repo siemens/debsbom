@@ -7,18 +7,22 @@ import cyclonedx.model as cdx_model
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.bom_ref as cdx_bom_ref
 import cyclonedx.model.component as cdx_component
+from cyclonedx.model.component_evidence import ComponentEvidence
 import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
 import cyclonedx.model.definition as cdx_definition
 from cyclonedx.model import HashAlgorithm as cdx_hashalgo
 from cyclonedx.model import HashType as cdx_hashtype
+from cyclonedx.model.license import LicenseAcknowledgement, LicenseExpression, LicenseRepository
 from datetime import datetime
+from license_expression import ExpressionError
 import logging
 from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
 from collections.abc import Callable
 
+from ..apt.copyright import UnknownLicenseError
 from ..util.checksum_cdx import checksum_to_cdx
 from ..dpkg.package import Package, DpkgStatus, filter_binaries
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
@@ -86,6 +90,21 @@ def cdx_package_repr(
                     comment=f"Version control system of type {package.vcs.type.value}",
                 ),
             )
+        if package.copyright:
+            try:
+                licenses = package.copyright.spdx_license_expressions()
+                combined = next(licenses)
+                for lic in licenses:
+                    combined &= lic
+                expression = LicenseExpression(
+                    str(combined.simplify()), acknowledgement=LicenseAcknowledgement.DECLARED
+                )
+
+                license_repo = LicenseRepository([expression])
+                evidence = ComponentEvidence(licenses=license_repo)
+                entry.evidence = evidence
+            except (ExpressionError, UnknownLicenseError) as e:
+                logger.debug(f"no SPDX license expression for {package}: {e}")
         logger.debug(f"Created source component: {entry}")
     else:
         raise RuntimeError(f"The package {package} is neither a source nor a binary package")
