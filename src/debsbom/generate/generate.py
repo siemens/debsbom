@@ -53,6 +53,7 @@ class Debsbom:
         timestamp: datetime | None = None,
         add_meta_data: dict[str, str] | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
+        with_licenses: bool = False,
     ):
         self.sbom_types = set(sbom_types)
         self.root = Path(root)
@@ -62,6 +63,7 @@ class Debsbom:
         self.distro_arch = distro_arch
         self.base_distro_vendor = base_distro_vendor
         self.cdx_standard = cdx_standard
+        self.with_licenses = with_licenses
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -121,6 +123,7 @@ class Debsbom:
             pkgdict,
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
+            with_licenses=self.with_licenses,
         )
 
     @classmethod
