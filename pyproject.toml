@@ -50,9 +50,11 @@ mindev = [
 ]
 cdx = [
   "cyclonedx-python-lib>=9.0.0",
+  "license-expression>=30",
 ]
 spdx = [
   "spdx-tools>=0.8.3",
+  "license-expression>=30",
 ]
 download = [
     "requests>=2.25.1",
