@@ -61,6 +61,7 @@ class GenerateCmd(GenerateInput):
             timestamp=args.timestamp,
             add_meta_data=args.add_meta_data,
             cdx_standard=cdx_standard,
+            with_licenses=args.with_licenses,
         )
         if args.from_pkglist:
             warn_if_tty()
@@ -99,4 +100,10 @@ class GenerateCmd(GenerateInput):
             type=str,
             help="native dpkg architecture of the distro (%(default)s)",
             default="auto",
+        )
+        parser.add_argument(
+            "--with-licenses",
+            action="store_true",
+            help="parse and include license information",
+            default=False,
         )
