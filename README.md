@@ -11,6 +11,8 @@ Source packages are especially relevant for security as CVEs in the Debian ecosy
 
 ## Usage
 
+Please refer to the [debsbom documentation](https://siemens.github.io/debsbom/).
+
 ```
 usage: debsbom [-h] [--version] [-v] [--progress | --json] {generate,merge,download,source-merge,repack,export} ...
 
