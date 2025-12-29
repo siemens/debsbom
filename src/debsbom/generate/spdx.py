@@ -5,6 +5,7 @@
 from collections.abc import Callable
 from datetime import datetime
 from importlib.metadata import version
+from license_expression import ExpressionError
 import logging
 import spdx_tools.spdx.model.actor as spdx_actor
 import spdx_tools.spdx.model.document as spdx_document
@@ -15,6 +16,7 @@ from spdx_tools.spdx.model.checksum import Checksum
 from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
+from ..apt.copyright import UnknownLicenseError
 from ..dpkg.package import Package, filter_binaries
 from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
@@ -168,6 +170,18 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
                     comment=f"Version control system of type {package.vcs.type.value}",
                 ),
             )
+
+        licenses_decl = SpdxNoAssertion()
+        if package.copyright:
+            try:
+                licenses = package.copyright.spdx_license_expressions()
+                combined = next(licenses)
+                for lic in licenses:
+                    combined &= lic
+                licenses_decl = combined.simplify()
+            except (ExpressionError, UnknownLicenseError) as e:
+                logger.debug(f"no SPDX license expression for {package}: {e}")
+
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
@@ -175,7 +189,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             supplier=supplier,
             files_analyzed=False,
             license_concluded=SpdxNoAssertion(),
-            license_declared=SpdxNoAssertion(),
+            license_declared=licenses_decl,
             download_location=SpdxNoAssertion(),
             copyright_text=SpdxNoAssertion(),
             summary="Debian source code package '{}'".format(package.name),
