@@ -7,17 +7,18 @@ from pathlib import Path
 import sys
 
 from ..bomwriter import BomWriter
-from .input import SbomInput, RepackInput
+from .input import SbomInput, RepackInput, SourceBinaryInput
 from ..generate.generate import Debsbom
 from ..repack.packer import BomTransformer, Packer
 from ..resolver.resolver import PackageStreamResolver
 from ..util.compression import Compression
-
+from .download import DownloadCmd
+from ..sbom import SBOMType, SPDX_REF_DOCUMENT
 
 logger = logging.getLogger(__name__)
 
 
-class RepackCmd(SbomInput, RepackInput):
+class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
     """
     Repacks the downloaded files into a uniform source archive, merging the
     referenced source packages into a single archive and optionally applying
@@ -49,11 +50,118 @@ class RepackCmd(SbomInput, RepackInput):
         )
         resolvers = cls.get_sbom_resolvers(args)
         for resolver in resolvers:
+            filtered_pkgs = list(
+                filter(lambda p: DownloadCmd._filter_pkg(p, args.sources, args.binaries), resolver)
+            )
+            if not (args.sources and args.binaries):
+                if resolver.sbom_type() == SBOMType.CycloneDX:
+                    if args.sources:
+                        from cyclonedx.model.dependency import Dependency
+
+                        resolver.document.components = [
+                            comp
+                            for comp in resolver.document.components
+                            if "arch=source" in str(comp.bom_ref.value)
+                        ]
+
+                        root_ref = resolver.document.metadata.component.bom_ref
+                        source_refs = [
+                            Dependency(ref=comp.bom_ref) for comp in resolver.document.components
+                        ]
+                        if root_ref:
+                            resolver.document.dependencies = [
+                                Dependency(ref=root_ref, dependencies=source_refs)
+                            ]
+                        else:
+                            resolver.document.dependencies = []
+
+                    elif args.binaries:
+                        resolver.document.components = [
+                            comp
+                            for comp in resolver.document.components
+                            if "arch=source" not in str(comp.bom_ref.value)
+                        ]
+
+                        resolver.document.dependencies = [
+                            dep
+                            for dep in resolver.document.dependencies
+                            if "arch=source" not in str(dep.ref.value)
+                        ]
+                        for dep in resolver.document.dependencies:
+                            dep.dependencies = [
+                                deps
+                                for deps in dep.dependencies
+                                if "arch=source" not in str(deps.ref.value)
+                            ]
+
+                elif resolver.sbom_type() == SBOMType.SPDX:
+                    if args.sources:
+                        from spdx_tools.spdx.model.relationship import (
+                            Relationship,
+                            RelationshipType,
+                        )
+
+                        resolver.document.packages = [
+                            pkg
+                            for pkg in resolver.document.packages
+                            if any(
+                                "arch=source" in ref.locator
+                                for ref in pkg.external_references
+                                if ref.reference_type == "purl"
+                            )
+                        ]
+
+                        src_pkg_ids = [pkg.spdx_id for pkg in resolver.document.packages]
+                        root_ref = None
+                        for rel in resolver.document.relationships:
+                            if rel.spdx_element_id == SPDX_REF_DOCUMENT:
+                                root_ref = rel.related_spdx_element_id
+                                break
+
+                        new_relationships = []
+
+                        if root_ref:
+                            new_relationships.append(
+                                Relationship(
+                                    spdx_element_id=SPDX_REF_DOCUMENT,
+                                    related_spdx_element_id=root_ref,
+                                    relationship_type=RelationshipType.DESCRIBES,
+                                )
+                            )
+
+                            for pkg_id in src_pkg_ids:
+                                new_relationships.append(
+                                    Relationship(
+                                        spdx_element_id=pkg_id,
+                                        related_spdx_element_id=root_ref,
+                                        relationship_type=RelationshipType.DEPENDS_ON,
+                                    )
+                                )
+                        resolver.document.relationships = new_relationships
+
+                    elif args.binaries:
+                        resolver.document.packages = [
+                            pkg
+                            for pkg in resolver.document.packages
+                            if any(
+                                "arch=source" not in ref.locator
+                                for ref in pkg.external_references
+                                if ref.reference_type == "purl"
+                            )
+                        ]
+
+                        binary_ids = {pkg.spdx_id: pkg for pkg in resolver.document.packages}
+                        resolver.document.relationships = [
+                            rel
+                            for rel in resolver.document.relationships
+                            if rel.spdx_element_id in binary_ids
+                            and rel.related_spdx_element_id in binary_ids
+                        ]
             bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
             if pkg_subset:
-                pkgs = filter(lambda p: p in pkg_subset, resolver)
+                pkgs = filter(lambda p: p in pkg_subset, filtered_pkgs)
             else:
-                pkgs = resolver
+                pkgs = filtered_pkgs
             repacked = filter(
                 lambda p: p,
                 map(
@@ -93,3 +201,4 @@ class RepackCmd(SbomInput, RepackInput):
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
         )
+        cls.parser_add_source_binary_args(parser)

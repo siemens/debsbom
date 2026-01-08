@@ -48,6 +48,8 @@ class StandardBomTransformerCDX(BomTransformer, CDXType):
         for p in packages:
             # as we iterate the same set of packages, we must have it
             cdx_comp: cdx_component.Component = self._document.get_component_by_purl(p.purl())
+            if not cdx_comp:
+                continue
             if p.is_source():
                 self._enhance(cdx_comp, p)
 
