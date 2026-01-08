@@ -9,6 +9,7 @@ import sys
 from urllib.parse import urlparse
 from uuid import UUID
 
+from ..dpkg import package
 from ..util.compression import Compression
 from ..resolver.resolver import PackageResolver, PackageStreamResolver
 from ..sbom import SBOMType
@@ -180,6 +181,40 @@ class GenerateInput:
             help="validate generated SBOM (only for SPDX)",
             action="store_true",
         )
+
+
+class SourceBinaryInput:
+    """
+    Mixin for SBOM download and repack commands.
+    """
+
+    @classmethod
+    def parser_add_source_binary_args(cls, parser):
+        parser.add_argument(
+            "--sources",
+            help="operate only on source packages (skip binaries)",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--binaries",
+            help="operate only on binary packages (skip sources)",
+            action="store_true",
+        )
+
+    @staticmethod
+    def _filter_pkg(
+        p: package.Package, sources: bool, binaries: bool, skip: list[package.Package] | None = None
+    ) -> bool:
+        if skip and p in skip:
+            return False
+
+        if not sources and not binaries:
+            return True
+        if sources and p.is_source():
+            return True
+        if binaries and p.is_binary():
+            return True
+        return False
 
 
 class RepackInput:
