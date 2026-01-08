@@ -8,8 +8,7 @@ from io import BytesIO
 import logging
 from pathlib import Path
 
-from .input import PkgStreamInput, SbomInput
-from ..dpkg import package
+from .input import PkgStreamInput, SbomInput, SourceBinaryInput
 from ..resolver.resolver import PackageStreamResolver
 from ..util.progress import progress_cb
 
@@ -42,7 +41,7 @@ for ep in resolver_endpoints:
     RESOLVERS[ep.name] = setup_fn
 
 
-class DownloadCmd(SbomInput, PkgStreamInput):
+class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
     """
     Processes a SBOM and downloads the referenced packages.
     If no SBOM is provided, it reads line separated entries (name version arch)
@@ -65,21 +64,6 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         """
         if p.is_source() and not any(f.filename == p.dscfile() for f in files):
             logger.warning(f"no .dsc file found for {p}")
-
-    @staticmethod
-    def _filter_pkg(
-        p: package.Package, sources: bool, binaries: bool, skip: list[package.Package] | None = None
-    ) -> bool:
-        if skip and p in skip:
-            return False
-
-        if not sources and not binaries:
-            return True
-        if sources and p.is_source():
-            return True
-        if binaries and p.is_binary():
-            return True
-        return False
 
     @classmethod
     def run(cls, args):
@@ -153,8 +137,7 @@ class DownloadCmd(SbomInput, PkgStreamInput):
         parser.add_argument(
             "--outdir", default="downloads", help="directory to store downloaded files"
         )
-        parser.add_argument("--sources", help="download source packages", action="store_true")
-        parser.add_argument("--binaries", help="download binary packages", action="store_true")
+        cls.parser_add_source_binary_args(parser)
         parser.add_argument(
             "--skip-pkgs",
             metavar="SKIP",
