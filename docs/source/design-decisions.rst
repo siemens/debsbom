@@ -193,3 +193,19 @@ The universal ingress, often seen with the ``--from-pkglist`` option, has some c
 In fact, there are subtle differences: in the first case the information from the ``extended_states`` file is used to find out which packages are manually installed and which are automatically pulled in as dependencies. In the second command all packages in the status file are considered manually installed, which would affect the dependency graph.
 
 That is because we assume that with the ``--from-pkglist`` option the rootfs and the packages are not directly related. We can still find packages from the universal ingress in the apt-cache and enrich their entries, but any other local information does not apply to them. In general you should be careful when using universal ingress, as depending on the rootfs you are using and the state of the apt-cache in there, you might have reproducability issues.
+
+License Information
+-------------------
+
+``debsbom`` provides license information when SBOM generation is run with the ``--with-licenses`` option. The license information is taken from the Debian copyright files under ``/usr/share/doc/**/copyright``. We aggregate all license found in these copyright files and try to convert them to `valid SPDX license expressions <https://spdx.org/licenses/>`__. All found license expressions are then combined with ``AND``. The approach is very conservative, that means if we fail to identify any license or expression in the copyright file we simply do not emit any license information in the SBOM.
+
+As the specifiers in Debian copyright files are not SPDX identifiers a conversion table based on the `syntax specification <https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification>`__ is used.
+
+For SPDX SBOMs the information is placed in the `declared licenses field <https://spdx.github.io/spdx-spec/v2.3/package-information/#715-declared-license-field>`__; and for CDX SBOMs in the `evidence field <https://cyclonedx.org/docs/1.6/json/#components_items_evidence_licenses>`__ with the ``acknowledgement`` set to ``declared``. This is done this way because ``debsbom`` does not perform any analysis of included licenses and just trusts what is stated by the package authors. This can be expressed in the SBOMs with the above approach.
+
+Limitations
+^^^^^^^^^^^
+
+Annotation of license information is currently only possible for ~50% of all packages. As ``debsbom`` is not a license scanner it relies solely on the information provided by the package authors. This information is unfortunately sometimes not machine-readable, sometimes does include esoteric licenses or the ambiguous ``public domain`` licensing. Nonetheless, if you find any unrecognized license specifiers that can be cleanly mapped to SPDX identifiers please let us know and we will try to incorporate them.
+
+If you want to add more complete license information the SBOM you can use a proper scanner and add that information to the SBOM manually. If enough interest arises we could also consider adding plugin infrastructure to directly incorporate different scanners during the SBOM generation.

@@ -74,14 +74,6 @@ This expresses the same semantic in SPDX, but this way it can still be identifie
 Limitations
 -----------
 
-License Information
-~~~~~~~~~~~~~~~~~~~
-
-License information in Debian is stored in ``/usr/share/doc/**/copyright``.
-The format of these files is not required to be machine-interpretable.
-For most packages this is the case and they are machine-readable, but there are some cases where the exact license determination is hard.
-To prevent any false license information to be included in the SBOM they are not emitted for now.
-
 Vendor Packages
 ~~~~~~~~~~~~~~~
 
