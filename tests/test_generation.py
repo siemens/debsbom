@@ -26,6 +26,7 @@ def sbom_generator():
         test_root: Path,
         uuid: UUID | None = None,
         timestamp: datetime | None = None,
+        with_licenses: bool = False,
         sbom_types: list[SBOMType] = list(SBOMType),
     ) -> Debsbom:
         url = urlparse("http://example.org")
@@ -42,6 +43,7 @@ def sbom_generator():
             spdx_namespace=url,
             cdx_serialnumber=uuid,
             timestamp=timestamp,
+            with_licenses=with_licenses,
         )
 
     return setup_sbom_generator
@@ -394,3 +396,39 @@ def test_illformed_sources():
     # parse incomplete packages. Must not raise
     assert len(list(Repository._make_srcpkgs([deb822.Packages()]))) == 0
     assert len(list(Repository._make_binpkgs([deb822.Packages()]))) == 0
+
+
+def test_license_information(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/copyright", with_licenses=True)
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        apt_pkg = None
+        packages = spdx_json["packages"]
+        for package in packages:
+            for ref in package.get("externalRefs") or []:
+                if (
+                    ref["referenceCategory"] == "PACKAGE_MANAGER"
+                    and "arch=source" in ref["referenceLocator"]
+                ):
+                    apt_pkg = package
+                    break
+            if apt_pkg:
+                break
+        assert apt_pkg
+        assert (
+            apt_pkg["licenseDeclared"]
+            == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
+        )
+    with open(outdir / "sbom.cdx.json") as file:
+        spdx_json = json.loads(file.read())
+        apt_component = list(filter(lambda c: "arch=source" in c["purl"], spdx_json["components"]))[
+            0
+        ]
+        lic = apt_component["evidence"]["licenses"][0]
+        assert lic["acknowledgement"] == "declared"
+        assert lic["expression"] == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
