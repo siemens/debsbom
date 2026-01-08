@@ -95,11 +95,6 @@ We differentiate a source package by setting `"primaryPackagePurpose": "SOURCE"`
 
 ## Limitations
 
-### License Information
-
-License information in Debian is stored in `/usr/share/doc/**/copyright`. The format of these files is not required to be machine-interpretable. For most packages this is the case and they are machine-readable, but there are some cases where the exact license determination is hard.
-To prevent any false license information to be included in the SBOM they are not emitted for now.
-
 ### Vendor Packages
 
 Vendor packages are currently not identified. Identifying them is important to emit the correct PURL. Right now we make no difference between vendor and official packages. That means we emit potentially incorrect PURLs for vendor packages.
