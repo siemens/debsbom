@@ -134,6 +134,25 @@ class Dependency:
         return Dependency.from_pkg_relations(PkgRelation.parse_relations(line))
 
 
+@dataclass
+class VirtualPackage:
+    """Virtual Package, as declared in the `Provides` field."""
+
+    name: str
+    version: Version | None = None
+
+    @classmethod
+    def from_pkg_relations(cls, relations: list[list[dict]]) -> list["VirtualPackage"]:
+        dependencies = []
+        for relation in relations:
+            for dep in relation:
+                if dep.get("version"):
+                    # make a proper Version out of it
+                    dep["version"] = Version(dep["version"][1])
+                dependencies.append(VirtualPackage(dep["name"], dep["version"]))
+        return dependencies
+
+
 @dataclass(init=False)
 class Package(ABC):
     """Base class for binary and source packages."""
@@ -505,6 +524,7 @@ class BinaryPackage(Package):
     architecture: str | None
     source: Dependency | None
     depends: list[Dependency]
+    provides: list[VirtualPackage]
     built_using: list[Dependency]
     description: str | None
     manually_installed: bool
@@ -520,6 +540,7 @@ class BinaryPackage(Package):
         architecture: str | None = None,
         source: Dependency | None = None,
         depends: list[Dependency] = [],
+        provides: list[VirtualPackage] = [],
         built_using: list[Dependency] = [],
         description: str | None = None,
         homepage: str | None = None,
@@ -534,6 +555,7 @@ class BinaryPackage(Package):
         self.source = source
         self.version = Version(version)
         self.depends = depends
+        self.provides = provides
         self.built_using = built_using
         self.description = description
         self.homepage = homepage
@@ -664,6 +686,8 @@ class BinaryPackage(Package):
         pdepends = package.relations["depends"] or []
         dependencies = Dependency.from_pkg_relations(pdepends)
 
+        provides = VirtualPackage.from_pkg_relations(package.relations["provides"] or [])
+
         # static dependencies
         s_built_using = package.relations["built-using"] or []
         sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
@@ -683,6 +707,7 @@ class BinaryPackage(Package):
             source=srcdep,
             version=package.get("Version"),
             depends=dependencies,
+            provides=provides,
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
             homepage=package.get("Homepage"),
