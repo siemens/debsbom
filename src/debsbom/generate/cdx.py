@@ -23,7 +23,7 @@ from collections.abc import Callable
 
 from ..apt.copyright import UnknownLicenseError
 from ..util.checksum_cdx import checksum_to_cdx
-from ..dpkg.package import Package, DpkgStatus, filter_binaries
+from ..dpkg.package import BinaryPackage, Package, DpkgStatus, VirtualPackage, filter_binaries
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
 
@@ -191,6 +191,7 @@ def cyclonedx_bom(
     timestamp: datetime | None = None,
     add_meta_data: dict[str, str] | None = None,
     standard: BOM_Standard = BOM_Standard.DEFAULT,
+    virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> cdx_bom.Bom:
     """Return a valid CycloneDX SBOM."""
@@ -246,9 +247,25 @@ def cyclonedx_bom(
                 )
                 dep_bom_ref = refs[ref_id]
             except KeyError:
-                # this means we have a virtual dependency, ignore it
-                logger.debug(f"Skipped optional dependency: '{dep.name}'")
-                continue
+                # no concrete package is available, try to look for virtual packages
+                virtual_candidates = virtual_packages.get(dep.name)
+                if virtual_candidates is None:
+                    continue
+
+                pkg = VirtualPackage.best_match(virtual_candidates, dep)
+
+                if pkg:
+                    ref_id = Reference.make_from_pkg(pkg).as_str(SBOMType.CycloneDX)
+                    logger.debug(
+                        f"Dependency on virtual package resolved: {dep.name} -> {pkg.name}"
+                    )
+                    # the package must exist since we are aware of what it provides
+                    dep_bom_ref = refs[ref_id]
+                else:
+                    # this is a not-installed optional dependency
+                    logger.debug(f"Skipped optional dependency: '{dep.name}'")
+                    continue
+
             deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
         if pkg_deps:
             dependency = cdx_dependency.Dependency(

@@ -5,6 +5,7 @@
 from collections.abc import Callable, Iterable
 from datetime import datetime
 from debian.copyright import MachineReadableFormatError, NotMachineReadableError
+from debian.debian_support import Version
 from io import TextIOWrapper
 import itertools
 import sys
@@ -15,8 +16,11 @@ from uuid import UUID
 from ..apt.cache import Repository, ExtendedStates
 from ..apt.copyright import CopyrightDirectory
 from ..dpkg.package import (
+    BinaryPackage,
+    Dependency,
     Package,
     PkgListType,
+    VirtualPackage,
     filter_binaries,
     filter_sources,
 )
@@ -302,6 +306,21 @@ class Debsbom:
         for k, v in to_add.items():
             packages[k].copyright = v
 
+    def _virtual_packages(self) -> dict[str, list[tuple[VirtualPackage, BinaryPackage]]]:
+        binary_packages = filter(lambda p: p.is_binary(), self.packages)
+
+        virtual_packages = {}
+        for bpkg in binary_packages:
+            for provides in bpkg.provides or []:
+                vpkg_name = provides.name
+                p = virtual_packages.get(vpkg_name)
+                if p:
+                    p.append((provides, bpkg))
+                else:
+                    virtual_packages[vpkg_name] = [(provides, bpkg)]
+
+        return virtual_packages
+
     def generate(
         self,
         out: str,
@@ -313,6 +332,8 @@ class Debsbom:
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
         self._import_packages(stream=pkgs_stream)
+
+        virtual_packages = self._virtual_packages()
 
         write_to_stdout = out == "-"
         if SBOMType.CycloneDX in self.sbom_types:
@@ -336,6 +357,7 @@ class Debsbom:
                 timestamp=self.timestamp,
                 add_meta_data=self.add_meta_data,
                 standard=self.cdx_standard,
+                virtual_packages=virtual_packages,
                 progress_cb=progress_cb,
             )
             if write_to_stdout:
@@ -362,6 +384,7 @@ class Debsbom:
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
                 add_meta_data=self.add_meta_data,
+                virtual_packages=virtual_packages,
                 progress_cb=progress_cb,
             )
             if write_to_stdout:
