@@ -152,6 +152,43 @@ class VirtualPackage:
                 dependencies.append(VirtualPackage(dep["name"], dep["version"]))
         return dependencies
 
+    def satisfies(self, dep: Dependency) -> bool:
+        """Returns True if this virtual package satisfies the dependency."""
+        if self.name != dep.name:
+            return False
+
+        if dep.version is None:
+            return True
+
+        # the debian policy states that versioned dependencies
+        # must have a versioned virtual package provides
+        if not self.version and dep.version:
+            return False
+
+        operator = dep.version[0]
+        dep_version = dep.version[1]
+        if operator == "=":
+            return self.version == dep_version
+        elif operator == "<<":
+            return self.version < dep_version
+        elif operator == "<=":
+            return self.version <= dep_version
+        elif operator == ">>":
+            return self.version > dep_version
+        elif operator == ">=":
+            return self.version >= dep_version
+
+    @classmethod
+    def best_match(
+        cls, candidates: list[tuple["VirtualPackage", "BinaryPackage"]], dependency: Dependency
+    ) -> type["BinaryPackage"] | None:
+        """Return the best matching virtual package that satisifes the dependency."""
+        candidates.sort(key=lambda c: c[0].version or 0, reverse=True)
+        for provides, candidate in candidates:
+            if provides.satisfies(dependency):
+                return candidate
+        return None
+
 
 @dataclass(init=False)
 class Package(ABC):

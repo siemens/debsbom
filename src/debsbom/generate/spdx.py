@@ -17,7 +17,7 @@ from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
 from ..apt.copyright import UnknownLicenseError
-from ..dpkg.package import Package, filter_binaries
+from ..dpkg.package import BinaryPackage, Package, VirtualPackage, filter_binaries
 from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
     Reference,
@@ -215,6 +215,7 @@ def spdx_bom(
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
     add_meta_data: dict[str, str] | None = None,
+    virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
@@ -263,6 +264,18 @@ def spdx_bom(
         if package.depends:
             for dep in package.unique_depends:
                 ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs, distro_arch)
+                if not ref_id:
+                    # no concrete package available, look for a virtual package
+                    virtual_candidates = virtual_packages.get(dep.name)
+                    if virtual_candidates is None:
+                        continue
+
+                    pkg = VirtualPackage.best_match(virtual_candidates, dep)
+                    if pkg:
+                        ref_id = Reference.make_from_pkg(pkg).as_str(SBOMType.SPDX)
+                        logger.debug(
+                            f"Dependency on virtual package resolved: {dep.name} -> {pkg.name}"
+                        )
                 if ref_id:
                     relationship = spdx_relationship.Relationship(
                         spdx_element_id=reference.as_str(SBOMType.SPDX),
