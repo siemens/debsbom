@@ -11,6 +11,7 @@ from uuid import UUID
 
 from ..dpkg import package
 from ..util.compression import Compression
+from ..util.sbom_processor import SbomProcessor
 from ..resolver.resolver import PackageResolver, PackageStreamResolver
 from ..sbom import SBOMType
 
@@ -52,7 +53,9 @@ class SbomInput:
         )
 
     @classmethod
-    def create_sbom_processors(cls, args, processor_cls, *proc_args, sbom_args=None):
+    def create_sbom_processors(
+        cls, args, processor_cls, sbom_args=None, **proc_args
+    ) -> list[SbomProcessor]:
         sbom_args = sbom_args or ["bomin"]
         processors = []
 
@@ -71,11 +74,13 @@ class SbomInput:
                         )
                     processors.append(
                         processor_cls.from_stream(
-                            sys.stdin, SBOMType.from_str(args.sbom_type), *proc_args
+                            sys.stdin, bomtype=SBOMType.from_str(args.sbom_type), **proc_args
                         )
                     )
                 else:
-                    processors.append(processor_cls.create(Path(sbom_file), *proc_args))
+                    processors.append(
+                        processor_cls.create(Path(sbom_file), bomtype=args.sbom_type, **proc_args)
+                    )
 
         return processors
 

@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 from io import IOBase
 
+from ..util.sbom_processor import SbomProcessor
 from ..sbom import SBOMType
 
 
@@ -22,7 +23,7 @@ class GraphOutputFormat(Enum):
         raise RuntimeError(f"Unsupported output format: '{name}'")
 
 
-class GraphExporter:
+class GraphExporter(SbomProcessor):
     """
     Base class of graph exporters
     """
