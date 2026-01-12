@@ -6,6 +6,7 @@ from abc import abstractmethod
 from pathlib import Path
 from io import IOBase
 
+from ..bomreader.bomreader import BomReader
 from ..util.sbom_processor import SbomProcessor
 from ..dpkg import package
 from ..sbom import SBOMType
@@ -27,41 +28,31 @@ class PackageResolver(SbomProcessor):
         raise NotImplementedError()
 
     @staticmethod
-    def create(filename: Path, bomtype: SBOMType | None = None) -> "PackageResolver":
+    def _create_from_reader(reader: BomReader) -> "PackageResolver":
+        if reader.sbom_type() is SBOMType.SPDX:
+            from .spdx import SpdxPackageResolver
+
+            return SpdxPackageResolver(reader.read())
+        else:
+            from .cdx import CdxPackageResolver
+
+            return CdxPackageResolver(reader.read())
+
+    @classmethod
+    def create(cls, filename: Path, bomtype: SBOMType | None = None) -> "PackageResolver":
         """
         Factory to create a PackageResolver for the given SBOM type (based on the filename extension).
         """
-        if filename.name.endswith("spdx.json"):
-            SBOMType.SPDX.validate_dependency_availability()
-            from .spdx import SpdxPackageResolver
-            from ..bomreader.spdxbomreader import SpdxBomFileReader
+        reader = BomReader.create(filename, bomtype)
+        return cls._create_from_reader(reader)
 
-            return SpdxPackageResolver(SpdxBomFileReader(filename).read())
-        elif filename.name.endswith("cdx.json"):
-            SBOMType.CycloneDX.validate_dependency_availability()
-            from .cdx import CdxPackageResolver
-            from ..bomreader.cdxbomreader import CdxBomFileReader
-
-            return CdxPackageResolver(CdxBomFileReader(filename).read())
-        else:
-            raise RuntimeError("Cannot determine file format")
-
-    @staticmethod
-    def from_stream(stream: IOBase, bomtype=SBOMType) -> "PackageResolver":
+    @classmethod
+    def from_stream(cls, stream: IOBase, bomtype=SBOMType) -> "PackageResolver":
         """
         Factory to create a PackageResolver for the given SBOM type that parses a stream.
         """
-        bomtype.validate_dependency_availability()
-        if bomtype == SBOMType.SPDX:
-            from .spdx import SpdxPackageResolver
-            from ..bomreader.spdxbomreader import SpdxBomReader
-
-            return SpdxPackageResolver(SpdxBomReader.read_stream(stream))
-        else:
-            from .cdx import CdxPackageResolver
-            from ..bomreader.cdxbomreader import CdxBomReader
-
-            return CdxPackageResolver(CdxBomReader.read_stream(stream))
+        reader = BomReader.from_stream(stream, bomtype)
+        return cls._create_from_reader(reader)
 
 
 class PackageStreamResolver(PackageResolver):
