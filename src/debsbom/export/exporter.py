@@ -30,49 +30,41 @@ class GraphExporter(SbomProcessor):
     """
 
     @staticmethod
-    def create(filename: Path, format: GraphOutputFormat) -> "GraphExporter":
+    def _create_from_reader(reader: BomReader, format: GraphOutputFormat) -> "GraphExporter":
+        if format != GraphOutputFormat.GRAPHML:
+            raise NotImplementedError("only GraphML is supported")
+
+        if reader.sbom_type() == SBOMType.SPDX:
+            from .spdx import SpdxGraphMLExporter
+
+            return SpdxGraphMLExporter(reader.read())
+        else:
+            from .cdx import CdxGraphMLExporter
+
+            return CdxGraphMLExporter(reader.read())
+
+    @classmethod
+    def create(
+        cls,
+        filename: Path,
+        bomtype: SBOMType | None = None,
+        format: GraphOutputFormat = GraphOutputFormat.GRAPHML,
+    ) -> "GraphExporter":
         """
         Factory to create a GraphExporter for the given SBOM type (based on the filename extension).
         """
-        reader = BomReader.create(filename)
-        if format == GraphOutputFormat.GRAPHML:
-            if reader.sbom_type() == SBOMType.SPDX:
-                from .spdx import SpdxGraphMLExporter
+        reader = BomReader.create(filename, bomtype)
+        return cls._create_from_reader(reader, format)
 
-                exporter_cls = SpdxGraphMLExporter
-            elif reader.sbom_type() == SBOMType.CycloneDX:
-                from .cdx import CdxGraphMLExporter
-
-                exporter_cls = CdxGraphMLExporter
-            else:
-                raise NotImplementedError("unreachable")
-        else:
-            raise NotImplementedError("unreachable")
-
-        return exporter_cls(reader.read())
-
-    @staticmethod
+    @classmethod
     def from_stream(
-        stream: IOBase, bomtype: SBOMType, format: GraphOutputFormat
+        cls, stream: IOBase, bomtype: SBOMType, format: GraphOutputFormat
     ) -> "GraphExporter":
         """
         Factory to create a GraphExporter for the given SBOM type that takes the SBOM as stream.
         """
-        bomtype.validate_dependency_availability()
-        if bomtype == SBOMType.SPDX:
-            from ..bomreader.spdxbomreader import SpdxBomReader
-            from .spdx import SpdxGraphMLExporter
-
-            bom = SpdxBomReader.read_stream(stream)
-            if format == GraphOutputFormat.GRAPHML:
-                return SpdxGraphMLExporter(bom)
-        else:
-            from ..bomreader.cdxbomreader import CdxBomReader
-            from .cdx import CdxGraphMLExporter
-
-            bom = CdxBomReader.read_stream(stream)
-            if format == GraphOutputFormat.GRAPHML:
-                return CdxGraphMLExporter(bom)
+        reader = BomReader.from_stream(stream, bomtype)
+        return cls._create_from_reader(reader, format)
 
     @abstractmethod
     def export(self, output: IOBase):

@@ -19,7 +19,7 @@ class ExportCmd(SbomInput):
         from ..export.exporter import GraphOutputFormat
 
         exporters = cls.create_sbom_processors(
-            args, GraphExporter, GraphOutputFormat.from_str(args.format)
+            args, GraphExporter, format=GraphOutputFormat.from_str(args.format)
         )
         for exporter in exporters:
             if args.out and args.out != "-":
