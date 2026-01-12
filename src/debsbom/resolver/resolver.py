@@ -6,11 +6,12 @@ from abc import abstractmethod
 from pathlib import Path
 from io import IOBase
 
+from ..util.sbom_processor import SbomProcessor
 from ..dpkg import package
 from ..sbom import SBOMType
 
 
-class PackageResolver:
+class PackageResolver(SbomProcessor):
     """
     Creates internal package representations of an arbitrary
     package input. The packages are iteratively resolved.
@@ -26,7 +27,7 @@ class PackageResolver:
         raise NotImplementedError()
 
     @staticmethod
-    def create(filename: Path) -> "PackageResolver":
+    def create(filename: Path, bomtype: SBOMType | None = None) -> "PackageResolver":
         """
         Factory to create a PackageResolver for the given SBOM type (based on the filename extension).
         """
