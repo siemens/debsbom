@@ -360,10 +360,11 @@ class Debsbom:
                 virtual_packages=virtual_packages,
                 progress_cb=progress_cb,
             )
+            bomwriter = BomWriter.create(SBOMType.CycloneDX)
             if write_to_stdout:
-                BomWriter.write_to_stream(bom, SBOMType.CycloneDX, sys.stdout, validate)
+                bomwriter.write_to_stream(bom, sys.stdout, validate)
             else:
-                BomWriter.write_to_file(bom, SBOMType.CycloneDX, Path(cdx_out), validate)
+                bomwriter.write_to_file(bom, Path(cdx_out), validate)
         if SBOMType.SPDX in self.sbom_types:
             from .spdx import spdx_bom
 
@@ -387,7 +388,8 @@ class Debsbom:
                 virtual_packages=virtual_packages,
                 progress_cb=progress_cb,
             )
+            bomwriter = BomWriter.create(SBOMType.SPDX)
             if write_to_stdout:
-                BomWriter.write_to_stream(bom, SBOMType.SPDX, sys.stdout, validate)
+                bomwriter.write_to_stream(bom, sys.stdout, validate)
             else:
-                BomWriter.write_to_file(bom, SBOMType.SPDX, Path(spdx_out), validate)
+                bomwriter.write_to_file(bom, Path(spdx_out), validate)
