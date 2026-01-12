@@ -208,6 +208,9 @@ def cyclonedx_bom(
     # string representation as key
     refs = {}
 
+    # track which packages could be meant by a dependency entry
+    dependency_refs = {}
+
     logger.info("Creating components...")
     for package in packages:
         if progress_cb:
@@ -215,6 +218,7 @@ def cyclonedx_bom(
         cur_step += 1
 
         entry = cdx_package_repr(package, refs, vendor=base_distro_vendor)
+        dependency_refs[Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)] = package
         if entry is None:
             continue
         data.add(entry)
@@ -243,7 +247,7 @@ def cyclonedx_bom(
         for dep in pkg_deps:
             try:
                 ref_id = Reference.lookup(
-                    package, dep, SBOMType.CycloneDX, refs.keys(), distro_arch
+                    package, dep, SBOMType.CycloneDX, dependency_refs, distro_arch
                 )
                 dep_bom_ref = refs[ref_id]
             except KeyError:

@@ -759,3 +759,13 @@ class BinaryPackage(Package):
             checksums=checksums_from_package(package),
             status=status,
         )
+
+    def satisfies(self, dependency: Dependency) -> bool:
+        """Returns True if the binary package satisfies the dependency."""
+        if self.name != dependency.name:
+            return False
+
+        if dependency.version is None:
+            return True
+
+        return dependency.is_satisfying_version(self.version)

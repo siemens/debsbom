@@ -178,11 +178,11 @@ def test_unique_depends():
 
 @pytest.mark.parametrize("sbom_type", [SBOMType.SPDX, SBOMType.CycloneDX])
 def test_cross_arch_lookup(sbom_type):
-    bar_dep = Dependency("bar", None, ("", Version("1.0")))
+    bar_dep = Dependency("bar", None, ("=", Version("1.0")))
     foo = BinaryPackage("foo", "1.0", architecture="all", depends=[bar_dep])
     bar = BinaryPackage("bar", "1.0", architecture="riscv64")
 
-    refs = set(map(lambda p: Reference.make_from_pkg(p).as_str(sbom_type), [foo, bar]))
+    refs = dict(map(lambda p: (Reference.make_from_pkg(p).as_str(sbom_type), p), [foo, bar]))
     ref_bar = Reference.lookup(foo, bar_dep, sbom_type, refs, native_arch="riscv64")
     assert "riscv64" in ref_bar
     ref_bar = Reference.lookup(foo, bar_dep, sbom_type, refs, native_arch="amd64")
