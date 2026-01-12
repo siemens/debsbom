@@ -40,7 +40,9 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=False)
 
-    exporter = GraphExporter.create(outdir / f"sbom.{sbom_type}.json", GraphOutputFormat.GRAPHML)
+    exporter = GraphExporter.create(
+        outdir / f"sbom.{sbom_type}.json", sbom_type, GraphOutputFormat.GRAPHML
+    )
     buffer = io.BytesIO()
     with io.TextIOWrapper(buffer) as wrapper:
         exporter.export(wrapper)
