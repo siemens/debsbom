@@ -54,6 +54,14 @@ class PackageResolver(SbomProcessor):
         reader = BomReader.from_stream(stream, bomtype)
         return cls._create_from_reader(reader)
 
+    @classmethod
+    def from_json(cls, json_obj, bomtype: SBOMType) -> "PackageResolver":
+        """
+        Factory to create a PackageResolver for the given SBOM type from a json object.
+        """
+        reader = BomReader.from_json(json_obj, bomtype)
+        return cls._create_from_reader(reader)
+
 
 class PackageStreamResolver(PackageResolver):
     """
