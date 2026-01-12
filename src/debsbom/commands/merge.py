@@ -66,12 +66,12 @@ class MergeCmd(GenerateInput, SbomInput):
             )
             bom = sbom_merger.merge(docs, progress_cb=progress_cb if args.progress else None)
             if args.out == "-":
-                BomWriter.write_to_stream(bom, SBOMType.SPDX, sys.stdout, args.validate)
+                BomWriter.create(SBOMType.SPDX).write_to_stream(bom, sys.stdout, args.validate)
             else:
                 out = args.out
                 if not out.endswith(".spdx.json"):
                     out += ".spdx.json"
-                BomWriter.write_to_file(bom, SBOMType.SPDX, Path(out), args.validate)
+                BomWriter.create(SBOMType.SPDX).write_to_file(bom, Path(out), args.validate)
         elif len(cdx_paths) > 0 or args.sbom_type == "cdx":
             SBOMType.CycloneDX.validate_dependency_availability()
             from ..bomreader.cdxbomreader import CdxBomFileReader, CdxBomJsonReader
@@ -93,12 +93,12 @@ class MergeCmd(GenerateInput, SbomInput):
             )
             bom = sbom_merger.merge(docs, progress_cb=progress_cb if args.progress else None)
             if args.out == "-":
-                BomWriter.write_to_stream(bom, SBOMType.CycloneDX, sys.stdout, args.validate)
+                BomWriter.create(SBOMType.CycloneDX).write_to_stream(bom, sys.stdout, args.validate)
             else:
                 out = args.out
                 if not out.endswith(".cdx.json"):
                     out += ".cdx.json"
-                BomWriter.write_to_file(bom, SBOMType.CycloneDX, Path(out), args.validate)
+                BomWriter.create(SBOMType.CycloneDX).write_to_file(bom, Path(out), args.validate)
 
     @classmethod
     def setup_parser(cls, parser):

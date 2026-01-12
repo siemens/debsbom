@@ -170,14 +170,11 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
                 ),
             )
             bom = packer.rewrite_sbom(bt, repacked)
+            bomwriter = BomWriter.create(resolver.sbom_type())
             if args.bomout == "-":
-                BomWriter.write_to_stream(
-                    bom, resolver.sbom_type(), sys.stdout, validate=args.validate
-                )
+                bomwriter.write_to_stream(bom, sys.stdout, validate=args.validate)
             else:
-                BomWriter.write_to_file(
-                    bom, resolver.sbom_type(), Path(args.bomout), validate=args.validate
-                )
+                bomwriter.write_to_file(bom, Path(args.bomout), validate=args.validate)
 
     @classmethod
     def setup_parser(cls, parser):
