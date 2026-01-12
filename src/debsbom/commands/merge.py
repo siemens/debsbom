@@ -47,14 +47,14 @@ class MergeCmd(GenerateInput, SbomInput):
             raise ValueError("can not merge mixed SPDX and CycloneDX documents")
         elif len(spdx_paths) > 0 or args.sbom_type == "spdx":
             SBOMType.SPDX.validate_dependency_availability()
-            from ..bomreader.spdxbomreader import SpdxBomReader
+            from ..bomreader.spdxbomreader import SpdxBomFileReader, SpdxBomJsonReader
             from ..merge.spdx import SpdxSbomMerger
 
             if json_sboms:
                 for obj in json_sboms:
-                    docs.append(SpdxBomReader.from_json(obj))
+                    docs.append(SpdxBomJsonReader(obj).read())
             for path in spdx_paths:
-                docs.append(SpdxBomReader.read_file(path))
+                docs.append(SpdxBomFileReader(path).read())
             sbom_merger = SpdxSbomMerger(
                 distro_name=args.distro_name,
                 distro_supplier=args.distro_supplier,
@@ -74,14 +74,14 @@ class MergeCmd(GenerateInput, SbomInput):
                 BomWriter.write_to_file(bom, SBOMType.SPDX, Path(out), args.validate)
         elif len(cdx_paths) > 0 or args.sbom_type == "cdx":
             SBOMType.CycloneDX.validate_dependency_availability()
-            from ..bomreader.cdxbomreader import CdxBomReader
+            from ..bomreader.cdxbomreader import CdxBomFileReader, CdxBomJsonReader
             from ..merge.cdx import CdxSbomMerger
 
             if json_sboms:
                 for obj in json_sboms:
-                    docs.append(CdxBomReader.from_json(obj))
+                    docs.append(CdxBomJsonReader(obj).read())
             for path in cdx_paths:
-                docs.append(CdxBomReader.read_file(path))
+                docs.append(CdxBomFileReader(path).read())
             sbom_merger = CdxSbomMerger(
                 distro_name=args.distro_name,
                 distro_supplier=args.distro_supplier,

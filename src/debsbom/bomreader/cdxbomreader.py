@@ -12,18 +12,32 @@ from pathlib import Path
 from cyclonedx.model.bom import Bom
 
 
-class CdxBomReader(BomReader, CDXType):
-    """Import an CycloneDX SBOM"""
+class CdxBomFileReader(BomReader, CDXType):
+    """Import a CycloneDX SBOM from a file"""
 
-    @classmethod
-    def read_file(cls, filename: Path) -> Bom:
-        with open(filename, "r") as f:
-            return cls.read_stream(f)
+    def __init__(self, filename: Path):
+        self.filename = filename
 
-    @classmethod
-    def read_stream(cls, stream: TextIOBase) -> Bom:
-        return cls.from_json(json.load(stream))
+    def read(self) -> Bom:
+        with open(self.filename, "r") as f:
+            return CdxBomStreamReader(f).read()
 
-    @classmethod
-    def from_json(cls, json_obj) -> Bom:
-        return Bom.from_json(json_obj)
+
+class CdxBomStreamReader(BomReader, CDXType):
+    """Import a CycloneDX SBOM from a file stream"""
+
+    def __init__(self, stream: TextIOBase):
+        self.stream = stream
+
+    def read(self) -> Bom:
+        return CdxBomJsonReader(json.load(self.stream)).read()
+
+
+class CdxBomJsonReader(BomReader, CDXType):
+    """Import a CycloneDX SBOM from a json object"""
+
+    def __init__(self, json_obj):
+        self.json_obj = json_obj
+
+    def read(self) -> Bom:
+        return Bom.from_json(self.json_obj)

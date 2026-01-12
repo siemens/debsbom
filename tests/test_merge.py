@@ -12,7 +12,7 @@ def test_spdx_merge():
     _spdx_tools = pytest.importorskip("spdx_tools")
 
     from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
-    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
     from debsbom.merge.spdx import SpdxSbomMerger
 
     # The test files are created with
@@ -24,7 +24,7 @@ def test_spdx_merge():
     merger = SpdxSbomMerger(distro_name=distro_name)
     docs = []
     for sbom in ["tests/data/merge-full.spdx.json", "tests/data/merge-minimal.spdx.json"]:
-        docs.append(SpdxBomReader.read_file(Path(sbom)))
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
     bom = merger.merge(docs)
 
     assert (
@@ -73,7 +73,7 @@ def test_cdx_merge():
     _cyclonedx = pytest.importorskip("cyclonedx")
 
     from cyclonedx.model.dependency import Dependency
-    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
     from debsbom.merge.cdx import CdxSbomMerger
 
     # The test files are created with
@@ -85,7 +85,7 @@ def test_cdx_merge():
     merger = CdxSbomMerger(distro_name=distro_name)
     docs = []
     for sbom in ["tests/data/merge-full.cdx.json", "tests/data/merge-minimal.cdx.json"]:
-        docs.append(CdxBomReader.read_file(Path(sbom)))
+        docs.append(CdxBomFileReader(Path(sbom)).read())
     bom = merger.merge(docs)
 
     distro_bom_ref = bom.metadata.component.bom_ref
@@ -121,7 +121,7 @@ def test_cdx_merge():
 def test_cdx_hash_merge():
     _cyclonedx = pytest.importorskip("cyclonedx")
 
-    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
     from debsbom.merge.cdx import CdxSbomMerger
 
     distro_name = "cdx-merge-hash-merge"
@@ -131,7 +131,7 @@ def test_cdx_hash_merge():
         "tests/data/checksum-merge-md5.cdx.json",
         "tests/data/checksum-merge-sha256.cdx.json",
     ]:
-        docs.append(CdxBomReader.read_file(Path(sbom)))
+        docs.append(CdxBomFileReader(Path(sbom)).read())
     bom = merger.merge(docs)
 
     component = next(iter(bom.components))
@@ -141,7 +141,7 @@ def test_cdx_hash_merge():
 def test_spdx_checksum_merge():
     _spdx_tools = pytest.importorskip("spdx_tools")
 
-    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
     from debsbom.merge.spdx import SpdxSbomMerger
 
     distro_name = "spx-merge-checksum-merge"
@@ -151,7 +151,7 @@ def test_spdx_checksum_merge():
         "tests/data/checksum-merge-md5.spdx.json",
         "tests/data/checksum-merge-sha256.spdx.json",
     ]:
-        docs.append(SpdxBomReader.read_file(Path(sbom)))
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
     bom = merger.merge(docs)
 
     package = next(iter(filter(lambda p: p.name == "example-pkg", bom.packages)))
@@ -161,7 +161,7 @@ def test_spdx_checksum_merge():
 def test_cdx_bad_checksum():
     _cyclonedx = pytest.importorskip("cyclonedx")
 
-    from debsbom.bomreader.cdxbomreader import CdxBomReader
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
     from debsbom.merge.cdx import CdxSbomMerger
 
     distro_name = "cdx-merge-hash-merge"
@@ -171,7 +171,7 @@ def test_cdx_bad_checksum():
         "tests/data/checksum-merge-md5.cdx.json",
         "tests/data/checksum-merge-bad.cdx.json",
     ]:
-        docs.append(CdxBomReader.read_file(Path(sbom)))
+        docs.append(CdxBomFileReader(Path(sbom)).read())
     with pytest.raises(ChecksumMismatchError):
         _bom = merger.merge(docs)
 
@@ -179,7 +179,7 @@ def test_cdx_bad_checksum():
 def test_spdx_bad_checksum():
     _spdx_tools = pytest.importorskip("spdx_tools")
 
-    from debsbom.bomreader.spdxbomreader import SpdxBomReader
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
     from debsbom.merge.spdx import SpdxSbomMerger
 
     distro_name = "cdx-merge-checksum-bad"
@@ -189,7 +189,7 @@ def test_spdx_bad_checksum():
         "tests/data/checksum-merge-md5.spdx.json",
         "tests/data/checksum-merge-bad.spdx.json",
     ]:
-        docs.append(SpdxBomReader.read_file(Path(sbom)))
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
 
     with pytest.raises(ChecksumMismatchError):
         _bom = merger.merge(docs)

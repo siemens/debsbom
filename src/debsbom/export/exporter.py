@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 from io import IOBase
 
+from ..bomreader.bomreader import BomReader
 from ..util.sbom_processor import SbomProcessor
 from ..sbom import SBOMType
 
@@ -33,24 +34,22 @@ class GraphExporter(SbomProcessor):
         """
         Factory to create a GraphExporter for the given SBOM type (based on the filename extension).
         """
-        if filename.name.endswith("spdx.json"):
-            SBOMType.SPDX.validate_dependency_availability()
-            from ..bomreader.spdxbomreader import SpdxBomReader
-            from .spdx import SpdxGraphMLExporter
+        reader = BomReader.create(filename)
+        if format == GraphOutputFormat.GRAPHML:
+            if reader.sbom_type() == SBOMType.SPDX:
+                from .spdx import SpdxGraphMLExporter
 
-            bom = SpdxBomReader.read_file(filename)
-            if format == GraphOutputFormat.GRAPHML:
-                return SpdxGraphMLExporter(bom)
-        elif filename.name.endswith("cdx.json"):
-            SBOMType.CycloneDX.validate_dependency_availability()
-            from ..bomreader.cdxbomreader import CdxBomReader
-            from .cdx import CdxGraphMLExporter
+                exporter_cls = SpdxGraphMLExporter
+            elif reader.sbom_type() == SBOMType.CycloneDX:
+                from .cdx import CdxGraphMLExporter
 
-            bom = CdxBomReader.read_file(filename)
-            if format == GraphOutputFormat.GRAPHML:
-                return CdxGraphMLExporter(bom)
+                exporter_cls = CdxGraphMLExporter
+            else:
+                raise NotImplementedError("unreachable")
         else:
-            raise RuntimeError("Cannot determine file format")
+            raise NotImplementedError("unreachable")
+
+        return exporter_cls(reader.read())
 
     @staticmethod
     def from_stream(
