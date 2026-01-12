@@ -41,6 +41,14 @@ class GenerateCmd(GenerateInput):
             for stype in sbom_types:
                 stype.validate_dependency_availability()
 
+        if SBOMType.CycloneDX in sbom_types:
+            from ..generate.cdx import HAS_CDX_COMPONENT_EVIDENCE
+
+            if args.with_licenses and not HAS_CDX_COMPONENT_EVIDENCE:
+                raise RuntimeError(
+                    "License information in the CDX format requires cyclonedx-python-lib>=10.2.0"
+                )
+
         cdx_standard = BOM_Standard.DEFAULT
         if args.cdx_standard == "standard-bom":
             cdx_standard = BOM_Standard.STANDARD_BOM

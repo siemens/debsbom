@@ -7,7 +7,6 @@ import cyclonedx.model as cdx_model
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.bom_ref as cdx_bom_ref
 import cyclonedx.model.component as cdx_component
-from cyclonedx.model.component_evidence import ComponentEvidence
 import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
@@ -26,6 +25,15 @@ from ..apt.copyright import UnknownLicenseError
 from ..util.checksum_cdx import checksum_to_cdx
 from ..dpkg.package import Package, DpkgStatus, filter_binaries
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
+
+
+try:
+    from cyclonedx.model.component_evidence import ComponentEvidence
+
+    HAS_CDX_COMPONENT_EVIDENCE = True
+except ImportError:
+    HAS_CDX_COMPONENT_EVIDENCE = False
+
 
 logger = logging.getLogger(__name__)
 
