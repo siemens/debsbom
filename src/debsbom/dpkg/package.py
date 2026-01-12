@@ -133,6 +133,25 @@ class Dependency:
     def parse_depends_line(cls, line: str) -> list["Dependency"]:
         return Dependency.from_pkg_relations(PkgRelation.parse_relations(line))
 
+    def is_satisfying_version(self, other: Version) -> bool:
+        """Returns True if the passed version satisfies the dependencies version constraint."""
+
+        # as defined in https://www.debian.org/doc/debian-policy/ch-relationships.html#syntax-of-relationship-fields
+        operator = self.version[0]
+        ours = self.version[1]
+        if operator == "=":
+            return other == ours
+        elif operator == "<<":
+            return other < ours
+        elif operator == "<=":
+            return other <= ours
+        elif operator == ">>":
+            return other > ours
+        elif operator == ">=":
+            return other >= ours
+        else:
+            raise ValueError(f"invalid operator '{operator}'")
+
 
 @dataclass
 class VirtualPackage:
@@ -165,18 +184,7 @@ class VirtualPackage:
         if not self.version and dep.version:
             return False
 
-        operator = dep.version[0]
-        dep_version = dep.version[1]
-        if operator == "=":
-            return self.version == dep_version
-        elif operator == "<<":
-            return self.version < dep_version
-        elif operator == "<=":
-            return self.version <= dep_version
-        elif operator == ">>":
-            return self.version > dep_version
-        elif operator == ">=":
-            return self.version >= dep_version
+        return dep.is_satisfying_version(self.version)
 
     @classmethod
     def best_match(
