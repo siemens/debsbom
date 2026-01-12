@@ -66,6 +66,16 @@ class GraphExporter(SbomProcessor):
         reader = BomReader.from_stream(stream, bomtype)
         return cls._create_from_reader(reader, format)
 
+    @classmethod
+    def from_json(
+        cls, json_obj: IOBase, bomtype: SBOMType, format: GraphOutputFormat
+    ) -> "GraphExporter":
+        """
+        Factory to create a GraphExporter for the given SBOM type that takes a json object.
+        """
+        reader = BomReader.from_json(json_obj, bomtype)
+        return cls._create_from_reader(reader, format)
+
     @abstractmethod
     def export(self, output: IOBase):
         """Export the graph. Abstract method."""
