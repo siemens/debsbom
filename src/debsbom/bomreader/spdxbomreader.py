@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 from io import TextIOBase
 
-from pathlib import Path
 from spdx_tools.spdx.parser.parse_anything import parse_file as spdx_parse_file
 from spdx_tools.spdx.parser.jsonlikedict.json_like_dict_parser import JsonLikeDictParser
 from spdx_tools.spdx.model.document import Document
@@ -15,17 +14,31 @@ from .bomreader import BomReader
 from ..sbom import SPDXType
 
 
-class SpdxBomReader(BomReader, SPDXType):
-    """Import an SPDX SBOM"""
+class SpdxBomFileReader(BomReader, SPDXType):
+    """Import a CycloneDX SBOM from a file"""
 
-    @classmethod
-    def read_file(cls, filename: Path) -> Document:
-        return spdx_parse_file(str(filename))
+    def __init__(self, filename: Path):
+        self.filename = filename
 
-    @classmethod
-    def read_stream(cls, stream: TextIOBase) -> Document:
-        return cls.from_json(json.load(stream))
+    def read(self) -> Document:
+        return spdx_parse_file(str(self.filename))
 
-    @classmethod
-    def from_json(cls, json_obj) -> Document:
-        return JsonLikeDictParser().parse(json_obj)
+
+class SpdxBomStreamReader(BomReader, SPDXType):
+    """Import a CycloneDX SBOM from a file stream"""
+
+    def __init__(self, stream: TextIOBase):
+        self.stream = stream
+
+    def read(self) -> Document:
+        return SpdxBomJsonReader(json.load(self.stream)).read()
+
+
+class SpdxBomJsonReader(BomReader, SPDXType):
+    """Import a CycloneDX SBOM from a json object"""
+
+    def __init__(self, json_obj):
+        self.json_obj = json_obj
+
+    def read(self) -> Document:
+        return JsonLikeDictParser().parse(self.json_obj)

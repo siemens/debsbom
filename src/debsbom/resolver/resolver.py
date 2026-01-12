@@ -34,15 +34,15 @@ class PackageResolver(SbomProcessor):
         if filename.name.endswith("spdx.json"):
             SBOMType.SPDX.validate_dependency_availability()
             from .spdx import SpdxPackageResolver
-            from ..bomreader.spdxbomreader import SpdxBomReader
+            from ..bomreader.spdxbomreader import SpdxBomFileReader
 
-            return SpdxPackageResolver(SpdxBomReader.read_file(filename))
+            return SpdxPackageResolver(SpdxBomFileReader(filename).read())
         elif filename.name.endswith("cdx.json"):
             SBOMType.CycloneDX.validate_dependency_availability()
             from .cdx import CdxPackageResolver
-            from ..bomreader.cdxbomreader import CdxBomReader
+            from ..bomreader.cdxbomreader import CdxBomFileReader
 
-            return CdxPackageResolver(CdxBomReader.read_file(filename))
+            return CdxPackageResolver(CdxBomFileReader(filename).read())
         else:
             raise RuntimeError("Cannot determine file format")
 

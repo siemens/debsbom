@@ -3,27 +3,67 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
+from io import IOBase
 from pathlib import Path
-from io import TextIOBase
+
+from ..sbom import SBOMType
+from ..util.sbom_processor import SbomProcessor
 
 
-class BomReader:
+class BomReader(SbomProcessor):
     """Base class for SBOM importers"""
 
     @classmethod
-    @abstractmethod
-    def read_file(cls, filename: Path):
-        """Parse and return a BOM instance from the file"""
-        raise NotImplementedError()
+    def create(cls, filename: Path, bomtype: SBOMType | None = None):
+        if bomtype is SBOMType.SPDX or filename.name.endswith("spdx.json"):
+            SBOMType.SPDX.validate_dependency_availability()
+            from .spdxbomreader import SpdxBomFileReader
+
+            reader_cls = SpdxBomFileReader
+        elif bomtype is SBOMType.CycloneDX or filename.name.endswith("cdx.json"):
+            SBOMType.CycloneDX.validate_dependency_availability()
+            from .cdxbomreader import CdxBomFileReader
+
+            reader_cls = CdxBomFileReader
+        else:
+            raise RuntimeError("SBOM type cannot be detected based on filename")
+
+        return reader_cls(filename)
 
     @classmethod
-    @abstractmethod
-    def read_stream(cls, stream: TextIOBase):
-        """Parse and return a BOM instance from the stream"""
-        raise NotImplementedError()
+    def from_stream(cls, stream: IOBase, bomtype: SBOMType):
+        if bomtype is SBOMType.SPDX:
+            SBOMType.SPDX.validate_dependency_availability()
+            from .spdxbomreader import SpdxBomFileReader
+
+            reader_cls = SpdxBomFileReader
+        elif bomtype is SBOMType.CycloneDX:
+            SBOMType.CycloneDX.validate_dependency_availability()
+            from .cdxbomreader import CdxBomFileReader
+
+            reader_cls = CdxBomFileReader
+        else:
+            raise NotImplementedError("Unsupported SBOM type")
+
+        return reader_cls(stream)
 
     @classmethod
+    def from_json(cls, json_obj, bomtype: SBOMType):
+        if bomtype is SBOMType.SPDX:
+            SBOMType.SPDX.validate_dependency_availability()
+            from .spdxbomreader import SpdxBomJsonReader
+
+            reader_cls = SpdxBomJsonReader
+        elif bomtype is SBOMType.CycloneDX:
+            SBOMType.CycloneDX.validate_dependency_availability()
+            from .cdxbomreader import CdxBomJsonReader
+
+            reader_cls = CdxBomJsonReader
+        else:
+            raise NotImplementedError("Unsupported SBOM type")
+
+        return reader_cls(json_obj)
+
     @abstractmethod
-    def from_json(cls, json_obj):
-        """Parse and return a BOM instance from a Json object"""
-        raise NotImplementedError
+    def read(self):
+        return NotImplementedError()
