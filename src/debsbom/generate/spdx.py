@@ -246,7 +246,9 @@ def spdx_bom(
     relationships = []
     logger.info("Resolving dependencies...")
     # after we have found all packages we can start to resolve dependencies
-    refs = set(map(lambda p: Reference.make_from_pkg(p).as_str(SBOMType.SPDX), binary_packages))
+    refs = dict(
+        map(lambda p: (Reference.make_from_pkg(p).as_str(SBOMType.SPDX), p), binary_packages)
+    )
     for package in binary_packages:
         if progress_cb:
             progress_cb(cur_step, num_steps, package.name)

@@ -119,7 +119,7 @@ class Reference:
         pkg: BinaryPackage,
         dep: Dependency,
         sbom_type: SBOMType,
-        known_refs: Set[str],
+        dependency_refs: dict[str, Package],
         native_arch: str,
     ) -> str | None:
         """
@@ -129,12 +129,25 @@ class Reference:
         known_refs as a string set.
         """
         if dep.arch:
-            return Reference.make_from_dep(dep).as_str(sbom_type)
+            ref = Reference.make_from_dep(dep).as_str(sbom_type)
+            ref_pkg = dependency_refs.get(ref)
+            if ref_pkg and ref_pkg.is_binary():
+                if ref_pkg.satisfies(dep):
+                    return ref
+                else:
+                    return None
+            else:
+                # source package dependencies are not versioned
+                return ref
         candidates = map(
             lambda a: Reference.make_from_dep(dep, a).as_str(sbom_type),
             set([pkg.architecture, native_arch, "all"]),
         )
-        return next(filter(lambda d: d in known_refs, candidates), None)
+        for candidate in candidates:
+            pkg = dependency_refs.get(candidate)
+            if pkg and pkg.satisfies(dep):
+                return Reference.make_from_pkg(pkg).as_str(sbom_type)
+        return None
 
     @staticmethod
     def make_from_pkg(pkg: Package) -> "Reference":
