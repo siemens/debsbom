@@ -7,6 +7,8 @@ from collections.abc import Callable
 from datetime import datetime
 from uuid import UUID
 
+from ..sbom import SBOMType
+
 
 class SbomMerger:
     """Base class for merging SBOMs."""
@@ -31,6 +33,20 @@ class SbomMerger:
             self.timestamp = datetime.now()
         else:
             self.timestamp = timestamp
+
+    @staticmethod
+    def create(sbom_type: SBOMType, **kwargs) -> "SbomMerger":
+        sbom_type.validate_dependency_availability()
+        if sbom_type is SBOMType.SPDX:
+            from .spdx import SpdxSbomMerger
+
+            return SpdxSbomMerger(**kwargs)
+        elif sbom_type is SBOMType.CycloneDX:
+            from .cdx import CdxSbomMerger
+
+            return CdxSbomMerger(**kwargs)
+        else:
+            raise NotImplementedError()
 
     @classmethod
     @abstractmethod
