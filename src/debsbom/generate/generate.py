@@ -46,7 +46,6 @@ class Debsbom:
     def __init__(
         self,
         distro_name: str,
-        sbom_types: set[SBOMType] | list[SBOMType] = [SBOMType.SPDX],
         root: str | Path = "/",
         distro_supplier: str | None = None,
         distro_version: str | None = None,
@@ -59,7 +58,6 @@ class Debsbom:
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
         with_licenses: bool = False,
     ):
-        self.sbom_types = set(sbom_types)
         self.root = Path(root)
         self.distro_name = distro_name
         self.distro_version = distro_version
@@ -83,6 +81,7 @@ class Debsbom:
 
         logger.info(f"Configuration: {self.__dict__}")
         self.packages: set[Package] = set()
+        self.virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {}
 
     @staticmethod
     def _parse_meta_data(meta_args: list[str] | None) -> dict[str, str]:
@@ -129,6 +128,8 @@ class Debsbom:
             merge_ext_states=merge_ext_states,
             with_licenses=self.with_licenses,
         )
+
+        self.virtual_packages = self._virtual_packages()
 
     @classmethod
     def _parse_distro_arch(cls, arch_native_file: Path) -> str | None:
@@ -321,32 +322,27 @@ class Debsbom:
 
         return virtual_packages
 
+    def scan(
+        self,
+        pkgs_stream: TextIOWrapper | None = None,
+    ) -> None:
+        """
+        Scan the rootfs for packages and dependencies.
+        """
+        self._import_packages(stream=pkgs_stream)
+
     def generate(
         self,
-        out: str,
+        sbom_type: SBOMType,
         progress_cb: Callable[[int, int, str], None] | None = None,
-        validate: bool = False,
-        pkgs_stream: TextIOWrapper | None = None,
     ):
         """
         Generate SBOMs. The progress callback is of format: (i,n,package)
         """
-        self._import_packages(stream=pkgs_stream)
-
-        virtual_packages = self._virtual_packages()
-
-        write_to_stdout = out == "-"
-        if SBOMType.CycloneDX in self.sbom_types:
+        if sbom_type is SBOMType.CycloneDX:
             from .cdx import cyclonedx_bom
 
-            cdx_out = out
-            if cdx_out != "-" and not cdx_out.endswith(".cdx.json"):
-                cdx_out += ".cdx.json"
-            if write_to_stdout:
-                logger.info("Generating CycloneDX SBOM...")
-            else:
-                logger.info(f"Generating CycloneDX SBOM in '{cdx_out}'...")
-            bom = cyclonedx_bom(
+            return cyclonedx_bom(
                 self.packages,
                 self.distro_name,
                 distro_arch=self.distro_arch,
@@ -357,25 +353,13 @@ class Debsbom:
                 timestamp=self.timestamp,
                 add_meta_data=self.add_meta_data,
                 standard=self.cdx_standard,
-                virtual_packages=virtual_packages,
+                virtual_packages=self.virtual_packages,
                 progress_cb=progress_cb,
             )
-            bomwriter = BomWriter.create(SBOMType.CycloneDX)
-            if write_to_stdout:
-                bomwriter.write_to_stream(bom, sys.stdout, validate)
-            else:
-                bomwriter.write_to_file(bom, Path(cdx_out), validate)
-        if SBOMType.SPDX in self.sbom_types:
+        if sbom_type is SBOMType.SPDX:
             from .spdx import spdx_bom
 
-            spdx_out = out
-            if spdx_out != "-" and not spdx_out.endswith(".spdx.json"):
-                spdx_out += ".spdx.json"
-            if write_to_stdout:
-                logger.info("Generating SPDX SBOM...")
-            else:
-                logger.info(f"Generating SPDX SBOM in '{spdx_out}'...")
-            bom = spdx_bom(
+            return spdx_bom(
                 self.packages,
                 self.distro_name,
                 distro_arch=self.distro_arch,
@@ -385,11 +369,6 @@ class Debsbom:
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
                 add_meta_data=self.add_meta_data,
-                virtual_packages=virtual_packages,
+                virtual_packages=self.virtual_packages,
                 progress_cb=progress_cb,
             )
-            bomwriter = BomWriter.create(SBOMType.SPDX)
-            if write_to_stdout:
-                bomwriter.write_to_stream(bom, sys.stdout, validate)
-            else:
-                bomwriter.write_to_file(bom, Path(spdx_out), validate)

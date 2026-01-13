@@ -6,6 +6,7 @@ import logging
 import sys
 
 from debsbom import HAS_PYTHON_APT
+from .output import SbomOutput
 from .input import GenerateInput, warn_if_tty
 from ..generate.generate import Debsbom
 from ..sbom import BOM_Standard, SBOMType
@@ -59,7 +60,6 @@ class GenerateCmd(GenerateInput):
         debsbom = Debsbom(
             distro_name=args.distro_name,
             distro_arch=None if args.distro_arch == "auto" else args.distro_arch,
-            sbom_types=sbom_types,
             root=args.root,
             distro_supplier=args.distro_supplier,
             distro_version=args.distro_version,
@@ -73,13 +73,14 @@ class GenerateCmd(GenerateInput):
         )
         if args.from_pkglist:
             warn_if_tty()
-
-        debsbom.generate(
-            args.out,
-            progress_cb=progress_cb if args.progress else None,
-            validate=args.validate,
-            pkgs_stream=sys.stdin if args.from_pkglist else None,
-        )
+        debsbom.scan(pkgs_stream=sys.stdin if args.from_pkglist else None)
+        for t in sbom_types:
+            logger.info(f"Generating {t} SBOM...")
+            bom = debsbom.generate(
+                t,
+                progress_cb=progress_cb if args.progress else None,
+            )
+            SbomOutput.write_out_arg(bom, t, args.out, args.validate)
 
     @classmethod
     def setup_parser(cls, parser):
