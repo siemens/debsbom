@@ -2,11 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from pathlib import Path
-import sys
-
+from .output import SbomOutput
 from ..bomreader.bomreader import BomReader
-from ..bomwriter import BomWriter
 from .input import GenerateInput, SbomInput
 from ..sbom import SBOMType
 from ..util.progress import progress_cb
@@ -40,13 +37,7 @@ class MergeCmd(GenerateInput, SbomInput):
                 timestamp=args.timestamp,
             )
             bom = sbom_merger.merge(docs, progress_cb=progress_cb if args.progress else None)
-            if args.out == "-":
-                BomWriter.create(SBOMType.SPDX).write_to_stream(bom, sys.stdout, args.validate)
-            else:
-                out = args.out
-                if not out.endswith(".spdx.json"):
-                    out += ".spdx.json"
-                BomWriter.create(SBOMType.SPDX).write_to_file(bom, Path(out), args.validate)
+            SbomOutput.write_out_arg(bom, sbom_type, args.out, args.validate)
         elif sbom_type == SBOMType.CycloneDX:
             SBOMType.CycloneDX.validate_dependency_availability()
             from ..merge.cdx import CdxSbomMerger
@@ -61,13 +52,7 @@ class MergeCmd(GenerateInput, SbomInput):
                 timestamp=args.timestamp,
             )
             bom = sbom_merger.merge(docs, progress_cb=progress_cb if args.progress else None)
-            if args.out == "-":
-                BomWriter.create(SBOMType.CycloneDX).write_to_stream(bom, sys.stdout, args.validate)
-            else:
-                out = args.out
-                if not out.endswith(".cdx.json"):
-                    out += ".cdx.json"
-                BomWriter.create(SBOMType.CycloneDX).write_to_file(bom, Path(out), args.validate)
+            SbomOutput.write_out_arg(bom, sbom_type, args.out, args.validate)
 
     @classmethod
     def setup_parser(cls, parser):

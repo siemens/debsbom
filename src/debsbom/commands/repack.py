@@ -6,9 +6,8 @@ import logging
 from pathlib import Path
 import sys
 
-from ..bomwriter import BomWriter
+from .output import SbomOutput
 from .input import SbomInput, RepackInput, SourceBinaryInput
-from ..generate.generate import Debsbom
 from ..repack.packer import BomTransformer, Packer
 from ..resolver.resolver import PackageStreamResolver
 from ..util.compression import Compression
@@ -170,11 +169,7 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
                 ),
             )
             bom = packer.rewrite_sbom(bt, repacked)
-            bomwriter = BomWriter.create(resolver.sbom_type())
-            if args.bomout == "-":
-                bomwriter.write_to_stream(bom, sys.stdout, validate=args.validate)
-            else:
-                bomwriter.write_to_file(bom, Path(args.bomout), validate=args.validate)
+            SbomOutput.write_out_arg(bom, resolver.sbom_type(), args.bomout, args.validate)
 
     @classmethod
     def setup_parser(cls, parser):
