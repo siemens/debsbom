@@ -1,0 +1,18 @@
+Package: foo
+Version: 1.0
+Architecture: amd64
+Depends: bar (>= 1.0)
+
+Package: bar
+Version: 0.9
+Architecture: amd64
+
+Package: bar-clone
+Version: 1.0
+Architecture: amd64
+Provides: bar
+
+Package: bar-plus
+Version: 1.0
+Architecture: amd64
+Provides: bar (= 1.0)

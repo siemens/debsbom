@@ -432,3 +432,41 @@ def test_license_information(tmpdir, sbom_generator):
         lic = apt_component["evidence"]["licenses"][0]
         assert lic["acknowledgement"] == "declared"
         assert lic["expression"] == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
+
+
+def test_virtual_package(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/virtual-packages", with_licenses=True)
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        relationships = spdx_json["relationships"]
+
+        found = False
+        for relationship in relationships:
+            if (
+                relationship["spdxElementId"] == "SPDXRef-foo-amd64"
+                and relationship["relationshipType"] == "DEPENDS_ON"
+            ):
+                assert relationship["relatedSpdxElement"] == "SPDXRef-bar-plus-amd64"
+                found = True
+                break
+        assert found
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+
+        found = False
+        for dependency in cdx_json["dependencies"]:
+            if dependency["ref"] == "pkg:deb/debian/foo@1.0?arch=amd64":
+                for dep in dependency["dependsOn"]:
+                    assert (
+                        dep == "pkg:deb/debian/bar-plus@1.0?arch=amd64"
+                        or dep == "pkg:deb/debian/foo@1.0?arch=source"
+                    )
+                found = True
+                break
+        assert found
