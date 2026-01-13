@@ -41,6 +41,7 @@ jobs:
       - name: Test debsbom image
         run: |
           docker run ghcr.io/${{ github.repository }}:test debsbom --version
+          docker run ghcr.io/${{ github.repository }}:test debsbom generate -t spdx -t cdx
           mkdir downloads
           echo "guestfs-tools 1.52.3-1 source" | \
             docker run -v$(pwd)/downloads:/mnt/downloads -i ghcr.io/${{ github.repository }}:test \
