@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 import xml.etree.ElementTree as ET
 
+from debsbom.bomwriter.bomwriter import BomWriter
 from debsbom.export.exporter import GraphExporter, GraphOutputFormat
 from debsbom.sbom import SBOMType
 from test_generation import sbom_generator

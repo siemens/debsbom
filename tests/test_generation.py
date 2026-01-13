@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Callable
 from datetime import datetime, timezone
 from importlib.metadata import version
 import json
@@ -12,12 +13,35 @@ import subprocess
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 from debian import deb822
+from io import TextIOWrapper
 
 from debsbom.apt.cache import ExtendedStates, Repository
+from debsbom.bomwriter.bomwriter import BomWriter
 from debsbom.dpkg.package import ChecksumAlgo
 from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
 from debsbom.sbom import BOM_Standard
+
+
+class DebsbomLegacyProxy(Debsbom):
+    def __init__(self, sbom_types: set[SBOMType] | list[SBOMType] = [SBOMType.SPDX], **kwargs):
+        super().__init__(**kwargs)
+        self._sbom_types = sbom_types
+
+    def generate(
+        self,
+        out: str,
+        progress_cb: Callable[[int, int, str], None] | None = None,
+        validate: bool = False,
+        pkgs_stream: TextIOWrapper | None = None,
+    ):
+        self.scan(pkgs_stream)
+        for t in self._sbom_types:
+            outfile = out
+            if not outfile.endswith(f".{t}.json"):
+                outfile += f".{t}.json"
+            bom = super().generate(t, progress_cb)
+            BomWriter.create(t).write_to_file(bom, Path(outfile), validate)
 
 
 @pytest.fixture
@@ -35,7 +59,7 @@ def sbom_generator():
         if timestamp is None:
             timestamp = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
-        return Debsbom(
+        return DebsbomLegacyProxy(
             distro_name="pytest-distro",
             distro_arch="amd64",
             sbom_types=sbom_types,
@@ -151,16 +175,18 @@ def test_standard_bom(tmpdir):
     dbom = Debsbom(
         distro_name="pytest-distro",
         distro_arch="amd64",
-        sbom_types=[SBOMType.CycloneDX],
         root="tests/root/dependency",
         spdx_namespace=urlparse("http://example.org"),
         cdx_serialnumber=uuid4(),
         timestamp=datetime(1970, 1, 1, tzinfo=timezone.utc),
         cdx_standard=BOM_Standard.STANDARD_BOM,
     )
+    dbom.scan()
     outdir = Path(tmpdir)
-    dbom.generate(str(outdir / "sbom"), validate=True)
-    with open(outdir / "sbom.cdx.json") as file:
+    bom = dbom.generate(SBOMType.CycloneDX)
+    bomfile = outdir / "sbom.cdx.json"
+    BomWriter.create(SBOMType.CycloneDX).write_to_file(bom, bomfile, validate=True)
+    with open(bomfile) as file:
         cdx_json = json.loads(file.read())
         s_bom = cdx_json["definitions"]["standards"][0]
         assert s_bom["bom-ref"] == "standard-bom"
