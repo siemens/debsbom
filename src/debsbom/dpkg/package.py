@@ -723,9 +723,16 @@ class BinaryPackage(Package):
         """
         Create a ``BinaryPackage`` from a deb822 representation.
         """
-        if package.source:
-            srcdep = Dependency(package.source, None, ("=", package.source_version), arch="source")
-        else:
+        try:
+            if package.source:
+                srcdep = Dependency(
+                    package.source, None, ("=", package.source_version), arch="source"
+                )
+            else:
+                srcdep = None
+        except KeyError:
+            name = package.get("Package")
+            logger.warning(f"Package {name} has incorrect source package relation")
             srcdep = None
 
         pdepends = package.relations["depends"] or []
