@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from datetime import datetime
+import json
 import logging
 from pathlib import Path
 import sys
@@ -54,7 +55,7 @@ class SbomInput:
 
     @classmethod
     def create_sbom_processors(
-        cls, args, processor_cls, sbom_args=None, **proc_args
+        cls, args, processor_cls, sbom_args=None, sbom_allow_multiple=False, **proc_args
     ) -> list[SbomProcessor]:
         sbom_args = sbom_args or ["bomin"]
         processors = []
@@ -72,11 +73,21 @@ class SbomInput:
                         raise RuntimeError(
                             "If reading from stdin, the '--sbom-type' needs to be set"
                         )
-                    processors.append(
-                        processor_cls.from_stream(
-                            sys.stdin, bomtype=SBOMType.from_str(args.sbom_type), **proc_args
+                    # decode multiple json objects from a single input stream
+                    decoder = json.JSONDecoder()
+                    s = sys.stdin.read()
+                    len_s = len(s)
+                    read_total = 0
+                    while read_total < len_s:
+                        json_obj, read = decoder.raw_decode(s[read_total:])
+                        read_total += read
+                        processors.append(
+                            processor_cls.from_json(
+                                json_obj, bomtype=SBOMType.from_str(args.sbom_type), **proc_args
+                            )
                         )
-                    )
+                        if not sbom_allow_multiple:
+                            break
                 else:
                     processors.append(
                         processor_cls.create(Path(sbom_file), bomtype=args.sbom_type, **proc_args)
