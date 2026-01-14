@@ -455,7 +455,7 @@ def test_license_information(tmpdir, sbom_generator):
         apt_component = list(filter(lambda c: "arch=source" in c["purl"], spdx_json["components"]))[
             0
         ]
-        lic = apt_component["evidence"]["licenses"][0]
+        lic = apt_component["licenses"][0]
         assert lic["acknowledgement"] == "declared"
         assert lic["expression"] == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
 

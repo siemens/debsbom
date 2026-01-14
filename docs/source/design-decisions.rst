@@ -201,7 +201,7 @@ License Information
 
 As the specifiers in Debian copyright files are not SPDX identifiers a conversion table based on the `syntax specification <https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification>`__ is used.
 
-For SPDX SBOMs the information is placed in the `declared licenses field <https://spdx.github.io/spdx-spec/v2.3/package-information/#715-declared-license-field>`__; and for CDX SBOMs in the `evidence field <https://cyclonedx.org/docs/1.6/json/#components_items_evidence_licenses>`__ with the ``acknowledgement`` set to ``declared``. This is done this way because ``debsbom`` does not perform any analysis of included licenses and just trusts what is stated by the package authors. This can be expressed in the SBOMs with the above approach.
+For SPDX SBOMs the information is placed in the `declared licenses field <https://spdx.github.io/spdx-spec/v2.3/package-information/#715-declared-license-field>`__; and for CDX SBOMs in the `licenses field <https://cyclonedx.org/docs/1.6/json/#components_items_licenses>`__ with the ``acknowledgement`` set to ``declared``. This is done this way because ``debsbom`` does not perform any analysis of included licenses and just trusts what is stated by the package authors. This can be expressed in the SBOMs with the above approach. For CDX it could alternatively be placed in the `evidence.licenses field <https://cyclonedx.org/docs/1.6/json/#components_items_evidence_licenses>`__ as there is, as far as we can tell, no clear distinction between the meaning of the two if all ``acknowledgments`` are set to ``declared``. We decided to put it directly in ``licenses``, as that is the first place a user would expect it.
 
 Limitations
 ^^^^^^^^^^^

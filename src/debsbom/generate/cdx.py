@@ -7,7 +7,6 @@ import cyclonedx.model as cdx_model
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.bom_ref as cdx_bom_ref
 import cyclonedx.model.component as cdx_component
-from cyclonedx.model.component_evidence import ComponentEvidence
 import cyclonedx.model.tool as cdx_tool
 import cyclonedx.model.contact as cdx_contact
 import cyclonedx.model.dependency as cdx_dependency
@@ -101,8 +100,7 @@ def cdx_package_repr(
                 )
 
                 license_repo = LicenseRepository([expression])
-                evidence = ComponentEvidence(licenses=license_repo)
-                entry.evidence = evidence
+                entry.licenses = license_repo
             except (ExpressionError, UnknownLicenseError) as e:
                 logger.debug(f"no SPDX license expression for {package}: {e}")
         logger.debug(f"Created source component: {entry}")
