@@ -427,7 +427,6 @@ def test_illformed_sources():
 def test_license_information(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")
-    _component_evidence = pytest.importorskip("cyclonedx.model.component_evidence")
 
     dbom = sbom_generator("tests/root/copyright", with_licenses=True)
     outdir = Path(tmpdir)
