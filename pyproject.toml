@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "debsbom"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
   "packageurl-python>=0.16.0",
   "python-debian>=0.1.49",
