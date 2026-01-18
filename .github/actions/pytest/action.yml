@@ -52,6 +52,14 @@ runs:
       export COVERAGE_FILE=".coverage.smoke-export.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v export sbom-rp.spdx.json
 
+  - name: smoke test delta
+    shell: bash
+    run: |
+      export COVERAGE_FILE=".coverage.delta.spdx.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v delta --validate tests/data/delta-base.spdx.json tests/data/delta-target.spdx.json
+      export COVERAGE_FILE=".coverage.delta.cdx.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v delta --validate tests/data/delta-base.cdx.json tests/data/delta-target.cdx.json
+
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@v4
     with:

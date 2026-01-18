@@ -1,0 +1,411 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2026-01-18T12:46:26Z",
+        "creators": [
+            "Tool: debsbom-0.6.0"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "Debian",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.6.0-aa1a0c25-35b4-4c1f-a21b-cb477f9fbf56",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Debian",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "Debian",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-vim-2.9.1.1230-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "248e596ccd516d14dba2d6bd5a9e21f5"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "10e96236a45dcf5b1fb3b6a3146072f89b7d4c0af79456b6bfa0688383b41d47"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/vim@2:9.1.1230-2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/vim-team/vim.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "vim",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'vim'",
+            "supplier": "Organization: Debian Vim Maintainers (team+vim@tracker.debian.org)",
+            "versionInfo": "2:9.1.1230-2"
+        },
+        {
+            "SPDXID": "SPDXRef-bash-5.2.37-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "c9d75e69a27738c24a25fff61285998b"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "7e5f6d5a26093e812f8841d5cf3245054102e86986017d8edd859417b03707f9"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/bash@5.2.37-2?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "bash",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'bash'",
+            "supplier": "Person: Matthias Klose (doko@debian.org)",
+            "versionInfo": "5.2.37-2"
+        },
+        {
+            "SPDXID": "SPDXRef-dhcpcd-base-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "1a241a986198be92804964f7f77a673d"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "75595da6decc12a3bcea504ba080ac5d1602e6769e079dbef5ff97066dbb0904"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dhcpcd-base@1:10.1.0-11%2Bdeb13u2?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/NetworkConfiguration/dhcpcd",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dhcpcd-base",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "DHCPv4 and DHCPv6 dual-stack client (binaries and exit hooks)",
+            "supplier": "Person: Martin-\u00c9ric Racine (martin-eric.racine@iki.fi)",
+            "versionInfo": "1:10.1.0-11+deb13u2"
+        },
+        {
+            "SPDXID": "SPDXRef-btop-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "3b3b5906e3d2202070fa98d4aea174a7"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "8a36a753580e57877cc6abd674e394ff395030dec7075871974e97cb9f18b626"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/btop@1.3.2-0.1?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/aristocratos/btop",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "btop",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Modern and colorful command line resource monitor that shows usage and stats",
+            "supplier": "Person: Marius Gripsgard (mariogrip@debian.org)",
+            "versionInfo": "1.3.2-0.1"
+        },
+        {
+            "SPDXID": "SPDXRef-bash-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "76bf06047dc40f4fa0a0044c95307b8d"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "39d9bbee8616f66fc65fa57b0b032f88c66a5123e84e5f53415e6116db05d2a6"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "http://tiswww.case.edu/php/chet/bash/bashtop.html",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "bash",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "GNU Bourne Again SHell",
+            "supplier": "Person: Matthias Klose (doko@debian.org)",
+            "versionInfo": "5.2.37-2+b7"
+        },
+        {
+            "SPDXID": "SPDXRef-btop-1.3.2-0.1-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "e80c283fa6be5127c1f3e5324e2b1a27"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "72f02813729360b1b3bbcbceb5712a9645cba3e899cbfa13fcba8883f7d225e8"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/btop@1.3.2-0.1?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/mariogrip/btop.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "btop",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'btop'",
+            "supplier": "Person: Marius Gripsgard (mariogrip@debian.org)",
+            "versionInfo": "1.3.2-0.1"
+        },
+        {
+            "SPDXID": "SPDXRef-dhcpcd-1.10.1.0-11.deb13u2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "5c3d9b1f918ee6f3ab9396c77480886a"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "98b70740fcffc4e63637061ca7589083abdae20b1f4480cddc3d99a0a720159d"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dhcpcd@1:10.1.0-11%2Bdeb13u2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/debian/dhcpcd.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dhcpcd",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'dhcpcd'",
+            "supplier": "Person: Martin-\u00c9ric Racine (martin-eric.racine@iki.fi)",
+            "versionInfo": "1:10.1.0-11+deb13u2"
+        },
+        {
+            "SPDXID": "SPDXRef-vim-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "677a10c17a1b230a84d62e486177e784"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "7050d710bbcd5dee68865d90fd95a9aa865bf16d9a3874c5bb6a4f1d69231cfe"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/vim@2:9.1.1230-2?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://www.vim.org/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "vim",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Vi IMproved - enhanced vi editor",
+            "supplier": "Organization: Debian Vim Maintainers (team+vim@tracker.debian.org)",
+            "versionInfo": "2:9.1.1230-2"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "f7adc68081bf80c88b5517daeccc5d03"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "a8902cb6d8650134764a25fb80aec8589d858ef71ece1680a62e84816c37bb04"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "http://gondor.apana.org.au/~herbert/dash/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "POSIX-compliant shell",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "ecd2b43069b15a0f6bd334f16343e550"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "589efc4d87a4ae4745c273bdb33198d7c4f28a71736a8ece81d3677cf9c6e5ce"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/debian/dash.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'dash'",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-dhcpcd-base-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-dhcpcd-1.10.1.0-11.deb13u2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-dhcpcd-base-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-btop-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-btop-1.3.2-0.1-srcpkg",
+            "relatedSpdxElement": "SPDXRef-btop-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-bash-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-bash-5.2.37-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-bash-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-vim-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-vim-2.9.1.1230-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-vim-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "relatedSpdxElement": "SPDXRef-dash-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}

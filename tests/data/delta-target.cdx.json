@@ -1,0 +1,475 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/bash@5.2.37-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://tiswww.case.edu/php/chet/bash/bashtop.html"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "c9d75e69a27738c24a25fff61285998b"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "7e5f6d5a26093e812f8841d5cf3245054102e86986017d8edd859417b03707f9"
+                }
+            ],
+            "name": "bash",
+            "purl": "pkg:deb/debian/bash@5.2.37-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "doko@debian.org"
+                    }
+                ],
+                "name": "Matthias Klose"
+            },
+            "type": "library",
+            "version": "5.2.37-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64",
+            "description": "GNU Bourne Again SHell",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://tiswww.case.edu/php/chet/bash/bashtop.html"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "76bf06047dc40f4fa0a0044c95307b8d"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "39d9bbee8616f66fc65fa57b0b032f88c66a5123e84e5f53415e6116db05d2a6"
+                }
+            ],
+            "name": "bash",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "shells"
+                }
+            ],
+            "purl": "pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "doko@debian.org"
+                    }
+                ],
+                "name": "Matthias Klose"
+            },
+            "type": "library",
+            "version": "5.2.37-2+b7"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/btop@1.3.2-0.1?arch=amd64",
+            "description": "Modern and colorful command line resource monitor that shows usage and stats",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/aristocratos/btop"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "3b3b5906e3d2202070fa98d4aea174a7"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "8a36a753580e57877cc6abd674e394ff395030dec7075871974e97cb9f18b626"
+                }
+            ],
+            "name": "btop",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "utils"
+                }
+            ],
+            "purl": "pkg:deb/debian/btop@1.3.2-0.1?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "mariogrip@debian.org"
+                    }
+                ],
+                "name": "Marius Gripsgard"
+            },
+            "type": "library",
+            "version": "1.3.2-0.1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/btop@1.3.2-0.1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/mariogrip/btop.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/aristocratos/btop"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "e80c283fa6be5127c1f3e5324e2b1a27"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "72f02813729360b1b3bbcbceb5712a9645cba3e899cbfa13fcba8883f7d225e8"
+                }
+            ],
+            "name": "btop",
+            "purl": "pkg:deb/debian/btop@1.3.2-0.1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "mariogrip@debian.org"
+                    }
+                ],
+                "name": "Marius Gripsgard"
+            },
+            "type": "library",
+            "version": "1.3.2-0.1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+            "description": "POSIX-compliant shell",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://gondor.apana.org.au/~herbert/dash/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "f7adc68081bf80c88b5517daeccc5d03"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "a8902cb6d8650134764a25fb80aec8589d858ef71ece1680a62e84816c37bb04"
+                }
+            ],
+            "name": "dash",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "shells"
+                }
+            ],
+            "purl": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "andrewsh@debian.org"
+                    }
+                ],
+                "name": "Andrej Shadura"
+            },
+            "type": "library",
+            "version": "0.5.12-12"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/debian/dash.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://gondor.apana.org.au/~herbert/dash/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "ecd2b43069b15a0f6bd334f16343e550"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "589efc4d87a4ae4745c273bdb33198d7c4f28a71736a8ece81d3677cf9c6e5ce"
+                }
+            ],
+            "name": "dash",
+            "purl": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "andrewsh@debian.org"
+                    }
+                ],
+                "name": "Andrej Shadura"
+            },
+            "type": "library",
+            "version": "0.5.12-12"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dhcpcd@1:10.1.0-11%2Bdeb13u2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/debian/dhcpcd.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/NetworkConfiguration/dhcpcd"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "5c3d9b1f918ee6f3ab9396c77480886a"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "98b70740fcffc4e63637061ca7589083abdae20b1f4480cddc3d99a0a720159d"
+                }
+            ],
+            "name": "dhcpcd",
+            "purl": "pkg:deb/debian/dhcpcd@1:10.1.0-11%2Bdeb13u2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "martin-eric.racine@iki.fi"
+                    }
+                ],
+                "name": "Martin-\u00c9ric Racine"
+            },
+            "type": "library",
+            "version": "1:10.1.0-11+deb13u2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dhcpcd-base@1:10.1.0-11%2Bdeb13u2?arch=amd64",
+            "description": "DHCPv4 and DHCPv6 dual-stack client (binaries and exit hooks)",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/NetworkConfiguration/dhcpcd"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "1a241a986198be92804964f7f77a673d"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "75595da6decc12a3bcea504ba080ac5d1602e6769e079dbef5ff97066dbb0904"
+                }
+            ],
+            "name": "dhcpcd-base",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "net"
+                }
+            ],
+            "purl": "pkg:deb/debian/dhcpcd-base@1:10.1.0-11%2Bdeb13u2?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "martin-eric.racine@iki.fi"
+                    }
+                ],
+                "name": "Martin-\u00c9ric Racine"
+            },
+            "type": "library",
+            "version": "1:10.1.0-11+deb13u2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/vim@2:9.1.1230-2?arch=amd64",
+            "description": "Vi IMproved - enhanced vi editor",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://www.vim.org/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "677a10c17a1b230a84d62e486177e784"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "7050d710bbcd5dee68865d90fd95a9aa865bf16d9a3874c5bb6a4f1d69231cfe"
+                }
+            ],
+            "name": "vim",
+            "properties": [
+                {
+                    "name": "section",
+                    "value": "editors"
+                }
+            ],
+            "purl": "pkg:deb/debian/vim@2:9.1.1230-2?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+vim@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Vim Maintainers"
+            },
+            "type": "library",
+            "version": "2:9.1.1230-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/vim@2:9.1.1230-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/vim-team/vim.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://www.vim.org/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "248e596ccd516d14dba2d6bd5a9e21f5"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "10e96236a45dcf5b1fb3b6a3146072f89b7d4c0af79456b6bfa0688383b41d47"
+                }
+            ],
+            "name": "vim",
+            "purl": "pkg:deb/debian/vim@2:9.1.1230-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+vim@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Vim Maintainers"
+            },
+            "type": "library",
+            "version": "2:9.1.1230-2"
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64",
+                "pkg:deb/debian/btop@1.3.2-0.1?arch=amd64",
+                "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+                "pkg:deb/debian/dhcpcd-base@1:10.1.0-11%2Bdeb13u2?arch=amd64",
+                "pkg:deb/debian/vim@2:9.1.1230-2?arch=amd64"
+            ],
+            "ref": "CDXRef-Debian"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/bash@5.2.37-2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/bash@5.2.37-2?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/btop@1.3.2-0.1?arch=source"
+            ],
+            "ref": "pkg:deb/debian/btop@1.3.2-0.1?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/btop@1.3.2-0.1?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/dash@0.5.12-12?arch=source"
+            ],
+            "ref": "pkg:deb/debian/dash@0.5.12-12?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/dash@0.5.12-12?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/dhcpcd@1:10.1.0-11%2Bdeb13u2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/dhcpcd-base@1:10.1.0-11%2Bdeb13u2?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/dhcpcd@1:10.1.0-11%2Bdeb13u2?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/vim@2:9.1.1230-2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/vim@2:9.1.1230-2?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/vim@2:9.1.1230-2?arch=source"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-Debian",
+            "name": "Debian",
+            "type": "operating-system"
+        },
+        "timestamp": "2026-01-18T12:46:26.838216-05:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.6.0",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.6.0"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:77ad054f-3596-4047-9b16-151f1f3213b8",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6"
+}
