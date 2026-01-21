@@ -18,7 +18,6 @@ from ..util.checksum import verify_dsc_files, check_hash_from_path
 from ..dpkg import package
 from ..util import Compression
 
-
 logger = logging.getLogger(__name__)
 
 

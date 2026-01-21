@@ -12,7 +12,6 @@ from ..generate.generate import Debsbom
 from ..sbom import BOM_Standard, SBOMType
 from ..util.progress import progress_cb
 
-
 logger = logging.getLogger(__name__)
 
 

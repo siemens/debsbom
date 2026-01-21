@@ -19,7 +19,6 @@ from ..sbom import (
     SPDX_REFERENCE_TYPE_PURL,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -11,7 +11,6 @@ from ..repack.merger import DscFileNotFoundError, SourceArchiveMerger
 from ..util.compression import Compression
 from ..util.progress import progress_cb
 
-
 logger = logging.getLogger(__name__)
 
 

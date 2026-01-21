@@ -15,7 +15,6 @@ from ..dpkg import package
 
 from zstandard import ZstdCompressor, ZstdDecompressor
 
-
 logger = logging.getLogger(__name__)
 
 

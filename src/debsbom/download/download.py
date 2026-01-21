@@ -21,7 +21,6 @@ from ..dpkg.package import Package
 
 import requests
 
-
 logger = logging.getLogger(__name__)
 StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
 

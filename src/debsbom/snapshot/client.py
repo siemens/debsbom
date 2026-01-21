@@ -25,7 +25,6 @@ from ..util.checksum import (
 )
 from ..download.resolver import RemoteFile, PackageResolverCache, Resolver, ResolveError
 
-
 logger = logging.getLogger(__name__)
 
 
