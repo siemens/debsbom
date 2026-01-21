@@ -295,10 +295,12 @@ def test_apt_extended_states():
     assert noes.is_manual("foo", "amd64")
 
 
-def test_apt_cache_parsing():
+@pytest.mark.parametrize("origin", ["Debian", "Local"])
+def test_apt_cache_parsing(origin):
     apt_lists_dir = "tests/root/apt-sources/var/lib/apt/lists"
-    repo = next(Repository.from_apt_cache(apt_lists_dir))
-    src_pkgs = list(repo.sources(lambda p: p.name == "binutils"))
+    repos = list(Repository.from_apt_cache(apt_lists_dir))
+    deb_repo = next(filter(lambda r: r.origin == origin, repos))
+    src_pkgs = list(deb_repo.sources(lambda p: p.name == "binutils"))
     assert len(src_pkgs) == 1
     # this data is only available in apt sources deb822 data
     assert "binutils-for-host" in src_pkgs[0].binaries
