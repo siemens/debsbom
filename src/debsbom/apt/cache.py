@@ -18,7 +18,6 @@ from ..util.compression import (
 from ..dpkg.package import BinaryPackage, SourcePackage
 from .. import HAS_PYTHON_APT
 
-
 logger = logging.getLogger(__name__)
 
 

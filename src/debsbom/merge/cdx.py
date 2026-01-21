@@ -17,7 +17,6 @@ from ..util.checksum_cdx import checksum_dict_from_cdx
 from .merge import SbomMerger
 from ..generate.cdx import make_distro_component, make_metadata
 
-
 logger = logging.getLogger(__name__)
 
 

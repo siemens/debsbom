@@ -16,7 +16,6 @@ from ..util.sbom_processor import SbomProcessor
 from ..resolver.resolver import PackageResolver, PackageStreamResolver
 from ..sbom import SBOMType
 
-
 logger = logging.getLogger(__name__)
 
 

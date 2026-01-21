@@ -27,7 +27,6 @@ from ..dpkg.package import (
 from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
 
-
 logger = logging.getLogger(__name__)
 
 # disable noisy URL format warnings

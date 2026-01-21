@@ -8,7 +8,6 @@ from license_expression import LicenseExpression, get_spdx_licensing
 import logging
 from pathlib import Path
 
-
 logger = logging.getLogger(__name__)
 
 # well-known list of expressions conversions, see
