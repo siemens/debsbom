@@ -58,7 +58,7 @@ class ExtendedStates:
 class Repository:
     """Represents a debian repository as cached by apt."""
 
-    in_release_file: Path
+    release_file: Path
     origin: str | None
     codename: str | None
     architectures: list[str]
@@ -73,7 +73,7 @@ class Repository:
     def from_apt_cache(cls, lists_dir: str | Path) -> Iterable["Repository"]:
         """Create repositories from apt lists directory."""
         for entry in Path(lists_dir).iterdir():
-            if entry.name.endswith("_InRelease"):
+            if entry.name.endswith("Release"):
                 with open(entry) as f:
                     repo = Deb822(f)
                 origin = repo.get("Origin")
@@ -87,7 +87,7 @@ class Repository:
                     logger.error(f"Repository does not specify 'Architectures', ignoring: {entry}")
                     continue
                 yield Repository(
-                    in_release_file=entry,
+                    release_file=entry,
                     origin=origin,
                     codename=codename,
                     version=Version(version) if version else None,
@@ -201,17 +201,20 @@ class Repository:
         except (FileNotFoundError, IndexError, RuntimeError):
             logger.debug(f"Missing apt cache packages: {packages_file}")
 
+    @property
+    def repo_base(self):
+        return "_".join(str(self.release_file).split("_")[:-1])
+
     def sources(
         self, filter_fn: Callable[[SourcePackageFilter], bool] | None = None
     ) -> Iterable[SourcePackage]:
         """Get all source packages from this repository."""
-        repo_base = str(self.in_release_file).removesuffix("_InRelease")
         if self.components:
             for component in self.components:
-                sources_file = "_".join([repo_base, component, "source", "Sources"])
+                sources_file = "_".join([self.repo_base, component, "source", "Sources"])
                 yield from self._parse_sources(sources_file, filter_fn)
         else:
-            sources_file = "_".join([repo_base, "source", "Sources"])
+            sources_file = "_".join([self.repo_base, "source", "Sources"])
             return self._parse_sources(sources_file, filter_fn)
 
     def binpackages(
@@ -220,17 +223,18 @@ class Repository:
         ext_states: ExtendedStates = ExtendedStates(set()),
     ) -> Iterable[BinaryPackage]:
         """Get all binary packages from this repository"""
-        repo_base = str(self.in_release_file).removesuffix("_InRelease")
         if self.components:
             for component in self.components:
                 for arch in self.architectures:
-                    packages_file = "_".join([repo_base, component, f"binary-{arch}", "Packages"])
+                    packages_file = "_".join(
+                        [self.repo_base, component, f"binary-{arch}", "Packages"]
+                    )
                     for p in self._parse_packages(packages_file, filter_fn):
                         p.manually_installed = ext_states.is_manual(p.name, p.architecture)
                         yield p
         else:
             for arch in self.architectures:
-                packages_file = "_".join([repo_base, f"binary-{arch}", "Packages"])
+                packages_file = "_".join([self.repo_base, f"binary-{arch}", "Packages"])
                 for p in self._parse_packages(packages_file, filter_fn):
                     p.manually_installed = ext_states.is_manual(p.name, p.architecture)
                     yield p
