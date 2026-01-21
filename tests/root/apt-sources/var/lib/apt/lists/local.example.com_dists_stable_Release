@@ -1,0 +1,20 @@
+Origin: Local
+Label: Local Repository
+Suite: stable
+Version: 1.0
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Local unsigned repository
+MD5Sum:
+ 8c84058db82470c3eb3db5f558d2fb61 519316119 main/Contents-all
+ 4d583fc44d208a68fb53f5f74e11c07e 50065615 main/binary-amd64/Packages
+ 669c6f8f59f5d00072605a65f0e5950f      120 main/binary-amd64/Release
+ 75f089b57bf67e60c9f5e06181cf563b      121 main/source/Release
+ 17c3c2cebfd99cb4a6501e2bc7ad7f65   209044 main/source/Sources
+SHA256:
+ d6c9c82f4e61b4662f9ba16b9ebb379c57b4943f8b7813091d1f637325ddfb79  1484322 main/Contents-all
+ 2cc832a2786983db27c46360a7671610c3d1667994e20d84c1ba2c1f16e1e8b4 50065615 main/binary-amd64/Packages
+ 1751a0ddff790494b681cf4ab713c2eb6017dec70d1349e5ffe94f7bc3e71f9a      120 main/binary-amd64/Release
+ 6ac5f49194a88b97c29e4bba555cff3e8dfea5849ed63e4e6a70c9289d68ef28      121 main/source/Release
+ 17e57309b0ca2fafa552e1ad0b6fcecb237ac8709ac28eb0bc1fb293544934dd   209044 main/source/Sources
