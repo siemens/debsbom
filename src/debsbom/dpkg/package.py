@@ -383,11 +383,8 @@ class Package(ABC):
             logger.debug(f"Found source package: '{pkg.source.name}'")
             yield src_pkg
         for bu in pkg.built_using:
-            # When creating the source package from a built-depends, we don't know the maintainer.
-            # If we now create a source package first via a built-using relation and later
-            # re-create the same source package from a binary package, it still misses the
-            # maintainer information, despite we would have it from the binary package.
-            # Some tests on a rather large debian sid showed, that this situation is unlikely.
+            # Add partial source package. This can later be enhanced by merging it with
+            # a more complete source package we discovered via other mechanisms (e.g. apt cache).
             logger.debug(f"Found built-using source package: '{bu.name}@{bu.version[1]}'")
             yield SourcePackage(bu.name, bu.version[1])
         if add_pkg:

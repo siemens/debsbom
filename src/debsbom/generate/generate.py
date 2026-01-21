@@ -245,6 +245,10 @@ class Debsbom:
                 shash = hash(source_pkg)
                 if shash not in packages:
                     to_add.append(source_pkg)
+                else:
+                    # at this point in time we already have the apt data, so we merge our
+                    # incomplete source packages with the proper ones from apt.
+                    packages[shash].merge_with(source_pkg)
             # we add it in a separate loop so we do not invalidate the packages iterator
             for source_pkg in to_add:
                 packages[hash(source_pkg)] = source_pkg
