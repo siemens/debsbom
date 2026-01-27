@@ -192,7 +192,7 @@ The universal ingress, often seen with the ``--from-pkglist`` option, has some c
 
 In fact, there are subtle differences: in the first case the information from the ``extended_states`` file is used to find out which packages are manually installed and which are automatically pulled in as dependencies. In the second command all packages in the status file are considered manually installed, which would affect the dependency graph.
 
-That is because we assume that with the ``--from-pkglist`` option the rootfs and the packages are not directly related. We can still find packages from the universal ingress in the apt-cache and enrich their entries, but any other local information does not apply to them. In general you should be careful when using universal ingress, as depending on the rootfs you are using and the state of the apt-cache in there, you might have reproducability issues.
+That is because we assume that with the ``--from-pkglist`` option the rootfs and the packages are not directly related. We can still find packages from the universal ingress in the apt-cache and enrich their entries, but any other local information does not apply to them. In general you should be careful when using universal ingress, as depending on the rootfs you are using and the state of the apt-cache in there, you might have reproducibility issues.
 
 License Information
 -------------------
