@@ -188,7 +188,7 @@ And the same list of packages can be repacked:
 Export as Graph
 ~~~~~~~~~~~~~~~
 
-The :doc:`/commands/export` allows to convert the SBOM into various graph representations.
+The :doc:`/commands/export` allows one to convert the SBOM into various graph representations.
 These can be used as input to graph visualization and analysis tooling (like Gephi).
 
 .. note::
