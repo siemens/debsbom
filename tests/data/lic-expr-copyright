@@ -1,51 +1,11 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: libcap
-Upstream-Contact: Andrew G. Morgan <morgan@kernel.org>
-Source: https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
 
-Files: *
-Copyright: 1997-2016 Andrew G. Morgan <morgan@linux.kernel.org>
+Files: copyright-tests/BSD-3-clause-OR-GPL-2
+Copyright: 2026 Siemens
 License: BSD-3-clause or GPL-2
 
-Files: libcap/cap_text.c
-Copyright: 1997-2008 Andrew G. Morgan <morgan@linux.kernel.org>
-           1997 Andrew Main <zefram@dcs.warwick.ac.uk>
-License: BSD-3-clause or GPL-2
-
-Files: libcap/include/sys/capability.h
-Copyright: 1997-2008 Andrew G. Morgan <morgan@kernel.org>
-           1997 Aleph One
-License: BSD-3-clause or GPL-2
-
-Files: libcap/include/sys/securebits.h
-Copyright: 2010 Serge Hallyn <serue@us.ibm.com>
-License: BSD-3-clause or GPL-2
-
-Files: progs/old/sucap.c
-Copyright: 1998 Finn Arne Gangstad <finnag@guardian.no>
-License: BSD-3-clause or GPL-2
-
-Files: contrib/*
-Copyright: 2006, Matt Kern <matt.kern@undue.org>
-           2008, Andrew G. Morgan <morgan@linux.kernel.org>
-	   2008, Chris Friedhoff <chris@friedhoff.org>
-License: BSD-3-clause or GPL-2
-
-Files: debian/*
-Copyright: 2014, Daniel Baumann <mail@daniel-baumann.ch>
-           2014-2022, Christian Kastner <ckk@debian.org>
-License: BSD-3-clause or GPL-2+
-
-Files: debian/manpages/*
-Copyright: 1997-2014 Andrew G. Morgan <morgan@linux.kernel.org>
-           2011 Scott Schaefer <saschaefer@neurodiverse.org>
-License: BSD-3-clause or GPL-2
-
-Files: debian/patches/*
-Copyright: 2011, Andrew Straw <strawman@astraw.com>
-           2011, Zhi Li <lizhi1215@gmail.com>
-           2014-2016, Christian Kastner <ckk@debian.org>
-           2015, Helmut Grohne <helmut@subdivi.de>
+Files: copyright-tests/BSD-3-clause-OR-GPL-2+
+Copyright: 2026 Siemens
 License: BSD-3-clause or GPL-2+
 
 License: BSD-3-clause
