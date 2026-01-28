@@ -8,7 +8,7 @@ import pytest
 
 
 def test_copyright():
-    cr = Copyright(Path("tests/data/apt-copyright"))
+    cr = Copyright(Path("tests/data/copyright"))
 
     licenses = list(map(lambda lic: lic.synopsis, cr.licenses()))
     assert len(licenses) == 4
@@ -26,7 +26,7 @@ def test_copyright():
 
 
 def test_non_spdx_copyright():
-    cr = Copyright(Path("tests/data/vim-tiny-copyright"))
+    cr = Copyright(Path("tests/data/non-spdx-copyright"))
 
     licenses = list(map(lambda lic: lic.synopsis, cr.licenses()))
     # we have some non-SPDX licenses, make sure they are in there
@@ -41,7 +41,7 @@ def test_non_spdx_copyright():
 
 
 def test_spdx_lic_expressions():
-    cr = Copyright(Path("tests/data/libcap2-copyright"))
+    cr = Copyright(Path("tests/data/lic-expr-copyright"))
 
     spdx_licenses = set(map(lambda lic: str(lic), cr.spdx_license_expressions()))
     assert "BSD-3-Clause OR GPL-2.0-or-later" in spdx_licenses

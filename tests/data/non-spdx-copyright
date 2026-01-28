@@ -1,166 +1,36 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: vim
-Source: https://github.com/vim/vim
 
-Files: *
-Copyright: 2001-2022 Bram Moolenaar <Bram@vim.org>
-           2006 Benji Fisher <benji@member.ams.org>
-           1999-2021 Charles E. Campbell, Jr. <drchip@campbellfamily.biz>
-           2003 Fred Barnes
-           2003 Mario Schweigler
-           2004-2008 Michael Geddes
-           2006 Martin Krischik
-           2015 Christian Brabandt
-           2014 David Necas (Yeti)
-           2009-2013 Steven Oliver
-           2012 Hong Xu
-           2001-2022 MURAOKA Taro <koron.kaoriya@gmail.com>
-           2001 Bohdan Vlasyuk <bohdan@vstu.edu.ua>
-           2003-2022 Ernest Adrogué <eadrogue@gmx.net>
-           2005,2006,2008,2010 Kevin Patrick Scannell <kscanne@gmail.com>
-           1997 Olaf Seibert
-           2002 E. I. DuPont de Nemours and Company, Inc
-           Pablo Ariel Kohan
-           2017 Eugene Ciurana
-           2017 Ken Takata
-           2019 Agilent Technologies, Inc.
+Files: copyright-tests/Vim
+Copyright: 2026 Siemens
 License: Vim
 
-Files: runtime/doc/*
-Copyright: 1988-2003 Bram Moolenaar <Bram@vim.org>
+Files: copyright-tests/OPL-1+
+Copyright: 2026 Siemens
 License: OPL-1+
-Comment: No license options are exercised.  See https://bugs.debian.org/384019
- for discussions confirming DFSG-ness of this license when no options are
- exercised.
 
-Files:
- runtime/indent/cmake.vim
- runtime/indent/elm.vim
- runtime/syntax/cmake.vim
- runtime/syntax/elm.vim
- runtime/syntax/go.vim
- runtime/syntax/proto.vim
- runtime/syntax/tpp.vim
-Copyright: Andy Cedilnik <andy.cedilnik@kitware.com>
-           Karthik Krishnan <kartik.krishnan@kitware.com>
-           Dimitri Merejkowsky <d.merej@gmail.com>
-           Gerfried Fuchs <alfie@ist.org>
-           Joseph Hager <ajhager@gmail.com>
-           2008 Google Inc.
-           2009 The Go Authors
-License: BSD-3-clause
-
-Files:
- runtime/ftplugin/jsonc.vim
- runtime/ftplugin/julia.vim
- runtime/ftplugin/wast.vim
- runtime/indent/julia.vim
- runtime/indent/wast.vim
- runtime/syntax/bitbake.vim
- runtime/syntax/json.vim
- runtime/syntax/jsonc.vim
- runtime/syntax/julia.vim
- runtime/syntax/nix.vim
- runtime/syntax/wast.vim
-Copyright:
- 2013 Jeroen Ruigrok van der Werven, Eli Parra
- 2016 rhysd
- 2021 Izhak Jakov
- 2012-2016 Carlo Baldassi
- 2004 Chris Larson
- 2008 Ricardo Salveti
- 2022 Daiderd Jordan
- 2022 James Fleming
+Files: copyright-tests/Expat
+Copyright: 2026 Siemens
 License: Expat
 
-Files: runtime/syntax/tmux.vim
-Copyright: Eric Pruitt <eric.pruitt@gmail.com>
-License: BSD-2-clause
-
-Files: runtime/syntax/rust.vim
-       runtime/autoload/rust.vim
-       runtime/autoload/rustfmt.vim
-       runtime/ftplugin/rust.vim
-       runtime/indent/rust.vim
-       runtime/compiler/cargo.vim
-Copyright: 2015 The Rust Project Developers
-License: Apache or Expat
-
-Files: runtime/tools/efm_perl.pl
-Copyright: 2001 Joerg Ziefle <joerg.ziefle@gmx.de>
+Files: copyright-tests/GPL-1+-OR-Artistic-1
+Copyright: 2026 Siemens
 License: GPL-1+ or Artistic-1
 
-Files: src/libvterm/*
-Copyright: 2008 Paul Evans <leonerd@leonerd.org.uk>
-License: Expat
-
-Files: src/regexp_bt.c
-Copyright: 1986 University of Toronto
+Files: copyright-tests/Vim-Regexp
+Copyright: 2026 Siemens
 License: Vim-Regexp
 
-Files: src/if_xcmdsrv.c
-Copyright: Copyright (c) 1989-1993 The Regents of the University of California.
-License: UC
-
-Files: src/tee/tee.c
-Copyright: 1996, Paul Slootman
-License: public-domain
-
-Files: src/xxd/*
-Copyright: 1990-1998 by Juergen Weigert (jnweiger@informatik.uni-erlangen.de)
-License: Expat or GPL-2
-
-Files: src/install-sh
-Copyright: 1987, 1988, 1994 X Consortium
-License: X11
-
-Files: src/gui_gtk_vms.h
-Copyright: 2000 Compaq Computer Corporation
+Files: copyright-tests/Compaq
+Copyright: 2026 Siemens
 License: Compaq
 
-Files: src/pty.c
-Copyright: 1993 Juergen Weigert (jnweiger@immd4.informatik.uni-erlangen.de)
-           1993 Michael Schroeder (mlschroe@immd4.informatik.uni-erlangen.de)
-           1987 Oliver Laumann
-License: GPL-2+
-
-Files: src/iscygpty.*
-Copyright: 2015-2017 K.Takata
-License: Expat or Vim
-
-Files: src/xpm/*
-Copyright: 1989-95 GROUPE BULL
+Files: copyright-tests/XPM
+Copyright: 2026 Siemens
 License: XPM
 
-Files: src/xdiff/*
-Copyright: 2003-2016 Davide Libenzi, Johannes E. Schindelin
-License: LGPL-2.1+
-
-Files: src/xdiff/xhistogram.c
-Copyright: 2010 Google Inc. and other copyright owners as documented in JGit's IP log
+Files: copyright-tests/EDL-1
+Copyright: 2026 Siemens
 License: EDL-1
-
-Files:
- runtime/compiler/powershell.vim
- runtime/doc/ft_ps1.txt
- runtime/ftplugin/ps1.vim
- runtime/ftplugin/ps1xml.vim
- runtime/ftplugin/swift.vim
- runtime/ftplugin/swiftgyb.vim
- runtime/indent/ps1.vim
- runtime/syntax/ps1.vim
- runtime/syntax/ps1xml.vim
- runtime/syntax/sil.vim
- runtime/syntax/swift.vim
- runtime/syntax/swiftgyb.vim
-Copyright:
- 2014-2020 Apple Inc. and the Swift project authors
- 2005-2021 Peter Provost
-License: Apache
-
-Files: runtime/syntax/poke.vim
-Copyright: 2021 Matthew T. Ihlenfield
-License: GPL-3+
 
 License: Vim
  I)  There are no restrictions on distributing unmodified copies of Vim except
