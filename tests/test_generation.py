@@ -435,7 +435,7 @@ def test_license_information(tmpdir, sbom_generator):
     dbom.generate(str(outdir / "sbom"), validate=True)
     with open(outdir / "sbom.spdx.json") as file:
         spdx_json = json.loads(file.read())
-        apt_pkg = None
+        pkg = None
         packages = spdx_json["packages"]
         for package in packages:
             for ref in package.get("externalRefs") or []:
@@ -443,14 +443,13 @@ def test_license_information(tmpdir, sbom_generator):
                     ref["referenceCategory"] == "PACKAGE_MANAGER"
                     and "arch=source" in ref["referenceLocator"]
                 ):
-                    apt_pkg = package
+                    pkg = package
                     break
-            if apt_pkg:
+            if pkg:
                 break
-        assert apt_pkg
+        assert pkg
         assert (
-            apt_pkg["licenseDeclared"]
-            == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
+            pkg["licenseDeclared"] == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
         )
     with open(outdir / "sbom.cdx.json") as file:
         spdx_json = json.loads(file.read())
