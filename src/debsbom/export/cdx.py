@@ -43,6 +43,7 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         add_key("purl", "string", "node")
         add_key("type", "string", "node")
         add_key("section", "string", "node")
+        add_key("essential", "boolean", "node")
 
     def add_packages(self, graph: ET.Element):
         for p in self.document.components:
@@ -58,11 +59,15 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
             ET.SubElement(node, "data", {"key": "d_purl"}).text = str(p.purl)
             ET.SubElement(node, "data", {"key": "d_type"}).text = p.type
             section = "unknown"
+            essential = "false"
             for prop in p.properties:
                 if prop.name == "section":
                     section = prop.value
-                    break
+                elif prop.name == "essential":
+                    essential = str(prop.value).lower()
+
             ET.SubElement(node, "data", {"key": "d_section"}).text = section
+            ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
 
     def add_dependencies(self, graph: ET.Element):
         for r in self.document.dependencies:
