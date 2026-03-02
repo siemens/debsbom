@@ -10,7 +10,8 @@ class ExportCmd(SbomInput):
     """
     Processes an SBOM and converts it to various graph formats.
     Note, that SPDX SBOMs lead to better results, as they describes inter
-    package relations more precisely.
+    package relations more precisely. However, some properties like the
+    package section and essential can only be tracked in CycloneDX.
     """
 
     @classmethod
