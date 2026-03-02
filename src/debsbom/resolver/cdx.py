@@ -37,5 +37,20 @@ class CdxPackageResolver(PackageResolver, CDXType):
     @classmethod
     def create_package(cls, c: Component) -> Package:
         pkg = Package.from_purl(str(c.purl))
+        pkg.maintainer = cls.get_maintainer(c)
         pkg.checksums = checksum_dict_from_cdx(c.hashes)
         return pkg
+
+    @classmethod
+    def get_maintainer(cls, c: Component) -> str | None:
+        if not c.supplier:
+            return None
+        try:
+            return f"{c.supplier.name} <{c.supplier.contacts[0].email}>"
+        except (KeyError, IndexError):
+            pass
+
+        try:
+            return f"{c.supplier.name}"
+        except KeyError:
+            return None

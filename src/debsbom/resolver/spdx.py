@@ -9,6 +9,7 @@ from .resolver import PackageResolver
 
 import spdx_tools.spdx.model.package as spdx_package
 import spdx_tools.spdx.model.document as spdx_document
+from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 
 class SpdxPackageResolver(PackageResolver, SPDXType):
@@ -45,5 +46,15 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
     @classmethod
     def create_package(cls, p: spdx_package.Package) -> Package:
         pkg = Package.from_purl(cls.package_manager_ref(p).locator)
+        pkg.maintainer = cls.get_maintainer(p)
         pkg.checksums = checksum_dict_from_spdx(p.checksums)
         return pkg
+
+    @classmethod
+    def get_maintainer(cls, p: spdx_package.Package) -> str | None:
+        if not p.supplier or p.supplier == SpdxNoAssertion():
+            return None
+        supplier = p.supplier.name
+        if p.supplier.email:
+            supplier += f" <{p.supplier.email}>"
+        return supplier
