@@ -37,6 +37,12 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
                 return data.text
         return None
 
+    def get_essential(node):
+        for data in node.findall(f"{{{NAMESPACE}}}data"):
+            if data.get("key") == "d_essential":
+                return data.text
+        return None
+
     dbom = sbom_generator("tests/root/tree", sbom_types=[sbom_type])
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=False)
@@ -55,6 +61,9 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     assert root.tag == f"{{{NAMESPACE}}}graphml"
     node_tag = f"{{{NAMESPACE}}}node"
     assert any(map(lambda n: get_name(n) == "binutils", root.iter(node_tag)))
+    if sbom_type == SBOMType.CycloneDX:
+        jansson = next(filter(lambda n: get_name(n) == "libjansson4", root.iter(node_tag)))
+        assert get_essential(jansson) == "false"
 
     edge_tag = f"{{{NAMESPACE}}}edge"
     assert any(map(lambda n: "binutils" in n.get("id"), root.iter(edge_tag)))
