@@ -79,6 +79,7 @@ def cdx_package_repr(
     if package.is_binary():
         entry.description = package.description
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
+        entry.properties.add(cdx_model.Property(name="essential", value=package.essential))
         logger.debug(f"Created binary component: {entry}")
     elif package.is_source():
         if package.vcs:
