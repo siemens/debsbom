@@ -48,6 +48,9 @@ def test_parse_minimal_status_file(mode):
     assert bpkg.maintainer == "Matthias Klose <doko@debian.org>"
     assert bpkg.source == Dependency(bpkg.name, None, ("=", bpkg.version), arch="source")
     assert bpkg.version == "2.40-2"
+    assert bpkg.pre_depends == [
+        Dependency("init-system-helpers", None, (">=", "1.54~")),
+    ]
     assert bpkg.depends == [
         Dependency("binutils-common", None, ("=", bpkg.version)),
         Dependency("libbinutils", None, ("=", bpkg.version)),
