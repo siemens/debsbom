@@ -17,3 +17,17 @@ Description: GNU assembler, linker and binary utilities
  and various libraries to build programs.
 Homepage: https://www.gnu.org/software/binutils/
 
+Package: coreutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 17994
+Maintainer: Michael Stone <mstone@debian.org>
+Architecture: amd64
+Multi-Arch: foreign
+Version: 9.10-1
+Pre-Depends: libacl1 (>= 2.2.23), libattr1 (>= 1:2.4.48), libc6 (>= 2.42), libgmp10 (>= 2:6.3.0+dfsg), libselinux1 (>= 3.1~), libssl3t64 (>= 3.0.0), libsystemd0 (>= 254)
+Description: GNU core utilities
+ This package contains the basic file, shell and text manipulation
+ utilities which are expected to exist on every operating system.

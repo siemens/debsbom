@@ -45,6 +45,7 @@ def test_parse_minimal_status_file(mode):
 
     assert bpkg.name == "binutils"
     assert bpkg.section == "devel"
+    assert bpkg.essential is False
     assert bpkg.maintainer == "Matthias Klose <doko@debian.org>"
     assert bpkg.source == Dependency(bpkg.name, None, ("=", bpkg.version), arch="source")
     assert bpkg.version == "2.40-2"
@@ -63,6 +64,10 @@ def test_parse_minimal_status_file(mode):
     )
     assert bpkg.homepage == "https://www.gnu.org/software/binutils/"
     assert bpkg.status == DpkgStatus.INSTALLED
+
+    coreutils = [p for p in packages if isinstance(p, BinaryPackage)][1]
+    assert coreutils.name == "coreutils"
+    assert coreutils.essential is True
 
     spkg = packages[1]
     assert spkg.name == "binutils"
