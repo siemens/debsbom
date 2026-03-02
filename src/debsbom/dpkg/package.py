@@ -566,6 +566,7 @@ class BinaryPackage(Package):
     architecture: str | None
     source: Dependency | None
     depends: list[Dependency]
+    pre_depends: list[Dependency]
     provides: list[VirtualPackage]
     built_using: list[Dependency]
     description: str | None
@@ -582,6 +583,7 @@ class BinaryPackage(Package):
         architecture: str | None = None,
         source: Dependency | None = None,
         depends: list[Dependency] = [],
+        pre_depends: list[Dependency] = [],
         provides: list[VirtualPackage] = [],
         built_using: list[Dependency] = [],
         description: str | None = None,
@@ -597,6 +599,7 @@ class BinaryPackage(Package):
         self.source = source
         self.version = Version(version)
         self.depends = depends
+        self.pre_depends = pre_depends
         self.provides = provides
         self.built_using = built_using
         self.description = description
@@ -667,6 +670,10 @@ class BinaryPackage(Package):
         depends.extend(x for x in other.depends if x not in depends)
         self.depends = depends
 
+        pre_depends = list(self.pre_depends)
+        pre_depends.extend(x for x in other.pre_depends if x not in pre_depends)
+        self.pre_depends = pre_depends
+
         built_using = list(self.built_using)
         built_using.extend(x for x in other.built_using if x not in built_using)
         self.built_using = built_using
@@ -735,6 +742,9 @@ class BinaryPackage(Package):
         pdepends = package.relations["depends"] or []
         dependencies = Dependency.from_pkg_relations(pdepends)
 
+        pre_pdepends = package.relations["pre-depends"] or []
+        pre_dependencies = Dependency.from_pkg_relations(pre_pdepends)
+
         provides = VirtualPackage.from_pkg_relations(package.relations["provides"] or [])
 
         # static dependencies
@@ -756,6 +766,7 @@ class BinaryPackage(Package):
             source=srcdep,
             version=package.get("Version"),
             depends=dependencies,
+            pre_depends=pre_dependencies,
             provides=provides,
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
