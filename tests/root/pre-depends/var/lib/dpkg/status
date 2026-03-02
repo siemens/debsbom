@@ -1,0 +1,28 @@
+Package: test-pre-depends
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Depends: depends (>= 1.2.3)
+Pre-Depends: pre-depends (>= 2.3.4)
+Description: Test Package for Pre-Depends
+
+Package: pre-depends
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 2.3.4
+Description: Pre-Depends Package
+
+Package: depends
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.2.3
+Description: Depends Package

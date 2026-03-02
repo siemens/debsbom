@@ -497,3 +497,37 @@ def test_virtual_package(tmpdir, sbom_generator):
                 found = True
                 break
         assert found
+
+
+def test_pre_depends(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/pre-depends")
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        relationships = spdx_json["relationships"]
+        assert {
+            "spdxElementId": "SPDXRef-test-pre-depends-amd64",
+            "relatedSpdxElement": "SPDXRef-pre-depends-amd64",
+            "relationshipType": "DEPENDS_ON",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-test-pre-depends-amd64",
+            "relatedSpdxElement": "SPDXRef-depends-amd64",
+            "relationshipType": "DEPENDS_ON",
+        } in relationships
+
+    with open(outdir / "sbom.cdx.json") as file:
+        spdx_json = json.loads(file.read())
+        dependencies = spdx_json["dependencies"]
+        assert {
+            "dependsOn": [
+                "pkg:deb/debian/depends@1.2.3?arch=amd64",
+                "pkg:deb/debian/pre-depends@2.3.4?arch=amd64",
+                "pkg:deb/debian/test-pre-depends@1.0.0-1?arch=source",
+            ],
+            "ref": "pkg:deb/debian/test-pre-depends@1.0.0-1?arch=amd64",
+        } in dependencies
