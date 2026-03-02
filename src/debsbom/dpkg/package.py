@@ -570,6 +570,7 @@ class BinaryPackage(Package):
     provides: list[VirtualPackage]
     built_using: list[Dependency]
     description: str | None
+    essential: bool
     manually_installed: bool
     status: DpkgStatus
     _locator: str | None = None
@@ -587,6 +588,7 @@ class BinaryPackage(Package):
         provides: list[VirtualPackage] = [],
         built_using: list[Dependency] = [],
         description: str | None = None,
+        essential: bool = False,
         homepage: str | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
         manually_installed: bool = True,
@@ -603,6 +605,7 @@ class BinaryPackage(Package):
         self.provides = provides
         self.built_using = built_using
         self.description = description
+        self.essential = essential
         self.homepage = homepage
         self.checksums = checksums or {}
         self.manually_installed = manually_installed
@@ -662,6 +665,7 @@ class BinaryPackage(Package):
             self.source = other.source
         if not self.description:
             self.description = other.description
+        self.essential |= other.essential
         self.manually_installed |= other.manually_installed
         # we cannot merge the status, but if the other package is
         # marked as installed, consider all as installed.
@@ -775,6 +779,7 @@ class BinaryPackage(Package):
             provides=provides,
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
+            essential=package.get("Essential") == "yes",
             homepage=package.get("Homepage"),
             checksums=checksums_from_package(package),
             status=status,
