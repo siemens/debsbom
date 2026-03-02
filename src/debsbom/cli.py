@@ -19,6 +19,7 @@ from .commands.source_merge import SourceMergeCmd
 from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
 from .commands.delta import DeltaCmd
+from .commands.tracepath import TracePathCmd
 
 # Attempt to import optional download dependencies to check their availability.
 # The success or failure of these imports determines if download features are enabled.
@@ -30,6 +31,14 @@ try:
 except ModuleNotFoundError as e:
     HAS_DOWNLOAD_DEPS = False
     MISSING_MODULE_DOWNLOAD = e
+
+try:
+    import networkx
+
+    HAS_TRACEPATH_DEPS = True
+except ModuleNotFoundError as e:
+    HAS_TRACEPATH_DEPS = False
+    MISSING_MODULE_TRACEPATH = e
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +77,9 @@ def setup_parser():
     DeltaCmd.setup_parser(
         subparser.add_parser("delta", help="list components changed in target SBOM")
     )
+    TracePathCmd.setup_parser(
+        subparser.add_parser("trace-path", help="trace path between components")
+    )
 
     return parser
 
@@ -103,6 +115,11 @@ def main():
             MergeCmd.run(args)
         elif args.cmd == "delta":
             DeltaCmd.run(args)
+        elif args.cmd == "trace-path":
+            if HAS_TRACEPATH_DEPS:
+                TracePathCmd.run(args)
+            else:
+                raise RuntimeError(f"{MISSING_MODULE_TRACEPATH}. {args.cmd} not available")
     except DistroArchUnknownError as e:
         logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
         sys.exit(-2)
