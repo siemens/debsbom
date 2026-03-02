@@ -57,7 +57,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Conffiles``, \-, \-
     ``Depends``, [#depends]_, [#depends]_
     ``Recommends``, \-, \-
-    ``Pre-Depends``, \-, \-
+    ``Pre-Depends``, [#pre_depends]_, [#pre_depends]_
     ``Suggests``, \-, \-
     ``Description``, ``summary`` and ``description`` [#description]_,  ``description``
     ``Built-Using``, [#built_using_spdx]_, [#built_using_cdx]_
@@ -71,6 +71,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
 .. [#architecture] The architecture is only part of the PURL
 .. [#source] When a ``Source`` is specified it gets a separate entry in the SBOM and the dependency is added
 .. [#depends] When a ``Dependency`` is specified a dependency is created for the related packages
+.. [#pre_depends] ``Pre-Depends`` dependencies are treated exactly the same as ``Depends`` dependencies, i.e. simply appended to them
 .. [#description] The synopsis (first line) is the ``summary``, the rest goes into the ``description``
 .. [#built_using_spdx] Any ``Built-Using`` dependency gets a separate entry and the ``GENERATED_FROM`` relationship is used
 .. [#built_using_cdx] Any ``Built-Using`` dependency gets a separate entry and the dependency is added

@@ -631,6 +631,11 @@ class BinaryPackage(Package):
             return None
 
     @property
+    def all_depends(self) -> Iterable[Dependency]:
+        """Returns an iterator containing both "Depends" and "Pre-Depends."""
+        return itertools.chain(self.depends, self.pre_depends)
+
+    @property
     def unique_depends(self):
         """
         Returns the unique dependencies without version.
@@ -639,7 +644,7 @@ class BinaryPackage(Package):
         """
         seen = set()
         unique = []
-        for dep in self.depends:
+        for dep in self.all_depends:
             key = (dep.name, dep.arch)
             if key not in seen:
                 seen.add(key)
