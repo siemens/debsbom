@@ -73,6 +73,7 @@ man_pages = [
     ("man/debsbom-repack", "debsbom-repack", "debsbom repack command", [author], 1),
     ("man/debsbom-trace-path", "debsbom-trace-path", "debsbom trace-path command", [author], 1),
     ("man/debsbom-delta", "debsbom-delta", "debsbom delta command", [author], 1),
+    ("man/debsbom-filter", "debsbom-filter", "debsbom filter command", [author], 1),
     (
         "man/debsbom-source-merge",
         "debsbom-source-merge",

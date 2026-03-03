@@ -11,3 +11,4 @@ Commands
   commands/export
   commands/merge
   commands/delta
+  commands/filter
