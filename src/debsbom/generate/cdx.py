@@ -123,15 +123,10 @@ def make_distro_component(
 ) -> cdx_component.Component:
     distro_bom_ref = CDX_REF_PREFIX + distro_name
 
-    if distro_supplier:
-        supplier = cdx_contact.OrganizationalEntity(name=distro_supplier)
-    else:
-        supplier = None
-
     distro_component = cdx_component.Component(
         type=cdx_component.ComponentType.OPERATING_SYSTEM,
         bom_ref=distro_bom_ref,
-        supplier=supplier,
+        supplier=make_supplier_from_str(distro_supplier or ""),
         name=distro_name,
         version=distro_version,
     )
