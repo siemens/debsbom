@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/siemens/debsbom/blob/main/src/debsbom/schema/schema-trace-path.json",
+  "title": "Trace Path Result",
+  "description": "List of components on a path between a source and a destination component",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name", "ref"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Name of the component"
+      },
+      "ref": {
+        "type": "string",
+        "description": "Reference identifier for the component"
+      },
+      "version": {
+        "type": ["string", "null"],
+        "description": "Version of the component"
+      },
+      "maintainer": {
+        "type": ["string", "null"],
+        "description": "Maintainer of the component"
+      },
+      "purl": {
+        "type": ["string", "null"],
+        "description": "Package URL of the component"
+      }
+    }
+  }
+}
