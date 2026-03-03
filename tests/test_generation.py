@@ -52,6 +52,7 @@ def sbom_generator():
         timestamp: datetime | None = None,
         with_licenses: bool = False,
         sbom_types: list[SBOMType] = list(SBOMType),
+        distro_supplier: str | None = None,
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
@@ -62,6 +63,7 @@ def sbom_generator():
         return DebsbomLegacyProxy(
             distro_name="pytest-distro",
             distro_arch="amd64",
+            distro_supplier=distro_supplier,
             sbom_types=sbom_types,
             root=str(test_root),
             spdx_namespace=url,
@@ -531,3 +533,22 @@ def test_pre_depends(tmpdir, sbom_generator):
             ],
             "ref": "pkg:deb/debian/test-pre-depends@1.0.0-1?arch=amd64",
         } in dependencies
+
+
+def test_distro_supplier(tmpdir, sbom_generator):
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    # only cyclonedx splits the supplier into multiple fields
+    dbom = sbom_generator(
+        "tests/root/tree",
+        sbom_types=[SBOMType.CycloneDX],
+        distro_supplier="Test <test@example.com>",
+    )
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+
+    distro_supplier = cdx_json["metadata"]["component"]["supplier"]
+    assert distro_supplier["name"] == "Test"
+    assert any([c["email"] == "test@example.com" for c in distro_supplier["contact"]])
