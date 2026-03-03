@@ -29,6 +29,18 @@ from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_St
 logger = logging.getLogger(__name__)
 
 
+def make_supplier_from_str(supplier: str) -> cdx_contact.OrganizationalEntity | None:
+    match = SUPPLIER_PATTERN.match(supplier)
+    if match:
+        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"].strip())
+        supplier_email = match["supplier_email"]
+        if supplier_email:
+            supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
+    else:
+        supplier = None
+    return supplier
+
+
 def cdx_package_repr(
     package: Package, refs: dict[str, cdx_bom_ref.BomRef], vendor: str = "debian"
 ) -> cdx_component.Component | None:
@@ -45,15 +57,10 @@ def cdx_package_repr(
     ref = Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)
     refs[ref] = cdx_bom_ref.BomRef(package.purl().to_string())
 
-    match = SUPPLIER_PATTERN.match(package.maintainer or "")
-    if match:
-        supplier = cdx_contact.OrganizationalEntity(name=match["supplier_name"].strip())
-        supplier_email = match["supplier_email"]
-        if supplier_email:
-            supplier.contacts = [cdx_contact.OrganizationalContact(email=supplier_email)]
-    else:
-        supplier = None
+    supplier = make_supplier_from_str(package.maintainer or "")
+    if not supplier:
         logger.warning(f"no supplier for {package}")
+
     entry = cdx_component.Component(
         name=package.name,
         type=cdx_component.ComponentType.LIBRARY,
