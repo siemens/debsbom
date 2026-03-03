@@ -29,7 +29,7 @@ try:
     HAS_DOWNLOAD_DEPS = True
 except ModuleNotFoundError as e:
     HAS_DOWNLOAD_DEPS = False
-    MISSING_MODULE = e
+    MISSING_MODULE_DOWNLOAD = e
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ def main():
             if HAS_DOWNLOAD_DEPS:
                 DownloadCmd.run(args)
             else:
-                raise RuntimeError(f"{MISSING_MODULE}. {args.cmd} not available")
+                raise RuntimeError(f"{MISSING_MODULE_DOWNLOAD}. {args.cmd} not available")
         elif args.cmd == "source-merge":
             SourceMergeCmd.run(args)
         elif args.cmd == "repack":
