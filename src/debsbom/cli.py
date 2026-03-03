@@ -20,6 +20,7 @@ from .commands.repack import RepackCmd
 from .commands.export import ExportCmd
 from .commands.delta import DeltaCmd
 from .commands.tracepath import TracePathCmd
+from .commands.filter import FilterCmd
 
 # Attempt to import optional download dependencies to check their availability.
 # The success or failure of these imports determines if download features are enabled.
@@ -80,6 +81,9 @@ def setup_parser():
     TracePathCmd.setup_parser(
         subparser.add_parser("trace-path", help="trace path between components")
     )
+    FilterCmd.setup_parser(
+        subparser.add_parser("filter", help="filter SBOM by sources or binaries")
+    )
 
     return parser
 
@@ -120,6 +124,8 @@ def main():
                 TracePathCmd.run(args)
             else:
                 raise RuntimeError(f"{MISSING_MODULE_TRACEPATH}. {args.cmd} not available")
+        elif args.cmd == "filter":
+            FilterCmd.run(args)
     except DistroArchUnknownError as e:
         logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
         sys.exit(-2)
