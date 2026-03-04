@@ -1,5 +1,5 @@
 ``merge`` command
-========================
+=================
 
 .. include:: merge-description.inc
 
