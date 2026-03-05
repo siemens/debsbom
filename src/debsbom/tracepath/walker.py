@@ -5,7 +5,6 @@
 from abc import abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from io import IOBase
 
@@ -14,26 +13,6 @@ from packageurl import PackageURL
 from ..bomreader.bomreader import BomReader
 from ..util.sbom_processor import SbomProcessor
 from ..sbom import SBOMType
-
-
-class PathOutputFormat(Enum):
-    """Enum of supported path formats"""
-
-    TEXT = (0,)
-    JSON = (1,)
-    REFERENCE = (2,)
-
-    @classmethod
-    def from_str(cls, name: str) -> "PathOutputFormat":
-        match name.lower():
-            case "text":
-                return cls.TEXT
-            case "json":
-                return cls.JSON
-            case "ref":
-                return cls.REFERENCE
-            case _:
-                raise RuntimeError(f"Unsupported output format: '{name}'")
 
 
 @dataclass
