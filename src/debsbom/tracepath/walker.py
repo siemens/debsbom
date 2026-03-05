@@ -31,6 +31,10 @@ class PackageRepr:
         NOA = "NoAssertion"
         return f"{self.name}\t{self.version or NOA}\t{self.purl or NOA}\t{self.maintainer or NOA}"
 
+    def __hash__(self):
+        """Trivial hash function based on the unique ref field."""
+        return hash(self.ref)
+
 
 class GraphWalker(SbomProcessor):
     """
