@@ -6,6 +6,8 @@ from collections.abc import Iterable
 import dataclasses
 from enum import Enum
 import json
+import sys
+from typing import TextIO
 
 from packageurl import PackageURL
 
@@ -19,6 +21,7 @@ class PathOutputFormat(Enum):
     TEXT = (0,)
     JSON = (1,)
     REFERENCE = (2,)
+    DOT = (3,)
 
     @classmethod
     def from_str(cls, name: str) -> "PathOutputFormat":
@@ -29,6 +32,8 @@ class PathOutputFormat(Enum):
                 return cls.JSON
             case "ref":
                 return cls.REFERENCE
+            case "dot":
+                return cls.DOT
             case _:
                 raise RuntimeError(f"Unsupported output format: '{name}'")
 
@@ -60,9 +65,12 @@ class TracePathCmd(SbomInput):
                 paths = walker.all_simple(source)
             elif args.mode == "shortest":
                 paths = [walker.shortest(source)]
-            for p in paths:
-                for cp in cls.iter_component_path(p, format):
-                    print(cp)
+            if format == PathOutputFormat.DOT:
+                cls.dump_as_dot_graph(paths, sys.stdout)
+            else:
+                for p in paths:
+                    for cp in cls.iter_component_path(p, format):
+                        print(cp)
 
     @classmethod
     def iter_component_path(
@@ -81,13 +89,39 @@ class TracePathCmd(SbomInput):
             yield json.dumps(json_path)
 
     @classmethod
+    def dump_as_dot_graph(cls, paths: Iterable[list[PackageRepr]], out):
+        def make_name(n):
+            return f"{n.name}@{n.version}" if n.version else n.name
+
+        nodes = set()
+        edges = set()
+        for p in paths:
+            nodes.update(p)
+            for i in range(len(p) - 1):
+                edges.add((p[i], p[i + 1]))
+
+        # Create mapping from PackageRepr to node ID
+        node_to_id = {n: i for i, n in enumerate(nodes)}
+        nodes_defs = [
+            f'{i} [label="{make_name(n)}\\n{n.maintainer}"]' for (i, n) in enumerate(nodes)
+        ]
+        edges_defs = [f"{node_to_id[src]} -> {node_to_id[dst]};" for (src, dst) in edges]
+
+        out.write("digraph\n{\n")
+        for n in nodes_defs:
+            out.write(f"\t{n}\n")
+        for e in edges_defs:
+            out.write(f"\t{e}\n")
+        out.write("}\n")
+
+    @classmethod
     def setup_parser(cls, parser):
         cls.parser_add_sbom_input_args(parser)
         parser.add_argument("source", type=str, help="source node (PURL)")
         parser.add_argument(
             "--format",
             help="path output format (default: %(default)s)",
-            choices=["text", "json", "ref"],
+            choices=["text", "json", "ref", "dot"],
             default="text",
         )
         parser.add_argument(
