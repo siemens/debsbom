@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import io
 import jsonschema
 from packageurl import PackageURL
 import json
@@ -58,3 +59,33 @@ def test_tracepath_schema():
     data = json.loads(raw)
     assert len(data) == 3
     jsonschema.validate(data, schema=schema_tracepath)
+
+
+def test_tracepath_dot():
+    paths = [
+        [
+            PackageRepr(name="pkg-a", ref="REF-a", maintainer="maint1"),
+            PackageRepr(name="pkg-b", ref="REF-b", maintainer="maint2"),
+        ],
+        [
+            PackageRepr(name="pkg-a", ref="REF-a", maintainer="maint1"),
+            PackageRepr(name="pkg-c", ref="REF-c", maintainer="maint3"),
+        ],
+    ]
+
+    buffer = io.StringIO()
+    TracePathCmd.dump_as_dot_graph(paths, buffer)
+    output = buffer.getvalue()
+
+    # Check that output contains digraph declaration
+    assert "digraph" in output
+    assert "{" in output
+    assert "}" in output
+
+    # Check that nodes are present
+    assert "pkg-a" in output
+    assert "pkg-b" in output
+    assert "pkg-c" in output
+
+    # Check that edges are present (arrows)
+    assert "->" in output
