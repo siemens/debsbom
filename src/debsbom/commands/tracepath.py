@@ -4,12 +4,33 @@
 
 from collections.abc import Iterable
 import dataclasses
+from enum import Enum
 import json
 
 from packageurl import PackageURL
 
-from ..tracepath.walker import PackageRepr, PathOutputFormat
+from ..tracepath.walker import PackageRepr
 from .input import SbomInput
+
+
+class PathOutputFormat(Enum):
+    """Enum of supported path formats"""
+
+    TEXT = (0,)
+    JSON = (1,)
+    REFERENCE = (2,)
+
+    @classmethod
+    def from_str(cls, name: str) -> "PathOutputFormat":
+        match name.lower():
+            case "text":
+                return cls.TEXT
+            case "json":
+                return cls.JSON
+            case "ref":
+                return cls.REFERENCE
+            case _:
+                raise RuntimeError(f"Unsupported output format: '{name}'")
 
 
 class TracePathCmd(SbomInput):
@@ -24,7 +45,6 @@ class TracePathCmd(SbomInput):
     @classmethod
     def run(cls, args):
         from ..tracepath.walker import GraphWalker
-        from ..tracepath.walker import PathOutputFormat
 
         if args.json:
             format = PathOutputFormat.JSON
