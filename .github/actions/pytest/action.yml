@@ -68,6 +68,15 @@ runs:
       export COVERAGE_FILE=".coverage.tracepath.cdx.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v --json trace-path tests/data/delta-base.cdx.json 'pkg:deb/debian/bash@5.2.37-2%2Bb7?arch=amd64'
 
+  - name: smoke test filter
+    shell: bash
+    run: |
+      export COVERAGE_FILE=".coverage.smoke-filter.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v filter -t spdx --sources tests/data/filter.spdx.json filtered_sources.spdx.json
+      coverage run $(which debsbom) -v filter -t spdx --binaries tests/data/filter.spdx.json filtered_binaries.spdx.json
+      coverage run $(which debsbom) -v filter -t cdx --sources tests/data/filter.cdx.json filtered_sources.cdx.json
+      coverage run $(which debsbom) -v filter -t cdx --binaries tests/data/filter.cdx.json filtered_binaries.cdx.json
+
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@v4
     with:

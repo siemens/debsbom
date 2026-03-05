@@ -1,0 +1,310 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2026-03-05T13:36:16Z",
+        "creators": [
+            "Tool: debsbom-0.6.2"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "Debian",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.6.2-e85b1228-ff4e-4943-a8dd-02064398066a",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Debian",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "Debian",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-base-files-13.8.deb13u3-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "4451949c88380aa24acc382ff5ed32f2"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "6a1014d933408bc9af0de9c40348b420a1dd4ad72426f725a4556b3c0eaae826"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/base-files@13.8%2Bdeb13u3?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/sanvila/base-files.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "base-files",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'base-files'",
+            "supplier": "Person: Santiago Vila (sanvila@debian.org)",
+            "versionInfo": "13.8+deb13u3"
+        },
+        {
+            "SPDXID": "SPDXRef-x11vnc-amd64",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/x11vnc@0.9.16-9?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "x11vnc",
+            "primaryPackagePurpose": "LIBRARY",
+            "supplier": "NOASSERTION",
+            "versionInfo": "0.9.16-9"
+        },
+        {
+            "SPDXID": "SPDXRef-base-files-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "8e4275af99d2f9282d869cc6661434cd"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "b649e44786cff7fcfbfaddeb40b9cf9b0825f04e9e05b770d2b1fb4c5ca3b942"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/base-files@13.8%2Bdeb13u3?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "base-files",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Debian base system miscellaneous files",
+            "supplier": "Person: Santiago Vila (sanvila@debian.org)",
+            "versionInfo": "13.8+deb13u3"
+        },
+        {
+            "SPDXID": "SPDXRef-accountsservice-23.13.9-7-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "5c5acb2e90afc7f7c022e212bca62efb"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "61853c03c59228a7c4c389a7d03187dccaa8566059443ab574a3f48df32f7c41"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/accountsservice@23.13.9-7?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/freedesktop-team/accountsservice.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "accountsservice",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'accountsservice'",
+            "supplier": "Organization: Debian freedesktop.org maintainers (pkg-freedesktop-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "23.13.9-7"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "f7adc68081bf80c88b5517daeccc5d03"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "a8902cb6d8650134764a25fb80aec8589d858ef71ece1680a62e84816c37bb04"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "http://gondor.apana.org.au/~herbert/dash/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "POSIX-compliant shell",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        },
+        {
+            "SPDXID": "SPDXRef-accountsservice-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "99ced12fd59701c4e206e4230f0be5fc"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "f63a8ee4a1c2b759637d0d0826da5feffd561a38627ef066b330db533761a221"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/accountsservice@23.13.9-7?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://www.freedesktop.org/wiki/Software/AccountsService/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "accountsservice",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "query and manipulate user account information",
+            "supplier": "Organization: Debian freedesktop.org maintainers (pkg-freedesktop-maintainers@lists.alioth.debian.org)",
+            "versionInfo": "23.13.9-7"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "ecd2b43069b15a0f6bd334f16343e550"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "589efc4d87a4ae4745c273bdb33198d7c4f28a71736a8ece81d3677cf9c6e5ce"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/debian/dash.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'dash'",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        },
+        {
+            "SPDXID": "SPDXRef-libxtst6-amd64",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/libxtst6@2:1.2.3-1.1?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "libxtst6",
+            "primaryPackagePurpose": "LIBRARY",
+            "supplier": "NOASSERTION",
+            "versionInfo": "2:1.2.3-1.1"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-x11vnc-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-base-files-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-base-files-13.8.deb13u3-srcpkg",
+            "relatedSpdxElement": "SPDXRef-base-files-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "relatedSpdxElement": "SPDXRef-dash-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-accountsservice-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-accountsservice-23.13.9-7-srcpkg",
+            "relatedSpdxElement": "SPDXRef-accountsservice-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-libxtst6-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}
