@@ -14,20 +14,21 @@ Source packages are especially relevant for security as CVEs in the Debian ecosy
 Please refer to the [debsbom documentation](https://siemens.github.io/debsbom/).
 
 ```
-usage: debsbom [-h] [--version] [-v] [--progress | --json] {generate,merge,download,source-merge,repack,export,delta,trace-path} ...
+usage: debsbom [-h] [--version] [-v] [--progress | --json] {delta,download,export,filter,generate,merge,repack,source-merge,trace-path} ...
 
 SBOM tool for Debian systems.
 
 positional arguments:
-  {generate,merge,download,source-merge,repack,export,delta,trace-path}
+  {delta,download,export,filter,generate,merge,repack,source-merge,trace-path}
                         sub command help
+    delta               list components added in target SBOM
+    download            download referenced packages
+    export              export SBOM as graph
+    filter              filter SBOM by sources or binaries
     generate            generate a SBOM for a Debian system
     merge               merge multiple SBOMs
-    download            download referenced packages
-    source-merge        merge referenced source packages
     repack              repack sources and sbom
-    export              export SBOM as graph
-    delta               list components changed in target SBOM
+    source-merge        merge referenced source packages
     trace-path          trace path between components
 
 options:
