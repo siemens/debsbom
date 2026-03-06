@@ -40,7 +40,30 @@ except ModuleNotFoundError as e:
     HAS_TRACEPATH_DEPS = False
     MISSING_MODULE_TRACEPATH = e
 
+try:
+    import shtab
+
+    HAS_SHTAB_DEPS = True
+except ModuleNotFoundError:
+    HAS_SHTAB_DEPS = False
+
 logger = logging.getLogger(__name__)
+
+
+def arg_mark_as_file(arg):
+    """
+    If we have shtab, mark the argument as a file path
+    """
+    if HAS_SHTAB_DEPS:
+        arg.complete = shtab.FILE
+
+
+def arg_mark_as_dir(arg):
+    """
+    If we have shtab, mark the argument as a directory path
+    """
+    if HAS_SHTAB_DEPS:
+        arg.complete = shtab.DIRECTORY
 
 
 def setup_parser():

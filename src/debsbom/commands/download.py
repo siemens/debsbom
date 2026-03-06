@@ -133,9 +133,13 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_dir
+
         cls.parser_add_sbom_input_args(parser)
-        parser.add_argument(
-            "--outdir", default="downloads", help="directory to store downloaded files"
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--outdir", default="downloads", help="directory to store downloaded files"
+            )
         )
         cls.parser_add_source_binary_args(parser)
         parser.add_argument(
