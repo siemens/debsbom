@@ -31,8 +31,10 @@ class ExportCmd(SbomInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_file
+
         cls.parser_add_sbom_input_args(parser)
-        parser.add_argument("out", nargs="?", help="output file (optional)")
+        arg_mark_as_file(parser.add_argument("out", nargs="?", help="output file (optional)"))
         parser.add_argument(
             "--format",
             help="graph output format (default: %(default)s)",

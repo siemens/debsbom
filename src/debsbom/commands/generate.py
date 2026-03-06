@@ -75,6 +75,8 @@ class GenerateCmd(GenerateInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_dir
+
         cls.parser_add_generate_input_args(parser, default_out="sbom")
         parser.add_argument(
             "-t",
@@ -83,12 +85,14 @@ class GenerateCmd(GenerateInput):
             action="append",
             help="SBOM type to generate, can be passed multiple times (default: all)",
         )
-        parser.add_argument(
-            "-r",
-            "--root",
-            type=str,
-            help="root directory to look for dpkg status file and apt cache",
-            default="/",
+        arg_mark_as_dir(
+            parser.add_argument(
+                "-r",
+                "--root",
+                type=str,
+                help="root directory to look for dpkg status file and apt cache",
+                default="/",
+            )
         )
         parser.add_argument(
             "--from-pkglist",

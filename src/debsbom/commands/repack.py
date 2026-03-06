@@ -173,14 +173,22 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_file, arg_mark_as_dir
+
         cls.parser_add_sbom_input_args(parser, required=True)
         cls.parser_add_repack_input_args(parser)
-        parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
-        parser.add_argument(
-            "--dldir", default="downloads", help="download directory from 'download'"
+        arg_mark_as_file(
+            parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
         )
-        parser.add_argument(
-            "--outdir", default="packed", help="directory to repack into (default: %(default)s)"
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--dldir", default="downloads", help="download directory from 'download'"
+            )
+        )
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--outdir", default="packed", help="directory to repack into (default: %(default)s)"
+            )
         )
         parser.add_argument("--format", default="standard-bom", choices=["standard-bom"])
         parser.add_argument(

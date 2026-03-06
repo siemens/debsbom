@@ -45,11 +45,17 @@ class SourceMergeCmd(SbomInput, PkgStreamInput, RepackInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_dir
+
         cls.parser_add_sbom_input_args(parser)
         cls.parser_add_repack_input_args(parser)
-        parser.add_argument(
-            "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--pkgdir", default="downloads/sources", help="directory with downloaded packages"
+            )
         )
-        parser.add_argument(
-            "--outdir", default="downloads/sources", help="directory to store the merged files"
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--outdir", default="downloads/sources", help="directory to store the merged files"
+            )
         )

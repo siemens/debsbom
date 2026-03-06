@@ -31,6 +31,8 @@ class SbomInput:
 
     @classmethod
     def parser_add_sbom_input_args(cls, parser, required=False, sbom_args=None, multi_input=False):
+        from ..cli import arg_mark_as_file
+
         sbom_args = sbom_args or ["bomin"]
 
         if multi_input:
@@ -39,11 +41,13 @@ class SbomInput:
             nargs = None if required else "?"
 
         for arg in sbom_args:
-            parser.add_argument(
-                arg,
-                help=f"sbom file(s) to process for '{arg}'. Use '-' to read from stdin",
-                nargs=nargs,
-                metavar=arg.upper(),
+            arg_mark_as_file(
+                parser.add_argument(
+                    arg,
+                    help=f"sbom file(s) to process for '{arg}'. Use '-' to read from stdin",
+                    nargs=nargs,
+                    metavar=arg.upper(),
+                )
             )
         parser.add_argument(
             "-t",
@@ -130,12 +134,16 @@ class GenerateInput:
 
     @classmethod
     def parser_add_generate_input_args(cls, parser, default_out):
-        parser.add_argument(
-            "-o",
-            "--out",
-            type=str,
-            help="filename for output (default: %(default)s). Use '-' to write to stdout",
-            default=default_out,
+        from ..cli import arg_mark_as_file
+
+        arg_mark_as_file(
+            parser.add_argument(
+                "-o",
+                "--out",
+                type=str,
+                help="filename for output (default: %(default)s). Use '-' to write to stdout",
+                default=default_out,
+            )
         )
         parser.add_argument(
             "--distro-name",
