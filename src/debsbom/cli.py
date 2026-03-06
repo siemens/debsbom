@@ -86,6 +86,8 @@ def setup_parser():
         help="make output machine readable",
         action="store_true",
     )
+    if HAS_SHTAB_DEPS:
+        shtab.add_argument_to(parser, "--print-completion")
     subparser = parser.add_subparsers(help="sub command help", dest="cmd", required=True)
     GenerateCmd.setup_parser(
         subparser.add_parser("generate", help="generate a SBOM for a Debian system")
