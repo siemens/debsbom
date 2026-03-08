@@ -287,13 +287,15 @@ class Debsbom:
     def _add_copyright(self, packages: dict[int, Package]):
         logger.info("Adding copyright information...")
         cr_dir = CopyrightDirectory.for_rootdir(self.root)
-        to_add = {}
+        src_processed: set[int] = set()
         for bin_pkg in filter_binaries(packages.values()):
-            src_pkg = bin_pkg.source_package()
-            if not src_pkg:
+            src_hash = hash(bin_pkg.source_package())
+            src_pkg = packages.get(src_hash)
+            if not src_pkg or src_hash in src_processed:
                 continue
             try:
-                cr = cr_dir.copyright(bin_pkg)
+                src_processed.add(src_hash)
+                src_pkg.copyright = cr_dir.copyright(bin_pkg)
             except FileNotFoundError:
                 logger.debug(f"no copyright information for {bin_pkg}")
                 continue
@@ -303,12 +305,6 @@ class Debsbom:
             except (MachineReadableFormatError, ValueError):
                 logger.debug(f"bad format for machine-readable copyright file for {bin_pkg}")
                 continue
-            src_pkg = packages.get(hash(src_pkg))
-            if src_pkg:
-                src_pkg.copyright = cr
-
-        for k, v in to_add.items():
-            packages[k].copyright = v
 
     def _virtual_packages(self) -> dict[str, list[tuple[VirtualPackage, BinaryPackage]]]:
         binary_packages = filter(lambda p: p.is_binary(), self.packages)
