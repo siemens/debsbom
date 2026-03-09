@@ -135,27 +135,6 @@ class Copyright(DebCopyright):
             self.inner = DebCopyright(f)
         self.licensing = get_spdx_licensing()
 
-    def _replace_unknown_symbols(self, expr: str) -> LicenseExpression:
-        """Replace symbols that are not known to the SPDX standard."""
-        spdx_expr = self.licensing.parse(expr)
-
-        unknown_keys = self.licensing.unknown_license_keys(spdx_expr)
-        if len(unknown_keys) > 0:
-            unreplaced = []
-            for unknown_key in unknown_keys:
-                replacement = WELL_KNOWN_EXPRESSIONS.get(unknown_key)
-                if replacement:
-                    expr = expr.replace(unknown_key, replacement)
-                else:
-                    unreplaced.append(unknown_key)
-
-            if len(unreplaced) > 0:
-                s = ", ".join(unreplaced)
-                raise UnknownLicenseError(f"unknown license keys: {s}")
-            return self.licensing.parse(expr, validate=True)
-        else:
-            return spdx_expr
-
     @classmethod
     def _convert_expression(cls, line: str) -> str:
         """Convert a Debian license expression to the equivalent SPDX syntax."""
