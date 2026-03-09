@@ -59,7 +59,7 @@ class StandardBomTransformerSPDX(BomTransformer, SPDXType):
 
             spdx_pkg.external_references.append(
                 spdx_package.ExternalPackageRef(
-                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                    category=spdx_package.ExternalPackageRefCategory.OTHER,
                     reference_type=SPDX_REFERENCE_TYPE_DISTRIBUTION,
                     locator=p.locator,
                 )
