@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Iterable
+from functools import cached_property
 from debian.copyright import (
     Copyright as DebCopyright,
     License,
@@ -186,10 +187,11 @@ class Copyright(DebCopyright):
         for paragraph in copyright.all_files_paragraphs():
             yield paragraph.license
 
-    def spdx_license_expressions(self) -> Iterable[LicenseExpression]:
+    @cached_property
+    def _spdx_license_expressions(self) -> list[LicenseExpression]:
         """Return all licenses as SPDX license expressions."""
         licensing = get_spdx_licensing()
-        yielded = 0
+        exprs = []
         for lic in self.licenses():
             if not lic.synopsis:
                 raise UnknownLicenseError("only license text is available")
@@ -213,13 +215,17 @@ class Copyright(DebCopyright):
                 if len(unreplaced) > 0:
                     s = ", ".join(unreplaced)
                     raise UnknownLicenseError(f"unknown license keys: {s}")
-                yield licensing.parse(expr, validate=True)
+                exprs.append(licensing.parse(expr, validate=True))
             else:
-                yield spdx_lic
-            yielded += 1
+                exprs.append(spdx_lic)
 
-        if yielded == 0:
+        if not len(exprs):
             raise UnknownLicenseError("no license information available")
+
+        return exprs
+
+    def spdx_license_expressions(self) -> Iterable[LicenseExpression]:
+        yield from self._spdx_license_expressions
 
 
 class CopyrightDirectory:
