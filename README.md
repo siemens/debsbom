@@ -9,6 +9,8 @@ The generated SBOM includes all installed binary packages and also contains [Deb
 
 Source packages are especially relevant for security as CVEs in the Debian ecosystem are filed not against the installed binary packages, but source packages. The names of source and binary packages must not always be the same, and in some cases a single source package builds a number of binary packages.
 
+`debsbom` also provides a complete dependency graph for the analyzed system. This graph is useful for identification of crucial components in your distribution, or to identify which package pulled in vulnerabilites with its dependencies.
+
 ## Usage
 
 Please refer to the [debsbom documentation](https://siemens.github.io/debsbom/).
