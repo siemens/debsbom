@@ -4,7 +4,6 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
-from debian.copyright import MachineReadableFormatError, NotMachineReadableError
 from debian.debian_support import Version
 from io import TextIOWrapper
 import itertools
@@ -298,12 +297,6 @@ class Debsbom:
                 src_pkg.copyright = cr_dir.copyright(bin_pkg)
             except FileNotFoundError:
                 logger.debug(f"no copyright information for {bin_pkg}")
-                continue
-            except NotMachineReadableError:
-                logger.debug(f"non-machine-readable copyright file for {bin_pkg}")
-                continue
-            except (MachineReadableFormatError, ValueError):
-                logger.debug(f"bad format for machine-readable copyright file for {bin_pkg}")
                 continue
 
     def _virtual_packages(self) -> dict[str, list[tuple[VirtualPackage, BinaryPackage]]]:

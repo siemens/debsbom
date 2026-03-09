@@ -3,8 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Iterable
-from debian.copyright import Copyright as DebCopyright, License
-from license_expression import LicenseExpression, get_spdx_licensing
+from debian.copyright import (
+    Copyright as DebCopyright,
+    License,
+    MachineReadableFormatError,
+    NotMachineReadableError,
+)
+from license_expression import LicenseExpression, Licensing, get_spdx_licensing
 import logging
 from pathlib import Path
 
@@ -131,9 +136,9 @@ class Copyright(DebCopyright):
     """Copyright information for a source package."""
 
     def __init__(self, path: Path):
-        with open(path) as f:
-            self.inner = DebCopyright(f)
-        self.licensing = get_spdx_licensing()
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        self._path = path
 
     @classmethod
     def _convert_expression(cls, line: str) -> str:
@@ -165,23 +170,33 @@ class Copyright(DebCopyright):
 
     def licenses(self) -> Iterable[License]:
         """Return all licenses found in the copyright file."""
-        lic = self.inner.header.license
+        with open(self._path) as f:
+            try:
+                yield from self._parse_licenses(DebCopyright(f))
+            except NotMachineReadableError:
+                logger.debug(f"non-machine-readable copyright file: {self._path}")
+            except (MachineReadableFormatError, ValueError):
+                logger.debug(f"bad format for machine-readable copyright file: {self._path}")
+
+    def _parse_licenses(self, copyright: DebCopyright) -> Iterable[License]:
+        lic = copyright.header.license
         if lic:
             yield lic
 
-        for paragraph in self.inner.all_files_paragraphs():
+        for paragraph in copyright.all_files_paragraphs():
             yield paragraph.license
 
     def spdx_license_expressions(self) -> Iterable[LicenseExpression]:
         """Return all licenses as SPDX license expressions."""
+        licensing = get_spdx_licensing()
         yielded = 0
         for lic in self.licenses():
             if not lic.synopsis:
                 raise UnknownLicenseError("only license text is available")
 
             expr = self._convert_expression(lic.synopsis)
-            spdx_lic = self.licensing.parse(expr)
-            unknown_keys = self.licensing.unknown_license_keys(spdx_lic)
+            spdx_lic = licensing.parse(expr)
+            unknown_keys = licensing.unknown_license_keys(spdx_lic)
             # TODO: how do we handle `public-domain` licensing?
             # TODO: license exceptions
             if len(unknown_keys) > 0:
@@ -198,7 +213,7 @@ class Copyright(DebCopyright):
                 if len(unreplaced) > 0:
                     s = ", ".join(unreplaced)
                     raise UnknownLicenseError(f"unknown license keys: {s}")
-                yield self.licensing.parse(expr, validate=True)
+                yield licensing.parse(expr, validate=True)
             else:
                 yield spdx_lic
             yielded += 1
