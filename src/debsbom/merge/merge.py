@@ -26,6 +26,7 @@ class SbomMerger:
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
         timestamp: datetime | None = None,
+        omit_roots: bool = False,
     ):
         self.distro_name = distro_name
         self.distro_supplier = distro_supplier
@@ -37,6 +38,7 @@ class SbomMerger:
             self.timestamp = datetime.now()
         else:
             self.timestamp = timestamp
+        self.omit_roots = omit_roots
 
     @staticmethod
     def create(sbom_type: SBOMType, **kwargs) -> "SbomMerger":

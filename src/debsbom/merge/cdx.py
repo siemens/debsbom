@@ -83,9 +83,15 @@ class CdxSbomMerger(SbomMerger):
                 raise DuplicateRootNodeError(
                     f"duplicate root component: '{sbom.metadata.component.bom_ref.value}', consider generating the SBOMs with a different --distro-name to replace the duplicate reference"
                 )
+            if self.omit_roots:
+                ref_map[sbom.metadata.component.bom_ref] = distro_component.bom_ref
+
             root_components.append(sbom.metadata.component)
 
-            non_purl_components.append(sbom.metadata.component)
+            if not self.omit_roots:
+                # only the non-purl components are added to the SBOM, and we do not want
+                # to add the root components to the SBOM here
+                non_purl_components.append(sbom.metadata.component)
 
             for component in sbom.components:
                 if progress_cb:
@@ -125,16 +131,18 @@ class CdxSbomMerger(SbomMerger):
 
         bom_metadata = make_metadata(distro_component, self.timestamp)
 
-        distro_deps = []
-        for root_component in root_components:
-            distro_deps.append(Dependency(ref=root_component.bom_ref))
+        if not self.omit_roots:
+            distro_deps = []
+            for root_component in root_components:
+                distro_deps.append(Dependency(ref=root_component.bom_ref))
 
-        dependency = Dependency(
-            ref=distro_component.bom_ref,
-            dependencies=distro_deps,
-        )
-        logger.debug(f"Created distro dependency: {dependency}")
-        dependencies[dependency.ref] = dependency
+            dependency = Dependency(
+                ref=distro_component.bom_ref,
+                dependencies=distro_deps,
+            )
+
+            logger.debug(f"Created distro dependency: {dependency}")
+            dependencies[dependency.ref] = dependency
 
         if self.cdx_serialnumber is None:
             serial_number = uuid4()
