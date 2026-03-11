@@ -29,7 +29,7 @@
             "dependsOn": [
                 "pkg:deb/debian/example-pkg@1.0.0?arch=amd64"
             ],
-            "ref": "CDXRef-checksum-merge-md5"
+            "ref": "CDXRef-checksum-merge-bad-md5"
         },
         {
             "ref": "pkg:deb/debian/example-pkg@1.0.0?arch=amd64"
@@ -37,7 +37,7 @@
     ],
     "metadata": {
         "component": {
-            "bom-ref": "CDXRef-checksum-merge-md5",
+            "bom-ref": "CDXRef-checksum-merge-bad-md5",
             "name": "md5",
             "type": "operating-system"
         },
