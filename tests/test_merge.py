@@ -230,3 +230,62 @@ def test_cdx_duplicate_root_merge():
         docs.append(CdxBomFileReader(Path(sbom)).read())
     with pytest.raises(DuplicateRootNodeError):
         merger.merge(docs)
+
+
+def test_omit_root_spdx_merge():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
+    distro_name = "spdx-merge-package-merge-omit-root"
+    merger = SpdxSbomMerger(distro_name=distro_name, omit_roots=True)
+    docs = []
+    for sbom in ["tests/data/merge-full.spdx.json", "tests/data/merge-minimal.spdx.json"]:
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    assert (
+        Relationship(
+            spdx_element_id="SPDXRef-buildah-amd64",
+            relationship_type=RelationshipType.PACKAGE_OF,
+            related_spdx_element_id=f"SPDXRef-{distro_name}",
+        )
+        in bom.relationships
+    )
+
+    assert "SPDXRef-full" not in map(lambda p: p.spdx_id, bom.packages)
+    assert "SPDXRef-minimal" not in map(lambda p: p.spdx_id, bom.packages)
+
+
+def test_omit_root_cdx_merge():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from cyclonedx.model.dependency import Dependency
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
+    distro_name = "cdx-merge-package-merge"
+    merger = CdxSbomMerger(distro_name=distro_name, omit_roots=True)
+    docs = []
+    for sbom in ["tests/data/merge-full.cdx.json", "tests/data/merge-minimal.cdx.json"]:
+        docs.append(CdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    distro_bom_ref = bom.metadata.component.bom_ref
+
+    for component in bom.components:
+        if component.name == "buildah":
+            bom_ref_buildah = component.bom_ref
+
+    found_distro = False
+    for dependency in bom.dependencies:
+        if dependency.ref == distro_bom_ref:
+            assert Dependency(ref=bom_ref_buildah) in dependency.dependencies
+            found_distro = True
+
+    assert found_distro
+
+    assert "CDXRef-full" not in map(lambda c: c.bom_ref.value, bom.components)
+    assert "CDXRef-minimal" not in map(lambda c: c.bom_ref.value, bom.components)
