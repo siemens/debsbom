@@ -13,7 +13,7 @@ from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 from ..generate.spdx import make_creation_info, make_distro_package
 from ..util.checksum import NoMatchingDigestError, verify_best_matching_digest
 from ..util.checksum_spdx import checksum_dict_from_spdx
-from .merge import SbomMerger
+from .merge import DuplicateRootNodeError, SbomMerger
 from ..sbom import (
     SPDX_REF_DOCUMENT,
     SPDX_REFERENCE_TYPE_PURL,
@@ -91,6 +91,14 @@ class SpdxSbomMerger(SbomMerger):
             for doc in sboms:
                 num_steps += len(doc.packages) + len(doc.relationships)
 
+        distro_pkg = make_distro_package(
+            distro_name=self.distro_name,
+            distro_version=self.distro_version,
+            distro_supplier=self.distro_supplier,
+        )
+
+        root_packages = []
+
         for doc in sboms:
             logger.info(f"Processing document '{doc.creation_info.name}'")
             # first we need to find the root of the document
@@ -104,12 +112,23 @@ class SpdxSbomMerger(SbomMerger):
             root_ids.append(root_id)
 
             for package in doc.packages:
+                root_pkg = False
                 if progress_cb:
                     progress_cb(cur_step, num_steps, package.name)
                     cur_step += 1
                 purl = self._purl_from_package(package)
+                if package.spdx_id in root_ids:
+                    root_pkg = True
+                    if (
+                        package.spdx_id in map(lambda p: p.spdx_id, root_packages)
+                        or package.spdx_id == distro_pkg.spdx_id
+                    ):
+                        raise DuplicateRootNodeError(
+                            f"duplicate root package: '{package.spdx_id}', consider generating the SBOMs with a different --distro-name to replace the duplicate reference"
+                        )
+                    root_packages.append(package)
                 if purl is None:
-                    if package.spdx_id not in root_ids:
+                    if not root_pkg:
                         # skip the warning if we have a root package
                         logger.warning(f"missing PURL for package '{package.name}'")
                     non_purl_packages.append(package)
@@ -146,11 +165,6 @@ class SpdxSbomMerger(SbomMerger):
                 if rel_hash not in relationships:
                     relationships[rel_hash] = rel
 
-        distro_pkg = make_distro_package(
-            distro_name=self.distro_name,
-            distro_version=self.distro_version,
-            distro_supplier=self.distro_supplier,
-        )
         distro_ref = distro_pkg.spdx_id
         packages[distro_ref] = distro_pkg
 
@@ -159,12 +173,12 @@ class SpdxSbomMerger(SbomMerger):
             itertools.chain(
                 relationships.values(),
                 map(
-                    lambda root_id: Relationship(
-                        spdx_element_id=root_id,
+                    lambda root_pkg: Relationship(
+                        spdx_element_id=root_pkg.spdx_id,
                         relationship_type=RelationshipType.PACKAGE_OF,
                         related_spdx_element_id=distro_ref,
                     ),
-                    root_ids,
+                    root_packages,
                 ),
             )
         )

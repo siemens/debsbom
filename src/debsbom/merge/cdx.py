@@ -14,7 +14,7 @@ from uuid import uuid4
 from ..util.checksum import NoMatchingDigestError, verify_best_matching_digest
 from ..util.checksum_cdx import checksum_dict_from_cdx
 
-from .merge import SbomMerger
+from .merge import DuplicateRootNodeError, SbomMerger
 from ..generate.cdx import make_distro_component, make_metadata
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class CdxSbomMerger(SbomMerger):
 
         dependencies = {}
 
-        root_bom_refs = []
+        root_components = []
         ref_map = {}
 
         num_steps = 0
@@ -69,9 +69,21 @@ class CdxSbomMerger(SbomMerger):
             for sbom in sboms:
                 num_steps += len(sbom.components) + len(sbom.dependencies)
 
+        distro_component = make_distro_component(
+            self.distro_name, self.distro_version, self.distro_supplier
+        )
+
         for sbom in sboms:
             logger.info(f"Processing BOM '{sbom.metadata.component.name}'")
-            root_bom_refs.append(sbom.metadata.component.bom_ref)
+            if (
+                sbom.metadata.component.bom_ref.value
+                in map(lambda c: c.bom_ref.value, root_components)
+                or sbom.metadata.component.bom_ref.value == distro_component.bom_ref.value
+            ):
+                raise DuplicateRootNodeError(
+                    f"duplicate root component: '{sbom.metadata.component.bom_ref.value}', consider generating the SBOMs with a different --distro-name to replace the duplicate reference"
+                )
+            root_components.append(sbom.metadata.component)
 
             non_purl_components.append(sbom.metadata.component)
 
@@ -111,14 +123,11 @@ class CdxSbomMerger(SbomMerger):
                 else:
                     dependencies[dep.ref] = dep
 
-        distro_component = make_distro_component(
-            self.distro_name, self.distro_version, self.distro_supplier
-        )
         bom_metadata = make_metadata(distro_component, self.timestamp)
 
         distro_deps = []
-        for root_bom_ref in root_bom_refs:
-            distro_deps.append(Dependency(ref=root_bom_ref))
+        for root_component in root_components:
+            distro_deps.append(Dependency(ref=root_component.bom_ref))
 
         dependency = Dependency(
             ref=distro_component.bom_ref,

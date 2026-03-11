@@ -12,7 +12,7 @@
     "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.2.0-6fa0aa79-a42e-4bf9-8943-c65ee849c732",
     "packages": [
         {
-            "SPDXID": "SPDXRef-md5",
+            "SPDXID": "SPDXRef-bad-md5",
             "copyrightText": "NOASSERTION",
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": false,
@@ -54,7 +54,7 @@
     "relationships": [
         {
             "spdxElementId": "SPDXRef-buildah-amd64-different",
-            "relatedSpdxElement": "SPDXRef-md5",
+            "relatedSpdxElement": "SPDXRef-bad-md5",
             "relationshipType": "PACKAGE_OF"
         },
         {

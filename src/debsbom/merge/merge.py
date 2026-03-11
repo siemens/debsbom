@@ -10,6 +10,10 @@ from uuid import UUID
 from ..sbom import SBOMType
 
 
+class DuplicateRootNodeError(ValueError):
+    """Error indicating a duplicate root node."""
+
+
 class SbomMerger:
     """Base class for merging SBOMs."""
 
