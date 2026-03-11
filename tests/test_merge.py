@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from debsbom.util.checksum import ChecksumMismatchError
+from debsbom.merge.merge import DuplicateRootNodeError
 
 
 def test_spdx_merge():
@@ -193,3 +194,39 @@ def test_spdx_bad_checksum():
 
     with pytest.raises(ChecksumMismatchError):
         _bom = merger.merge(docs)
+
+
+def test_spdx_duplicate_root_merge():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
+    # the distro name is the same as in the to be merged SBOMs
+    distro_name = "minimal"
+    merger = SpdxSbomMerger(distro_name=distro_name)
+    docs = []
+    # merge the same SBOM to see if the duplicate root entries are detected
+    for sbom in ["tests/data/merge-minimal.spdx.json", "tests/data/merge-minimal.spdx.json"]:
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
+    with pytest.raises(DuplicateRootNodeError):
+        merger.merge(docs)
+
+
+def test_cdx_duplicate_root_merge():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
+    distro_name = "minimal"
+    merger = CdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in [
+        "tests/data/merge-minimal.cdx.json",
+        "tests/data/merge-minimal.cdx.json",
+    ]:
+        docs.append(CdxBomFileReader(Path(sbom)).read())
+    with pytest.raises(DuplicateRootNodeError):
+        merger.merge(docs)
