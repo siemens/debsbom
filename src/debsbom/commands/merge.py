@@ -32,6 +32,7 @@ class MergeCmd(GenerateInput, SbomInput):
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,
             timestamp=args.timestamp,
+            omit_roots=args.omit_roots,
         )
         bom = sbom_merger.merge(docs, progress_cb=progress_cb if args.progress else None)
         SbomOutput.write_out_arg(bom, sbom_type, args.out, args.validate)
@@ -40,3 +41,8 @@ class MergeCmd(GenerateInput, SbomInput):
     def setup_parser(cls, parser):
         cls.parser_add_generate_input_args(parser, default_out="merged")
         cls.parser_add_sbom_input_args(parser, required=True, sbom_args=["sboms"], multi_input=True)
+        parser.add_argument(
+            "--omit-roots",
+            action="store_true",
+            help="omit root nodes when merging SBOMs, this will place all packages directly under a shared new root",
+        )

@@ -126,7 +126,12 @@ class SpdxSbomMerger(SbomMerger):
                         raise DuplicateRootNodeError(
                             f"duplicate root package: '{package.spdx_id}', consider generating the SBOMs with a different --distro-name to replace the duplicate reference"
                         )
-                    root_packages.append(package)
+                    if self.omit_roots:
+                        # do not add the root nodes, simply create a fixup for the references
+                        id_map[package.spdx_id] = distro_pkg.spdx_id
+                        continue
+                    else:
+                        root_packages.append(package)
                 if purl is None:
                     if not root_pkg:
                         # skip the warning if we have a root package
