@@ -21,9 +21,13 @@ class FilterCmd(SbomInput, SourceBinaryInput):
 
     @classmethod
     def setup_parser(cls, parser):
+        from ..cli import arg_mark_as_file
+
         cls.parser_add_sbom_input_args(parser, required=True)
         cls.parser_add_source_binary_args(parser)
-        parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
+        arg_mark_as_file(
+            parser.add_argument("bomout", help="sbom output file. Use '-' to write to stdout")
+        )
         parser.add_argument(
             "--validate",
             help="validate generated SBOM (only for SPDX)",
