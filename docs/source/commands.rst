@@ -12,3 +12,4 @@ Commands
   commands/merge
   commands/delta
   commands/filter
+  commands/trace-path
