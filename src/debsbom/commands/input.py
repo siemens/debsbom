@@ -46,7 +46,7 @@ class SbomInput:
                     arg,
                     help=f"sbom file(s) to process for '{arg}'. Use '-' to read from stdin",
                     nargs=nargs,
-                    metavar=arg.upper(),
+                    metavar=arg,
                 )
             )
         parser.add_argument(
