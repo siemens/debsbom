@@ -105,3 +105,10 @@ We differentiate a source package by setting `"primaryPackagePurpose": "SOURCE"`
 Vendor packages are currently not identified. Identifying them is important to emit the correct PURL. Right now we make no difference between vendor and official packages. That means we emit potentially incorrect PURLs for vendor packages.
 
 Reliably and correctly identifying if a package is a vendor package or not is non-trivial without access to the internet. For this reason we do not attempt it. If you have vendor packages in your distribution we assume you know them, and if not you can identify them in postprocessing. A simple way is to use `debsbom download` and look for any packages that failed to download, or whose checksums do not match.
+
+## Maintainer GPG Fingerprints
+
+All release tags since v0.7.0 are signed by either one of these keys:
+
+- Christoph Steiger <christoph.steiger@siemens.com> 697D7C50105888561F3DA813FD19209BD779F314
+- Felix Mößbauer <felix.moessbauer@siemens.com> 3785ED68D0F83B7BD7D23D7FE1136CEB2754A0BD
