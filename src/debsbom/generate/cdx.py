@@ -86,7 +86,10 @@ def cdx_package_repr(
     if package.is_binary():
         entry.description = package.description
         entry.properties.add(cdx_model.Property(name="section", value=package.section))
-        entry.properties.add(cdx_model.Property(name="essential", value=package.essential))
+        # use debian terminology yes / no instead of true / false
+        entry.properties.add(
+            cdx_model.Property(name="essential", value="yes" if package.essential else "no")
+        )
         logger.debug(f"Created binary component: {entry}")
     elif package.is_source():
         if package.vcs:
