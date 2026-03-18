@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import xml.etree.ElementTree as ET
-from cyclonedx.model.bom import Bom, BomRef
+from cyclonedx.model.bom import Bom, BomRef, Component
 
 from ..sbom import CDX_REF_PREFIX, CDXType
 from .graphml import GraphMLExporter
@@ -45,29 +45,32 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         add_key("section", "string", "node")
         add_key("essential", "boolean", "node")
 
+    def _add_package(self, graph: ET.Element, p: Component):
+        node = ET.SubElement(
+            graph,
+            "node",
+            {
+                "id": self._strip_id_prefix(p.bom_ref),
+            },
+        )
+        ET.SubElement(node, "data", {"key": "d_name"}).text = p.name
+        ET.SubElement(node, "data", {"key": "d_version"}).text = p.version
+        ET.SubElement(node, "data", {"key": "d_purl"}).text = str(p.purl or "")
+        ET.SubElement(node, "data", {"key": "d_type"}).text = p.type
+        section = "unknown"
+        essential = "unknown"
+        for prop in p.properties:
+            if prop.name == "section":
+                section = prop.value
+            elif prop.name == "essential":
+                essential = prop.value
+
+        ET.SubElement(node, "data", {"key": "d_section"}).text = section
+        ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
+
     def add_packages(self, graph: ET.Element):
         for p in self.document.components:
-            node = ET.SubElement(
-                graph,
-                "node",
-                {
-                    "id": self._strip_id_prefix(p.bom_ref),
-                },
-            )
-            ET.SubElement(node, "data", {"key": "d_name"}).text = p.name
-            ET.SubElement(node, "data", {"key": "d_version"}).text = p.version
-            ET.SubElement(node, "data", {"key": "d_purl"}).text = str(p.purl)
-            ET.SubElement(node, "data", {"key": "d_type"}).text = p.type
-            section = "unknown"
-            essential = "unknown"
-            for prop in p.properties:
-                if prop.name == "section":
-                    section = prop.value
-                elif prop.name == "essential":
-                    essential = prop.value
-
-            ET.SubElement(node, "data", {"key": "d_section"}).text = section
-            ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
+            self._add_package(graph, p)
 
     def add_dependencies(self, graph: ET.Element):
         for r in self.document.dependencies:
