@@ -6,9 +6,10 @@ from collections.abc import Iterable
 import cyclonedx.model.bom as cdx_bom
 import cyclonedx.model.component as cdx_component
 import cyclonedx.model as cdx_model
+import cyclonedx.model.definition as cdx_definition
 from cyclonedx.model import HashType as cdx_hashtype
 
-from ..generate.cdx import cdx_package_repr
+from ..generate.cdx import cdx_package_repr, make_standard_bom_standard
 from ..sbom import CDXType
 from .packer import BomTransformer
 from ..dpkg.package import Package
@@ -45,6 +46,18 @@ class StandardBomTransformerCDX(BomTransformer, CDXType):
                 cdx_comp.external_references.add(_website)
 
     def transform(self, packages: Iterable[Package]) -> cdx_bom.Bom:
+        # add the standard bom definition if it is missing
+        if not self._document.definitions or "standard-bom" not in map(
+            lambda s: s.bom_ref.value, self._document.definitions.standards
+        ):
+            standard = make_standard_bom_standard()
+            if self._document.definitions:
+                if self._document.definitions.standards:
+                    self._document.definitions.standards.add(standard)
+                else:
+                    self._document.definitions.standards = [standard]
+            else:
+                self.document.definitions = cdx_definition.Definitions(standards=[standard])
         for p in packages:
             # as we iterate the same set of packages, we must have it
             cdx_comp: cdx_component.Component = self._document.get_component_by_purl(p.purl())
