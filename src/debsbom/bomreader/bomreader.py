@@ -66,4 +66,4 @@ class BomReader(SbomProcessor):
 
     @abstractmethod
     def read(self):
-        return NotImplementedError()
+        raise NotImplementedError()

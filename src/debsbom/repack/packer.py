@@ -42,7 +42,7 @@ class Packer:
     ):
         if fmt == "standard-bom-package":
             return StandardBomPacker(dldir, outdir, compress, apply_patches=apply_patches)
-        return NotImplementedError(f"No packer available for format '{fmt}'")
+        raise NotImplementedError(f"No packer available for format '{fmt}'")
 
 
 class StandardBomPacker(Packer):
