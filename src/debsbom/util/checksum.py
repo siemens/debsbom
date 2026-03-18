@@ -215,7 +215,7 @@ def verify_dsc_files(dsc: deb822.Dsc, base_path: Path) -> bool:
     files_checksums = checksums_from_dsc(dsc)
     for file_name, checksums in files_checksums.items():
         file_path = base_path / file_name
-        if not checksums and not check_hash_from_path(file_path, checksums):
+        if checksums and not check_hash_from_path(file_path, checksums):
             return False
     return True
 
