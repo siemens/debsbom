@@ -106,7 +106,7 @@ Repack Artifacts
 ~~~~~~~~~~~~~~~~
 
 The :doc:`/commands/repack` is similar to the :doc:`/commands/source-merge` but performs additional steps to re-layout the downloaded artifacts and recreate the SBOM.
-The following example generates a ``standard-bom`` source distribution archive.
+The following example generates a ``standard-bom-package`` source distribution archive.
 
 .. code-block:: bash
 
@@ -280,7 +280,7 @@ artifacts in a format-specific way:
 .. code-block:: bash
 
     debsbom --progress repack \
-        --format standard-bom \
+        --format standard-bom-package \
         --dldir downloads \
         --compress zstd \
         --apply-patches \
@@ -288,6 +288,6 @@ artifacts in a format-specific way:
         sbom.cdx.json sbom.packed.cdx.json
 
 This step is very specific to the actual use-case you have. Right now the only available format
-is ``standard-bom``, which created a directory structure and rewrites the SBOM to reference
+is ``standard-bom-package``, which created a directory structure and rewrites the SBOM to reference
 all source packages directly in there. If you want to see more formats you can open an issue,
 or even better, contribute it directly.

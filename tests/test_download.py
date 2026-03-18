@@ -196,7 +196,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
     out_dir.mkdir()
 
     packer = Packer.from_format(
-        fmt="standard-bom",
+        fmt="standard-bom-package",
         dldir=dl_dir,
         outdir=out_dir,
     )
@@ -216,7 +216,7 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
         assert len(files) == 3
 
         # merge the source package
-        bt = BomTransformer.create("standard-bom", resolver.sbom_type(), resolver.document)
+        bt = BomTransformer.create("standard-bom-package", resolver.sbom_type(), resolver.document)
         repacked = list(filter(lambda p: p, map(lambda p: packer.repack(p, symlink=True), pkgs)))
         assert len(repacked) == 1
         assert ".merged.tar" in repacked[0].filename
