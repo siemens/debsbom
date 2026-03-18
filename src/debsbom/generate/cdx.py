@@ -176,6 +176,22 @@ def make_metadata(
     return bom_metadata
 
 
+def make_standard_bom_standard() -> cdx_definition.Standard:
+    return cdx_definition.Standard(
+        bom_ref=cdx_bom_ref.BomRef("standard-bom"),
+        name="Standard BOM",
+        version="3.0.0",
+        description="The Standard for Software Bills of Materials in Siemens",
+        owner="Siemens AG",
+        external_references=[
+            cdx_model.ExternalReference(
+                url=cdx_model.XsUri("https://sbom.siemens.io"),
+                type=cdx_model.ExternalReferenceType.WEBSITE,
+            )
+        ],
+    )
+
+
 def cyclonedx_bom(
     packages: set[Package],
     distro_name: str,
@@ -299,21 +315,7 @@ def cyclonedx_bom(
 
     if standard == BOM_Standard.STANDARD_BOM:
         bom.definitions = cdx_definition.Definitions(
-            standards=[
-                cdx_definition.Standard(
-                    bom_ref=cdx_bom_ref.BomRef("standard-bom"),
-                    name="Standard BOM",
-                    version="3.0.0",
-                    description="The Standard for Software Bills of Materials in Siemens",
-                    owner="Siemens AG",
-                    external_references=[
-                        cdx_model.ExternalReference(
-                            url=cdx_model.XsUri("https://sbom.siemens.io"),
-                            type=cdx_model.ExternalReferenceType.WEBSITE,
-                        )
-                    ],
-                )
-            ],
+            standards=[make_standard_bom_standard()],
         )
 
     return bom
