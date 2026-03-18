@@ -186,6 +186,7 @@ class SourceArchiveMerger:
                     [self.compress.tool] + self.compress.compress,
                     stdin=tar_writer.stdout,
                     stdout=outfile,
+                    stderr=subprocess.PIPE,
                 )
                 _, stderr = compressor.communicate()
                 tar_ret = tar_writer.wait()
