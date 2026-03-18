@@ -69,13 +69,12 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
 
     def add_packages(self, graph: ET.Element):
+        self._add_package(graph, self.document.metadata.component)
         for p in self.document.components:
             self._add_package(graph, p)
 
     def add_dependencies(self, graph: ET.Element):
         for r in self.document.dependencies:
-            if r.ref == self.document.metadata.component.bom_ref:
-                continue
             for d in r.dependencies_as_bom_refs():
                 _from = self._strip_id_prefix(r.ref)
                 _to = self._strip_id_prefix(d)
