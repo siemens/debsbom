@@ -43,7 +43,7 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         add_key("purl", "string", "node")
         add_key("type", "string", "node")
         add_key("section", "string", "node")
-        add_key("essential", "boolean", "node")
+        add_key("essential", "string", "node")
 
     def add_packages(self, graph: ET.Element):
         for p in self.document.components:
