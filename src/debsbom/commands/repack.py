@@ -34,6 +34,12 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
         compress = Compression.from_tool(args.compress if args.compress != "no" else None)
         linkonly = not args.copy
 
+        if args.format == "standard-bom":
+            logger.warning(
+                "format 'standard-bom' is deprecated, use 'standard-bom-package' instead"
+            )
+            args.format = "standard-bom-package"
+
         if cls.has_bomin(args) and not sys.stdin.isatty():
             logger.info("run in partial-repack mode")
             pkg_subset = set(PackageStreamResolver(sys.stdin))
@@ -87,7 +93,11 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
                 "--outdir", default="packed", help="directory to repack into (default: %(default)s)"
             )
         )
-        parser.add_argument("--format", default="standard-bom", choices=["standard-bom"])
+        parser.add_argument(
+            "--format",
+            default="standard-bom-package",
+            choices=["standard-bom", "standard-bom-package"],
+        )
         parser.add_argument(
             "--copy",
             help="copy artifacts into deploy tree instead of symlinking",

@@ -40,7 +40,7 @@ class Packer:
         compress: Compression.Format = Compression.NONE,
         apply_patches: bool = False,
     ):
-        if fmt == "standard-bom":
+        if fmt == "standard-bom-package":
             return StandardBomPacker(dldir, outdir, compress, apply_patches=apply_patches)
         return NotImplementedError(f"No packer available for format '{fmt}'")
 
@@ -130,7 +130,7 @@ class BomTransformer(BomSpecific):
 
     @staticmethod
     def create(standard: str, sbom_type: SBOMType, bom):
-        if standard == "standard-bom":
+        if standard == "standard-bom-package":
             if sbom_type == SBOMType.CycloneDX:
                 from .cdx import StandardBomTransformerCDX
 
