@@ -117,11 +117,6 @@ class SourceArchiveMerger:
         if self.compress:
             merged = merged.with_suffix(f"{merged.suffix}{self.compress.fileext}")
 
-        if len(p.checksums) > 0:
-            logger.debug(f"Checking checksums of '{dsc}'...")
-            if not p.checksums and not check_hash_from_path(dsc, p.checksums):
-                raise CorruptedFileError(dsc)
-
         logger.debug(f"Merging sources from '{dsc}'...")
         # get all referenced tarballs from dsc file (usually .orig and .debian and check digests)
         with open(dsc, "r") as f:
