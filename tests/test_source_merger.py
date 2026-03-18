@@ -7,6 +7,7 @@ from email.utils import parsedate_to_datetime
 import io
 from pathlib import Path
 import tarfile
+from debian import deb822
 import pytest
 import requests
 import zstandard
@@ -14,8 +15,10 @@ import lz4.frame
 from debsbom.download import PackageDownloader
 from debsbom.repack import SourceArchiveMerger
 import debsbom.dpkg.package as dpkg
+from debsbom.repack.merger import CorruptedFileError, DscFileNotFoundError
 import debsbom.snapshot.client as sdlclient
 from debsbom.util import Compression
+from debsbom.util.checksum import ChecksumAlgo
 
 
 def test_compressor_from_tool():
@@ -47,7 +50,13 @@ def some_packages(dldir, http_session):
 
     packages = [
         # .orig.tar and .debian.tar
-        dpkg.SourcePackage("libnet-smtp-ssl-perl", "1.04-2"),
+        dpkg.SourcePackage(
+            "libnet-smtp-ssl-perl",
+            "1.04-2",
+            checksums={
+                ChecksumAlgo.SHA256SUM: "b5e63090e1608c37ead4432206028fda37046128bfcaf3eb7ba58251875295a1"
+            },
+        ),
         # .orig.tar and .debian.tar with epoch
         dpkg.SourcePackage("libcap2", "1:2.75-10"),
         # debian dir in sources
@@ -120,3 +129,42 @@ def test_merger(tmpdir, some_packages, dldir, compress, mtime):
                 f"but got {datetime.fromtimestamp(mtime_unix)} for file {item_path}"
             )
         assert found, "No files found in the extracted archive to check timestamps"
+
+
+@pytest.mark.online
+def test_merger_bad_checksum(tmpdir, some_packages, dldir):
+    outdir = Path(tmpdir / "merged")
+    sam = SourceArchiveMerger(dldir / "sources", outdir)
+    print(dldir / "sources")
+
+    # Test 1: tamper dsc file
+    pkg = some_packages[0]
+    dsc_file = sam.locate_artifact(pkg, sam.dldir)
+    # tamper dsc file by appending data
+    with open(dsc_file, "a") as f:
+        # note: this only tampers the checksum but not the signature
+        # as we append data outside of the signed block. However, debsbom
+        # anyways only relies on checksums, not signatures
+        f.write("\n")
+
+    # we don't get a corruption error as the dsc file is looked up by checksum
+    # as there might be multiple .dsc on the snapshot mirror with the same name
+    # and we only return the dsc that matches the checksum (if we have a checksum)
+    with pytest.raises(DscFileNotFoundError):
+        sam.merge(pkg)
+
+    # Test 2: tamper binary artifacts
+    pkg = some_packages[1]
+    dsc_file = sam.locate_artifact(pkg, sam.dldir)
+    with open(dsc_file, "r") as f:
+        d = deb822.Dsc(f)
+        filename = d.get("Checksums-Sha1")[0]["name"]
+        suffix = Path(filename).suffix
+    # replace with tampered version (correctly compressed tar, but empty)
+    with tarfile.open(dsc_file.parent / filename, f"w:{suffix[1:]}") as tar:
+        pass
+
+    # as we tamper a binary, the checksum in the dsc file does not match the
+    # one of the binary and we get the corrupted file error
+    with pytest.raises(CorruptedFileError):
+        sam.merge(pkg)
