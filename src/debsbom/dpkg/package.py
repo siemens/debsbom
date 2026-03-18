@@ -360,7 +360,7 @@ class Package(ABC):
                 k = key(element)
                 if k not in seen:
                     seen.add(k)
-                yield element
+                    yield element
 
     def merge_with(self, other: "Package"):
         """
