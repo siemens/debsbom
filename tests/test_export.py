@@ -63,7 +63,7 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     assert any(map(lambda n: get_name(n) == "binutils", root.iter(node_tag)))
     if sbom_type == SBOMType.CycloneDX:
         jansson = next(filter(lambda n: get_name(n) == "libjansson4", root.iter(node_tag)))
-        assert get_essential(jansson) == "false"
+        assert get_essential(jansson) == "no"
 
     edge_tag = f"{{{NAMESPACE}}}edge"
     assert any(map(lambda n: "binutils" in n.get("id"), root.iter(edge_tag)))

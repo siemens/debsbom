@@ -59,12 +59,12 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
             ET.SubElement(node, "data", {"key": "d_purl"}).text = str(p.purl)
             ET.SubElement(node, "data", {"key": "d_type"}).text = p.type
             section = "unknown"
-            essential = "false"
+            essential = "unknown"
             for prop in p.properties:
                 if prop.name == "section":
                     section = prop.value
                 elif prop.name == "essential":
-                    essential = str(prop.value).lower()
+                    essential = prop.value
 
             ET.SubElement(node, "data", {"key": "d_section"}).text = section
             ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
