@@ -61,6 +61,7 @@ class SbomInput:
         cls, args, processor_cls, sbom_args=None, sbom_allow_multiple=False, **proc_args
     ) -> list[SbomProcessor]:
         sbom_args = sbom_args or ["bomin"]
+        bomtype = SBOMType.from_str(args.sbom_type) if args.sbom_type else None
         processors = []
 
         for arg_name in sbom_args:
@@ -85,15 +86,13 @@ class SbomInput:
                         json_obj, read = decoder.raw_decode(s[read_total:])
                         read_total += read
                         processors.append(
-                            processor_cls.from_json(
-                                json_obj, bomtype=SBOMType.from_str(args.sbom_type), **proc_args
-                            )
+                            processor_cls.from_json(json_obj, bomtype=bomtype, **proc_args)
                         )
                         if not sbom_allow_multiple:
                             break
                 else:
                     processors.append(
-                        processor_cls.create(Path(sbom_file), bomtype=args.sbom_type, **proc_args)
+                        processor_cls.create(Path(sbom_file), bomtype=bomtype, **proc_args)
                     )
 
         return processors
