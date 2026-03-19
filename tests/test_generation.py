@@ -552,3 +552,53 @@ def test_distro_supplier(tmpdir, sbom_generator):
     distro_supplier = cdx_json["metadata"]["component"]["supplier"]
     assert distro_supplier["name"] == "Test"
     assert any([c["email"] == "test@example.com" for c in distro_supplier["contact"]])
+
+
+def test_essential_required_installed(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/essential-required")
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        relationships = spdx_json["relationships"]
+        assert {
+            "spdxElementId": "SPDXRef-optional-amd64",
+            "relatedSpdxElement": "SPDXRef-pytest-distro",
+            "relationshipType": "PACKAGE_OF",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-essential-required-amd64",
+            "relatedSpdxElement": "SPDXRef-pytest-distro",
+            "relationshipType": "PACKAGE_OF",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-required-amd64",
+            "relatedSpdxElement": "SPDXRef-pytest-distro",
+            "relationshipType": "PACKAGE_OF",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-required-dependency-amd64",
+            "relatedSpdxElement": "SPDXRef-pytest-distro",
+            "relationshipType": "PACKAGE_OF",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-optional-dependency-amd64",
+            "relatedSpdxElement": "SPDXRef-pytest-distro",
+            "relationshipType": "PACKAGE_OF",
+        } not in relationships
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        dependencies = cdx_json["dependencies"]
+        assert {
+            "dependsOn": [
+                "pkg:deb/debian/essential-required@1.0.0-1?arch=amd64",
+                "pkg:deb/debian/optional@1.0.0-1?arch=amd64",
+                "pkg:deb/debian/required-dependency@1.0.0-1?arch=amd64",
+                "pkg:deb/debian/required@1.0.0-1?arch=amd64",
+            ],
+            "ref": "CDXRef-pytest-distro",
+        } in dependencies
