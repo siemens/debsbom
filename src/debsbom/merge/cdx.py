@@ -43,7 +43,7 @@ class CdxSbomMerger(SbomMerger):
         if component.supplier is None:
             component.supplier = other.supplier
         if component.external_references is None:
-            component.external_references = other.homepage
+            component.external_references = other.external_references
         if component.group is None:
             component.group = other.group
 
