@@ -153,6 +153,14 @@ class Dependency:
             raise ValueError(f"invalid operator '{operator}'")
 
 
+class DebianPriority(Enum):
+    REQUIRED = "required"
+    IMPORTANT = "important"
+    STANDARD = "standard"
+    OPTIONAL = "optional"
+    EXTRA = "extra"
+
+
 @dataclass
 class VirtualPackage:
     """Virtual Package, as declared in the `Provides` field."""
@@ -571,6 +579,7 @@ class BinaryPackage(Package):
     built_using: list[Dependency]
     description: str | None
     essential: bool
+    priority: DebianPriority | None
     manually_installed: bool
     status: DpkgStatus
     _locator: str | None = None
@@ -589,6 +598,7 @@ class BinaryPackage(Package):
         built_using: list[Dependency] = [],
         description: str | None = None,
         essential: bool = False,
+        priority: DebianPriority | None = None,
         homepage: str | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
         manually_installed: bool = True,
@@ -606,6 +616,7 @@ class BinaryPackage(Package):
         self.built_using = built_using
         self.description = description
         self.essential = essential
+        self.priority = priority
         self.homepage = homepage
         self.checksums = checksums or {}
         self.manually_installed = manually_installed
@@ -666,6 +677,8 @@ class BinaryPackage(Package):
         if not self.description:
             self.description = other.description
         self.essential |= other.essential
+        if not self.priority:
+            self.priority = other.priority
         self.manually_installed |= other.manually_installed
         # we cannot merge the status, but if the other package is
         # marked as installed, consider all as installed.
@@ -767,6 +780,15 @@ class BinaryPackage(Package):
         else:
             status = DpkgStatus.DEBSBOM_UNKNOWN
 
+        raw_priority = package.get("Priority")
+        priority = None
+        if raw_priority:
+            try:
+                priority = DebianPriority(raw_priority)
+            except ValueError:
+                pkg_name = package.get("Package")
+                logger.warning(f"{pkg_name}: invalid Priority: '{raw_priority}'")
+
         return BinaryPackage(
             name=package.get("Package"),
             section=package.get("Section"),
@@ -780,6 +802,7 @@ class BinaryPackage(Package):
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
             essential=package.get("Essential") == "yes",
+            priority=priority,
             homepage=package.get("Homepage"),
             checksums=checksums_from_package(package),
             status=status,
