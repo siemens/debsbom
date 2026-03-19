@@ -90,6 +90,7 @@ def test_cdx_merge():
     bom = merger.merge(docs)
 
     distro_bom_ref = bom.metadata.component.bom_ref
+    bom_ref_buildah_src = None
 
     for component in bom.components:
         if component.name == "full":
@@ -98,6 +99,12 @@ def test_cdx_merge():
             bom_ref_minimal = component.bom_ref
         elif component.name == "buildah":
             bom_ref_buildah = component.bom_ref
+        elif component.name == "golang-github-containers-buildah":
+            bom_ref_buildah_src = component.bom_ref
+            assert component.licenses
+            license_expr = next(iter(component.licenses))
+            assert license_expr.value == "Apache-2.0"
+    assert bom_ref_buildah_src
 
     found_distro_ref = False
     found_full_ref = False

@@ -12,6 +12,18 @@
             "purl": "pkg:deb/debian/buildah@1.28.2%2Bds1-3%2Bdeb12u1%2Bb1?arch=amd64",
             "type": "library",
             "version": "1.28.2+ds1-3+deb12u1+b1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+            "name": "golang-github-containers-buildah",
+            "purl": "pkg:deb/debian/golang-github-containers-buildah@1.28.2%2Bds1-3%2Bdeb12u1?arch=source",
+            "type": "library",
+            "licenses": [
+                {
+                    "acknowledgement": "declared",
+                    "expression": "Apache-2.0"
+                }
+            ]
         }
     ],
     "dependencies": [
