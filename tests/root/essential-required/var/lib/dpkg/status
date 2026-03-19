@@ -1,0 +1,46 @@
+Package: essential-required
+Status: install ok installed
+Priority: required
+Essential: yes
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: Essential and required package
+
+Package: required
+Status: install ok installed
+Priority: required
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: Required package
+
+Package: optional
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Depends: optional-dependency, required-dependency
+Description: Optional package
+
+Package: optional-dependency
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: Optional depended-on package
+
+Package: required-dependency
+Status: install ok installed
+Priority: required
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: Required depended-on package

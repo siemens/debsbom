@@ -1,0 +1,15 @@
+Package: essential-required
+Architecture: amd64
+Auto-Installed: 1
+
+Package: required
+Architecture: amd64
+Auto-Installed: 1
+
+Package: optional-dependency
+Architecture: amd64
+Auto-Installed: 1
+
+Package: required-dependency
+Architecture: amd64
+Auto-Installed: 1
