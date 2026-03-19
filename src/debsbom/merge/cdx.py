@@ -46,6 +46,9 @@ class CdxSbomMerger(SbomMerger):
             component.external_references = other.external_references
         if component.group is None:
             component.group = other.group
+        # License repository with potentially no licenses
+        if not component.licenses:
+            component.licenses = other.licenses
 
     def _merge_dependency(self, dependency: Dependency, other: Dependency):
         for dep in other.dependencies:
