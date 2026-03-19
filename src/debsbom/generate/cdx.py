@@ -23,7 +23,14 @@ from collections.abc import Callable
 
 from ..apt.copyright import UnknownLicenseError
 from ..util.checksum_cdx import checksum_to_cdx
-from ..dpkg.package import BinaryPackage, Package, DpkgStatus, VirtualPackage, filter_binaries
+from ..dpkg.package import (
+    BinaryPackage,
+    DebianPriority,
+    Package,
+    DpkgStatus,
+    VirtualPackage,
+    filter_binaries,
+)
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
 
 logger = logging.getLogger(__name__)
@@ -244,7 +251,11 @@ def cyclonedx_bom(
         cur_step += 1
 
         reference = Reference.make_from_pkg(package)
-        if package.manually_installed:
+        if (
+            package.manually_installed
+            or package.essential
+            or package.priority == DebianPriority.REQUIRED
+        ):
             distro_dependencies.append(
                 cdx_dependency.Dependency(refs[reference.as_str(SBOMType.CycloneDX)])
             )
