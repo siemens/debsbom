@@ -17,7 +17,7 @@ from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
 from ..apt.copyright import UnknownLicenseError
-from ..dpkg.package import BinaryPackage, Package, VirtualPackage, filter_binaries
+from ..dpkg.package import BinaryPackage, DebianPriority, Package, VirtualPackage, filter_binaries
 from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
     Reference,
@@ -255,7 +255,11 @@ def spdx_bom(
         cur_step += 1
 
         reference = Reference.make_from_pkg(package)
-        if package.manually_installed:
+        if (
+            package.manually_installed
+            or package.essential
+            or package.priority == DebianPriority.REQUIRED
+        ):
             relationships.append(
                 spdx_relationship.Relationship(
                     spdx_element_id=reference.as_str(SBOMType.SPDX),
