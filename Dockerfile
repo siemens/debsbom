@@ -32,7 +32,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         python3-beartype python3-click python3-license-expression \
         python3-networkx python3-ply \
         python3-rdflib python3-semantic-version python3-uritools python3-xmltodict \
-        python3-yaml python3-zstandard python3-requests && \
+        python3-yaml python3-zstandard python3-requests \
+        lz4 && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
 
 # install debsbom in a reproducible way
