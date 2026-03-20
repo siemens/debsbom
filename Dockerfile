@@ -18,6 +18,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-packages.conf && \
     if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
+        cp /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources~; \
         sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot.|' \
             /etc/apt/sources.list.d/debian.sources; \
         echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
@@ -52,6 +53,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         /debsbom && \
     rm -rf $(pip3 cache dir) && \
     apt-get autopurge -y python3-pip python3-setuptools && \
+    rm -f /etc/apt/apt.conf.d/use-snapshot.conf /etc/apt/apt.conf.d/keep-packages.conf && \
+    if [ -f "/etc/apt/sources.list.d/debian.sources~" ]; then \
+        mv -f /etc/apt/sources.list.d/debian.sources~ /etc/apt/sources.list.d/debian.sources; \
+    fi && \
     rm -rf /root/.cache /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     debsbom --version
 
