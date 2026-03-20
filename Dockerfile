@@ -29,7 +29,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
         python3-apt python3-cyclonedx-lib python3-debian python3-packageurl \
-        python3-beartype python3-click python3-license-expression python3-ply \
+        python3-beartype python3-click python3-license-expression \
+        python3-networkx python3-ply \
         python3-rdflib python3-semantic-version python3-uritools python3-xmltodict \
         python3-yaml python3-zstandard python3-requests && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
