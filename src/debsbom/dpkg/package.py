@@ -576,6 +576,7 @@ class BinaryPackage(Package):
     depends: list[Dependency]
     pre_depends: list[Dependency]
     provides: list[VirtualPackage]
+    recommends: list[Dependency]
     built_using: list[Dependency]
     description: str | None
     essential: bool
@@ -595,6 +596,7 @@ class BinaryPackage(Package):
         depends: list[Dependency] = [],
         pre_depends: list[Dependency] = [],
         provides: list[VirtualPackage] = [],
+        recommends: list[Dependency] = [],
         built_using: list[Dependency] = [],
         description: str | None = None,
         essential: bool = False,
@@ -613,6 +615,7 @@ class BinaryPackage(Package):
         self.depends = depends
         self.pre_depends = pre_depends
         self.provides = provides
+        self.recommends = recommends
         self.built_using = built_using
         self.description = description
         self.essential = essential
@@ -696,6 +699,10 @@ class BinaryPackage(Package):
         pre_depends.extend(x for x in other.pre_depends if x not in pre_depends)
         self.pre_depends = pre_depends
 
+        recommends = list(self.recommends)
+        recommends.extend(x for x in other.recommends if x not in recommends)
+        self.recommends = recommends
+
         built_using = list(self.built_using)
         built_using.extend(x for x in other.built_using if x not in built_using)
         self.built_using = built_using
@@ -769,6 +776,9 @@ class BinaryPackage(Package):
 
         provides = VirtualPackage.from_pkg_relations(package.relations["provides"] or [])
 
+        recommends = package.relations["recommends"] or []
+        recommends = Dependency.from_pkg_relations(recommends)
+
         # static dependencies
         s_built_using = package.relations["built-using"] or []
         sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
@@ -799,6 +809,7 @@ class BinaryPackage(Package):
             depends=dependencies,
             pre_depends=pre_dependencies,
             provides=provides,
+            recommends=recommends,
             built_using=sdepends,
             description=cls._cleanup_description(package.get("Description")),
             essential=package.get("Essential") == "yes",
