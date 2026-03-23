@@ -46,6 +46,7 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         add_key("type", "string", "node")
         add_key("section", "string", "node")
         add_key("essential", "string", "node")
+        add_key("arch", "string", "node")
         add_key("reltype", "string", "edge")
 
     def _add_package(self, graph: ET.Element, p: Component):
@@ -71,6 +72,10 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
 
         ET.SubElement(node, "data", {"key": "d_section"}).text = section
         ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
+        pkg_arch = "unknown"
+        if p.purl:
+            pkg_arch = p.purl.qualifiers.get("arch") or pkg_arch
+        ET.SubElement(node, "data", {"key": "d_arch"}).text = pkg_arch
 
     def _component_arch(self, dep: Dependency) -> str | None:
         comp = self._components[dep.ref]

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import xml.etree.ElementTree as ET
+from packageurl import PackageURL
 from spdx_tools.spdx.model.document import Document
 import spdx_tools.spdx.model.package as spdx_package
 
@@ -57,6 +58,7 @@ class SpdxGraphMLExporter(GraphMLExporter, SpdxGraphExporter):
         add_key("version", "string", "node")
         add_key("purl", "string", "node")
         add_key("purpose", "string", "node")
+        add_key("arch", "string", "node")
         add_key("reltype", "string", "edge")
 
     def add_packages(self, graph: ET.Element):
@@ -68,12 +70,17 @@ class SpdxGraphMLExporter(GraphMLExporter, SpdxGraphExporter):
                     "id": self._strip_id_prefix(p.spdx_id),
                 },
             )
+            purl = self._get_purl(p)
             ET.SubElement(node, "data", {"key": "d_name"}).text = p.name
             ET.SubElement(node, "data", {"key": "d_version"}).text = p.version
-            ET.SubElement(node, "data", {"key": "d_purl"}).text = self._get_purl(p)
+            ET.SubElement(node, "data", {"key": "d_purl"}).text = purl
             ET.SubElement(node, "data", {"key": "d_purpose"}).text = str(
                 p.primary_package_purpose.name
             ).lower()
+            pkg_arch = "unknown"
+            if purl:
+                pkg_arch = PackageURL.from_string(purl).qualifiers.get("arch") or pkg_arch
+            ET.SubElement(node, "data", {"key": "d_arch"}).text = pkg_arch
 
     def add_dependencies(self, graph: ET.Element):
         for r in self.document.relationships:
