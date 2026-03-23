@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import xml.etree.ElementTree as ET
-from cyclonedx.model.bom import Bom, BomRef, Component
+from cyclonedx.model.bom import Bom, BomRef, Component, Dependency
 
 from ..sbom import CDX_REF_PREFIX, CDXType
 from .graphml import GraphMLExporter
@@ -22,6 +22,8 @@ class CdxGraphExporter(GraphExporter, CDXType):
 
 
 class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
+    _components: dict[BomRef, Component] = {}
+
     def get_document_id(self):
         return f"sbom-{self.document.serial_number}"
 
@@ -44,8 +46,10 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         add_key("type", "string", "node")
         add_key("section", "string", "node")
         add_key("essential", "string", "node")
+        add_key("reltype", "string", "edge")
 
     def _add_package(self, graph: ET.Element, p: Component):
+        self._components[p.bom_ref] = p
         node = ET.SubElement(
             graph,
             "node",
@@ -68,17 +72,34 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
         ET.SubElement(node, "data", {"key": "d_section"}).text = section
         ET.SubElement(node, "data", {"key": "d_essential"}).text = essential
 
+    def _component_arch(self, dep: Dependency) -> str | None:
+        comp = self._components[dep.ref]
+        if comp.purl:
+            return comp.purl.qualifiers.get("arch")
+        return None
+
     def add_packages(self, graph: ET.Element):
         self._add_package(graph, self.document.metadata.component)
         for p in self.document.components:
             self._add_package(graph, p)
 
     def add_dependencies(self, graph: ET.Element):
-        for r in self.document.dependencies:
-            for d in r.dependencies_as_bom_refs():
-                _from = self._strip_id_prefix(r.ref)
-                _to = self._strip_id_prefix(d)
-                ET.SubElement(
+        for source in self.document.dependencies:
+            for target in source.dependencies:
+                _from = self._strip_id_prefix(source.ref)
+                _to = self._strip_id_prefix(target.ref)
+
+                # reconstruct relation types from bomref and map similar to SPDX
+                if self._component_arch(target) == "source":
+                    reltype = "generates"
+                    _from, _to = _to, _from
+                elif not self._component_arch(source):
+                    reltype = "package_of"
+                    _from, _to = _to, _from
+                else:
+                    reltype = "depends_on"
+
+                edge = ET.SubElement(
                     graph,
                     "edge",
                     {
@@ -87,3 +108,4 @@ class CdxGraphMLExporter(GraphMLExporter, CdxGraphExporter):
                         "id": f"{_from}--{_to}",
                     },
                 )
+                ET.SubElement(edge, "data", {"key": "d_reltype"}).text = str(reltype)
