@@ -43,6 +43,12 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
                 return data.text
         return None
 
+    def get_arch(node):
+        for data in node.findall(f"{{{NAMESPACE}}}data"):
+            if data.get("key") == "d_arch":
+                return data.text
+        return None
+
     dbom = sbom_generator("tests/root/tree", sbom_types=[sbom_type])
     outdir = Path(tmpdir)
     dbom.generate(str(outdir / "sbom"), validate=False)
@@ -64,6 +70,18 @@ def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     if sbom_type == SBOMType.CycloneDX:
         jansson = next(filter(lambda n: get_name(n) == "libjansson4", root.iter(node_tag)))
         assert get_essential(jansson) == "no"
+
+    binutils = next(
+        filter(lambda n: get_name(n) == "binutils-x86-64-linux-gnu", root.iter(node_tag))
+    )
+    assert get_arch(binutils) == "amd64"
+    binutils_src = next(
+        filter(
+            lambda n: get_arch(n) == "source" and get_name(n) == "binutils", root.iter(node_tag)
+        ),
+        None,
+    )
+    assert binutils_src is not None
 
     edge_tag = f"{{{NAMESPACE}}}edge"
     assert any(map(lambda n: "binutils" in n.get("id"), root.iter(edge_tag)))
