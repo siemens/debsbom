@@ -655,21 +655,27 @@ class BinaryPackage(Package):
         """Returns an iterator containing both "Depends" and "Pre-Depends."""
         return itertools.chain(self.depends, self.pre_depends)
 
-    @property
-    def unique_depends(self):
+    def _unique_deps_for(self, dependencies: Iterable[Dependency]) -> list[Dependency]:
         """
-        Returns the unique dependencies without version.
-        The raw dependencies can include version specifiers, but as only a single
-        version can be installed at a time, we ignore them.
+        Returns the unique dependencies of a dependency list without version.
         """
         seen = set()
         unique = []
-        for dep in self.all_depends:
+        for dep in dependencies:
             key = (dep.name, dep.arch)
             if key not in seen:
                 seen.add(key)
                 unique.append(dep)
         return unique
+
+    @property
+    def unique_depends(self) -> list[Dependency]:
+        """
+        Returns the unique dependencies without version.
+        The raw dependencies can include version specifiers, but as only a single
+        version can be installed at a time, we ignore them.
+        """
+        return self._unique_deps_for(self.all_depends)
 
     def merge_with(self, other: "BinaryPackage"):
         """Copy properties from other which are unset on our side. Merge lists and dicts. Or booleans."""
