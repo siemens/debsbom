@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import argparse
 import logging
 import sys
 
@@ -61,6 +62,8 @@ class GenerateCmd(GenerateInput):
             add_meta_data=args.add_meta_data,
             cdx_standard=cdx_standard,
             with_licenses=args.with_licenses,
+            recommends_deps=args.recommends_deps,
+            suggests_deps=args.suggests_deps,
         )
         if args.from_pkglist:
             warn_if_tty()
@@ -109,5 +112,17 @@ class GenerateCmd(GenerateInput):
             "--with-licenses",
             action="store_true",
             help="parse and include license information",
+            default=False,
+        )
+        parser.add_argument(
+            "--recommends-deps",
+            action=argparse.BooleanOptionalAction,
+            help="track recommended package dependencies (default: %(default)s)",
+            default=True,
+        )
+        parser.add_argument(
+            "--suggests-deps",
+            action=argparse.BooleanOptionalAction,
+            help="track suggested package dependencies (default: %(default)s)",
             default=False,
         )
