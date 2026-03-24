@@ -1,0 +1,28 @@
+Package: test-pkg
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Recommends: recommended-pkg
+Suggests: suggested-pkg
+Description: Test Package for recommended/suggested package dependencies
+
+Package: recommended-pkg
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: A package that is only recommended
+
+Package: suggested-pkg
+Status: install ok installed
+Priority: optional
+Installed-Size: 1234
+Maintainer: Siemens <siemens@example.com>
+Architecture: amd64
+Version: 1.0.0-1
+Description: A package that is only suggested
