@@ -57,9 +57,9 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Conflicts``, \-, \-
     ``Conffiles``, \-, \-
     ``Depends``, [#depends]_, [#depends]_
-    ``Recommends``, \-, \-
+    ``Recommends``, [#recommends]_, [#recommends]_
     ``Pre-Depends``, [#pre_depends]_, [#pre_depends]_
-    ``Suggests``, \-, \-
+    ``Suggests``, [#suggests]_, [#suggests]_
     ``Description``, ``summary`` and ``description`` [#description]_,  ``description``
     ``Built-Using``, [#built_using_spdx]_, [#built_using_cdx]_
     ``Homepage``, ``homepage``, ``externalReferences.type`` = ``website``
@@ -75,6 +75,8 @@ The following table shows how fields in a Debian binary package are mapped to fi
 .. [#source] When a ``Source`` is specified it gets a separate entry in the SBOM and the dependency is added
 .. [#provides] Provided packages are considered in the dependency resolution
 .. [#depends] When a ``Dependency`` is specified a dependency is created for the related packages
+.. [#recommends] Recommended packages are treated as normal dependencies, see :ref:`recommended-suggested-deps` for details
+.. [#suggests] Suggested packages are treated as normal dependencies, see :ref:`recommended-suggested-deps` for details
 .. [#pre_depends] ``Pre-Depends`` dependencies are treated exactly the same as ``Depends`` dependencies, i.e. simply appended to them
 .. [#description] The synopsis (first line) is the ``summary``, the rest goes into the ``description``
 .. [#built_using_spdx] Any ``Built-Using`` dependency gets a separate entry and the ``GENERATED_FROM`` relationship is used
@@ -130,6 +132,15 @@ For SPDX refer to the following table:
     ``Built-Using``, ``relationshipType = "GENERATED FROM`` and ``comment = built-using`` [#built_using_relationship]_
 
 .. [#built_using_relationship] The subject and object of the relationship are reversed compared to the source dependency
+
+.. _recommended-suggested-deps:
+
+Relationships of Recommended and Suggested Packages
+---------------------------------------------------
+
+Additional to proper dependencies binary packages can also specify recommended and suggested packages. As packages that are recommended or suggested by other packages are not automatically removed by ``apt autoremove`` they can show up as disconnected isles in the dependency graph. To prevent this an edge between the package that recommended/suggested them is required. Unfortunately ``apt`` does not allow us to exactly reconstruct who actually pulled the package in, so these dependencies might not always be fully accurate.
+
+The generation of these edges in the graph is controlled by the ``--recommends-deps`` and ``--suggests-deps`` flags for the ``generate`` command. By default ``debsbom`` only considers recommended package-dependencies as ``apt`` does install recommended packages in the default configuration. The relationship itself is modeled as a binary dependency. For SPDX SBOMs an additional comment is added: ``recommends`` or ``suggests`` for the respective relationship type.
 
 Classification of Components/Packages
 -------------------------------------
