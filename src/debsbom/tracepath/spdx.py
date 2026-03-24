@@ -8,7 +8,7 @@ import logging
 import networkx as nx
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
-from spdx_tools.spdx.model.package import Package
+from spdx_tools.spdx.model.package import Package, PackagePurpose
 from packageurl import PackageURL
 
 from ..resolver.spdx import SpdxPackageResolver
@@ -44,7 +44,12 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
                 self.graph.add_edge(r.spdx_element_id, r.related_spdx_element_id)
 
     def _locate_root(self):
-        root_candidates = [node for node, degree in self.graph.out_degree() if degree == 0]
+        root_candidates = [
+            node
+            for node, degree in self.graph.out_degree()
+            if degree == 0
+            and self.component_map[node].primary_package_purpose == PackagePurpose.OPERATING_SYSTEM
+        ]
         if not root_candidates:
             raise RuntimeError("SBOM does not contain any root node")
         if len(root_candidates) > 1:
