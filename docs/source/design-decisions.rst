@@ -52,7 +52,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Version`` [#always_there]_, ``versionInfo``, ``version``
     ``Breaks``, \-, \-
     ``Replaces``, \-, \-
-    ``Provides``, \-, \-
+    ``Provides``, [#provides]_, [#provides]_
     ``Conflicts``, \-, \-
     ``Conffiles``, \-, \-
     ``Depends``, [#depends]_, [#depends]_
@@ -71,6 +71,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
 .. [#priority] Packages with ``Priority: required`` are placed directly under the root node in the dependency graph
 .. [#architecture] The architecture is only part of the PURL
 .. [#source] When a ``Source`` is specified it gets a separate entry in the SBOM and the dependency is added
+.. [#provides] Provided packages are considered in the dependency resolution
 .. [#depends] When a ``Dependency`` is specified a dependency is created for the related packages
 .. [#pre_depends] ``Pre-Depends`` dependencies are treated exactly the same as ``Depends`` dependencies, i.e. simply appended to them
 .. [#description] The synopsis (first line) is the ``summary``, the rest goes into the ``description``
