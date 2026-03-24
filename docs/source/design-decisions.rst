@@ -43,6 +43,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Package`` [#always_there]_, ``name``, ``name``
     ``Status``, [#status]_, [#status]_
     ``Priority``, [#priority]_, [#priority]_
+    ``Essential``, [#essential]_, [#essential]_
     ``Section``, \-, ``properties``
     ``Installed-Size``, \-, \-
     ``Maintainer``, ``supplier``, ``supplier``
@@ -69,6 +70,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
 
 .. [#status] If the status is not ``install ok installed`` it is not placed in the SBOM
 .. [#priority] Packages with ``Priority: required`` are placed directly under the root node in the dependency graph
+.. [#essential] Essential Packages are placed directly under the root node in the dependency graph
 .. [#architecture] The architecture is only part of the PURL
 .. [#source] When a ``Source`` is specified it gets a separate entry in the SBOM and the dependency is added
 .. [#provides] Provided packages are considered in the dependency resolution
