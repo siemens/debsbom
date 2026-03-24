@@ -44,7 +44,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Status``, [#status]_, [#status]_
     ``Priority``, [#priority]_, [#priority]_
     ``Section``, \-, ``properties``
-    ``Installed\-Size``, \-, \-
+    ``Installed-Size``, \-, \-
     ``Maintainer``, ``supplier``, ``supplier``
     ``Architecture`` [#always_there]_, [#architecture]_, [#architecture]_
     ``Multi-Arch``, \-, \-
@@ -62,7 +62,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Description``, ``summary`` and ``description`` [#description]_,  ``description``
     ``Built-Using``, [#built_using_spdx]_, [#built_using_cdx]_
     ``Homepage``, ``homepage``, ``externalReferences.type`` = ``website``
-    ``Description\-md5``, \-, \-
+    ``Description-md5``, \-, \-
     ``SHA256``, ``checksums``, ``hashes``
     ``Size``, \-, \-
     ``Filename``, \-, \-
