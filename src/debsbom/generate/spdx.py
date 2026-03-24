@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import datetime
 from importlib.metadata import version
 from license_expression import ExpressionError
@@ -17,7 +17,14 @@ from urllib.parse import urlparse, urlunparse
 from uuid import uuid4
 
 from ..apt.copyright import UnknownLicenseError
-from ..dpkg.package import BinaryPackage, DebianPriority, Package, VirtualPackage, filter_binaries
+from ..dpkg.package import (
+    BinaryPackage,
+    DebianPriority,
+    Dependency,
+    Package,
+    VirtualPackage,
+    filter_binaries,
+)
 from ..util.checksum_spdx import checksum_to_spdx
 from ..sbom import (
     Reference,
@@ -205,6 +212,42 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
     return spdx_pkg
 
 
+def make_relationships_for_deps(
+    dependencies: Iterable[Dependency],
+    package: Package,
+    reference: Reference,
+    refs: dict[str, Package],
+    distro_arch: str,
+    virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]],
+    comment: str | None = None,
+) -> Iterable[spdx_relationship.Relationship]:
+    for dep in dependencies:
+        ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs, distro_arch)
+        if not ref_id:
+            # no concrete package available, look for a virtual package
+            virtual_candidates = virtual_packages.get(dep.name)
+            if virtual_candidates is None:
+                continue
+
+            pkg = VirtualPackage.best_match(virtual_candidates, dep)
+            if pkg:
+                ref_id = Reference.make_from_pkg(pkg).as_str(SBOMType.SPDX)
+                logger.debug(f"Dependency on virtual package resolved: {dep.name} -> {pkg.name}")
+        if ref_id:
+            relationship = spdx_relationship.Relationship(
+                spdx_element_id=reference.as_str(SBOMType.SPDX),
+                relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
+                related_spdx_element_id=ref_id,
+            )
+            if comment:
+                relationship.comment = comment
+            logger.debug(f"Created dependency relationship: {relationship}")
+            yield relationship
+        else:
+            # this might happen if we have optional dependencies
+            logger.debug(f"Skipped optional dependency: '{dep.name}'")
+
+
 def spdx_bom(
     packages: set[Package],
     distro_name: str,
@@ -268,31 +311,17 @@ def spdx_bom(
                 )
             )
         if package.depends:
-            for dep in package.unique_depends:
-                ref_id = Reference.lookup(package, dep, SBOMType.SPDX, refs, distro_arch)
-                if not ref_id:
-                    # no concrete package available, look for a virtual package
-                    virtual_candidates = virtual_packages.get(dep.name)
-                    if virtual_candidates is None:
-                        continue
+            relationships.extend(
+                make_relationships_for_deps(
+                    dependencies=package.unique_depends,
+                    package=package,
+                    reference=reference,
+                    refs=refs,
+                    distro_arch=distro_arch,
+                    virtual_packages=virtual_packages,
+                )
+            )
 
-                    pkg = VirtualPackage.best_match(virtual_candidates, dep)
-                    if pkg:
-                        ref_id = Reference.make_from_pkg(pkg).as_str(SBOMType.SPDX)
-                        logger.debug(
-                            f"Dependency on virtual package resolved: {dep.name} -> {pkg.name}"
-                        )
-                if ref_id:
-                    relationship = spdx_relationship.Relationship(
-                        spdx_element_id=reference.as_str(SBOMType.SPDX),
-                        relationship_type=spdx_relationship.RelationshipType.DEPENDS_ON,
-                        related_spdx_element_id=ref_id,
-                    )
-                    logger.debug(f"Created dependency relationship: {relationship}")
-                    relationships.append(relationship)
-                else:
-                    # this might happen if we have optional dependencies
-                    logger.debug(f"Skipped optional dependency: '{dep.name}'")
 
         if package.built_using:
             for dep in package.built_using:
