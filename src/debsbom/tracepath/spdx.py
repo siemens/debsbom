@@ -34,12 +34,15 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
             self.component_map[c.spdx_id] = c
 
         for r in document.relationships:
-            if r.relationship_type == RelationshipType.DEPENDS_ON:
+            if r.relationship_type in (
+                RelationshipType.DEPENDS_ON,
+                RelationshipType.GENERATED_FROM,
+            ):
                 # add edge in reverse as we want to find a path to the root component
                 self.graph.add_edge(r.related_spdx_element_id, r.spdx_element_id)
             elif r.relationship_type in (
-                RelationshipType.GENERATED_FROM,
                 RelationshipType.PACKAGE_OF,
+                RelationshipType.GENERATES,
             ):
                 self.graph.add_edge(r.spdx_element_id, r.related_spdx_element_id)
 
