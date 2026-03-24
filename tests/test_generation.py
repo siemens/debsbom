@@ -53,6 +53,8 @@ def sbom_generator():
         with_licenses: bool = False,
         sbom_types: list[SBOMType] = list(SBOMType),
         distro_supplier: str | None = None,
+        recommends_deps: bool = True,
+        suggests_deps: bool = False,
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
@@ -70,6 +72,8 @@ def sbom_generator():
             cdx_serialnumber=uuid,
             timestamp=timestamp,
             with_licenses=with_licenses,
+            recommends_deps=recommends_deps,
+            suggests_deps=suggests_deps,
         )
 
     return setup_sbom_generator
@@ -601,4 +605,42 @@ def test_essential_required_installed(tmpdir, sbom_generator):
                 "pkg:deb/debian/required@1.0.0-1?arch=amd64",
             ],
             "ref": "CDXRef-pytest-distro",
+        } in dependencies
+
+
+def test_suggested_recommended(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator(
+        "tests/root/recommends-suggests", recommends_deps=True, suggests_deps=True
+    )
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        relationships = spdx_json["relationships"]
+        assert {
+            "spdxElementId": "SPDXRef-test-pkg-amd64",
+            "relatedSpdxElement": "SPDXRef-recommended-pkg-amd64",
+            "relationshipType": "DEPENDS_ON",
+            "comment": "recommends",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-test-pkg-amd64",
+            "relatedSpdxElement": "SPDXRef-suggested-pkg-amd64",
+            "relationshipType": "DEPENDS_ON",
+            "comment": "suggests",
+        } in relationships
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        dependencies = cdx_json["dependencies"]
+        assert {
+            "dependsOn": [
+                "pkg:deb/debian/recommended-pkg@1.0.0-1?arch=amd64",
+                "pkg:deb/debian/suggested-pkg@1.0.0-1?arch=amd64",
+                "pkg:deb/debian/test-pkg@1.0.0-1?arch=source",
+            ],
+            "ref": "pkg:deb/debian/test-pkg@1.0.0-1?arch=amd64",
         } in dependencies
