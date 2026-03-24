@@ -55,6 +55,8 @@ class Debsbom:
         add_meta_data: dict[str, str] | None = None,
         cdx_standard: BOM_Standard = BOM_Standard.DEFAULT,
         with_licenses: bool = False,
+        recommends_deps: bool = True,
+        suggests_deps: bool = False,
     ):
         self.root = Path(root)
         self.distro_name = distro_name
@@ -64,6 +66,8 @@ class Debsbom:
         self.base_distro_vendor = base_distro_vendor
         self.cdx_standard = cdx_standard
         self.with_licenses = with_licenses
+        self.recommends_deps = recommends_deps
+        self.suggests_deps = suggests_deps
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -346,6 +350,8 @@ class Debsbom:
                 add_meta_data=self.add_meta_data,
                 standard=self.cdx_standard,
                 virtual_packages=self.virtual_packages,
+                recommends_deps=self.recommends_deps,
+                suggests_deps=self.suggests_deps,
                 progress_cb=progress_cb,
             )
         if sbom_type is SBOMType.SPDX:
@@ -362,5 +368,7 @@ class Debsbom:
                 timestamp=self.timestamp,
                 add_meta_data=self.add_meta_data,
                 virtual_packages=self.virtual_packages,
+                recommends_deps=self.recommends_deps,
+                suggests_deps=self.suggests_deps,
                 progress_cb=progress_cb,
             )

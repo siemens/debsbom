@@ -211,6 +211,8 @@ def cyclonedx_bom(
     add_meta_data: dict[str, str] | None = None,
     standard: BOM_Standard = BOM_Standard.DEFAULT,
     virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
+    recommends_deps: bool = True,
+    suggests_deps: bool = False,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> cdx_bom.Bom:
     """Return a valid CycloneDX SBOM."""
@@ -261,6 +263,12 @@ def cyclonedx_bom(
             )
         # copy the depends to not alter the package itself
         pkg_deps = list(package.unique_depends) or []
+
+        if recommends_deps:
+            pkg_deps.extend(package.unique_recommends)
+        if suggests_deps:
+            pkg_deps.extend(package.unique_suggests)
+
         # add dependency to source package
         if package.source:
             pkg_deps.append(package.source)

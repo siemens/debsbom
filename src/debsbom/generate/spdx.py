@@ -259,6 +259,8 @@ def spdx_bom(
     timestamp: datetime | None = None,
     add_meta_data: dict[str, str] | None = None,
     virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
+    recommends_deps: bool = True,
+    suggests_deps: bool = False,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
@@ -322,6 +324,31 @@ def spdx_bom(
                 )
             )
 
+        if recommends_deps and package.recommends:
+            relationships.extend(
+                make_relationships_for_deps(
+                    dependencies=package.unique_recommends,
+                    package=package,
+                    reference=reference,
+                    refs=refs,
+                    distro_arch=distro_arch,
+                    virtual_packages=virtual_packages,
+                    comment="recommends",
+                )
+            )
+
+        if suggests_deps and package.suggests:
+            relationships.extend(
+                make_relationships_for_deps(
+                    dependencies=package.unique_suggests,
+                    package=package,
+                    reference=reference,
+                    refs=refs,
+                    distro_arch=distro_arch,
+                    virtual_packages=virtual_packages,
+                    comment="suggests",
+                )
+            )
 
         if package.built_using:
             for dep in package.built_using:

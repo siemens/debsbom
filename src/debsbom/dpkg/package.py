@@ -677,6 +677,24 @@ class BinaryPackage(Package):
         """
         return self._unique_deps_for(self.all_depends)
 
+    @property
+    def unique_recommends(self) -> list[Dependency]:
+        """
+        Returns the unique recommendations without version.
+        The raw dependencies can include version specifiers, but as only a single
+        version can be installed at a time, we ignore them.
+        """
+        return self._unique_deps_for(self.recommends)
+
+    @property
+    def unique_suggests(self) -> list[Dependency]:
+        """
+        Returns the unique suggestions without version.
+        The raw dependencies can include version specifiers, but as only a single
+        version can be installed at a time, we ignore them.
+        """
+        return self._unique_deps_for(self.suggests)
+
     def merge_with(self, other: "BinaryPackage"):
         """Copy properties from other which are unset on our side. Merge lists and dicts. Or booleans."""
         super().merge_with(other)
