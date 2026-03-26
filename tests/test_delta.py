@@ -109,3 +109,52 @@ def test_cdx_delta(tmpdir):
             "dependsOn": ["pkg:deb/debian/htop@3.4.1-5?arch=source"],
             "ref": "pkg:deb/debian/htop@3.4.1-5?arch=amd64",
         } not in deps
+
+
+def test_spdx_delta_distro_summary(tmpdir):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
+    from debsbom.delta.spdx import SpdxDeltaGenerator
+
+    distro_name = "spdx-delta-summary"
+    distro_summary = "A test distro summary"
+    delta_generator = SpdxDeltaGenerator(distro_name=distro_name, distro_summary=distro_summary)
+    docs = []
+    for sbom in ["tests/data/delta-base.spdx.json", "tests/data/delta-target.spdx.json"]:
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
+    bom = delta_generator.delta(base_sbom=docs[0], target_sbom=docs[1])
+
+    outdir = Path(tmpdir)
+    bomfile = outdir / "extras.spdx.json"
+    BomWriter.create(SBOMType.SPDX).write_to_file(bom, bomfile, validate=True)
+
+    with open(bomfile) as file:
+        spdx_json = json.loads(file.read())
+        distro_pkg = next(
+            p for p in spdx_json["packages"] if p["SPDXID"] == f"SPDXRef-{distro_name}"
+        )
+        assert distro_pkg["summary"] == distro_summary
+
+
+def test_cdx_delta_distro_summary(tmpdir):
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
+    from debsbom.delta.cdx import CdxDeltaGenerator
+
+    distro_name = "cdx-delta-summary"
+    distro_summary = "A test distro summary"
+    delta_generator = CdxDeltaGenerator(distro_name=distro_name, distro_summary=distro_summary)
+    docs = []
+    for sbom in ["tests/data/delta-base.cdx.json", "tests/data/delta-target.cdx.json"]:
+        docs.append(CdxBomFileReader(Path(sbom)).read())
+    bom = delta_generator.delta(base_sbom=docs[0], target_sbom=docs[1])
+
+    outdir = Path(tmpdir)
+    bomfile = outdir / "extras.cdx.json"
+    BomWriter.create(SBOMType.CycloneDX).write_to_file(bom, bomfile, validate=True)
+
+    with open(bomfile) as file:
+        cdx_json = json.loads(file.read())
+        assert cdx_json["metadata"]["component"]["description"] == distro_summary

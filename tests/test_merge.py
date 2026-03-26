@@ -296,3 +296,71 @@ def test_omit_root_cdx_merge():
 
     assert "CDXRef-full" not in map(lambda c: c.bom_ref.value, bom.components)
     assert "CDXRef-minimal" not in map(lambda c: c.bom_ref.value, bom.components)
+
+
+def test_spdx_merge_distro_summary():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
+    distro_name = "spdx-merge-summary"
+    distro_summary = "A test distro summary"
+    merger = SpdxSbomMerger(distro_name=distro_name, distro_summary=distro_summary)
+    docs = []
+    for sbom in ["tests/data/merge-full.spdx.json", "tests/data/merge-minimal.spdx.json"]:
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    distro_pkg = next(p for p in bom.packages if p.spdx_id == f"SPDXRef-{distro_name}")
+    assert distro_pkg.summary == distro_summary
+
+
+def test_spdx_merge_no_distro_summary():
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    from debsbom.bomreader.spdxbomreader import SpdxBomFileReader
+    from debsbom.merge.spdx import SpdxSbomMerger
+
+    distro_name = "spdx-merge-no-summary"
+    merger = SpdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in ["tests/data/merge-full.spdx.json", "tests/data/merge-minimal.spdx.json"]:
+        docs.append(SpdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    distro_pkg = next(p for p in bom.packages if p.spdx_id == f"SPDXRef-{distro_name}")
+    assert distro_pkg.summary is None
+
+
+def test_cdx_merge_distro_summary():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
+    distro_name = "cdx-merge-summary"
+    distro_summary = "A test distro summary"
+    merger = CdxSbomMerger(distro_name=distro_name, distro_summary=distro_summary)
+    docs = []
+    for sbom in ["tests/data/merge-full.cdx.json", "tests/data/merge-minimal.cdx.json"]:
+        docs.append(CdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    assert bom.metadata.component.description == distro_summary
+
+
+def test_cdx_merge_no_distro_summary():
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    from debsbom.bomreader.cdxbomreader import CdxBomFileReader
+    from debsbom.merge.cdx import CdxSbomMerger
+
+    distro_name = "cdx-merge-no-summary"
+    merger = CdxSbomMerger(distro_name=distro_name)
+    docs = []
+    for sbom in ["tests/data/merge-full.cdx.json", "tests/data/merge-minimal.cdx.json"]:
+        docs.append(CdxBomFileReader(Path(sbom)).read())
+    bom = merger.merge(docs)
+
+    assert bom.metadata.component.description is None
