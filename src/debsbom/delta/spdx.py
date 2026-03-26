@@ -114,6 +114,7 @@ class SpdxDeltaGenerator(DeltaGenerator):
             distro_name=self.distro_name,
             distro_version=self.distro_version,
             distro_supplier=self.distro_supplier,
+            distro_summary=self.distro_summary,
         )
         distro_ref = distro_pkg.spdx_id
         packages[distro_ref] = distro_pkg

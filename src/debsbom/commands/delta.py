@@ -34,6 +34,7 @@ class DeltaCmd(GenerateInput, SbomInput):
             distro_name=args.distro_name,
             distro_supplier=args.distro_supplier,
             distro_version=args.distro_version,
+            distro_summary=args.distro_summary,
             base_distro_vendor=args.base_distro_vendor,
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,

@@ -41,7 +41,10 @@ logger = logging.getLogger(__name__)
 
 
 def make_distro_package(
-    distro_name: str, distro_version: str | None = None, distro_supplier: str | None = None
+    distro_name: str,
+    distro_version: str | None = None,
+    distro_supplier: str | None = None,
+    distro_summary: str | None = None,
 ) -> spdx_package.Package:
     if distro_supplier is None:
         supplier = None
@@ -56,6 +59,7 @@ def make_distro_package(
     distro_package = spdx_package.Package(
         spdx_id=distro_ref,
         name=distro_name,
+        summary=distro_summary,
         download_location=SpdxNoAssertion(),
         version=distro_version,
         primary_package_purpose=spdx_package.PackagePurpose.OPERATING_SYSTEM,
@@ -254,6 +258,7 @@ def spdx_bom(
     distro_arch: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
+    distro_summary: str | None = None,
     base_distro_vendor: str | None = "debian",
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
@@ -268,7 +273,10 @@ def spdx_bom(
     data = []
 
     distro_package = make_distro_package(
-        distro_name=distro_name, distro_version=distro_version, distro_supplier=distro_supplier
+        distro_name=distro_name,
+        distro_version=distro_version,
+        distro_supplier=distro_supplier,
+        distro_summary=distro_summary,
     )
     distro_ref = distro_package.spdx_id
     data.append(distro_package)

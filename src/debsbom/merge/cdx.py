@@ -73,7 +73,7 @@ class CdxSbomMerger(SbomMerger):
                 num_steps += len(sbom.components) + len(sbom.dependencies)
 
         distro_component = make_distro_component(
-            self.distro_name, self.distro_version, self.distro_supplier
+            self.distro_name, self.distro_version, self.distro_supplier, self.distro_summary
         )
 
         for sbom in sboms:

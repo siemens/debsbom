@@ -17,6 +17,7 @@ class DeltaGenerator:
         distro_name: str,
         distro_supplier: str | None = None,
         distro_version: str | None = None,
+        distro_summary: str | None = None,
         base_distro_vendor: str | None = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
@@ -25,6 +26,7 @@ class DeltaGenerator:
         self.distro_name = distro_name
         self.distro_supplier = distro_supplier
         self.distro_version = distro_version
+        self.distro_summary = distro_summary
         self.base_distro_vendor = base_distro_vendor
         self.namespace = spdx_namespace
         self.cdx_serialnumber = cdx_serialnumber

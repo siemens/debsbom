@@ -48,6 +48,7 @@ class Debsbom:
         distro_supplier: str | None = None,
         distro_version: str | None = None,
         distro_arch: str | None = None,
+        distro_summary: str | None = None,
         base_distro_vendor: str = "debian",
         spdx_namespace: tuple | None = None,  # 6 item tuple representing an URL
         cdx_serialnumber: UUID | None = None,
@@ -63,6 +64,7 @@ class Debsbom:
         self.distro_version = distro_version
         self.distro_supplier = distro_supplier
         self.distro_arch = distro_arch
+        self.distro_summary = distro_summary
         self.base_distro_vendor = base_distro_vendor
         self.cdx_standard = cdx_standard
         self.with_licenses = with_licenses
@@ -344,6 +346,7 @@ class Debsbom:
                 distro_arch=self.distro_arch,
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
+                distro_summary=self.distro_summary,
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
@@ -363,6 +366,7 @@ class Debsbom:
                 distro_arch=self.distro_arch,
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
+                distro_summary=self.distro_summary,
                 namespace=self.spdx_namespace,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
