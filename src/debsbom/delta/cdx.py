@@ -53,7 +53,10 @@ class CdxDeltaGenerator(DeltaGenerator):
             dependencies[dep.ref] = Dependency(ref=dep.ref, dependencies=child_deps)
 
         distro_component = make_distro_component(
-            self.distro_name, self.distro_version, self.distro_supplier
+            self.distro_name,
+            self.distro_version,
+            self.distro_supplier,
+            self.distro_summary,
         )
         bom_metadata = make_metadata(distro_component, self.timestamp)
 

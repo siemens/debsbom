@@ -95,6 +95,7 @@ class SpdxSbomMerger(SbomMerger):
             distro_name=self.distro_name,
             distro_version=self.distro_version,
             distro_supplier=self.distro_supplier,
+            distro_summary=self.distro_summary,
         )
 
         root_packages = []

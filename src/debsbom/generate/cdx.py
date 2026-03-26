@@ -129,7 +129,10 @@ def cdx_package_repr(
 
 
 def make_distro_component(
-    distro_name: str, distro_version: str | None, distro_supplier: str | None
+    distro_name: str,
+    distro_version: str | None,
+    distro_supplier: str | None,
+    distro_summary: str | None,
 ) -> cdx_component.Component:
     distro_bom_ref = CDX_REF_PREFIX + distro_name
 
@@ -139,6 +142,7 @@ def make_distro_component(
         supplier=make_supplier_from_str(distro_supplier or ""),
         name=distro_name,
         version=distro_version,
+        description=distro_summary,
     )
     return distro_component
 
@@ -205,6 +209,7 @@ def cyclonedx_bom(
     distro_arch: str,
     distro_supplier: str | None = None,
     distro_version: str | None = None,
+    distro_summary: str | None = None,
     base_distro_vendor: str | None = "debian",
     serial_number: UUID | None = None,
     timestamp: datetime | None = None,
@@ -310,7 +315,9 @@ def cyclonedx_bom(
             logger.debug(f"Created dependency: {dependency}")
             dependencies.add(dependency)
 
-    distro_component = make_distro_component(distro_name, distro_version, distro_supplier)
+    distro_component = make_distro_component(
+        distro_name, distro_version, distro_supplier, distro_summary
+    )
     refs[distro_component.bom_ref] = distro_component.bom_ref
 
     dependency = cdx_dependency.Dependency(

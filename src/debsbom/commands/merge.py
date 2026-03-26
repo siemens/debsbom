@@ -29,6 +29,7 @@ class MergeCmd(GenerateInput, SbomInput):
             distro_supplier=args.distro_supplier,
             distro_version=args.distro_version,
             base_distro_vendor=args.base_distro_vendor,
+            distro_summary=args.distro_summary,
             spdx_namespace=args.spdx_namespace,
             cdx_serialnumber=args.cdx_serialnumber,
             timestamp=args.timestamp,

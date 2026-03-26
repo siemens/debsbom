@@ -163,6 +163,12 @@ class GenerateInput:
             default=None,
         )
         parser.add_argument(
+            "--distro-summary",
+            type=str,
+            help="short description of distro component (single line)",
+            default=None,
+        )
+        parser.add_argument(
             "--base-distro-vendor",
             choices=["debian", "ubuntu"],
             help="vendor of debian distribution (debian or ubuntu)",
