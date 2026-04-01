@@ -20,7 +20,7 @@ import debsbom
 
 project = "debsbom"
 copyright = "2025, Siemens"
-author = "Christoph Steiger, Felix Moessbauer"
+authors = ["Christoph Steiger", "Felix Moessbauer"]
 
 # Derive the version from the installed package metadata.
 # If the package is not installed, fall back to a placeholder.
@@ -64,21 +64,21 @@ html_static_path = ["_static"]
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("man/debsbom", "debsbom", "a SBOM tool for Debian", [author], 1),
-    ("man/debsbom-decisions", "debsbom-decisions", "debsbom design decisions", [author], 1),
-    ("man/debsbom-download", "debsbom-download", "debsbom download command", [author], 1),
-    ("man/debsbom-export", "debsbom-export", "debsbom export command", [author], 1),
-    ("man/debsbom-generate", "debsbom-generate", "debsbom generate command", [author], 1),
-    ("man/debsbom-merge", "debsbom-merge", "debsbom merge command", [author], 1),
-    ("man/debsbom-repack", "debsbom-repack", "debsbom repack command", [author], 1),
-    ("man/debsbom-trace-path", "debsbom-trace-path", "debsbom trace-path command", [author], 1),
-    ("man/debsbom-delta", "debsbom-delta", "debsbom delta command", [author], 1),
-    ("man/debsbom-filter", "debsbom-filter", "debsbom filter command", [author], 1),
+    ("man/debsbom", "debsbom", "a SBOM tool for Debian", authors, 1),
+    ("man/debsbom-decisions", "debsbom-decisions", "debsbom design decisions", authors, 1),
+    ("man/debsbom-download", "debsbom-download", "debsbom download command", authors, 1),
+    ("man/debsbom-export", "debsbom-export", "debsbom export command", authors, 1),
+    ("man/debsbom-generate", "debsbom-generate", "debsbom generate command", authors, 1),
+    ("man/debsbom-merge", "debsbom-merge", "debsbom merge command", authors, 1),
+    ("man/debsbom-repack", "debsbom-repack", "debsbom repack command", authors, 1),
+    ("man/debsbom-trace-path", "debsbom-trace-path", "debsbom trace-path command", authors, 1),
+    ("man/debsbom-delta", "debsbom-delta", "debsbom delta command", authors, 1),
+    ("man/debsbom-filter", "debsbom-filter", "debsbom filter command", authors, 1),
     (
         "man/debsbom-source-merge",
         "debsbom-source-merge",
         "debsbom source-merge command",
-        [author],
+        authors,
         1,
     ),
 ]
