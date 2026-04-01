@@ -7,6 +7,7 @@
 import argparse
 from importlib.metadata import version
 import logging
+import os
 import sys
 import traceback
 
@@ -154,6 +155,11 @@ def main():
     except DistroArchUnknownError as e:
         logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
         sys.exit(-2)
+    except BrokenPipeError:
+        # https://docs.python.org/3/library/signal.html#note-on-sigpipe
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+        sys.exit(1)
     except Exception as e:
         logger.error(e)
         if not args.json:
