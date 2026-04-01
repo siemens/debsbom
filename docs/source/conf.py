@@ -74,6 +74,7 @@ man_pages = [
     ("man/debsbom-trace-path", "debsbom-trace-path", "debsbom trace-path command", authors, 1),
     ("man/debsbom-delta", "debsbom-delta", "debsbom delta command", authors, 1),
     ("man/debsbom-filter", "debsbom-filter", "debsbom filter command", authors, 1),
+    ("man/debsbom-sec-scan", "debsbom-sec-scan", "debsbom sec-scan command", authors, 1),
     (
         "man/debsbom-source-merge",
         "debsbom-source-merge",
