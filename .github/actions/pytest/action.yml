@@ -77,6 +77,16 @@ runs:
       coverage run $(which debsbom) -v filter -t cdx --sources tests/data/filter.cdx.json filtered_sources.cdx.json
       coverage run $(which debsbom) -v filter -t cdx --binaries tests/data/filter.cdx.json filtered_binaries.cdx.json
 
+  - name: smoke test sec-scan
+    shell: bash
+    run: |
+      export COVERAGE_FILE=".coverage.secscan.${{ inputs.artifact-identifier }}"
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --db tests/data/security-tracker.fake.json
+      export COVERAGE_FILE=".coverage.secscan.vex.${{ inputs.artifact-identifier }}"
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --author "Test <test@example.com>" --format vex --db tests/data/security-tracker.fake.json
+      export COVERAGE_FILE=".coverage.secscan.sarif.${{ inputs.artifact-identifier }}"
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --format sarif --db tests/data/security-tracker.fake.json
+
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@v4
     with:
