@@ -9,7 +9,7 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from debsbom.dpkg.package import SourcePackage
+from debsbom.dpkg.package import BinaryPackage, Dependency, SourcePackage
 from debsbom.schema import secscan
 from debsbom.securityscan.scanner import CveStatus, CveUrgency, SecurityScanner
 from debsbom.securityscan.writer import ScanResultWriter
@@ -240,3 +240,66 @@ def test_vex_output_matches_schema(scanner):
     jsonschema.validate(instance=data, schema=vex_schema)
     assert data["author"] == "test-author"
     assert len(data["statements"]) == len(results)
+
+
+def test_vex_output_includes_binary_products(scanner):
+    """VEX products include binary packages mapped to the affected source package."""
+    with open("tests/data/openvex_json_schema_0.2.0.json") as f:
+        vex_schema = json.load(f)
+
+    src = SourcePackage(name="fake-crypto", version="3.4.0-1")
+    pkgs = [src]
+    results = list(scanner.scan(pkgs, min_urgency=CveUrgency.HIGH))
+    assert len(results) == 1
+
+    bin1 = BinaryPackage(
+        name="libfake-crypto3", version="3.4.0-1", architecture="amd64", source=Dependency(src.name)
+    )
+    bin2 = BinaryPackage(
+        name="libfake-crypto-dev",
+        version="3.4.0-1",
+        architecture="amd64",
+        source=Dependency(src.name),
+    )
+    src.binaries = [bin1.name, bin2.name]
+    pkgs = [src, bin1, bin2]
+
+    buf = io.StringIO()
+    with ScanResultWriter.create(
+        "vex",
+        sdo_url=TRACKER_URL,
+        bdo_url=BUGS_URL,
+        author="test-author",
+        file=buf,
+        packages=pkgs,
+    ) as writer:
+        for r in results:
+            writer.write(r)
+
+    data = json.loads(buf.getvalue())
+    jsonschema.validate(instance=data, schema=vex_schema)
+
+    products = data["statements"][0]["products"]
+    product_purls = [p["identifiers"]["purl"] for p in products]
+    assert str(src.purl()) in product_purls
+    assert str(bin1.purl()) in product_purls
+    assert str(bin2.purl()) in product_purls
+    assert len(products) == 3
+
+
+def test_vex_output_no_binary_map(scanner):
+    """VEX output without source_binary_map still works (only source product)."""
+    src = SourcePackage(name="fake-crypto", version="3.4.0-1")
+    results = list(scanner.scan([src], min_urgency=CveUrgency.HIGH))
+
+    buf = io.StringIO()
+    with ScanResultWriter.create(
+        "vex", sdo_url=TRACKER_URL, bdo_url=BUGS_URL, author="test-author", file=buf
+    ) as writer:
+        for r in results:
+            writer.write(r)
+
+    data = json.loads(buf.getvalue())
+    products = data["statements"][0]["products"]
+    assert len(products) == 1
+    assert products[0]["identifiers"]["purl"] == str(src.purl())
