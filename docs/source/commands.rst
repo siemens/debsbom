@@ -13,3 +13,4 @@ Commands
   commands/delta
   commands/filter
   commands/trace-path
+  commands/sec-scan

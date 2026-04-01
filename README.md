@@ -32,6 +32,7 @@ positional arguments:
     repack              repack sources and sbom
     source-merge        merge referenced source packages
     trace-path          trace path between components
+    sec-scan            check SBOM for security vulnerabilities
 
 options:
   -h, --help            show this help message and exit
@@ -65,7 +66,6 @@ At its core, this tool was designed to fulfill these SBOM generation requirement
 ### Non Goals
 
 - License and copyright text extraction from source packages
-- Real-time vulnerability database integration
 - Signing and attestation of generated artifacts
 
 ## Package Relations

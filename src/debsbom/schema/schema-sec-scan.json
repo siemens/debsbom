@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/siemens/debsbom/refs/heads/main/src/debsbom/schema/schema-sec-scan.json",
+  "title": "Security Scan Result",
+  "definitions": {
+    "vulnerability": {
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "urgency",
+        "tracker"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Vulnerability identifier (CVE or temporary ID)"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "resolved",
+            "undetermined",
+            "open"
+          ],
+          "description": "Current vulnerability status"
+        },
+        "urgency": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unimportant",
+            "end-of-life",
+            "not-yet-assigned"
+          ],
+          "description": "Urgency level"
+        },
+        "fixed-in": {
+          "type": [
+            "string"
+          ],
+          "description": "Version in which the vulnerability is fixed"
+        },
+        "desc": {
+          "type": [
+            "string"
+          ],
+          "description": "Vulnerability description"
+        },
+        "tracker": {
+          "type": [
+            "string"
+          ],
+          "format": "uri",
+          "description": "URL to the vulnerability tracker entry"
+        },
+        "debianbug": {
+          "type": "integer",
+          "description": "Debian bug id"
+        },
+        "bugreport": {
+          "type": [
+            "string"
+          ],
+          "format": "uri",
+          "description": "URL to the debian bug tracker entry"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": [
+    "package",
+    "purl",
+    "vulnerability"
+  ],
+  "properties": {
+    "package": {
+      "type": "string",
+      "description": "Package name and version"
+    },
+    "purl": {
+      "type": "string",
+      "description": "Package URL (PURL) identifier"
+    },
+    "vulnerability": {
+      "$ref": "#/definitions/vulnerability"
+    }
+  },
+  "additionalProperties": false
+}
