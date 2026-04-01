@@ -1,0 +1,116 @@
+{
+  "fake-shell": {
+    "CVE-0000-0001": {
+      "description": "A flaw was found in the fake-shell package",
+      "debianbug": 1030355,
+      "scope": "local",
+      "releases": {
+        "sid": {
+          "status": "resolved",
+          "repositories": {
+            "sid": "5.3-2"
+          },
+          "fixed_version": "5.2-1",
+          "urgency": "not yet assigned"
+        },
+        "trixie": {
+          "status": "resolved",
+          "repositories": {
+            "trixie": "5.2.37-2"
+          },
+          "fixed_version": "5.2-1",
+          "urgency": "not yet assigned"
+        }
+      }
+    },
+    "TEMP-0000-000001": {
+      "debianbug": 841856,
+      "releases": {
+        "forky": {
+          "status": "open",
+          "repositories": {
+            "forky": "5.3-2"
+          },
+          "urgency": "unimportant"
+        },
+        "sid": {
+          "status": "open",
+          "repositories": {
+            "sid": "5.3-2"
+          },
+          "urgency": "unimportant"
+        },
+        "trixie": {
+          "status": "open",
+          "repositories": {
+            "trixie": "5.2.37-2"
+          },
+          "urgency": "unimportant"
+        }
+      }
+    }
+  },
+  "fake-crypto": {
+    "CVE-0000-1001": {
+      "description": "Buffer overflow in fake-crypto allowing remote code execution.",
+      "releases": {
+        "trixie": {
+          "status": "resolved",
+          "repositories": {
+            "trixie": "3.5.0-1"
+          },
+          "fixed_version": "3.5.0-1",
+          "urgency": "high"
+        },
+        "bookworm": {
+          "status": "resolved",
+          "repositories": {
+            "bookworm": "3.0.15-1~deb12u1"
+          },
+          "fixed_version": "3.0.15-1~deb12u1",
+          "urgency": "high"
+        }
+      }
+    },
+    "CVE-0000-1002": {
+      "description": "Timing side-channel in fake-crypto signature verification.",
+      "releases": {
+        "trixie": {
+          "status": "open",
+          "repositories": {
+            "trixie": "3.4.1-1"
+          },
+          "urgency": "medium"
+        }
+      }
+    },
+    "CVE-0000-1003": {
+      "description": "Denial of service via crafted certificate chain.",
+      "releases": {
+        "trixie": {
+          "status": "resolved",
+          "repositories": {
+            "trixie": "3.5.0-1"
+          },
+          "fixed_version": "3.4.1-1",
+          "urgency": "low"
+        }
+      }
+    }
+  },
+  "fake-compress": {
+    "CVE-0000-2001": {
+      "description": "Integer overflow in fake-compress inflate.",
+      "releases": {
+        "trixie": {
+          "status": "resolved",
+          "repositories": {
+            "trixie": "1:1.3.1.dfsg+really1.3.1-1"
+          },
+          "fixed_version": "1:1.3.1-1",
+          "urgency": "end-of-life"
+        }
+      }
+    }
+  }
+}
