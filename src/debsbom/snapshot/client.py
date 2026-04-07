@@ -315,7 +315,7 @@ class UpstreamResolver(Resolver):
     in the cache, but the download artifacts have to be cached by the caller.
     """
 
-    def __init__(self, sdl: SnapshotDataLake, cache: PackageResolverCache = PackageResolverCache()):
+    def __init__(self, sdl: SnapshotDataLake, cache: PackageResolverCache | None = None):
         super().__init__(cache)
         self.sdl = sdl
 
