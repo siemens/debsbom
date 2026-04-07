@@ -464,7 +464,7 @@ class SourcePackage(Package):
         name: str,
         version: str | Version,
         maintainer: str | None = None,
-        binaries: list[str] = [],
+        binaries: list[str] | None = None,
         homepage: str | None = None,
         vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
@@ -473,7 +473,7 @@ class SourcePackage(Package):
         self.name = name
         self.version = Version(version)
         self.maintainer = maintainer
-        self.binaries = binaries
+        self.binaries = binaries or []
         self.homepage = homepage
         self.vcs = vcs
         self.checksums = checksums or {}
@@ -594,12 +594,12 @@ class BinaryPackage(Package):
         maintainer: str | None = None,
         architecture: str | None = None,
         source: Dependency | None = None,
-        depends: list[Dependency] = [],
-        pre_depends: list[Dependency] = [],
-        provides: list[VirtualPackage] = [],
-        recommends: list[Dependency] = [],
-        suggests: list[Dependency] = [],
-        built_using: list[Dependency] = [],
+        depends: list[Dependency] | None = None,
+        pre_depends: list[Dependency] | None = None,
+        provides: list[VirtualPackage] | None = None,
+        recommends: list[Dependency] | None = None,
+        suggests: list[Dependency] | None = None,
+        built_using: list[Dependency] | None = None,
         description: str | None = None,
         essential: bool = False,
         priority: DebianPriority | None = None,
@@ -614,12 +614,12 @@ class BinaryPackage(Package):
         self.architecture = architecture
         self.source = source
         self.version = Version(version)
-        self.depends = depends
-        self.pre_depends = pre_depends
-        self.provides = provides
-        self.recommends = recommends
-        self.suggests = suggests
-        self.built_using = built_using
+        self.depends = depends or []
+        self.pre_depends = pre_depends or []
+        self.provides = provides or []
+        self.recommends = recommends or []
+        self.suggests = suggests or []
+        self.built_using = built_using or []
         self.description = description
         self.essential = essential
         self.priority = priority
