@@ -127,8 +127,8 @@ class PersistentResolverCache(PackageResolverCache):
 class Resolver(ABC):
     """Base class for resolvers."""
 
-    def __init__(self, cache: PackageResolverCache = PackageResolverCache()):
-        self._cache = cache
+    def __init__(self, cache: PackageResolverCache | None = None):
+        self._cache = cache or PackageResolverCache()
 
     @property
     def cache(self):
