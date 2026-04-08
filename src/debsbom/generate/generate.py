@@ -276,7 +276,9 @@ class Debsbom:
 
         self._merge_apt_source_data(packages, repos, source_filter)
 
-        bin_names_apt = set(map(lambda bn: (bn[0], bn[1]), bin_names_apt))
+        bin_names_apt = set(
+            map(lambda bn: (bn[0], self.distro_arch if bn[1] == "all" else bn[1]), bin_names_apt)
+        )
 
         def extended_states_filter(pf: ExtendedStates.PackageFilter) -> bool:
             return pf in bin_names_apt

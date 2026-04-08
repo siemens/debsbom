@@ -297,7 +297,7 @@ def test_apt_extended_states():
     # no information about riscv64, assume manual
     assert es.is_manual("binutils-bpf", "amd64")
 
-    noes = ExtendedStates(set())
+    noes = ExtendedStates(set(), set())
     assert noes.is_manual("foo", "amd64")
 
 
