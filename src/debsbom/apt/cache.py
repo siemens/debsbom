@@ -25,15 +25,24 @@ logger = logging.getLogger(__name__)
 class ExtendedStates:
     """
     The apt extended states encode information if a package is manually
-    installed or installed via a dependency only.
+    installed or installed via a dependency only. Note, that the PackageFilter
+    maps arch=all binary packages to the architecture they are installed for
+    (usually that's the distro arch).
     """
 
     PackageFilter = namedtuple("BinaryPackage", "name arch")
 
     auto_installed: set[tuple[str, str]]
+    distro_archs: set[str]
 
     def is_manual(self, name: str, arch: str) -> bool:
-        """True if package is explicitly installed"""
+        """
+        True if package is explicitly installed. Architecture unspecific
+        packages are mapped to the arch of the package that had it as a dependency.
+        As we don't know that when parsing, we simply scan in all architectures.
+        """
+        if arch == "all":
+            return not any([(name, _arch) in self.auto_installed for _arch in self.distro_archs])
         return (name, arch) not in self.auto_installed
 
     @classmethod
@@ -42,6 +51,7 @@ class ExtendedStates:
     ) -> "ExtendedStates":
         """Factory to create instance from the apt extended states file"""
         auto_installed = set()
+        distro_archs = set()
         with open(Path(file)) as f:
             for s in Deb822.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT):
                 name = s.get("Package")
@@ -50,8 +60,9 @@ class ExtendedStates:
                     continue
                 if (filter_fn is None) or (filter_fn(cls.PackageFilter(name, arch))):
                     auto_installed.add((name, arch))
+                    distro_archs.add(arch)
 
-        return cls(auto_installed=auto_installed)
+        return cls(auto_installed=auto_installed, distro_archs=distro_archs)
 
 
 @dataclass
@@ -220,7 +231,7 @@ class Repository:
     def binpackages(
         self,
         filter_fn: Callable[[BinaryPackageFilter], bool] | None = None,
-        ext_states: ExtendedStates = ExtendedStates(set()),
+        ext_states: ExtendedStates = ExtendedStates(set(), set()),
     ) -> Iterable[BinaryPackage]:
         """Get all binary packages from this repository"""
         if self.components:
