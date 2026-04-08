@@ -84,3 +84,27 @@ Description: secure shell (SSH) server, for secure access from remote machines
  sshd replaces the insecure rshd program, which is obsolete for most
  purposes.
 Homepage: https://www.openssh.com/
+
+Package: python3-pkg-resources
+Status: install ok installed
+Priority: optional
+Section: python
+Installed-Size: 696
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: all
+Multi-Arch: foreign
+Source: setuptools
+Version: 78.1.1-0.1
+Replaces: python3-setuptools (<< 75.2)
+Depends: python3-autocommand, python3-inflect, python3-jaraco.context, python3-jaraco.functools, python3-more-itertools, python3:any
+Suggests: python3-setuptools
+Breaks: python3-setuptools (<< 75.2)
+Description: Package Discovery and Resource Access using pkg_resources
+ The pkg_resources module provides an API for Python libraries to
+ access their resource files, and for extensible applications and
+ frameworks to automatically discover plugins.  It also provides
+ runtime support for using C extensions that are inside zipfile-format
+ eggs, support for merging packages that have separately-distributed
+ modules or subpackages, and APIs for managing Python's current
+ "working set" of active packages.
+Homepage: https://pypi.python.org/pypi/setuptools

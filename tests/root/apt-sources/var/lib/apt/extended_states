@@ -1,3 +1,7 @@
 Package: binutils-arm-none-eabi
 Architecture: amd64
 Auto-Installed: 1
+
+Package: python3-pkg-resources
+Architecture: amd64
+Auto-Installed: 1
