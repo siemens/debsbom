@@ -400,6 +400,29 @@ def test_pkglist_apt_cache(tmpdir, sbom_generator):
     assert binutils_bpf["supplier"] == "NOASSERTION"
 
 
+def test_apt_auto_installed_arch_all(tmpdir, sbom_generator):
+    """check correct detection of auto-installed arch all package"""
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    outdir = Path(tmpdir)
+    dbom = sbom_generator("tests/root/apt-sources", sbom_types=[SBOMType.SPDX])
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+
+    relationships = spdx_json["relationships"]
+    assert {
+        "spdxElementId": "SPDXRef-python3-pkg-resources-all",
+        "relatedSpdxElement": "SPDXRef-pytest-distro",
+        "relationshipType": "PACKAGE_OF",
+    } not in relationships
+    assert {
+        "spdxElementId": "SPDXRef-binutils-bpf-amd64",
+        "relatedSpdxElement": "SPDXRef-pytest-distro",
+        "relationshipType": "PACKAGE_OF",
+    } in relationships
+
+
 def test_residual_config_packages(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")
