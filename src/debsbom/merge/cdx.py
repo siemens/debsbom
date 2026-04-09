@@ -78,7 +78,7 @@ class CdxSbomMerger(SbomMerger):
 
         for sbom in sboms:
             logger.info(f"Processing BOM '{sbom.metadata.component.name}'")
-            if (
+            if not self.omit_roots and (
                 sbom.metadata.component.bom_ref.value
                 in map(lambda c: c.bom_ref.value, root_components)
                 or sbom.metadata.component.bom_ref.value == distro_component.bom_ref.value
