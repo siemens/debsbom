@@ -4,6 +4,7 @@
 
 from abc import abstractmethod
 from collections import defaultdict
+import dataclasses
 from datetime import datetime, timezone
 from importlib.metadata import version, metadata
 import json
@@ -11,6 +12,7 @@ import os
 from pathlib import Path
 import sys
 
+from ..tracepath.walker import GraphWalker
 from ..dpkg.package import BinaryPackage, SourcePackage, Package, filter_binaries
 from .scanner import CveEntry, CveStatus, CveUrgency, ScanResultItem
 
@@ -39,6 +41,7 @@ class ScanResultWriter:
         sdo_url: str,
         bdo_url: str,
         packages: list[Package] | None = None,
+        graph_walker: GraphWalker | None = None,
         author: str | None = None,
         input_filename: Path | None = None,
         file=sys.stdout,
@@ -50,7 +53,11 @@ class ScanResultWriter:
                 )
             case "json":
                 return ScanResultJsonWriter(
-                    packages=[], sdo_url=sdo_url, bdo_url=bdo_url, file=file
+                    packages=[],
+                    sdo_url=sdo_url,
+                    bdo_url=bdo_url,
+                    graph_walker=graph_walker,
+                    file=file,
                 )
             case "sarif":
                 return ScanResultSarifWriter(
@@ -124,6 +131,10 @@ class ScanResultTextWriter(ScanResultWriter):
 
 
 class ScanResultJsonWriter(ScanResultWriter):
+    def __init__(self, graph_walker: GraphWalker | None = None, **args):
+        super().__init__(**args)
+        self.graph_walker = graph_walker
+
     def write(self, r: ScanResultItem) -> None:
         if not r.affected:
             return
@@ -145,6 +156,11 @@ class ScanResultJsonWriter(ScanResultWriter):
         if v.debianbug:
             data["vulnerability"]["debianbug"] = v.debianbug
             data["vulnerability"]["bugreport"] = f"{self.bdo_url}?bug={v.debianbug}"
+        if self.graph_walker:
+            allShortest = self.graph_walker.all_shortest(r.package.purl())
+            data["pathsToRoot"] = {
+                "allShortest": [[dataclasses.asdict(_s) for _s in s] for s in allShortest]
+            }
 
         json.dump(data, self.out)
         self.out.write("\n")
