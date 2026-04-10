@@ -69,6 +69,17 @@
         }
       },
       "additionalProperties": false
+    },
+    "pathsToRoot": {
+      "type": "object",
+      "properties": {
+        "allShortest": {
+          "type": "array",
+          "items": {
+            "$ref": "schema-trace-path.json"
+          }
+        }
+      }
     }
   },
   "type": "object",
@@ -88,6 +99,9 @@
     },
     "vulnerability": {
       "$ref": "#/definitions/vulnerability"
+    },
+    "pathsToRoot": {
+      "$ref": "#/definitions/pathsToRoot"
     }
   },
   "additionalProperties": false

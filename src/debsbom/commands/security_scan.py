@@ -18,6 +18,15 @@ except ModuleNotFoundError:
     HAS_REQUESTS_DEP = False
 
 
+try:
+    from ..tracepath.walker import GraphWalker
+
+    HAS_TRACEPATH_DEPS = True
+except ModuleNotFoundError as e:
+    HAS_TRACEPATH_DEPS = False
+    MISSING_MODULE_TRACEPATH = e
+
+
 DEBIAN_BUGTRACKER_URL = "https://bugs.debian.org/cgi-bin/bugreport.cgi"
 SECURITY_TRACKER_URL = "https://security-tracker.debian.org/tracker"
 SECURITY_DB_URL_PATH = "data/json"
@@ -57,8 +66,16 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         if args.update_db or not db_path.exists():
             cls.download_db(f"{args.tracker}/{SECURITY_DB_URL_PATH}", db_path)
 
+        graph_walker = None
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolvers(args)[0]
+            if args.with_paths_to_root:
+                if not HAS_TRACEPATH_DEPS:
+                    raise RuntimeError(
+                        f"{MISSING_MODULE_TRACEPATH}, required for --with-paths-to-root"
+                    )
+
+                graph_walker = GraphWalker.from_document(resolver.document, resolver.sbom_type())
         else:
             resolver = cls.get_pkgstream_resolver()
         input_filename = Path(args.bomin) if args.bomin not in [None, "-"] else None
@@ -75,6 +92,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             author=args.author,
             input_filename=input_filename,
             packages=pkgs,
+            graph_walker=graph_walker,
         ) as f:
             for v in vulns_it:
                 f.write(v)
@@ -126,5 +144,11 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             type=str,
             help="URL of upstream debian security tracker (default: %(default)s)",
             default=SECURITY_TRACKER_URL,
+        )
+        parser.add_argument(
+            "--with-paths-to-root",
+            action="store_true",
+            help="emit path from component to root per affected package (-f json only)",
+            default=False,
         )
         return parser
