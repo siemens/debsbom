@@ -46,17 +46,6 @@ class GraphWalker(SbomProcessor):
     Base class of graph walkers
     """
 
-    @staticmethod
-    def _create_from_reader(reader: BomReader) -> "GraphWalker":
-        if reader.sbom_type() == SBOMType.SPDX:
-            from .spdx import SpdxGraphWalker
-
-            return SpdxGraphWalker(reader.read())
-        else:
-            from .cdx import CdxGraphWalker
-
-            return CdxGraphWalker(reader.read())
-
     @classmethod
     def create(
         cls,
@@ -67,7 +56,7 @@ class GraphWalker(SbomProcessor):
         Factory to create a GraphWalker for the given SBOM type (based on the filename extension).
         """
         reader = BomReader.create(filename, bomtype)
-        return cls._create_from_reader(reader)
+        return cls.from_document(reader.read(), reader.sbom_type())
 
     @classmethod
     def from_stream(cls, stream: IOBase, bomtype: SBOMType) -> "GraphWalker":
@@ -75,7 +64,7 @@ class GraphWalker(SbomProcessor):
         Factory to create a GraphWalker for the given SBOM type that takes the SBOM as stream.
         """
         reader = BomReader.from_stream(stream, bomtype)
-        return cls._create_from_reader(reader)
+        return cls.from_document(reader.read(), reader.sbom_type())
 
     @classmethod
     def from_json(cls, json_obj: IOBase, bomtype: SBOMType) -> "GraphWalker":
@@ -83,7 +72,21 @@ class GraphWalker(SbomProcessor):
         Factory to create a GraphWalker for the given SBOM type that takes a json object.
         """
         reader = BomReader.from_json(json_obj, bomtype)
-        return cls._create_from_reader(reader)
+        return cls.from_document(reader.read(), reader.sbom_type())
+
+    @classmethod
+    def from_document(cls, document, sbom_type: SBOMType) -> "GraphWalker":
+        """
+        Factory to create a GraphWalker from an SBOM document instance.
+        """
+        if sbom_type == SBOMType.SPDX:
+            from .spdx import SpdxGraphWalker
+
+            return SpdxGraphWalker(document)
+        else:
+            from .cdx import CdxGraphWalker
+
+            return CdxGraphWalker(document)
 
     @abstractmethod
     def shortest(self, source: PackageURL) -> list[PackageRepr]:
