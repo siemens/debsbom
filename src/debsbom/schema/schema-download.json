@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/siemens/debsbom/blob/main/src/debsbom/schema/schema-download.json",
+  "$id": "https://raw.githubusercontent.com/siemens/debsbom/refs/heads/main/src/debsbom/schema/schema-download.json",
   "title": "Download Result",
   "description": "The result of a download operation including the status, package name, package version, file name and file path.",
   "type": "object",

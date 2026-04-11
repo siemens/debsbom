@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/siemens/debsbom/blob/main/src/debsbom/schema/schema-trace-path.json",
+  "$id": "https://raw.githubusercontent.com/siemens/debsbom/refs/heads/main/src/debsbom/schema/schema-trace-path.json",
   "title": "Trace Path Result",
   "description": "List of components on a path between a source and a destination component",
   "type": "array",
