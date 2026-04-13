@@ -11,7 +11,7 @@ import networkx as nx
 
 from ..resolver.cdx import CdxPackageResolver
 from ..sbom import CDXType
-from .walker import GraphWalker, PackageRepr
+from .walker import GraphWalker, NoRootNodeError, PackageRepr
 
 
 class CdxGraphWalker(GraphWalker, CDXType):
@@ -24,7 +24,8 @@ class CdxGraphWalker(GraphWalker, CDXType):
     def _import(self) -> None:
         document = self.document
         root = document.metadata.component
-
+        if not root:
+            raise NoRootNodeError()
         self.graph.add_node(root)
         self.component_map[root.bom_ref] = root
         for c in document.components:
