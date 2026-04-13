@@ -30,8 +30,8 @@ class CdxPackageResolver(PackageResolver, CDXType):
 
     @classmethod
     def is_debian_pkg(cls, p: Component):
-        if str(p.purl).startswith("pkg:deb/debian/"):
-            return True
+        if p.purl:
+            return cls.is_debian_purl(p.purl)
         return False
 
     @classmethod
