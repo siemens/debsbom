@@ -6,7 +6,10 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["name", "ref"],
+    "required": [
+      "name",
+      "ref"
+    ],
     "properties": {
       "name": {
         "type": "string",
@@ -17,15 +20,24 @@
         "description": "Reference identifier for the component"
       },
       "version": {
-        "type": ["string", "null"],
+        "type": [
+          "string",
+          "null"
+        ],
         "description": "Version of the component"
       },
       "maintainer": {
-        "type": ["string", "null"],
+        "type": [
+          "string",
+          "null"
+        ],
         "description": "Maintainer of the component"
       },
       "purl": {
-        "type": ["string", "null"],
+        "type": [
+          "string",
+          "null"
+        ],
         "description": "Package URL of the component"
       }
     }
