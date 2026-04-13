@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from packageurl import PackageURL
+
 from ..dpkg.package import Package
 from ..util.checksum_spdx import checksum_dict_from_spdx
 from ..sbom import SPDXType
@@ -39,8 +41,8 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
     @classmethod
     def is_debian_pkg(cls, p: spdx_package.Package) -> bool:
         ref = cls.package_manager_ref(p)
-        if ref and ref.reference_type == "purl" and ref.locator.startswith("pkg:deb"):
-            return True
+        if ref and ref.reference_type == "purl":
+            return cls.is_debian_purl(PackageURL.from_string(ref.locator))
         return False
 
     @classmethod

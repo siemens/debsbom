@@ -6,6 +6,8 @@ from abc import abstractmethod
 from pathlib import Path
 from io import IOBase
 
+from packageurl import PackageURL
+
 from ..bomreader.bomreader import BomReader
 from ..util.sbom_processor import SbomProcessor
 from ..dpkg import package
@@ -61,6 +63,12 @@ class PackageResolver(SbomProcessor):
         """
         reader = BomReader.from_json(json_obj, bomtype)
         return cls._create_from_reader(reader)
+
+    @classmethod
+    def is_debian_purl(cls, purl: PackageURL) -> bool:
+        if purl.SCHEME == "pkg" and purl.type == "deb":
+            return True
+        return False
 
 
 class PackageStreamResolver(PackageResolver):
