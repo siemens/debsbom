@@ -6,6 +6,7 @@ import io
 from pathlib import Path
 from debian.deb822 import PkgRelation
 from debian.debian_support import Version
+from packageurl import PackageURL
 import pytest
 
 from debsbom.dpkg.package import (
@@ -17,6 +18,7 @@ from debsbom.dpkg.package import (
     DpkgStatus,
     filter_binaries,
 )
+from debsbom.resolver.resolver import PackageResolver
 from debsbom.sbom import Reference, SBOMType
 
 
@@ -203,3 +205,19 @@ def test_package_str_repr():
 
     bpkg = BinaryPackage("bar", "2.0")
     assert str(bpkg) == "bar@2.0"
+
+
+def test_package_resolver_purl():
+    deb_purls_valid = [
+        "pkg:deb/debian/foo@1.0.1?arch=source",
+        "pkg:deb/debian/foo@1.0.1?arch=binary",
+        "pkg:deb/ubuntu/foo@1.0.1?arch=source",
+    ]
+    deb_purls_invalid = [
+        "pkg:deb/debian/foo@1.0.1",
+        "pkg:generic/openssl@1.1.10g",
+    ]
+    assert all([PackageResolver.is_debian_purl(PackageURL.from_string(p)) for p in deb_purls_valid])
+    assert not any(
+        [PackageResolver.is_debian_purl(PackageURL.from_string(p)) for p in deb_purls_invalid]
+    )
