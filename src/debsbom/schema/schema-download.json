@@ -7,7 +7,11 @@
   "properties": {
     "status": {
       "description": "The status of the download operation.",
-      "enum": ["ok", "not_found", "checksum_mismatch"]
+      "enum": [
+        "ok",
+        "not_found",
+        "checksum_mismatch"
+      ]
     },
     "package": {
       "type": "object",
@@ -26,7 +30,11 @@
           "description": "The package url of the package."
         }
       },
-      "required": ["name", "version", "purl"]
+      "required": [
+        "name",
+        "version",
+        "purl"
+      ]
     },
     "filename": {
       "type": "string",
@@ -37,5 +45,8 @@
       "description": "The absolute path to the downloaded file on success."
     }
   },
-  "required": ["status", "package"]
+  "required": [
+    "status",
+    "package"
+  ]
 }
