@@ -15,6 +15,11 @@ from ..util.sbom_processor import SbomProcessor
 from ..sbom import SBOMType
 
 
+class NoRootNodeError(RuntimeError):
+    def __init__(self):
+        super().__init__("SBOM does not contain any root node")
+
+
 @dataclass
 class PackageRepr:
     """

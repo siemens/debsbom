@@ -13,7 +13,7 @@ from packageurl import PackageURL
 
 from ..resolver.spdx import SpdxPackageResolver
 from ..sbom import SPDXType
-from .walker import GraphWalker, PackageRepr
+from .walker import GraphWalker, NoRootNodeError, PackageRepr
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
             and self.component_map[node].primary_package_purpose == PackagePurpose.OPERATING_SYSTEM
         ]
         if not root_candidates:
-            raise RuntimeError("SBOM does not contain any root node")
+            raise NoRootNodeError()
         if len(root_candidates) > 1:
             logger.warning("SBOM has multiple root nodes, choose %s", root_candidates[0])
         self.root = self.component_map.get(root_candidates[0])
