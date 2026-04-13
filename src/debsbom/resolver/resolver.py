@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from abc import abstractmethod
+import logging
 from pathlib import Path
 from io import IOBase
 
@@ -12,6 +13,8 @@ from ..bomreader.bomreader import BomReader
 from ..util.sbom_processor import SbomProcessor
 from ..dpkg import package
 from ..sbom import SBOMType
+
+logger = logging.getLogger(__name__)
 
 
 class PackageResolver(SbomProcessor):
@@ -67,6 +70,11 @@ class PackageResolver(SbomProcessor):
     @classmethod
     def is_debian_purl(cls, purl: PackageURL) -> bool:
         if purl.SCHEME == "pkg" and purl.type == "deb":
+            if "arch" not in purl.qualifiers:
+                logger.warning(
+                    f'Debian package "{purl}" is ambiguous ("arch" qualifier missing). Skipping package'
+                )
+                return False
             return True
         return False
 
