@@ -82,6 +82,8 @@ runs:
     run: |
       export COVERAGE_FILE=".coverage.secscan.${{ inputs.artifact-identifier }}"
       echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --db tests/data/security-tracker.fake.json
+      export COVERAGE_FILE=".coverage.secscan.${{ inputs.artifact-identifier }}"
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --with-paths-to-root --db tests/data/security-tracker.fake.json
       export COVERAGE_FILE=".coverage.secscan.vex.${{ inputs.artifact-identifier }}"
       echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --author "Test <test@example.com>" --format vex --db tests/data/security-tracker.fake.json
       export COVERAGE_FILE=".coverage.secscan.sarif.${{ inputs.artifact-identifier }}"
