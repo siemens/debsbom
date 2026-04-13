@@ -2,17 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections.abc import Iterable
 import io
 import json
 from pathlib import Path
 
+from debian.debian_support import Version
 import jsonschema
 import pytest
 
-from debsbom.dpkg.package import BinaryPackage, Dependency, SourcePackage
-from debsbom.schema import secscan
+from debsbom.dpkg.package import BinaryPackage, Dependency, Package, SourcePackage
+
+from debsbom.schema import secscan, tracepath as schema_tracepath
 from debsbom.securityscan.scanner import CveStatus, CveUrgency, SecurityScanner
 from debsbom.securityscan.writer import ScanResultWriter
+from debsbom.tracepath.walker import GraphWalker, PackageRepr
 
 # Note, that this data is completely made up
 DB_PATH = Path("tests/data/security-tracker.fake.json")
@@ -23,6 +27,14 @@ BUGS_URL = "https://bugs.example.com"
 @pytest.fixture
 def scanner():
     return SecurityScanner(db=DB_PATH, distro="trixie")
+
+
+class GraphWalkerStub(GraphWalker):
+    def __init__(self, pkg_path: list[Package]):
+        self.pkg_path = pkg_path
+
+    def all_shortest(self, _) -> Iterable[list[PackageRepr]]:
+        return [[PackageRepr(name=p.name, ref=f"Ref-{p.name}") for p in self.pkg_path]]
 
 
 def test_scan_finds_vulnerabilities(scanner):
@@ -199,6 +211,49 @@ def test_scan_result_matches_schema(scanner):
     for line in lines:
         data = json.loads(line)
         jsonschema.validate(instance=data, schema=secscan)
+
+
+def test_scan_result_path_matches_schema(scanner):
+    """
+    Validate that JSON output (with path) of scan results conforms to the schema.
+
+    As the schema uses an external reference, we need a registry for resolving.
+    This requires a fairly new version of jsonschema with the referencing support,
+    which is not widely available across distros (it is a pure-test dependency).
+    To allow to run the testsuite against older versions as well, we disable
+    the test conditionally.
+    """
+    pytest.importorskip("referencing")
+
+    from referencing import Registry, Resource
+
+    _secscan_registry = Registry().with_resource(
+        schema_tracepath["$id"], Resource.from_contents(schema_tracepath)
+    )
+
+    src_pkg = SourcePackage(name="fake-shell", version="5.2.37-2")
+    bin_pkg = BinaryPackage(
+        name="fake-shell-bin",
+        version="5.2.37-2",
+        source=Dependency(name="fake-shell", version=("=", Version("5.2.37-2"))),
+    )
+    pkgs = [src_pkg, bin_pkg]
+    results = list(scanner.scan([src_pkg], min_urgency=CveUrgency.NOT_YET_ASSIGNED))
+    gw = GraphWalkerStub(pkgs)
+
+    buf = io.StringIO()
+    with ScanResultWriter.create(
+        "json", sdo_url=TRACKER_URL, bdo_url=BUGS_URL, graph_walker=gw, file=buf
+    ) as writer:
+        for r in results:
+            writer.write(r)
+
+    lines = buf.getvalue().strip().splitlines()
+    assert len(lines) > 0
+    validator = jsonschema.protocols.Validator(secscan, registry=_secscan_registry)
+    for line in lines:
+        data = json.loads(line)
+        validator.validate(data)
 
 
 def test_scan_result_with_tracker_matches_schema(scanner):
