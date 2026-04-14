@@ -52,7 +52,7 @@ class PackageResolver(SbomProcessor):
         return cls._create_from_reader(reader)
 
     @classmethod
-    def from_stream(cls, stream: IOBase, bomtype=SBOMType) -> "PackageResolver":
+    def from_stream(cls, stream: IOBase, bomtype: SBOMType) -> "PackageResolver":
         """
         Factory to create a PackageResolver for the given SBOM type that parses a stream.
         """
