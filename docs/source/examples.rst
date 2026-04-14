@@ -291,3 +291,37 @@ This step is very specific to the actual use-case you have. Right now the only a
 is ``standard-bom-package``, which created a directory structure and rewrites the SBOM to reference
 all source packages directly in there. If you want to see more formats you can open an issue,
 or even better, contribute it directly.
+
+Vulnerability Analysis
+~~~~~~~~~~~~~~~~~~~~~~
+
+``debsbom`` can check a Debian SBOM for known vulnerabilities based on of the
+`Debian Security Tracker <https://security-tracker.debian.org/tracker/>`_.
+Reports can be generated in various formats, including OpenVEX and SARIF.
+
+The following example demonstrates how to generate an OpenVEX report for all components in the
+SBOM. The result can be used as input to other vulnerability analysis tooling that is not
+capable of correctly handling components with patch versions.
+
+.. code-block:: bash
+
+    debsbom sec-scan \
+        --update-db \
+        --author "Test <test@example.com>" \
+        --format vex \
+        sbom.cdx.json \
+    > result.vex
+
+When scanning SBOMs of existing products, it is often necessary to evaluate the impact of a
+vulnerability in the context of the overall system. For example, a vulnerability in a
+component may not be exploitable because the vulnerable code path is not in use. To identify
+who can make this assessment, you can emit the path from the vulnerable component to
+the root component (similar to ``debsbom trace-path``) on a per-vulnerability basis:
+
+.. code-block:: bash
+
+    debsbom sec-scan \
+        --format json \
+        --with-paths-to-root \
+        sbom.cdx.json \
+    | jq | less
