@@ -73,7 +73,10 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
         def convert(spdx_id):
             c = self.component_map.get(spdx_id)
             p = PackageRepr(
-                name=c.name, ref=spdx_id, maintainer=SpdxPackageResolver.get_maintainer(c)
+                name=c.name,
+                ref=spdx_id,
+                maintainer=SpdxPackageResolver.get_maintainer(c),
+                version=c.version,
             )
             if SpdxPackageResolver.is_debian_pkg(c):
                 _p = SpdxPackageResolver.create_package(c)

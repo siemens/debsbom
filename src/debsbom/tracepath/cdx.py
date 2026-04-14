@@ -49,7 +49,10 @@ class CdxGraphWalker(GraphWalker, CDXType):
         def convert(bom_ref):
             c = self.component_map.get(bom_ref)
             p = PackageRepr(
-                name=c.name, ref=str(bom_ref), maintainer=CdxPackageResolver.get_maintainer(c)
+                name=c.name,
+                ref=str(bom_ref),
+                maintainer=CdxPackageResolver.get_maintainer(c),
+                version=c.version,
             )
             if CdxPackageResolver.is_debian_pkg(c):
                 _p = CdxPackageResolver.create_package(c)
