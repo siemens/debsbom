@@ -105,7 +105,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         parser.add_argument(
             "--author",
             type=str,
-            help="author of the document (vex only)",
+            help="author of the document (-f vex only)",
         )
         arg_mark_as_dir(
             parser.add_argument(
