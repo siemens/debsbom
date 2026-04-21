@@ -116,7 +116,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             )
         )
         parser.add_argument(
-            "--distro", default="trixie", help="Debian distribution to check (%(default)s)"
+            "--distro", default="trixie", help="Debian distribution to check (default: %(default)s)"
         )
         parser.add_argument(
             "--update-db",
