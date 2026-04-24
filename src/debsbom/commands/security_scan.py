@@ -80,6 +80,13 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             resolver = cls.get_pkgstream_resolver()
         input_filename = Path(args.bomin) if args.bomin not in [None, "-"] else None
 
+        if args.product:
+            product = args.product
+        elif args.default_product == "distribution":
+            product = resolver.root_component_name()
+        else:
+            product = None
+
         pkgs = list(resolver)
         scanner = SecurityScanner(db_path, distro=args.distro)
         vulns_it = scanner.scan(
@@ -93,6 +100,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             input_filename=input_filename,
             packages=pkgs,
             graph_walker=graph_walker,
+            product=product,
         ) as f:
             for v in vulns_it:
                 f.write(v)
@@ -106,6 +114,17 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
             "--author",
             type=str,
             help="author of the document (-f vex only)",
+        )
+        parser.add_argument(
+            "--default-product",
+            choices=["component", "distribution"],
+            default="component",
+            help="controls whether the component or distribution is used as the product in VEX statements (-f vex only, default: %(default)s)",
+        )
+        parser.add_argument(
+            "--product",
+            type=str,
+            help="product to use in VEX statements, overwrites the behavior of --default-product (-f vex only)",
         )
         arg_mark_as_dir(
             parser.add_argument(

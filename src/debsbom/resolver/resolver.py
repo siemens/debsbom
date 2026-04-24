@@ -28,6 +28,11 @@ class PackageResolver(SbomProcessor):
         return self
 
     @abstractmethod
+    def root_component_name(self) -> str | None:
+        """Return the name of the root component."""
+        raise NotImplementedError()
+
+    @abstractmethod
     def __next__(self) -> package.Package:
         """Return next package"""
         raise NotImplementedError()

@@ -44,6 +44,7 @@ class ScanResultWriter:
         graph_walker: GraphWalker | None = None,
         author: str | None = None,
         input_filename: Path | None = None,
+        product: str | None = None,
         file=sys.stdout,
     ) -> "ScanResultWriter":
         match format.lower():
@@ -73,6 +74,7 @@ class ScanResultWriter:
                     sdo_url=sdo_url,
                     bdo_url=bdo_url,
                     author=author,
+                    product=product,
                     file=file,
                 )
             case _:
@@ -264,7 +266,7 @@ class ScanResultSarifWriter(ScanResultWriter):
 
 
 class ScanResultVexWriter(ScanResultWriter):
-    def __init__(self, author, **args):
+    def __init__(self, author, product, **args):
         super().__init__(**args)
         sde = os.environ.get("SOURCE_DATE_EPOCH")
         if sde:
@@ -274,6 +276,7 @@ class ScanResultVexWriter(ScanResultWriter):
         if not author:
             raise RuntimeError("No author information provided (needed for VEX)")
         self.author = author
+        self.product = product
         self.frame = self._create_skeleton()
 
     def close(self) -> None:
@@ -281,7 +284,7 @@ class ScanResultVexWriter(ScanResultWriter):
         self.out.write("\n")
 
     def _create_skeleton(self) -> dict:
-        return {
+        frame = {
             "@context": VEX_CONTEXT,
             "@id": VEX_SCHEMA_ID,
             "author": self.author,
@@ -290,6 +293,9 @@ class ScanResultVexWriter(ScanResultWriter):
             "tooling": "debsbom {}".format(version("debsbom")),
             "statements": [],
         }
+        if self.product:
+            frame["product"] = {"@id": self.product}
+        return frame
 
     def _vuln_to_vex(self, r: ScanResultItem) -> dict:
         def _get_status(v: CveEntry, affected):
@@ -303,42 +309,48 @@ class ScanResultVexWriter(ScanResultWriter):
         v = r.vulnerability
         status = _get_status(v, r.affected)
         purl = str(r.package.purl())
-        product = {
-            "@id": purl,
-            "identifiers": {
-                "purl": purl,
-            },
-        }
-        if r.package.checksums:
-            product["hashes"] = {
-                _CHECKSUM_TO_VEX_HASH[algo.name]: value
-                for algo, value in r.package.checksums.items()
-                if algo.name in _CHECKSUM_TO_VEX_HASH
-            }
-        products = [product]
-        for bin_pkg in self.affected_binaries(r.package):
-            bin_purl = str(bin_pkg.purl())
-            bin_product = {
-                "@id": bin_purl,
+        if not self.product:
+            # if we have a product we do not need to emit information per component
+            product = {
+                "@id": purl,
                 "identifiers": {
-                    "purl": bin_purl,
+                    "purl": purl,
                 },
             }
-            if bin_pkg.checksums:
-                bin_product["hashes"] = {
+            if r.package.checksums:
+                product["hashes"] = {
                     _CHECKSUM_TO_VEX_HASH[algo.name]: value
-                    for algo, value in bin_pkg.checksums.items()
+                    for algo, value in r.package.checksums.items()
                     if algo.name in _CHECKSUM_TO_VEX_HASH
                 }
-            products.append(bin_product)
+            products = [product]
+            for bin_pkg in self.affected_binaries(r.package):
+                bin_purl = str(bin_pkg.purl())
+                bin_product = {
+                    "@id": bin_purl,
+                    "identifiers": {
+                        "purl": bin_purl,
+                    },
+                }
+
+                if bin_pkg.checksums:
+                    bin_product["hashes"] = {
+                        _CHECKSUM_TO_VEX_HASH[algo.name]: value
+                        for algo, value in bin_pkg.checksums.items()
+                        if algo.name in _CHECKSUM_TO_VEX_HASH
+                    }
+                products.append(bin_product)
+
         vex = {
             "vulnerability": {
                 "@id": f"{self.sdo_url}/{v.cve}",
                 "name": v.cve,
             },
-            "products": products,
             "status": status,
         }
+        if not self.product:
+            vex["products"] = products
+
         if v.description:
             vex["vulnerability"]["description"] = v.description
         if status == "not_affected":

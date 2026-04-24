@@ -66,6 +66,23 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
                     Dependency(pkg_other.name, version=("=", pkg_other.version))
                 )
 
+    def root_component_name(self) -> str | None:
+        """Return the name of the root component if one could be determined."""
+        root_id = None
+        for relationship in self._document.relationships:
+            if (
+                relationship.spdx_element_id == "SPDXRef-DOCUMENT"
+                and relationship.relationship_type == RelationshipType.DESCRIBES
+            ):
+                root_id = relationship.related_spdx_element_id
+
+        if not root_id:
+            return None
+
+        for package in self._document.packages:
+            if package.spdx_id == root_id:
+                return package.name
+
     @classmethod
     def package_manager_ref(cls, p: spdx_package.Package) -> spdx_package.ExternalPackageRef | None:
         cat_pkg_manager = spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER
