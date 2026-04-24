@@ -80,6 +80,13 @@ class CdxPackageResolver(PackageResolver, CDXType):
                         Dependency(pkg_other.name, version=("=", pkg_other.version))
                     )
 
+    def root_component_name(self) -> str | None:
+        """Return the name of the root component."""
+        try:
+            return self._document.metadata.component.name
+        except AttributeError:
+            return None
+
     @classmethod
     def is_debian_pkg(cls, p: Component):
         if p.purl:
