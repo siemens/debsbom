@@ -342,7 +342,7 @@ def test_vex_output_includes_binary_products(scanner, vex_schema):
     assert len(products) == 3
 
 
-def test_vex_output_no_binary_map(scanner):
+def test_vex_output_no_binary_map(scanner, vex_schema):
     """VEX output without source_binary_map still works (only source product)."""
     src = SourcePackage(name="fake-crypto", version="3.4.0-1")
     results = list(scanner.scan([src], min_urgency=CveUrgency.HIGH))
@@ -355,6 +355,7 @@ def test_vex_output_no_binary_map(scanner):
             writer.write(r)
 
     data = json.loads(buf.getvalue())
+    jsonschema.validate(instance=data, schema=vex_schema)
     products = data["statements"][0]["products"]
     assert len(products) == 1
     assert products[0]["identifiers"]["purl"] == str(src.purl())
