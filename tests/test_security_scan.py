@@ -379,5 +379,7 @@ def test_vex_with_product(scanner):
             writer.write(r)
 
     data = json.loads(buf.getvalue())
-    assert data["statements"][0].get("products") is None
-    assert data["product"]["@id"] == "Product"
+    statement = data["statements"][0]
+    product = statement["products"][0]
+    assert product["@id"] == "Product"
+    assert "deb/debian/fake-crypto" in product["subcomponents"][0]["@id"]
