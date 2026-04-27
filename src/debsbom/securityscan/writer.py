@@ -284,7 +284,7 @@ class ScanResultVexWriter(ScanResultWriter):
         self.out.write("\n")
 
     def _create_skeleton(self) -> dict:
-        frame = {
+        return {
             "@context": VEX_CONTEXT,
             "@id": VEX_SCHEMA_ID,
             "author": self.author,
@@ -293,9 +293,6 @@ class ScanResultVexWriter(ScanResultWriter):
             "tooling": "debsbom {}".format(version("debsbom")),
             "statements": [],
         }
-        if self.product:
-            frame["product"] = {"@id": self.product}
-        return frame
 
     def _vuln_to_vex(self, r: ScanResultItem) -> dict:
         def _get_status(v: CveEntry, affected):
@@ -309,37 +306,35 @@ class ScanResultVexWriter(ScanResultWriter):
         v = r.vulnerability
         status = _get_status(v, r.affected)
         purl = str(r.package.purl())
-        if not self.product:
-            # if we have a product we do not need to emit information per component
-            product = {
-                "@id": purl,
+        component = {
+            "@id": purl,
+            "identifiers": {
+                "purl": purl,
+            },
+        }
+        if r.package.checksums:
+            component["hashes"] = {
+                _CHECKSUM_TO_VEX_HASH[algo.name]: value
+                for algo, value in r.package.checksums.items()
+                if algo.name in _CHECKSUM_TO_VEX_HASH
+            }
+        components = [component]
+        for bin_pkg in self.affected_binaries(r.package):
+            bin_purl = str(bin_pkg.purl())
+            bin_comp = {
+                "@id": bin_purl,
                 "identifiers": {
-                    "purl": purl,
+                    "purl": bin_purl,
                 },
             }
-            if r.package.checksums:
-                product["hashes"] = {
+
+            if bin_pkg.checksums:
+                bin_comp["hashes"] = {
                     _CHECKSUM_TO_VEX_HASH[algo.name]: value
-                    for algo, value in r.package.checksums.items()
+                    for algo, value in bin_pkg.checksums.items()
                     if algo.name in _CHECKSUM_TO_VEX_HASH
                 }
-            products = [product]
-            for bin_pkg in self.affected_binaries(r.package):
-                bin_purl = str(bin_pkg.purl())
-                bin_product = {
-                    "@id": bin_purl,
-                    "identifiers": {
-                        "purl": bin_purl,
-                    },
-                }
-
-                if bin_pkg.checksums:
-                    bin_product["hashes"] = {
-                        _CHECKSUM_TO_VEX_HASH[algo.name]: value
-                        for algo, value in bin_pkg.checksums.items()
-                        if algo.name in _CHECKSUM_TO_VEX_HASH
-                    }
-                products.append(bin_product)
+            components.append(bin_comp)
 
         vex = {
             "vulnerability": {
@@ -348,8 +343,15 @@ class ScanResultVexWriter(ScanResultWriter):
             },
             "status": status,
         }
-        if not self.product:
-            vex["products"] = products
+        if self.product:
+            vex["products"] = [
+                {
+                    "@id": self.product,
+                    "subcomponents": components,
+                }
+            ]
+        else:
+            vex["products"] = components
 
         if v.description:
             vex["vulnerability"]["description"] = v.description
