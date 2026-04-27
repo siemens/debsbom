@@ -361,7 +361,7 @@ def test_vex_output_no_binary_map(scanner, vex_schema):
     assert products[0]["identifiers"]["purl"] == str(src.purl())
 
 
-def test_vex_with_product(scanner):
+def test_vex_with_product(scanner, vex_schema):
     """VEX output with automatically derived product."""
     src = SourcePackage(name="fake-crypto", version="3.4.0-1")
     results = list(scanner.scan([src], min_urgency=CveUrgency.HIGH))
@@ -379,6 +379,8 @@ def test_vex_with_product(scanner):
             writer.write(r)
 
     data = json.loads(buf.getvalue())
+    jsonschema.validate(instance=data, schema=vex_schema)
+
     statement = data["statements"][0]
     product = statement["products"][0]
     assert product["@id"] == "Product"
