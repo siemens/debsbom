@@ -29,6 +29,12 @@ def scanner():
     return SecurityScanner(db=DB_PATH, distro="trixie")
 
 
+@pytest.fixture(scope="module")
+def vex_schema():
+    with open("tests/data/openvex_json_schema_0.2.0.json") as f:
+        return json.load(f)
+
+
 class GraphWalkerStub(GraphWalker):
     def __init__(self, pkg_path: list[Package]):
         self.pkg_path = pkg_path
@@ -273,11 +279,8 @@ def test_scan_result_with_tracker_matches_schema(scanner):
     assert data["vulnerability"]["tracker"] == f"{TRACKER_URL}/CVE-0000-1001"
 
 
-def test_vex_output_matches_schema(scanner):
+def test_vex_output_matches_schema(scanner, vex_schema):
     """Validate that VEX output conforms to the OpenVEX JSON schema."""
-    with open("tests/data/openvex_json_schema_0.2.0.json") as f:
-        vex_schema = json.load(f)
-
     pkgs = [
         SourcePackage(name="fake-shell", version="5.2.37-2"),
         SourcePackage(name="fake-crypto", version="3.4.0-1"),
@@ -297,11 +300,8 @@ def test_vex_output_matches_schema(scanner):
     assert len(data["statements"]) == len(results)
 
 
-def test_vex_output_includes_binary_products(scanner):
+def test_vex_output_includes_binary_products(scanner, vex_schema):
     """VEX products include binary packages mapped to the affected source package."""
-    with open("tests/data/openvex_json_schema_0.2.0.json") as f:
-        vex_schema = json.load(f)
-
     src = SourcePackage(name="fake-crypto", version="3.4.0-1")
     pkgs = [src]
     results = list(scanner.scan(pkgs, min_urgency=CveUrgency.HIGH))
