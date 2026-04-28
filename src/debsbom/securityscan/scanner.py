@@ -52,6 +52,7 @@ class CveEntry:
     status: CveStatus
     fixed_version: str | None
     urgency: CveUrgency
+    nodsa: str | None
 
 
 @dataclass
@@ -81,6 +82,7 @@ class CveTriage:
                 status=CveStatus.from_string(v_distr["status"]),
                 fixed_version=v_distr.get("fixed_version"),
                 urgency=CveUrgency.from_string(v_distr.get("urgency")),
+                nodsa=v_distr.get("nodsa"),
             )
 
     @staticmethod
