@@ -66,6 +66,12 @@
           ],
           "format": "uri",
           "description": "URL to the debian bug tracker entry"
+        },
+        "nodsa": {
+          "type": [
+            "string"
+          ],
+          "description": "Reason why no DSA is issued"
         }
       },
       "additionalProperties": false
