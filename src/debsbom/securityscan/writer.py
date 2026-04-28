@@ -158,6 +158,8 @@ class ScanResultJsonWriter(ScanResultWriter):
         if v.debianbug:
             data["vulnerability"]["debianbug"] = v.debianbug
             data["vulnerability"]["bugreport"] = f"{self.bdo_url}?bug={v.debianbug}"
+        if v.nodsa:
+            data["vulnerability"]["nodsa"] = v.nodsa
         if self.graph_walker:
             allShortest = self.graph_walker.all_shortest(r.package.purl())
             data["pathsToRoot"] = {
@@ -364,6 +366,8 @@ class ScanResultVexWriter(ScanResultWriter):
         if status == "affected":
             if v.status == CveStatus.RESOLVED:
                 vex["action_statement"] = f"update package to {v.fixed_version}"
+            elif v.nodsa:
+                vex["action_statement"] = f"assess relevance (no DSA: {v.nodsa})"
             else:
                 vex["action_statement"] = "apply inline mitigations"
         return vex
