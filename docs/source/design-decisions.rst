@@ -75,8 +75,8 @@ The following table shows how fields in a Debian binary package are mapped to fi
 .. [#source] When a ``Source`` is specified it gets a separate entry in the SBOM and the dependency is added
 .. [#provides] Provided packages are considered in the dependency resolution
 .. [#depends] When a ``Dependency`` is specified a dependency is created for the related packages
-.. [#recommends] Recommended packages are treated as normal dependencies, see :ref:`recommended-suggested-deps` for details
-.. [#suggests] Suggested packages are treated as normal dependencies, see :ref:`recommended-suggested-deps` for details
+.. [#recommends] Recommended packages are treated as normal dependencies, see `Relationships of Recommended and Suggested Packages`_ for details
+.. [#suggests] Suggested packages are treated as normal dependencies, see `Relationships of Recommended and Suggested Packages`_ for details
 .. [#pre_depends] ``Pre-Depends`` dependencies are treated exactly the same as ``Depends`` dependencies, i.e. simply appended to them
 .. [#description] The synopsis (first line) is the ``summary``, the rest goes into the ``description``
 .. [#built_using_spdx] Any ``Built-Using`` dependency gets a separate entry and the ``GENERATED_FROM`` relationship is used
@@ -132,8 +132,6 @@ For SPDX refer to the following table:
     ``Built-Using``, ``relationshipType = "GENERATED FROM`` and ``comment = built-using`` [#built_using_relationship]_
 
 .. [#built_using_relationship] The subject and object of the relationship are reversed compared to the source dependency
-
-.. _recommended-suggested-deps:
 
 Relationships of Recommended and Suggested Packages
 ---------------------------------------------------
