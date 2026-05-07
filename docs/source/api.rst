@@ -16,11 +16,28 @@ Package Representations
 .. automodule:: debsbom.dpkg.package
    :members:
 
+BOM Processing
+--------------
+
+.. automodule:: debsbom.bomreader.bomreader
+   :members:
+
+.. automodule:: debsbom.bomwriter.bomwriter
+   :members:
+
+.. automodule:: debsbom.resolver.resolver
+   :members:
+
 APT Cache Retrieval
 -------------------
 
 .. automodule:: debsbom.apt.cache
    :members:
+
+.. automodule:: debsbom.apt.copyright
+   :members:
+
+.. _package-resolving-label:
 
 Package Downloader
 ------------------
@@ -28,12 +45,10 @@ Package Downloader
 .. automodule:: debsbom.download.download
    :members:
 
-.. _package-resolving-label:
-
-Package Resolving
------------------
-
 .. automodule:: debsbom.download.resolver
+   :members:
+
+.. automodule:: debsbom.download.plugin
    :members:
 
 Artifact Repacking
@@ -43,6 +58,7 @@ Artifact Repacking
    :members:
 
 .. automodule:: debsbom.repack.merger
+   :members:
 
 Graph Exporting
 ---------------
@@ -51,6 +67,21 @@ Graph Exporting
    :members:
 
 .. automodule:: debsbom.export.graphml
+   :members:
+
+Dependency Trace Paths
+----------------------
+
+.. automodule:: debsbom.tracepath.walker
+   :members:
+
+Security Scanning
+-----------------
+
+.. automodule:: debsbom.securityscan.scanner
+   :members:
+
+.. automodule:: debsbom.securityscan.writer
    :members:
 
 Debian Snapshot Client
