@@ -1,0 +1,17 @@
+Package: debcargo
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 20732
+Maintainer: Debian Rust Maintainers <pkg-rust-maintainers@alioth-lists.debian.net>
+Architecture: amd64
+Source: rust-debcargo
+Version: 2.7.8-4
+Description: Create a Debian package from a Cargo crate
+ This package contains the following binaries built from the Rust crate
+ "debcargo":
+  - debcargo
+Built-Using: rust-ahash (= 0.8.11-9), rustc (= 1.85.0+dfsg3-1)
+Static-Built-Using: rust-adler (= 1.0.2-2), rust-ahash (= 0.8.11-9), rust-aho-corasick (= 1.1.3-1), rustc (= 1.85.0+dfsg3-1)
+Homepage: https://salsa.debian.org/rust-team/debcargo
+
