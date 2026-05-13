@@ -667,3 +667,65 @@ def test_suggested_recommended(tmpdir, sbom_generator):
             ],
             "ref": "pkg:deb/debian/test-pkg@1.0.0-1?arch=amd64",
         } in dependencies
+
+
+def test_built_using(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/built-using")
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        relationships = spdx_json["relationships"]
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rust-ahash-0.8.11-9-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "built-using",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rustc-1.85.0.dfsg3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "built-using",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rust-adler-1.0.2-2-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "static-built-using",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rust-ahash-0.8.11-9-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "static-built-using",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rust-aho-corasick-1.1.3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "static-built-using",
+        } in relationships
+        assert {
+            "spdxElementId": "SPDXRef-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-rustc-1.85.0.dfsg3-1-srcpkg",
+            "relationshipType": "GENERATED_FROM",
+            "comment": "static-built-using",
+        } in relationships
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        dependencies = cdx_json["dependencies"]
+        assert {
+            "dependsOn": [
+                "pkg:deb/debian/rust-adler@1.0.2-2?arch=source",
+                "pkg:deb/debian/rust-ahash@0.8.11-9?arch=source",
+                "pkg:deb/debian/rust-aho-corasick@1.1.3-1?arch=source",
+                "pkg:deb/debian/rust-debcargo@2.7.8-4?arch=source",
+                "pkg:deb/debian/rustc@1.85.0%2Bdfsg3-1?arch=source",
+            ],
+            "ref": "pkg:deb/debian/debcargo@2.7.8-4?arch=amd64",
+        } in dependencies
