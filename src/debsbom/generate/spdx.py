@@ -370,6 +370,17 @@ def spdx_bom(
                 logger.debug(f"Created built-using relationship: {relationship}")
                 relationships.append(relationship)
 
+        for dep in package.static_built_using:
+            bu_dep = Reference.make_from_dep(dep)
+            relationship = spdx_relationship.Relationship(
+                spdx_element_id=reference.as_str(SBOMType.SPDX),
+                relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
+                related_spdx_element_id=bu_dep.as_str(SBOMType.SPDX),
+                comment="static-built-using",
+            )
+            logger.debug(f"Created static-built-using relationship: {relationship}")
+            relationships.append(relationship)
+
         if package.source:
             sref = Reference.make_from_dep(package.source)
             relationship = spdx_relationship.Relationship(

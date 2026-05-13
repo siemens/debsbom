@@ -278,6 +278,7 @@ def cyclonedx_bom(
         if package.source:
             pkg_deps.append(package.source)
         pkg_deps.extend(package.built_using)
+        pkg_deps.extend(package.static_built_using)
 
         deps = SortedSet([])
         for dep in pkg_deps:
