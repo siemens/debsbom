@@ -395,6 +395,9 @@ class Package(ABC):
             # a more complete source package we discovered via other mechanisms (e.g. apt cache).
             logger.debug(f"Found built-using source package: '{bu.name}@{bu.version[1]}'")
             yield SourcePackage(bu.name, bu.version[1])
+        for sbu in pkg.static_built_using:
+            logger.debug(f"Found static-built-using source package: '{sbu.name}@{sbu.version[1]}'")
+            yield SourcePackage(sbu.name, sbu.version[1])
         if add_pkg:
             yield pkg
 
@@ -579,6 +582,7 @@ class BinaryPackage(Package):
     recommends: list[Dependency]
     suggests: list[Dependency]
     built_using: list[Dependency]
+    static_built_using: list[Dependency]
     description: str | None
     essential: bool
     priority: DebianPriority | None
@@ -600,6 +604,7 @@ class BinaryPackage(Package):
         recommends: list[Dependency] | None = None,
         suggests: list[Dependency] | None = None,
         built_using: list[Dependency] | None = None,
+        static_built_using: list[Dependency] | None = None,
         description: str | None = None,
         essential: bool = False,
         priority: DebianPriority | None = None,
@@ -620,6 +625,7 @@ class BinaryPackage(Package):
         self.recommends = recommends or []
         self.suggests = suggests or []
         self.built_using = built_using or []
+        self.static_built_using = static_built_using or []
         self.description = description
         self.essential = essential
         self.priority = priority
@@ -738,6 +744,12 @@ class BinaryPackage(Package):
         built_using.extend(x for x in other.built_using if x not in built_using)
         self.built_using = built_using
 
+        static_built_using = list(self.static_built_using)
+        static_built_using.extend(
+            x for x in other.static_built_using if x not in static_built_using
+        )
+        self.static_built_using = static_built_using
+
     @property
     def locator(self) -> str:
         """Return the name (and path if available) of the .deb file"""
@@ -813,9 +825,21 @@ class BinaryPackage(Package):
         suggests = package.relations["suggests"] or []
         suggests = Dependency.from_pkg_relations(suggests)
 
-        # static dependencies
-        s_built_using = package.relations["built-using"] or []
-        sdepends = Dependency.from_pkg_relations(s_built_using, is_source=True)
+        # Built-Using relationships are primarily used for license purposes
+        built_using = package.relations["built-using"] or []
+        budepends = Dependency.from_pkg_relations(built_using, is_source=True)
+
+        # statically linked dependencies are modeled with Static-Built-Using
+        #
+        # unlike all other relationships this is not yet included in the relations field as
+        # of python-debian 1.1.0 so we have to parse it by hand
+        s_built_using = package.get("Static-Built-Using")
+        if s_built_using:
+            sbudepends = Dependency.from_pkg_relations(
+                PkgRelation.parse_relations(s_built_using), is_source=True
+            )
+        else:
+            sbudepends = []
 
         status_raw = package.get("Status")
         if status_raw:
@@ -845,7 +869,8 @@ class BinaryPackage(Package):
             provides=provides,
             recommends=recommends,
             suggests=suggests,
-            built_using=sdepends,
+            built_using=budepends,
+            static_built_using=sbudepends,
             description=cls._cleanup_description(package.get("Description")),
             essential=package.get("Essential") == "yes",
             priority=priority,
