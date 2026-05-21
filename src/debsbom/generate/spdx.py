@@ -358,17 +358,16 @@ def spdx_bom(
                 )
             )
 
-        if package.built_using:
-            for dep in package.built_using:
-                bu_dep = Reference.make_from_dep(dep)
-                relationship = spdx_relationship.Relationship(
-                    spdx_element_id=reference.as_str(SBOMType.SPDX),
-                    relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
-                    related_spdx_element_id=bu_dep.as_str(SBOMType.SPDX),
-                    comment="built-using",
-                )
-                logger.debug(f"Created built-using relationship: {relationship}")
-                relationships.append(relationship)
+        for dep in package.built_using:
+            bu_dep = Reference.make_from_dep(dep)
+            relationship = spdx_relationship.Relationship(
+                spdx_element_id=reference.as_str(SBOMType.SPDX),
+                relationship_type=spdx_relationship.RelationshipType.GENERATED_FROM,
+                related_spdx_element_id=bu_dep.as_str(SBOMType.SPDX),
+                comment="built-using",
+            )
+            logger.debug(f"Created built-using relationship: {relationship}")
+            relationships.append(relationship)
 
         for dep in package.static_built_using:
             bu_dep = Reference.make_from_dep(dep)
