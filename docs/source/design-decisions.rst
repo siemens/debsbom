@@ -63,6 +63,7 @@ The following table shows how fields in a Debian binary package are mapped to fi
     ``Suggests``, [#suggests]_, [#suggests]_
     ``Description``, ``summary`` and ``description`` [#description]_,  ``description``
     ``Built-Using``, [#built_using_spdx]_, [#built_using_cdx]_
+    ``Static-Built-Using``, [#built_using_spdx]_, [#built_using_cdx]_
     ``Homepage``, ``homepage``, ``externalReferences.type`` = ``website``
     ``Description-md5``, \-, \-
     ``SHA256``, ``checksums``, ``hashes``
@@ -80,8 +81,8 @@ The following table shows how fields in a Debian binary package are mapped to fi
 .. [#suggests] Suggested packages are treated as normal dependencies, see `Relationships of Recommended and Suggested Packages`_ for details
 .. [#pre_depends] ``Pre-Depends`` dependencies are treated exactly the same as ``Depends`` dependencies, i.e. simply appended to them
 .. [#description] The synopsis (first line) is the ``summary``, the rest goes into the ``description``
-.. [#built_using_spdx] Any ``Built-Using`` dependency gets a separate entry and the ``GENERATED_FROM`` relationship is used
-.. [#built_using_cdx] Any ``Built-Using`` dependency gets a separate entry and the dependency is added
+.. [#built_using_spdx] Any ``Built-Using`` or ``Static-Built-Using`` dependency gets a separate entry and the ``GENERATED_FROM`` relationship is used
+.. [#built_using_cdx] Any ``Built-Using`` or ``Static-Built-Using`` dependency gets a separate entry and the dependency is added
 
 Mapping of Debian Source Packages to SBOM Packages/Components
 -------------------------------------------------------------
