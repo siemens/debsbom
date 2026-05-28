@@ -724,31 +724,23 @@ class BinaryPackage(Package):
             # this indicates an internal error
             logger.warning(f"package statuses are inconsistent: {self.status} != {other.status}")
 
-        depends = list(self.depends)
-        depends.extend(x for x in other.depends if x not in depends)
-        self.depends = depends
+        def _merge_lists(list1: list, list2: list) -> list:
+            list1.extend(x for x in list2 if x not in list1)
+            return list1
 
-        pre_depends = list(self.pre_depends)
-        pre_depends.extend(x for x in other.pre_depends if x not in pre_depends)
-        self.pre_depends = pre_depends
+        self.depends = _merge_lists(list(self.depends), other.depends)
 
-        recommends = list(self.recommends)
-        recommends.extend(x for x in other.recommends if x not in recommends)
-        self.recommends = recommends
+        self.pre_depends = _merge_lists(list(self.pre_depends), other.pre_depends)
 
-        suggests = list(self.suggests)
-        suggests.extend(x for x in other.suggests if x not in suggests)
-        self.suggests = suggests
+        self.recommends = _merge_lists(list(self.recommends), other.recommends)
 
-        built_using = list(self.built_using)
-        built_using.extend(x for x in other.built_using if x not in built_using)
-        self.built_using = built_using
+        self.suggests = _merge_lists(list(self.suggests), other.suggests)
 
-        static_built_using = list(self.static_built_using)
-        static_built_using.extend(
-            x for x in other.static_built_using if x not in static_built_using
+        self.built_using = _merge_lists(list(self.built_using), other.built_using)
+
+        self.static_built_using = _merge_lists(
+            list(self.static_built_using), other.static_built_using
         )
-        self.static_built_using = static_built_using
 
     @property
     def locator(self) -> str:
