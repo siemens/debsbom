@@ -74,7 +74,12 @@ class PackageResolver(SbomProcessor):
 
     @classmethod
     def is_debian_purl(cls, purl: PackageURL) -> bool:
-        if purl.SCHEME == "pkg" and purl.type == "deb":
+        try:
+            scheme_type_ok = purl.SCHEME == "pkg" and purl.type == "deb"
+        except AttributeError:
+            # for packageurl version <=0.17.0 PackageURL.SCHEME is not available
+            scheme_type_ok = str(purl).startswith("pkg:deb/")
+        if scheme_type_ok:
             if "arch" not in purl.qualifiers:
                 logger.warning(
                     f'Debian package "{purl}" is ambiguous ("arch" qualifier missing). Skipping package'
