@@ -34,7 +34,7 @@ Repository = "https://github.com/siemens/debsbom.git"
 
 [project.optional-dependencies]
 dev = [
-  "pytest-cov>=6",
+  "pytest-cov>=5",
   "black",
   "shtab",
   "debsbom[mindev]",
