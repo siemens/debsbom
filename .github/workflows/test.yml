@@ -64,6 +64,18 @@ jobs:
         with:
           artifact-identifier: "python-apt"
 
+  test-debian-trixie-compat:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install dependencies as found in Debian trixie
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-trixie.txt
+      - uses: ./.github/actions/pytest
+        with:
+          artifact-identifier: "debian-trixie-compat"
+
   coverage:
     name: Check coverage
     needs: test
