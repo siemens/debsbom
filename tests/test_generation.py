@@ -321,8 +321,13 @@ compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
 
 @pytest.mark.parametrize("tool", compressions)
 def test_apt_lists_compression(tmpdir, sbom_generator, tool):
+    import shutil
+
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")
+
+    if shutil.which(tool) is None:
+        pytest.skip(f"{tool} utility is not installed")
 
     comp = Compression.from_tool(tool)
 
