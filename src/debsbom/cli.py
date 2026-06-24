@@ -38,10 +38,10 @@ except ModuleNotFoundError as e:
 try:
     import networkx
 
-    HAS_TRACEPATH_DEPS = True
+    HAS_NETWORKX_DEPS = True
 except ModuleNotFoundError as e:
-    HAS_TRACEPATH_DEPS = False
-    MISSING_MODULE_TRACEPATH = e
+    HAS_NETWORKX_DEPS = False
+    MISSING_MODULE_NETWORKX = e
 
 try:
     import shtab
@@ -150,10 +150,10 @@ def main():
         elif args.cmd == "delta":
             DeltaCmd.run(args)
         elif args.cmd == "trace-path":
-            if HAS_TRACEPATH_DEPS:
+            if HAS_NETWORKX_DEPS:
                 TracePathCmd.run(args)
             else:
-                raise RuntimeError(f"{MISSING_MODULE_TRACEPATH}. {args.cmd} not available")
+                raise RuntimeError(f"{MISSING_MODULE_NETWORKX}. {args.cmd} not available")
         elif args.cmd == "filter":
             FilterCmd.run(args)
         elif args.cmd == "sec-scan":

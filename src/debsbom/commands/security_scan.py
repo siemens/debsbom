@@ -21,10 +21,10 @@ except ModuleNotFoundError:
 try:
     from ..tracepath.walker import GraphWalker
 
-    HAS_TRACEPATH_DEPS = True
+    HAS_NETWORKX_DEPS = True
 except ModuleNotFoundError as e:
-    HAS_TRACEPATH_DEPS = False
-    MISSING_MODULE_TRACEPATH = e
+    HAS_NETWORKX_DEPS = False
+    MISSING_MODULE_NETWORKX = e
 
 
 DEBIAN_BUGTRACKER_URL = "https://bugs.debian.org/cgi-bin/bugreport.cgi"
@@ -70,9 +70,9 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         if cls.has_bomin(args):
             resolver = cls.get_sbom_resolvers(args)[0]
             if args.with_paths_to_root:
-                if not HAS_TRACEPATH_DEPS:
+                if not HAS_NETWORKX_DEPS:
                     raise RuntimeError(
-                        f"{MISSING_MODULE_TRACEPATH}, required for --with-paths-to-root"
+                        f"{MISSING_MODULE_NETWORKX}, required for --with-paths-to-root"
                     )
 
                 graph_walker = GraphWalker.from_document(resolver.document, resolver.sbom_type())
