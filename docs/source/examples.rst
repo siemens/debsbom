@@ -62,6 +62,9 @@ chroot and want to create the sbom just from the data in the file.
 
     cat path/to/dpkg/status | debsbom generate --from-pkglist
 
+Please mind that only packages that are passed via the package list are included in the resulting SBOM. This leaves out any dependencies
+that you might expect to see for a package. If you want to have these included you also need to explicitly pass them in the package list.
+
 Download
 ~~~~~~~~
 
