@@ -23,9 +23,10 @@ def test_spdx_filter_sources(tmpdir):
 
     from debsbom.resolver import PackageResolver
     from debsbom.commands.input import SourceBinaryInput
+    from debsbom.filter.spdx import SpdxSbomFilter
 
     resolver = PackageResolver.create(Path("tests/data/filter.spdx.json"))
-    SourceBinaryInput.filter_sbom(resolver, sources=True, binaries=False)
+    SpdxSbomFilter.source_pkgs(resolver.document)
     outdir = Path(tmpdir)
     bomfile = outdir / "filtered_sources.spdx.json"
     BomWriter.create(SBOMType.SPDX).write_to_file(resolver.document, bomfile, validate=True)
@@ -46,9 +47,10 @@ def test_spdx_filter_binaries(tmpdir):
 
     from debsbom.resolver import PackageResolver
     from debsbom.commands.input import SourceBinaryInput
+    from debsbom.filter.spdx import SpdxSbomFilter
 
     resolver = PackageResolver.create(Path("tests/data/filter.spdx.json"))
-    SourceBinaryInput.filter_sbom(resolver, sources=False, binaries=True)
+    SpdxSbomFilter.binary_pkgs(resolver.document)
     outdir = Path(tmpdir)
     bomfile = outdir / "filtered_binaries.spdx.json"
     BomWriter.create(SBOMType.SPDX).write_to_file(resolver.document, bomfile, validate=True)
@@ -72,9 +74,10 @@ def test_cdx_filter_sources(tmpdir):
 
     from debsbom.resolver import PackageResolver
     from debsbom.commands.input import SourceBinaryInput
+    from debsbom.filter.cdx import CdxSbomFilter
 
     resolver = PackageResolver.create(Path("tests/data/filter.cdx.json"))
-    SourceBinaryInput.filter_sbom(resolver, sources=True, binaries=False)
+    CdxSbomFilter.source_pkgs(resolver.document)
     outdir = Path(tmpdir)
     bomfile = outdir / "filtered_sources.cdx.json"
     BomWriter.create(SBOMType.CycloneDX).write_to_file(resolver.document, bomfile, validate=False)
@@ -92,9 +95,10 @@ def test_cdx_filter_binaries(tmpdir):
 
     from debsbom.resolver import PackageResolver
     from debsbom.commands.input import SourceBinaryInput
+    from debsbom.filter.cdx import CdxSbomFilter
 
     resolver = PackageResolver.create(Path("tests/data/filter.cdx.json"))
-    SourceBinaryInput.filter_sbom(resolver, sources=False, binaries=True)
+    CdxSbomFilter.binary_pkgs(resolver.document)
     outdir = Path(tmpdir)
     bomfile = outdir / "filtered_binaries.cdx.json"
     BomWriter.create(SBOMType.CycloneDX).write_to_file(resolver.document, bomfile, validate=False)

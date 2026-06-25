@@ -4,6 +4,7 @@
 
 from .output import SbomOutput
 from .input import SbomInput, SourceBinaryInput
+from ..sbom import SBOMType
 
 
 class FilterCmd(SbomInput, SourceBinaryInput):
@@ -14,7 +15,7 @@ class FilterCmd(SbomInput, SourceBinaryInput):
         resolvers = cls.get_sbom_resolvers(args)
 
         for resolver in resolvers:
-            cls.filter_sbom(resolver, args.sources, args.binaries)
+            cls.filter_binary_source(resolver, args.sources, args.binaries)
             SbomOutput.write_out_arg(
                 resolver.document, resolver.sbom_type(), args.bomout, args.validate
             )

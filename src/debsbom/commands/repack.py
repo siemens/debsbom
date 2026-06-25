@@ -58,7 +58,7 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
             filtered_pkgs = list(
                 filter(lambda p: DownloadCmd._filter_pkg(p, args.sources, args.binaries), resolver)
             )
-            cls.filter_sbom(resolver, args.sources, args.binaries)
+            cls.filter_binary_source(resolver, args.sources, args.binaries)
             bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
             if pkg_subset:
                 pkgs = filter(lambda p: p in pkg_subset, filtered_pkgs)
