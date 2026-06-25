@@ -16,7 +16,7 @@ from debsbom.dpkg.package import BinaryPackage, Dependency, Package, SourcePacka
 from debsbom.schema import secscan, tracepath as schema_tracepath
 from debsbom.securityscan.scanner import CveStatus, CveUrgency, SecurityScanner
 from debsbom.securityscan.writer import ScanResultWriter
-from debsbom.tracepath.walker import GraphWalker, PackageRepr
+from debsbom.graph.walker import GraphWalker, PackageRepr
 
 # Note, that this data is completely made up
 DB_PATH = Path("tests/data/security-tracker.fake.json")

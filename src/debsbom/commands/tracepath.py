@@ -11,7 +11,7 @@ from typing import TextIO
 
 from packageurl import PackageURL
 
-from ..tracepath.walker import PackageRepr
+from ..graph.walker import PackageRepr
 from .input import SbomInput
 
 
@@ -49,7 +49,7 @@ class TracePathCmd(SbomInput):
 
     @classmethod
     def run(cls, args):
-        from ..tracepath.walker import GraphWalker
+        from ..graph.walker import GraphWalker
 
         if args.json:
             format = PathOutputFormat.JSON

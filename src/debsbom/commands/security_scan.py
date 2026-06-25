@@ -19,7 +19,7 @@ except ModuleNotFoundError:
 
 
 try:
-    from ..tracepath.walker import GraphWalker
+    from ..graph.walker import GraphWalker
 
     HAS_NETWORKX_DEPS = True
 except ModuleNotFoundError as e:

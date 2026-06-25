@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import pytest
 
-from debsbom.tracepath.walker import GraphWalker, PackageRepr
+from debsbom.graph.walker import GraphWalker, PackageRepr
 from debsbom.commands.tracepath import TracePathCmd, PathOutputFormat
 from debsbom.generate import SBOMType
 from debsbom.schema import tracepath as schema_tracepath
