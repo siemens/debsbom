@@ -69,10 +69,10 @@ Graph Exporting
 .. automodule:: debsbom.export.graphml
    :members:
 
-Dependency Trace Paths
-----------------------
+Graph Traversal
+---------------
 
-.. automodule:: debsbom.tracepath.walker
+.. automodule:: debsbom.graph.walker
    :members:
 
 Security Scanning

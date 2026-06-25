@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import sys
 
-from ..tracepath.walker import GraphWalker
+from ..graph.walker import GraphWalker
 from ..dpkg.package import BinaryPackage, SourcePackage, Package, filter_binaries
 from .scanner import CveEntry, CveStatus, CveUrgency, ScanResultItem
 
