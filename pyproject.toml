@@ -47,7 +47,7 @@ mindev = [
   "beartype>=0.20",
   "jsonschema>=3.2",
   "lz4",
-  "debsbom[tracepath]",
+  "debsbom[graph]",
   "debsbom[download]",
   "debsbom[doc]",
 ]
@@ -57,7 +57,7 @@ cdx = [
 spdx = [
   "spdx-tools>=0.8.3",
 ]
-tracepath = [
+graph = [
   "networkx>=2.8.0"
 ]
 download = [
