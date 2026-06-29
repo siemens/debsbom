@@ -9,6 +9,7 @@ from spdx_tools.spdx.model.relationship import (
 )
 
 from .filter import SbomFilter
+from ..graph.walker import PackageRepr
 from ..sbom import SPDX_REF_DOCUMENT
 
 
@@ -81,3 +82,33 @@ class SpdxSbomFilter(SbomFilter):
                     )
                 )
         document.relationships = new_relationships
+
+    @classmethod
+    def packages(cls, document: Document, source_pkg: PackageRepr, packages: list[PackageRepr]):
+        pkg_ids = {pkg.ref: pkg for pkg in packages}
+
+        root_ref = None
+        for rel in document.relationships:
+            if rel.spdx_element_id == SPDX_REF_DOCUMENT:
+                root_ref = rel.related_spdx_element_id
+                break
+
+        document.packages = [
+            pkg for pkg in document.packages if pkg.spdx_id in pkg_ids or pkg.spdx_id == root_ref
+        ]
+
+        document.relationships = [
+            rel
+            for rel in document.relationships
+            if (rel.spdx_element_id in pkg_ids and rel.related_spdx_element_id in pkg_ids)
+            or rel.spdx_element_id == SPDX_REF_DOCUMENT
+        ]
+
+        if root_ref:
+            document.relationships.append(
+                Relationship(
+                    spdx_element_id=source_pkg.ref,
+                    related_spdx_element_id=root_ref,
+                    relationship_type=RelationshipType.PACKAGE_OF,
+                )
+            )

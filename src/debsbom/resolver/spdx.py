@@ -83,6 +83,14 @@ class SpdxPackageResolver(PackageResolver, SPDXType):
             if package.spdx_id == root_id:
                 return package.name
 
+    def component_by_name(self, name: str) -> list[Package]:
+        packages = []
+        for package in self._document.packages:
+            if package.name == name:
+                packages.append(self.create_package(package))
+
+        return packages
+
     @classmethod
     def package_manager_ref(cls, p: spdx_package.Package) -> spdx_package.ExternalPackageRef | None:
         cat_pkg_manager = spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER

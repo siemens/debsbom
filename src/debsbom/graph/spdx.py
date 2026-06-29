@@ -22,6 +22,7 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
     def __init__(self, document: Document):
         self.document = document
         self.graph = nx.DiGraph()
+        self.reverse_graph = None
         self.component_map = {}
         self._import()
         self._locate_root()
@@ -45,6 +46,8 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
                 RelationshipType.GENERATES,
             ):
                 self.graph.add_edge(r.spdx_element_id, r.related_spdx_element_id)
+
+        self.reverse_graph = self.graph.reverse()
 
     def _locate_root(self):
         root_candidates = [
@@ -102,3 +105,9 @@ class SpdxGraphWalker(GraphWalker, SPDXType):
         src = self._source_node_from_purl(source)
         paths = nx.all_simple_paths(self.graph, source=src.spdx_id, target=self.root.spdx_id)
         yield from map(self._to_package_repr, paths)
+
+    def descendants(self, source: PackageURL) -> Iterable[PackageRepr]:
+        src = self._source_node_from_purl(source)
+        descendants = {src.spdx_id}
+        descendants |= nx.descendants(self.reverse_graph, source=src.spdx_id)
+        yield from self._to_package_repr(list(descendants))
