@@ -102,3 +102,8 @@ class GraphWalker(SbomProcessor):
     def all_simple(self, source: PackageURL) -> Iterable[list[PackageRepr]]:
         """Return all non-cyclic path from source to root. Abstract method."""
         raise NotImplementedError()
+
+    @abstractmethod
+    def descendants(self, source: PackageURL) -> Iterable[PackageRepr]:
+        """Return all descendants of source. Abstract method."""
+        raise NotImplementedError()

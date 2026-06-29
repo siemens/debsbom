@@ -38,6 +38,8 @@ class CdxGraphWalker(GraphWalker, CDXType):
                 # to the root component
                 self.graph.add_edge(target.ref, source.ref)
 
+        self.reverse_graph = self.graph.reverse()
+
     def _source_node_from_purl(self, purl: PackageURL) -> Component:
         try:
             src = next(filter(lambda p: p.purl == purl, self.document.components))
@@ -81,3 +83,9 @@ class CdxGraphWalker(GraphWalker, CDXType):
         dst = self.document.metadata.component
         paths = nx.all_simple_paths(self.graph, source=src.bom_ref, target=dst.bom_ref)
         yield from map(self._to_package_repr, paths)
+
+    def descendants(self, source: PackageURL) -> Iterable[PackageRepr]:
+        src = self._source_node_from_purl(source)
+        descendants = {src.bom_ref}
+        descendants |= nx.descendants(self.reverse_graph, source=src.bom_ref)
+        yield from self._to_package_repr(list(descendants))

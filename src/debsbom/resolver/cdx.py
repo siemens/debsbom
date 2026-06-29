@@ -87,6 +87,14 @@ class CdxPackageResolver(PackageResolver, CDXType):
         except AttributeError:
             return None
 
+    def component_by_name(self, name: str) -> list[Component]:
+        components = []
+        for component in self._document.components:
+            if component.name == name:
+                components.append(self.create_package(component))
+
+        return components
+
     @classmethod
     def is_debian_pkg(cls, p: Component):
         if p.purl:

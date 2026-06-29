@@ -33,6 +33,11 @@ class PackageResolver(SbomProcessor):
         raise NotImplementedError()
 
     @abstractmethod
+    def component_by_name(self, name: str) -> list:
+        """Return a list of components with matching name."""
+        raise NotImplementedError()
+
+    @abstractmethod
     def __next__(self) -> package.Package:
         """Return next package"""
         raise NotImplementedError()
