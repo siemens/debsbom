@@ -308,3 +308,38 @@ def test_local_file_404():
     session.mount("file:///", LocalFileAdapter())
     with session.get("file:///does-not-exist") as r:
         assert r.status_code == 404
+
+
+@pytest.mark.online
+def test_malicious_path_download(tmpdir, http_session):
+    dl = PackageDownloader(Path(tmpdir), session=http_session)
+    test_file = SnapshotRemoteFile(
+        checksums={ChecksumAlgo.SHA1SUM: "1f3a43c181b81e3578d609dc0931ff147623eb38"},
+        # this filename would lead to a path traversal attack
+        filename="../../../pytest_8.4.2-1.dsc",
+        size=1234,
+        archive_name="debian",
+        path="/pool/main/p/pytest",
+        first_seen=1757270199,
+        downloadurl="https://snapshot.debian.org/file/1f3a43c181b81e3578d609dc0931ff147623eb38/pytest_8.4.2-1.dsc",
+        architecture=None,
+    )
+    pkg = BinaryPackage("foo", "1.0")
+    dl.register([test_file], pkg)
+    with pytest.raises(ValueError):
+        dl.stat()
+
+    test_file2 = SnapshotRemoteFile(
+        checksums={ChecksumAlgo.SHA1SUM: "1f3a43c181b81e3578d609dc0931ff147623eb38"},
+        filename="pytest_8.4.2-1.dsc",
+        size=1234,
+        # this filename would lead to a path traversal attack
+        archive_name="../debian",
+        path="/pool/main/p/pytest",
+        first_seen=1757270199,
+        downloadurl="https://snapshot.debian.org/file/1f3a43c181b81e3578d609dc0931ff147623eb38/pytest_8.4.2-1.dsc",
+        architecture=None,
+    )
+    dl.register([test_file2], pkg)
+    with pytest.raises(ValueError):
+        dl.stat()

@@ -81,9 +81,18 @@ class PackageDownloader:
 
     def _target_path(self, pkg: package.Package, f: RemoteFile):
         if pkg.is_source():
-            return Path(self.sources_dir / f.archive_name / f.filename)
+            base = self.sources_dir
         else:
-            return Path(self.binaries_dir / f.archive_name / f.filename)
+            base = self.binaries_dir
+        base = base.resolve()
+        target = (base / f.archive_name / f.filename).resolve()
+        if not target.is_relative_to(base):
+            purl = pkg.purl()
+            raise ValueError(
+                f"{purl}: malicious path in remote file detected: '{f.archive_name}/{f.filename}'"
+            )
+        else:
+            return target
 
     def register(self, files: list[RemoteFile], package: package.Package) -> None:
         """Register a list of files corresponding to a package for download."""
