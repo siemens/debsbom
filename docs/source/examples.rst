@@ -254,6 +254,31 @@ You can also pass SBOMs via stdin, but you also have to pass the SBOM type in th
 
     cat rootfs.spdx.json initrd.spdx.json | debsbom merge -t spdx -o merged.spdx.json -
 
+Filter packages of an SBOM
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :doc:`/commands/filter` filters selected packages in an SBOM.
+
+You can filter to include only binary or source packages:
+
+.. code-block:: bash
+
+    debsbom filter --binaries sbom.spdx.json filtered.spdx.json
+    debsbom filter --sources sbom.spdx.json filtered.spdx.json
+
+You can also get the subgraph for a specific package:
+
+.. code-block:: bash
+
+    debsbom filter --package debsbom sbom.spdx.json package-filtered.spdx.json
+
+Combining multiple filters are logically ``and``ed. The following would give you all source packages ``debsbom`` transitively depends on:
+
+.. code-block:: bash
+
+    debsbom filter --sources --package debsbom sbom.spdx.json package-source-filtered.spdx.json
+
+
 License-Clearing Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
