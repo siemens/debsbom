@@ -1,0 +1,746 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/cyclonedx-python-lib@9.1.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/python-team/packages/cyclonedx-python-lib.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/CycloneDX/cyclonedx-python-lib/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "d2e6aaf0af42e7865c205688ed6a7245"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "45dcc1520099410b393dea65832320b74b586761dc86be9d557506348fdc94df"
+                }
+            ],
+            "name": "cyclonedx-python-lib",
+            "purl": "pkg:deb/debian/cyclonedx-python-lib@9.1.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "9.1.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+            "description": "POSIX-compliant shell",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://gondor.apana.org.au/~herbert/dash/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "f7adc68081bf80c88b5517daeccc5d03"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "a8902cb6d8650134764a25fb80aec8589d858ef71ece1680a62e84816c37bb04"
+                }
+            ],
+            "name": "dash",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "yes"
+                },
+                {
+                    "name": "section",
+                    "value": "shells"
+                }
+            ],
+            "purl": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "andrewsh@debian.org"
+                    }
+                ],
+                "name": "Andrej Shadura"
+            },
+            "type": "library",
+            "version": "0.5.12-12"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/debian/dash.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://gondor.apana.org.au/~herbert/dash/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "ecd2b43069b15a0f6bd334f16343e550"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "589efc4d87a4ae4745c273bdb33198d7c4f28a71736a8ece81d3677cf9c6e5ce"
+                }
+            ],
+            "name": "dash",
+            "purl": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "andrewsh@debian.org"
+                    }
+                ],
+                "name": "Andrej Shadura"
+            },
+            "type": "library",
+            "version": "0.5.12-12"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/debianutils@5.23.2?arch=amd64",
+            "description": "Miscellaneous utilities specific to Debian",
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "84739088394105b79e8df877d907c753"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "720e43fda316676076498b4224ad3318049deafe60cc7c601011048de03ee97d"
+                }
+            ],
+            "name": "debianutils",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "yes"
+                },
+                {
+                    "name": "section",
+                    "value": "utils"
+                }
+            ],
+            "purl": "pkg:deb/debian/debianutils@5.23.2?arch=amd64",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "ileanadumitrescu95@gmail.com"
+                    }
+                ],
+                "name": "Ileana Dumitrescu"
+            },
+            "type": "library",
+            "version": "5.23.2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/debianutils@5.23.2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/debian/debianutils.git"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "00d7af3b3fce0f19a60fc3a1ca7d5b3e"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "471b65deec232bb033f3e3e06d5bf64dac0ced474c6fd61d41538f3f3de876f8"
+                }
+            ],
+            "name": "debianutils",
+            "purl": "pkg:deb/debian/debianutils@5.23.2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "ileanadumitrescu95@gmail.com"
+                    }
+                ],
+                "name": "Ileana Dumitrescu"
+            },
+            "type": "library",
+            "version": "5.23.2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=all",
+            "description": "SBOM generator for Debian-based distributions (tool)",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/siemens/debsbom"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "SHA-256",
+                    "content": "ae68a5bcd68c20dbd481ab98abcb3ccb9a3940efba2f10eb0a74d39199399353"
+                }
+            ],
+            "name": "debsbom",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "0.8.1-1~bpo13+1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=source",
+            "group": "debian",
+            "name": "debsbom",
+            "purl": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "0.8.1-1~bpo13+1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/py-serializable@2.0.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/python-team/packages/py-serializable.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/madpah/serializable"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "3a68f8016301eb3572e543ce25b687fc"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "e5749d0a444dea72162ffdc20a8c8fa8845e5bc67644de522e5e0f314c4d7fdf"
+                }
+            ],
+            "name": "py-serializable",
+            "purl": "pkg:deb/debian/py-serializable@2.0.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "2.0.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python-license-expression@30.4.1-1?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/python-team/packages/python-license-expression.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/nexB/license-expression"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "fb71c707453de80053f0db56422e6101"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "6d92b2f75ea1ee05d2849c03ff384938f6ac9786a3ead9f23274e9dccc20ee07"
+                }
+            ],
+            "name": "python-license-expression",
+            "purl": "pkg:deb/debian/python-license-expression@30.4.1-1?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "30.4.1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python-packageurl@0.16.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/python-team/packages/python-packageurl.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/package-url/packageurl-python"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "3823a32d7007f9e1babddcaa8faac597"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "a5f1533d0dd2b4aab863c4c6f07f3f782c4a3c14242d254f68794777ec892db9"
+                }
+            ],
+            "name": "python-packageurl",
+            "purl": "pkg:deb/debian/python-packageurl@0.16.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "0.16.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all",
+            "description": "Python library for OWASP CycloneDX",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/CycloneDX/cyclonedx-python-lib/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "6b0cdc6bf40e1429064f55ec2009f3a1"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "5e221d5ecf0a92e3ec4087d93894872b02ffff4d3d530099530889edde111512"
+                }
+            ],
+            "name": "python3-cyclonedx-lib",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "9.1.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+            "description": "small library to handle license expressions",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/nexB/license-expression"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "f040757ad8134589df0a2f8f59c4733c"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "86fe223789d6c6012102c7dd2d27328d733dd3be857335cc4efa5527582febdc"
+                }
+            ],
+            "name": "python3-license-expression",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "30.4.1-1"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all",
+            "description": "Python library to parse and build \"purl\" aka. Package URLs",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/package-url/packageurl-python"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "bb1451d90d27f6fb9fc830eaeba8258a"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "a8e48a925dbc0dc37410a7b6014bf3e66f7b06e4063b0067fbc45274772b0a8f"
+                }
+            ],
+            "name": "python3-packageurl",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "0.16.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all",
+            "description": "Library for {de,}serializing Python classes to and from JSON and XML",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "https://github.com/madpah/serializable"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "d70841dcc515bfc8f125fe5956136cbb"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "252b0aa96974f629141d790147e4861cb10521d4a9e52bbecfb5d4406219459b"
+                }
+            ],
+            "name": "python3-py-serializable",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "2.0.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all",
+            "description": "sorted container types: SortedList, SortedDict, and SortedSet (Python 3)",
+            "externalReferences": [
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://www.grantjenks.com/docs/sortedcontainers/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "c39ed65cb135c385897175065b5feefc"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "b00fd22e4fd50d8ba44442607fc3c737186082b16648d3995b2e4fca642f53e1"
+                }
+            ],
+            "name": "python3-sortedcontainers",
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section",
+                    "value": "python"
+                }
+            ],
+            "purl": "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "2.4.0-2"
+        },
+        {
+            "bom-ref": "pkg:deb/debian/sortedcontainers@2.4.0-2?arch=source",
+            "externalReferences": [
+                {
+                    "comment": "Version control system of type Git",
+                    "type": "vcs",
+                    "url": "https://salsa.debian.org/python-team/packages/sortedcontainers.git"
+                },
+                {
+                    "comment": "homepage",
+                    "type": "website",
+                    "url": "http://www.grantjenks.com/docs/sortedcontainers/"
+                }
+            ],
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "6017843b74057a779ee5964f47053d2d"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "7da060d75a59a73f83fbc399ef782976e7814c0069d91761689aa2e3f7c4e235"
+                }
+            ],
+            "name": "sortedcontainers",
+            "purl": "pkg:deb/debian/sortedcontainers@2.4.0-2?arch=source",
+            "supplier": {
+                "contact": [
+                    {
+                        "email": "team+python@tracker.debian.org"
+                    }
+                ],
+                "name": "Debian Python Team"
+            },
+            "type": "library",
+            "version": "2.4.0-2"
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+                "pkg:deb/debian/debianutils@5.23.2?arch=amd64",
+                "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=all",
+                "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all",
+                "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+                "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all",
+                "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all",
+                "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all"
+            ],
+            "ref": "CDXRef-Debian"
+        },
+        {
+            "ref": "pkg:deb/debian/cyclonedx-python-lib@9.1.0-2?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/dash@0.5.12-12?arch=source",
+                "pkg:deb/debian/debianutils@5.23.2?arch=amd64"
+            ],
+            "ref": "pkg:deb/debian/dash@0.5.12-12?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/dash@0.5.12-12?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/debianutils@5.23.2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/debianutils@5.23.2?arch=amd64"
+        },
+        {
+            "ref": "pkg:deb/debian/debianutils@5.23.2?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=source",
+                "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all",
+                "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+                "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all"
+            ],
+            "ref": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=all"
+        },
+        {
+            "ref": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/py-serializable@2.0.0-2?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/python-license-expression@30.4.1-1?arch=source"
+        },
+        {
+            "ref": "pkg:deb/debian/python-packageurl@0.16.0-2?arch=source"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/cyclonedx-python-lib@9.1.0-2?arch=source",
+                "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+                "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all",
+                "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all",
+                "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all"
+            ],
+            "ref": "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/python-license-expression@30.4.1-1?arch=source"
+            ],
+            "ref": "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/python-packageurl@0.16.0-2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/py-serializable@2.0.0-2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all"
+        },
+        {
+            "dependsOn": [
+                "pkg:deb/debian/sortedcontainers@2.4.0-2?arch=source"
+            ],
+            "ref": "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all"
+        },
+        {
+            "ref": "pkg:deb/debian/sortedcontainers@2.4.0-2?arch=source"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-Debian",
+            "name": "Debian",
+            "type": "operating-system"
+        },
+        "timestamp": "2026-06-30T10:40:41.686007+02:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.8.1",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.8.1"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:db574c5d-0055-4383-a902-f948e809fc0d",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6"
+}

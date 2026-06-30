@@ -1,0 +1,668 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2026-06-30T10:40:41Z",
+        "creators": [
+            "Tool: debsbom-0.8.1"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "Debian",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.8.1-1610e952-82e9-4e37-a1f8-7d121993639b",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Debian",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "Debian",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-python3-cyclonedx-lib-all",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "6b0cdc6bf40e1429064f55ec2009f3a1"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "5e221d5ecf0a92e3ec4087d93894872b02ffff4d3d530099530889edde111512"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python3-cyclonedx-lib@9.1.0-2?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/CycloneDX/cyclonedx-python-lib/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python3-cyclonedx-lib",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Python library for OWASP CycloneDX",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "9.1.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-python3-packageurl-all",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "bb1451d90d27f6fb9fc830eaeba8258a"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "a8e48a925dbc0dc37410a7b6014bf3e66f7b06e4063b0067fbc45274772b0a8f"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python3-packageurl@0.16.0-2?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/package-url/packageurl-python",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python3-packageurl",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Python library to parse and build \"purl\" aka. Package URLs",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "0.16.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-py-serializable-2.0.0-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "3a68f8016301eb3572e543ce25b687fc"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "e5749d0a444dea72162ffdc20a8c8fa8845e5bc67644de522e5e0f314c4d7fdf"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/py-serializable@2.0.0-2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/py-serializable.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "py-serializable",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'py-serializable'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "2.0.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-debsbom-all",
+            "checksums": [
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "ae68a5bcd68c20dbd481ab98abcb3ccb9a3940efba2f10eb0a74d39199399353"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/siemens/debsbom",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debsbom",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "SBOM generator for Debian-based distributions (tool)",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "0.8.1-1~bpo13+1"
+        },
+        {
+            "SPDXID": "SPDXRef-python3-py-serializable-all",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "d70841dcc515bfc8f125fe5956136cbb"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "252b0aa96974f629141d790147e4861cb10521d4a9e52bbecfb5d4406219459b"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python3-py-serializable@2.0.0-2?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/madpah/serializable",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python3-py-serializable",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Library for {de,}serializing Python classes to and from JSON and XML",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "2.0.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-debsbom-0.8.1-1.bpo13.1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debsbom@0.8.1-1~bpo13%2B1?arch=source",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debsbom",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'debsbom'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "0.8.1-1~bpo13+1"
+        },
+        {
+            "SPDXID": "SPDXRef-debianutils-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "84739088394105b79e8df877d907c753"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "720e43fda316676076498b4224ad3318049deafe60cc7c601011048de03ee97d"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debianutils@5.23.2?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debianutils",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "Miscellaneous utilities specific to Debian",
+            "supplier": "Person: Ileana Dumitrescu (ileanadumitrescu95@gmail.com)",
+            "versionInfo": "5.23.2"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-amd64",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "f7adc68081bf80c88b5517daeccc5d03"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "a8902cb6d8650134764a25fb80aec8589d858ef71ece1680a62e84816c37bb04"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=amd64",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "http://gondor.apana.org.au/~herbert/dash/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "POSIX-compliant shell",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        },
+        {
+            "SPDXID": "SPDXRef-sortedcontainers-2.4.0-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "6017843b74057a779ee5964f47053d2d"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "7da060d75a59a73f83fbc399ef782976e7814c0069d91761689aa2e3f7c4e235"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/sortedcontainers@2.4.0-2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/sortedcontainers.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "sortedcontainers",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'sortedcontainers'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "2.4.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-python3-sortedcontainers-all",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "c39ed65cb135c385897175065b5feefc"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "b00fd22e4fd50d8ba44442607fc3c737186082b16648d3995b2e4fca642f53e1"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python3-sortedcontainers@2.4.0-2?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "http://www.grantjenks.com/docs/sortedcontainers/",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python3-sortedcontainers",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "sorted container types: SortedList, SortedDict, and SortedSet (Python 3)",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "2.4.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-python-packageurl-0.16.0-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "3823a32d7007f9e1babddcaa8faac597"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "a5f1533d0dd2b4aab863c4c6f07f3f782c4a3c14242d254f68794777ec892db9"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python-packageurl@0.16.0-2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/python-packageurl.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python-packageurl",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'python-packageurl'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "0.16.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-cyclonedx-python-lib-9.1.0-2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "d2e6aaf0af42e7865c205688ed6a7245"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "45dcc1520099410b393dea65832320b74b586761dc86be9d557506348fdc94df"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/cyclonedx-python-lib@9.1.0-2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/cyclonedx-python-lib.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "cyclonedx-python-lib",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'cyclonedx-python-lib'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "9.1.0-2"
+        },
+        {
+            "SPDXID": "SPDXRef-python3-license-expression-all",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "f040757ad8134589df0a2f8f59c4733c"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "86fe223789d6c6012102c7dd2d27328d733dd3be857335cc4efa5527582febdc"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python3-license-expression@30.4.1-1?arch=all",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "homepage": "https://github.com/nexB/license-expression",
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python3-license-expression",
+            "primaryPackagePurpose": "LIBRARY",
+            "summary": "small library to handle license expressions",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "30.4.1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-python-license-expression-30.4.1-1-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "fb71c707453de80053f0db56422e6101"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "6d92b2f75ea1ee05d2849c03ff384938f6ac9786a3ead9f23274e9dccc20ee07"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/python-license-expression@30.4.1-1?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/python-license-expression.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "python-license-expression",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'python-license-expression'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "30.4.1-1"
+        },
+        {
+            "SPDXID": "SPDXRef-debianutils-5.23.2-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "00d7af3b3fce0f19a60fc3a1ca7d5b3e"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "471b65deec232bb033f3e3e06d5bf64dac0ced474c6fd61d41538f3f3de876f8"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debianutils@5.23.2?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/debian/debianutils.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debianutils",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'debianutils'",
+            "supplier": "Person: Ileana Dumitrescu (ileanadumitrescu95@gmail.com)",
+            "versionInfo": "5.23.2"
+        },
+        {
+            "SPDXID": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "checksums": [
+                {
+                    "algorithm": "MD5",
+                    "checksumValue": "ecd2b43069b15a0f6bd334f16343e550"
+                },
+                {
+                    "algorithm": "SHA256",
+                    "checksumValue": "589efc4d87a4ae4745c273bdb33198d7c4f28a71736a8ece81d3677cf9c6e5ce"
+                }
+            ],
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/dash@0.5.12-12?arch=source",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/debian/dash.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "dash",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'dash'",
+            "supplier": "Person: Andrej Shadura (andrewsh@debian.org)",
+            "versionInfo": "0.5.12-12"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-python3-cyclonedx-lib-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-cyclonedx-lib-all",
+            "relatedSpdxElement": "SPDXRef-python3-license-expression-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-cyclonedx-lib-all",
+            "relatedSpdxElement": "SPDXRef-python3-packageurl-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-cyclonedx-lib-all",
+            "relatedSpdxElement": "SPDXRef-python3-py-serializable-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-cyclonedx-lib-all",
+            "relatedSpdxElement": "SPDXRef-python3-sortedcontainers-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-cyclonedx-python-lib-9.1.0-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-python3-cyclonedx-lib-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-packageurl-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-python-packageurl-0.16.0-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-python3-packageurl-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-debsbom-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-debsbom-all",
+            "relatedSpdxElement": "SPDXRef-python3-license-expression-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-debsbom-all",
+            "relatedSpdxElement": "SPDXRef-python3-packageurl-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-debsbom-all",
+            "comment": "recommends",
+            "relatedSpdxElement": "SPDXRef-python3-cyclonedx-lib-all",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-debsbom-0.8.1-1.bpo13.1-srcpkg",
+            "relatedSpdxElement": "SPDXRef-debsbom-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-py-serializable-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-py-serializable-2.0.0-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-python3-py-serializable-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-debianutils-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-debianutils-5.23.2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-debianutils-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-amd64",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-amd64",
+            "relatedSpdxElement": "SPDXRef-debianutils-amd64",
+            "relationshipType": "DEPENDS_ON"
+        },
+        {
+            "spdxElementId": "SPDXRef-dash-0.5.12-12-srcpkg",
+            "relatedSpdxElement": "SPDXRef-dash-amd64",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-sortedcontainers-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-sortedcontainers-2.4.0-2-srcpkg",
+            "relatedSpdxElement": "SPDXRef-python3-sortedcontainers-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-python3-license-expression-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-python-license-expression-30.4.1-1-srcpkg",
+            "relatedSpdxElement": "SPDXRef-python3-license-expression-all",
+            "relationshipType": "GENERATES"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}
