@@ -79,6 +79,10 @@ runs:
       coverage run $(which debsbom) -v filter -t cdx --sources tests/data/filter.cdx.json filtered_sources.cdx.json
       export COVERAGE_FILE=".coverage.smoke-filter.cdx.binary.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v filter -t cdx --binaries tests/data/filter.cdx.json filtered_binaries.cdx.json
+      export COVERAGE_FILE=".coverage.smoke-filter.spdx.package.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v filter -t spdx --package apt tests/data/filter.spdx.json filtered_pkgs.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-filter.cdx.package.${{ inputs.artifact-identifier }}"
+      coverage run $(which debsbom) -v filter -t cdx --package apt tests/data/filter.cdx.json filtered_pkgs.cdx.json
 
   - name: smoke test sec-scan
     shell: bash
