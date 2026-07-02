@@ -71,10 +71,13 @@ runs:
   - name: smoke test filter
     shell: bash
     run: |
-      export COVERAGE_FILE=".coverage.smoke-filter.${{ inputs.artifact-identifier }}"
+      export COVERAGE_FILE=".coverage.smoke-filter.spdx.source.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v filter -t spdx --sources tests/data/filter.spdx.json filtered_sources.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-filter.spdx.binary.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v filter -t spdx --binaries tests/data/filter.spdx.json filtered_binaries.spdx.json
+      export COVERAGE_FILE=".coverage.smoke-filter.cdx.source.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v filter -t cdx --sources tests/data/filter.cdx.json filtered_sources.cdx.json
+      export COVERAGE_FILE=".coverage.smoke-filter.cdx.binary.${{ inputs.artifact-identifier }}"
       coverage run $(which debsbom) -v filter -t cdx --binaries tests/data/filter.cdx.json filtered_binaries.cdx.json
 
   - name: smoke test sec-scan
