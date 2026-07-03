@@ -18,17 +18,28 @@ Generate a CycloneDX SBOM of the current system.
     debsbom --progress generate -t cdx -o sbom
     # output in sbom.cdx.json
 
-Container Rootfs using Podman
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Container Rootfs
+^^^^^^^^^^^^^^^^
 
-Create the SBOM of a rootless example container.
+Create the SBOM of a Debian-based container (rootless).
 The ``debsbom`` tool hereby is used from the host (e.g. from a Python venv).
+
+Using `Podman <https://podman.io/>`__:
 
 .. code-block:: bash
 
     CRT=$(podman create debian:bookworm)
     CHROOT=$(podman unshare podman mount $CRT)
     podman unshare debsbom generate -t spdx --root $CHROOT
+
+In CI-like environments, it is often more practical to use `skopeo <https://github.com/podman-container-tools/skopeo>`__
+and `umoci <https://github.com/opencontainers/umoci>`__ instead:
+
+.. code-block:: bash
+
+    skopeo copy docker://debian:bookworm oci:debian:bookworm
+    umoci raw unpack --rootless --image debian:bookworm ./rootfs
+    debsbom generate -t spdx --root ./rootfs
 
 From Package List
 ^^^^^^^^^^^^^^^^^
