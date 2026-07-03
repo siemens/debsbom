@@ -58,7 +58,7 @@ spdx = [
   "spdx-tools>=0.8.3",
 ]
 tracepath = [
-  " networkx>=2.8.0"
+  "networkx>=2.8.0"
 ]
 download = [
     "requests>=2.25.1",
