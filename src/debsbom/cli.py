@@ -108,9 +108,7 @@ def setup_parser():
     TracePathCmd.setup_parser(
         subparser.add_parser("trace-path", help="trace path between components")
     )
-    FilterCmd.setup_parser(
-        subparser.add_parser("filter", help="filter SBOM by sources or binaries")
-    )
+    FilterCmd.setup_parser(subparser.add_parser("filter", help="filter SBOM"))
     SecurityScanCmd.setup_parser(
         subparser.add_parser("sec-scan", help="check SBOM for security vulnerabilities")
     )
