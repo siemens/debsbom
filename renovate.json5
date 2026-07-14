@@ -1,0 +1,22 @@
+// SPDX-FileCopyrightText: Copyright 2026 Siemens AG
+// SPDX-License-Identifier: MIT
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:best-practices",
+    "group:all",
+    "schedule:monthly",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":prHourlyLimitNone",
+    ":prConcurrentLimitNone",
+  ],
+  "enabledManagers": [
+    "github-actions"
+  ],
+  minimumReleaseAge: '3 days',
+  lockFileMaintenance: {
+    enabled: false,
+  },
+  separateMajorMinor: false,
+}
