@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: src/exception.c
+Copyright: 2026 Siemens
+License: GPL-2.0-only WITH Classpath-exception-2.0
+
+Files: src/plain.c
+Copyright: 2026 Siemens
+License: Expat

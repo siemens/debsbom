@@ -460,6 +460,55 @@ def test_illformed_sources():
     assert len(list(Repository._make_binpkgs([deb822.Packages()]))) == 0
 
 
+def _assert_generated_license_expression(copyright_file):
+    pytest.importorskip("spdx_tools")
+    pytest.importorskip("cyclonedx")
+
+    from debsbom.apt.copyright import Copyright
+    from debsbom.dpkg.package import SourcePackage
+    from debsbom.generate.cdx import cdx_package_repr
+    from debsbom.generate.spdx import spdx_package_repr
+
+    expected = "GPL-2.0-only WITH Classpath-exception-2.0 AND MIT"
+    package = SourcePackage(
+        copyright_file,
+        "1.0",
+        copyright=Copyright(Path(f"tests/data/{copyright_file}-copyright")),
+    )
+
+    spdx_package = spdx_package_repr(package)
+    assert str(spdx_package.license_declared) == expected
+
+    cdx_component = cdx_package_repr(package, {})
+    assert cdx_component and cdx_component.licenses
+    assert next(iter(cdx_component.licenses)).value == expected
+
+
+def test_license_exception_first_is_combined():
+    _assert_generated_license_expression("exception-first")
+
+
+def test_license_exception_last_is_combined():
+    _assert_generated_license_expression("exception-last")
+
+
+def test_license_generation_does_not_rebuild_spdx_licensing(monkeypatch):
+    import license_expression
+
+    get_license_index = license_expression.get_license_index
+    index_loads = 0
+
+    def count_index_loads(*args, **kwargs):
+        nonlocal index_loads
+        index_loads += 1
+        return get_license_index(*args, **kwargs)
+
+    monkeypatch.setattr(license_expression, "get_license_index", count_index_loads)
+    _assert_generated_license_expression("exception-first")
+
+    assert index_loads <= 1
+
+
 def test_license_information(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")

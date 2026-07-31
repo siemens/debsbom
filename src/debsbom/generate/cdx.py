@@ -15,7 +15,7 @@ from cyclonedx.model import HashAlgorithm as cdx_hashalgo
 from cyclonedx.model import HashType as cdx_hashtype
 from cyclonedx.model.license import LicenseAcknowledgement, LicenseExpression, LicenseRepository
 from datetime import datetime
-from license_expression import ExpressionError
+from license_expression import AND, ExpressionError
 import logging
 from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
@@ -109,10 +109,10 @@ def cdx_package_repr(
             )
         if package.copyright:
             try:
-                licenses = package.copyright.spdx_license_expressions()
-                combined = next(licenses)
-                for lic in licenses:
-                    combined &= lic
+                licenses = list(package.copyright.spdx_license_expressions())
+                combined = licenses[0]
+                if len(licenses) > 1:
+                    combined = AND(*licenses)
                 expression = LicenseExpression(
                     str(combined.simplify()), acknowledgement=LicenseAcknowledgement.DECLARED
                 )
