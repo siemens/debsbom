@@ -110,3 +110,10 @@ def test_repaired_late_parse_error_emits_all_licenses():
         "Apache-2.0",
         "GPL-2.0-or-later",
     ]
+
+
+def test_copyright_is_parsed_as_utf8_regardless_of_locale(c_ctype_locale):
+    """DEP-5 mandates UTF-8, so parsing must not depend on the process locale."""
+    copyright = Copyright(Path("tests/data/utf8-copyright"))
+
+    assert [license.synopsis for license in copyright.licenses()] == ["BSD-3-clause"]
