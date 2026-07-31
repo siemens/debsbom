@@ -1,0 +1,15 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: exception-supported
+Upstream-Contact: Siemens
+
+Files: src/bison.c
+Copyright: 2026 Siemens
+License: GPL-3+ with Bison exception
+
+Files: src/syscall.c
+Copyright: 2026 Siemens
+License: GPL-2 with Linux-syscall-note exception
+
+Files: src/plain.c
+Copyright: 2026 Siemens
+License: Expat

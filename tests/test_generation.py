@@ -544,6 +544,48 @@ def test_license_information(tmpdir, sbom_generator):
         assert lic["expression"] == "BSD-3-Clause AND GPL-2.0-only AND GPL-2.0-or-later AND MIT"
 
 
+def test_license_exception_information(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/copyright-exception", with_licenses=True)
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        source_packages = {
+            package["name"]: package
+            for package in spdx_json["packages"]
+            if any(
+                "arch=source" in ref["referenceLocator"]
+                for ref in package.get("externalRefs") or []
+            )
+        }
+        assert source_packages["exception-supported"]["licenseDeclared"] == (
+            "GPL-2.0-only WITH Linux-syscall-note AND "
+            "GPL-3.0-or-later WITH Bison-exception-2.2 AND MIT"
+        )
+        assert source_packages["exception-unresolved"]["licenseDeclared"] == "NOASSERTION"
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        source_components = {
+            component["name"]: component
+            for component in cdx_json["components"]
+            if "arch=source" in component["purl"]
+        }
+        supported_license = source_components["exception-supported"]["licenses"][0]
+        assert supported_license == {
+            "acknowledgement": "declared",
+            "expression": (
+                "GPL-2.0-only WITH Linux-syscall-note AND "
+                "GPL-3.0-or-later WITH Bison-exception-2.2 AND MIT"
+            ),
+        }
+        assert not source_components["exception-unresolved"].get("licenses")
+
+
 def test_virtual_package(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")

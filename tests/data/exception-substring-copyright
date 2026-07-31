@@ -1,0 +1,5 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: src/lookalike.c
+Copyright: 2026 Siemens
+License: LGPL-3+ with Bison exception

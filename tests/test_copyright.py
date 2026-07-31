@@ -46,3 +46,40 @@ def test_spdx_lic_expressions():
     spdx_licenses = set(map(lambda lic: str(lic), cr.spdx_license_expressions()))
     assert "BSD-3-Clause OR GPL-2.0-or-later" in spdx_licenses
     assert "BSD-3-Clause OR GPL-2.0-only" in spdx_licenses
+
+
+def test_spdx_license_exceptions():
+    cr = Copyright(Path("tests/data/exception-copyright"))
+
+    spdx_licenses = set(map(str, cr.spdx_license_expressions()))
+    assert spdx_licenses == {
+        "GPL-3.0-or-later WITH Bison-exception-2.2",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-3.0-or-later WITH Texinfo-exception",
+        "GPL-3.0-or-later WITH Autoconf-exception-macro",
+        "BSD-3-Clause WITH PCRE2-exception",
+        "MIT",
+        "GPL-3.0-or-later WITH Bison-exception-2.2 OR MIT",
+        "MIT OR (GPL-3.0-or-later WITH Bison-exception-2.2 AND BSD-3-Clause)",
+    }
+
+
+def test_ambiguous_license_exception_rejects_all_licenses():
+    cr = Copyright(Path("tests/data/unknown-exception-copyright"))
+
+    with pytest.raises(UnknownLicenseError):
+        list(cr.spdx_license_expressions())
+
+
+def test_license_exception_substring_rejects_all_licenses():
+    cr = Copyright(Path("tests/data/exception-substring-copyright"))
+
+    with pytest.raises(UnknownLicenseError):
+        list(cr.spdx_license_expressions())
+
+
+def test_public_domain_with_supported_exception_rejects_all_licenses():
+    cr = Copyright(Path("tests/data/exception-public-domain-copyright"))
+
+    with pytest.raises(UnknownLicenseError):
+        list(cr.spdx_license_expressions())

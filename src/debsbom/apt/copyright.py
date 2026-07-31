@@ -13,6 +13,7 @@ from debian.copyright import (
 from license_expression import LicenseExpression, Licensing, get_spdx_licensing
 import logging
 from pathlib import Path
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +127,30 @@ WELL_KNOWN_EXPRESSIONS = {
     "Zope-2": "ZPL-2.0",
 }
 
+# Debian exception names are free-form. Only map complete license names with
+# exceptions whose license and exception texts have been verified.
+WELL_KNOWN_EXCEPTIONS = {
+    "GPL-3+ with Bison exception": "GPL-3.0-or-later WITH Bison-exception-2.2",
+    "GPL-3+ with Bison-2.2 exception": "GPL-3.0-or-later WITH Bison-exception-2.2",
+    "GPL-2 with Linux-syscall-note exception": "GPL-2.0-only WITH Linux-syscall-note",
+    "GPL-3+ with texinfo exception": "GPL-3.0-or-later WITH Texinfo-exception",
+    "GPL-3.0-or-later-WITH-Autoconf-exception-macro": (
+        "GPL-3.0-or-later WITH Autoconf-exception-macro"
+    ),
+    "BSD-3-clause-Cambridge with BINARY LIBRARY-LIKE PACKAGES exception": (
+        "BSD-3-Clause WITH PCRE2-exception"
+    ),
+    "GPL-3+-WITH-BISON-EXCEPTION": "GPL-3.0-or-later WITH Bison-exception-2.2",
+}
+
+_EXCEPTIONS = {name.lower(): expression for name, expression in WELL_KNOWN_EXCEPTIONS.items()}
+_EXCEPTIONS_RE = re.compile(
+    r"(?<![\w+.-])(?:{})(?![\w+.-])".format(
+        "|".join(re.escape(name) for name in sorted(WELL_KNOWN_EXCEPTIONS, key=len, reverse=True))
+    ),
+    re.IGNORECASE,
+)
+
 
 class UnknownLicenseError(Exception):
     """License is unknown to the SPDX standard."""
@@ -144,6 +169,8 @@ class Copyright(DebCopyright):
     @classmethod
     def _convert_expression(cls, line: str) -> str:
         """Convert a Debian license expression to the equivalent SPDX syntax."""
+
+        line = _EXCEPTIONS_RE.sub(lambda match: _EXCEPTIONS[match.group().lower()], line)
 
         # in the Debian copyright format ',' are used for disambiguation
         # that means (with 'and' having precedence over 'or'):
@@ -200,7 +227,6 @@ class Copyright(DebCopyright):
             spdx_lic = licensing.parse(expr)
             unknown_keys = licensing.unknown_license_keys(spdx_lic)
             # TODO: how do we handle `public-domain` licensing?
-            # TODO: license exceptions
             if len(unknown_keys) > 0:
                 # unknown keys in the license expression, try to replace them
                 # with well-known representations
