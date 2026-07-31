@@ -85,6 +85,21 @@ def test_public_domain_with_supported_exception_rejects_all_licenses():
         list(cr.spdx_license_expressions())
 
 
+def test_late_parse_error_yields_no_licenses():
+    """A late parse error must not leak licenses parsed before the error."""
+    cr = Copyright(Path("tests/data/late-parse-error-copyright"))
+
+    assert [lic.synopsis for lic in cr.licenses()] == []
+
+
+def test_late_parse_error_rejects_all_licenses():
+    """A malformed copyright file must not emit a partial SPDX expression."""
+    cr = Copyright(Path("tests/data/late-parse-error-copyright"))
+
+    with pytest.raises(UnknownLicenseError):
+        list(cr.spdx_license_expressions())
+
+
 def test_repaired_late_parse_error_emits_all_licenses():
     """A valid equivalent must still expose every declared license."""
     cr = Copyright(Path("tests/data/late-parse-ok-copyright"))

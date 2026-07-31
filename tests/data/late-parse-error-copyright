@@ -1,0 +1,24 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: late-parse-error
+
+Files: first/*
+Copyright: 2026 Siemens
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files.
+
+Files: second/*
+Copyright: 2026 Siemens
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may obtain a copy of the License at
+ .
+	http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS.
+
+Files: third/*
+Copyright: 2026 Siemens
+License: GPL-2+
+ Debian packaging is licensed under the GPL version 2 or later.
