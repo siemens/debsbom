@@ -5,7 +5,7 @@
 from collections.abc import Callable, Iterable
 from datetime import datetime
 from importlib.metadata import version
-from license_expression import ExpressionError
+from license_expression import AND, ExpressionError
 import logging
 import spdx_tools.spdx.model.actor as spdx_actor
 import spdx_tools.spdx.model.document as spdx_document
@@ -185,10 +185,10 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
         licenses_decl = SpdxNoAssertion()
         if package.copyright:
             try:
-                licenses = package.copyright.spdx_license_expressions()
-                combined = next(licenses)
-                for lic in licenses:
-                    combined &= lic
+                licenses = list(package.copyright.spdx_license_expressions())
+                combined = licenses[0]
+                if len(licenses) > 1:
+                    combined = AND(*licenses)
                 licenses_decl = combined.simplify()
             except (ExpressionError, UnknownLicenseError) as e:
                 logger.debug(f"no SPDX license expression for {package}: {e}")
