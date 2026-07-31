@@ -1,0 +1,41 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: src/bison.c
+Copyright: 2026 Siemens
+License: GPL-3+ with Bison exception
+
+Files: src/bison-2.2.c
+Copyright: 2026 Siemens
+License: GPL-3+ with Bison-2.2 exception
+
+Files: src/syscall.c
+Copyright: 2026 Siemens
+License: GPL-2 WITH LINUX-SYSCALL-NOTE EXCEPTION
+
+Files: doc/texinfo.tex
+Copyright: 2026 Siemens
+License: GPL-3+ with texinfo exception
+
+Files: m4/example.m4
+Copyright: 2026 Siemens
+License: GPL-3.0-or-later-WITH-Autoconf-exception-macro
+
+Files: src/pcre2.c
+Copyright: 2026 Siemens
+License: BSD-3-clause-Cambridge with BINARY LIBRARY-LIKE PACKAGES exception
+
+Files: src/plain.c
+Copyright: 2026 Siemens
+License: Expat
+
+Files: src/perl-bison.c
+Copyright: 2026 Siemens
+License: GPL-3+-WITH-BISON-EXCEPTION
+
+Files: src/compound.c
+Copyright: 2026 Siemens
+License: GPL-3+ with Bison exception or Expat
+
+Files: src/parenthesized.c
+Copyright: 2026 Siemens
+License: MIT OR (GPL-3+ with Bison exception AND BSD-3-Clause)

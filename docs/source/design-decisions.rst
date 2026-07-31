@@ -217,11 +217,13 @@ License Information
 
 As the specifiers in Debian copyright files are not SPDX identifiers a conversion table based on the `syntax specification <https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification>`__ is used.
 
+Debian license exception names are free-form, so complete license names containing exceptions are mapped only when both the license and exception have been verified. These mappings are case-insensitive, as required by the Debian copyright format, but ``debsbom`` does not normalize separators or partially or fuzzily match exception names.
+
 For SPDX SBOMs the information is placed in the `declared licenses field <https://spdx.github.io/spdx-spec/v2.3/package-information/#715-declared-license-field>`__; and for CDX SBOMs in the `licenses field <https://cyclonedx.org/docs/1.6/json/#components_items_licenses>`__ with the ``acknowledgement`` set to ``declared``. This is done this way because ``debsbom`` does not perform any analysis of included licenses and just trusts what is stated by the package authors. This can be expressed in the SBOMs with the above approach. For CDX it could alternatively be placed in the `evidence.licenses field <https://cyclonedx.org/docs/1.6/json/#components_items_evidence_licenses>`__ as there is, as far as we can tell, no clear distinction between the meaning of the two if all ``acknowledgments`` are set to ``declared``. We decided to put it directly in ``licenses``, as that is the first place a user would expect it.
 
 Limitations
 ^^^^^^^^^^^
 
-Annotation of license information is currently only possible for ~50% of all packages. As ``debsbom`` is not a license scanner it relies solely on the information provided by the package authors. This information is unfortunately sometimes not machine-readable, sometimes does include esoteric licenses or the ambiguous ``public domain`` licensing. Nonetheless, if you find any unrecognized license specifiers that can be cleanly mapped to SPDX identifiers please let us know and we will try to incorporate them.
+Annotation of license information is currently only possible for ~50% of all packages. As ``debsbom`` is not a license scanner it relies solely on the information provided by the package authors. This information is unfortunately sometimes not machine-readable and sometimes includes custom or esoteric licenses, ambiguous exception names, or ``public domain`` licensing. Nonetheless, if you find any unrecognized license specifiers that can be cleanly mapped to SPDX identifiers please let us know and we will try to incorporate them.
 
 If you want to add more complete license information the SBOM you can use a proper scanner and add that information to the SBOM manually. If enough interest arises we could also consider adding plugin infrastructure to directly incorporate different scanners during the SBOM generation.

@@ -1,0 +1,21 @@
+Package: exception-supported
+Source: exception-supported
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 1234
+Maintainer: Siemens
+Architecture: amd64
+Version: 1.0.0
+Description: supported copyright exception test package
+
+Package: exception-unresolved
+Source: exception-unresolved
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 1234
+Maintainer: Siemens
+Architecture: amd64
+Version: 1.0.0
+Description: unresolved copyright exception test package
