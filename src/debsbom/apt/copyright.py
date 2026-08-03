@@ -200,11 +200,14 @@ class Copyright(DebCopyright):
         """Return all licenses found in the copyright file."""
         with open(self._path) as f:
             try:
-                yield from self._parse_licenses(DebCopyright(f))
+                licenses = list(self._parse_licenses(DebCopyright(f)))
             except NotMachineReadableError:
                 logger.debug(f"non-machine-readable copyright file: {self._path}")
+                return
             except (MachineReadableFormatError, ValueError):
                 logger.debug(f"bad format for machine-readable copyright file: {self._path}")
+                return
+        yield from licenses
 
     def _parse_licenses(self, copyright: DebCopyright) -> Iterable[License]:
         lic = copyright.header.license

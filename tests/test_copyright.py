@@ -83,3 +83,15 @@ def test_public_domain_with_supported_exception_rejects_all_licenses():
 
     with pytest.raises(UnknownLicenseError):
         list(cr.spdx_license_expressions())
+
+
+def test_repaired_late_parse_error_emits_all_licenses():
+    """A valid equivalent must still expose every declared license."""
+    cr = Copyright(Path("tests/data/late-parse-ok-copyright"))
+
+    assert [lic.synopsis for lic in cr.licenses()] == ["Expat", "Apache-2.0", "GPL-2+"]
+    assert list(map(str, cr.spdx_license_expressions())) == [
+        "MIT",
+        "Apache-2.0",
+        "GPL-2.0-or-later",
+    ]
