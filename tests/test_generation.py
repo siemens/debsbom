@@ -316,6 +316,13 @@ def test_apt_cache_parsing(origin):
     )
 
 
+def test_apt_release_is_parsed_as_utf8(c_ctype_locale):
+    repositories = list(Repository.from_apt_cache("tests/root/utf8-apt-lists"))
+
+    assert len(repositories) == 1
+    assert repositories[0].description == "Şule Çiğdem Işıl ÖĞÜTÇÜ repository"
+
+
 compressions = ["bzip2", "gzip", "xz", "zstd", "lz4"]
 
 
