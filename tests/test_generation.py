@@ -16,6 +16,7 @@ from debian import deb822
 from io import TextIOWrapper
 
 from debsbom.apt.cache import ExtendedStates, Repository
+from debsbom.apt import cache as apt_cache
 from debsbom.bomwriter.bomwriter import BomWriter
 from debsbom.dpkg.package import ChecksumAlgo
 from debsbom.util.compression import Compression
@@ -465,6 +466,24 @@ def test_illformed_sources():
     # parse incomplete packages. Must not raise
     assert len(list(Repository._make_srcpkgs([deb822.Packages()]))) == 0
     assert len(list(Repository._make_binpkgs([deb822.Packages()]))) == 0
+
+
+def test_apt_sources_are_parsed_as_utf8(c_ctype_locale, monkeypatch):
+    monkeypatch.setattr(apt_cache, "HAS_PYTHON_APT", False)
+
+    source_packages = list(Repository._parse_sources("tests/data/utf8-Sources"))
+
+    assert len(source_packages) == 1
+    assert source_packages[0].maintainer == "Şule Çiğdem Işıl ÖĞÜTÇÜ <source@example.com>"
+
+
+def test_apt_packages_are_parsed_as_utf8(c_ctype_locale, monkeypatch):
+    monkeypatch.setattr(apt_cache, "HAS_PYTHON_APT", False)
+
+    binary_packages = list(Repository._parse_packages("tests/data/utf8-Packages"))
+
+    assert len(binary_packages) == 1
+    assert binary_packages[0].maintainer == "Şule Çiğdem Işıl ÖĞÜTÇÜ <binary@example.com>"
 
 
 def _assert_generated_license_expression(copyright_file):

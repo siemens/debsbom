@@ -171,7 +171,7 @@ class Repository:
         sources_path = Path(sources_file)
         try:
             if sources_path.exists():
-                with open(sources_path) as f:
+                with open(sources_path, encoding="utf-8") as f:
                     logger.debug(f"Parsing apt cache source packages: {sources_file}")
                     sources_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
                     yield from Repository._make_srcpkgs(sources_raw, srcpkg_filter)
@@ -195,7 +195,7 @@ class Repository:
         packages_path = Path(packages_file)
         try:
             if packages_path.exists():
-                with open(packages_path) as f:
+                with open(packages_path, encoding="utf-8") as f:
                     packages_raw = Packages.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT)
                     logger.debug(f"Parsing apt cache binary packages: {packages_file}")
                     yield from Repository._make_binpkgs(packages_raw, binpkg_filter)
