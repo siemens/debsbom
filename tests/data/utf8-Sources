@@ -1,0 +1,7 @@
+Package: utf8-source
+Binary: utf8-package
+Version: 1.0-1
+Maintainer: Şule Çiğdem Işıl ÖĞÜTÇÜ <source@example.com>
+Uploaders: Çağrı Özkan <uploader@example.com>
+Architecture: any
+Format: 3.0 (quilt)

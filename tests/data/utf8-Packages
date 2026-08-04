@@ -1,0 +1,5 @@
+Package: utf8-package
+Version: 1.0-1
+Maintainer: Şule Çiğdem Işıl ÖĞÜTÇÜ <binary@example.com>
+Architecture: amd64
+Description: package with UTF-8 metadata
