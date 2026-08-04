@@ -85,7 +85,7 @@ class Repository:
         """Create repositories from apt lists directory."""
         for entry in Path(lists_dir).iterdir():
             if entry.name.endswith("Release"):
-                with open(entry) as f:
+                with open(entry, encoding="utf-8") as f:
                     repo = Deb822(f)
                 origin = repo.get("Origin")
                 codename = repo.get("Codename")
