@@ -9,6 +9,7 @@ from debian.debian_support import Version
 from packageurl import PackageURL
 import pytest
 
+from debsbom.dpkg import package as dpkg_package
 from debsbom.dpkg.package import (
     ChecksumAlgo,
     Dependency,
@@ -75,6 +76,15 @@ def test_parse_minimal_status_file(mode):
     assert spkg.name == "binutils"
     assert spkg.version == bpkg.version
     assert spkg.maintainer == bpkg.maintainer
+
+
+def test_parse_status_file_as_utf8(c_ctype_locale, monkeypatch):
+    monkeypatch.setattr(dpkg_package, "HAS_PYTHON_APT", False)
+
+    packages = list(BinaryPackage.parse_status_file(Path("tests/data/utf8-status")))
+    package = next(package for package in packages if isinstance(package, BinaryPackage))
+
+    assert package.maintainer == "Şule Çiğdem Işıl ÖĞÜTÇÜ <maintainer@example.com>"
 
 
 def test_parse_source_status_file():
