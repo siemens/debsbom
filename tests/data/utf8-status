@@ -1,0 +1,8 @@
+Package: utf8-package
+Status: install ok installed
+Priority: optional
+Section: utils
+Maintainer: Şule Çiğdem Işıl ÖĞÜTÇÜ <maintainer@example.com>
+Architecture: amd64
+Version: 1.0-1
+Description: package with a UTF-8 maintainer
