@@ -198,7 +198,7 @@ class Copyright(DebCopyright):
 
     def licenses(self) -> Iterable[License]:
         """Return all licenses found in the copyright file."""
-        with open(self._path) as f:
+        with open(self._path, encoding="utf-8") as f:
             try:
                 licenses = list(self._parse_licenses(DebCopyright(f)))
             except NotMachineReadableError:
