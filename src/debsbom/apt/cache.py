@@ -52,7 +52,7 @@ class ExtendedStates:
         """Factory to create instance from the apt extended states file"""
         auto_installed = set()
         distro_archs = set()
-        with open(Path(file)) as f:
+        with open(Path(file), encoding="utf-8") as f:
             for s in Deb822.iter_paragraphs(f, use_apt_pkg=HAS_PYTHON_APT):
                 name = s.get("Package")
                 arch = s.get("Architecture")
