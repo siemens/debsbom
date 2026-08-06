@@ -214,6 +214,7 @@ class Package(ABC):
     version: Version
     maintainer: str | None = None
     homepage: str | None = None
+    distro: str | None = None
     checksums: dict[ChecksumAlgo, str]
 
     def __init__(self, name: str, version: str | Version):
@@ -378,6 +379,8 @@ class Package(ABC):
             self.maintainer = other.maintainer
         if not self.homepage:
             self.homepage = other.homepage
+        if not self.distro:
+            self.distro = other.distro
         self.checksums |= other.checksums
 
     @classmethod
@@ -493,9 +496,10 @@ class SourcePackage(Package):
 
     def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        return PackageURL.from_string(
-            "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
-        )
+        purl = "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
+        if self.distro:
+            purl = purl + "&distro={}".format(self.distro)
+        return PackageURL.from_string(purl)
 
     @property
     def locator(self) -> str:
@@ -651,6 +655,8 @@ class BinaryPackage(Package):
         purl = "pkg:deb/{}/{}@{}".format(vendor, self.name, self.version)
         if self.architecture:
             purl = purl + "?arch={}".format(self.architecture)
+        if self.distro:
+            purl = purl + "&distro={}".format(self.distro)
         return PackageURL.from_string(purl)
 
     def source_package(self) -> SourcePackage | None:
