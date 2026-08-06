@@ -483,12 +483,12 @@ class SourcePackage(Package):
         self.copyright = copyright
 
     def __hash__(self):
-        return hash(self.purl())
+        return hash((self.name, self.version))
 
     def __eq__(self, other):
         # For compatibility reasons
         if other.is_source():
-            return self.purl() == other.purl()
+            return (self.name, self.version) == (other.name, other.version)
         return NotImplemented
 
     def purl(self, vendor="debian") -> PackageURL:
@@ -635,11 +635,15 @@ class BinaryPackage(Package):
         self.status = status
 
     def __hash__(self):
-        return hash(self.purl())
+        return hash((self.name, self.version, self.architecture))
 
     def __eq__(self, other):
         if other.is_binary():
-            return self.purl() == other.purl()
+            return (self.name, self.version, self.architecture) == (
+                other.name,
+                other.version,
+                other.architecture,
+            )
         return NotImplemented
 
     def purl(self, vendor="debian") -> PackageURL:
