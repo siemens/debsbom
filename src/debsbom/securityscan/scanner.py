@@ -72,7 +72,7 @@ class CveTriage:
         if not vulns:
             return
         for k, v in vulns.items():
-            v_distr = v["releases"].get(self.distro)
+            v_distr = v["releases"].get(p.distro or self.distro)
             if not v_distr:
                 continue
             yield CveEntry(
