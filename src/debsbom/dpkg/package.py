@@ -496,10 +496,16 @@ class SourcePackage(Package):
 
     def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        purl = "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
+        qualifiers = {"arch": "source"}
         if self.distro:
-            purl = purl + "&distro={}".format(self.distro)
-        return PackageURL.from_string(purl)
+            qualifiers["distro"] = self.distro
+        return PackageURL(
+            type="deb",
+            namespace=vendor,
+            name=self.name,
+            version=str(self.version),
+            qualifiers=qualifiers,
+        )
 
     @property
     def locator(self) -> str:
@@ -652,12 +658,18 @@ class BinaryPackage(Package):
 
     def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        purl = "pkg:deb/{}/{}@{}".format(vendor, self.name, self.version)
+        qualifiers = {}
         if self.architecture:
-            purl = purl + "?arch={}".format(self.architecture)
+            qualifiers["arch"] = self.architecture
         if self.distro:
-            purl = purl + "&distro={}".format(self.distro)
-        return PackageURL.from_string(purl)
+            qualifiers["distro"] = self.distro
+        return PackageURL(
+            type="deb",
+            namespace=vendor,
+            name=self.name,
+            version=str(self.version),
+            qualifiers=qualifiers,
+        )
 
     def source_package(self) -> SourcePackage | None:
         """Construct a source package from the referenced source dependency."""
