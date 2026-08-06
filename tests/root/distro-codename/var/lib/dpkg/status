@@ -1,0 +1,43 @@
+Package: debsbom
+Status: install ok installed
+Priority: optional
+Section: python
+Installed-Size: 441
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
+Architecture: all
+Version: 0.9.0-1~bpo13+1
+Depends: python3-debian (>= 0.1.49), python3-license-expression (>= 3.0.0), python3-packageurl (>= 0.16.0), python3:any (>= 3.11~)
+Recommends: python3-cyclonedx-lib (>= 9.0.0), python3-spdx-tools (>= 0.8.0), python3-apt, python-debsbom-doc, python3-networkx (>= 2.8.0), python3-requests (>= 2.25.1), python3-zstandard (>= 0.20.0)
+Description: SBOM generator for Debian-based distributions (tool)
+ debsbom generates SBOMs (Software Bill of Materials) for distributions based on
+ Debian in the two standard formats SPDX and CycloneDX.
+ .
+ The generated SBOM includes all installed binary packages and also contains
+ Debian Source packages.
+ .
+ This package contains the debsbom CLI.
+Homepage: https://github.com/siemens/debsbom
+
+Package: python-debsbom-doc
+Status: install ok installed
+Priority: optional
+Section: doc
+Installed-Size: 1717
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
+Architecture: all
+Multi-Arch: foreign
+Source: debsbom
+Version: 0.9.0-1~bpo13+1
+Depends: libjs-jquery (>= 3.6.0), libjs-sphinxdoc (>= 8.1), sphinx-rtd-theme-common (>= 3.0.2+dfsg)
+Recommends: debsbom
+Description: SBOM generator for Debian-based distributions (documentation)
+ debsbom generates SBOMs (Software Bill of Materials) for distributions based on
+ Debian in the two standard formats SPDX and CycloneDX.
+ .
+ The generated SBOM includes all installed binary packages and also contains
+ Debian Source packages.
+ .
+ This package contains the documentation for debsbom.
+Built-Using: sphinx (= 8.1.3-5)
+Homepage: https://github.com/siemens/debsbom
+
