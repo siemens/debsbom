@@ -330,13 +330,17 @@ class Package(ABC):
         if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)
         if purl.qualifiers.get("arch") == "source":
-            return SourcePackage(purl.name, purl.version)
+            package = SourcePackage(purl.name, purl.version)
+            package.distro = purl.qualifiers.get("distro")
+            return package
         else:
-            return BinaryPackage(
+            package = BinaryPackage(
                 name=purl.name,
                 architecture=purl.qualifiers.get("arch"),
                 version=purl.version,
             )
+            package.distro = purl.qualifiers.get("distro")
+            return package
 
     @classmethod
     def inject_src_packages(cls, binpkgs: Iterable["BinaryPackage"]) -> Iterable["Package"]:
