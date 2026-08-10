@@ -28,7 +28,7 @@ Using `Podman <https://podman.io/>`__:
 
 .. code-block:: bash
 
-    CRT=$(podman create debian:bookworm)
+    CRT=$(podman create debian:trixie)
     CHROOT=$(podman unshare podman mount $CRT)
     podman unshare debsbom generate -t spdx --root $CHROOT
 
@@ -37,8 +37,8 @@ and `umoci <https://github.com/opencontainers/umoci>`__ instead:
 
 .. code-block:: bash
 
-    skopeo copy docker://debian:bookworm oci:debian:bookworm
-    umoci raw unpack --rootless --image debian:bookworm ./rootfs
+    skopeo copy docker://debian:trixie oci:debian:trixie
+    umoci raw unpack --rootless --image debian:trixie ./rootfs
     debsbom generate -t spdx --root ./rootfs
 
 From Package List
