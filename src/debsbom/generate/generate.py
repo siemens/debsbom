@@ -41,6 +41,12 @@ class DistroArchUnknownError(RuntimeError):
 
 
 class Debsbom:
+    # Package whose Architecture states the native architecture of the rootfs.
+    # The dpkg postinst writes $DPKG_MAINTSCRIPT_ARCH, which is the architecture
+    # of the installed dpkg package, to /var/lib/dpkg/arch-native. Both sources
+    # therefore report the same value.
+    _NATIVE_ARCH_MARKER = "dpkg"
+
     def __init__(
         self,
         distro_name: str,
@@ -110,6 +116,7 @@ class Debsbom:
         return metadata
 
     def _import_packages(self, stream=None):
+        from_rootfs = not stream
         if stream:
             packages_it = Package.parse_pkglist_stream(stream)
             # if we use packages from a stream we skip extended states since
@@ -119,13 +126,15 @@ class Debsbom:
             packages_it = Package.parse_status_file(self.root / "var/lib/dpkg/status")
             merge_ext_states = True
         if not self.distro_arch:
-            if self.root:
-                self.distro_arch = self._parse_distro_arch(self.root / "var/lib/dpkg/arch-native")
-            if not self.distro_arch:
-                raise DistroArchUnknownError()
-        logger.debug(f"distro arch is '{self.distro_arch}'")
+            self.distro_arch = self._parse_distro_arch(self.root / "var/lib/dpkg/arch-native")
 
         pkgdict = dict(map(lambda p: (hash(p), p), packages_it))
+        if not self.distro_arch and from_rootfs:
+            self.distro_arch = self._derive_distro_arch(pkgdict.values())
+        if not self.distro_arch:
+            raise DistroArchUnknownError()
+        logger.debug(f"distro arch is '{self.distro_arch}'")
+
         self.packages = self._merge_apt_data(
             pkgdict,
             inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
@@ -140,6 +149,14 @@ class Debsbom:
         if not arch_native_file.is_file():
             return None
         return arch_native_file.read_text().strip()
+
+    @classmethod
+    def _derive_distro_arch(cls, packages: Iterable[Package]) -> str | None:
+        for package in filter_binaries(packages):
+            if package.name == cls._NATIVE_ARCH_MARKER:
+                return package.architecture
+
+        return None
 
     def _create_apt_repos_it(self) -> Iterable[Repository]:
         apt_lists = self.root / "var/lib/apt/lists"
