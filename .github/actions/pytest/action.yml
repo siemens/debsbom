@@ -25,8 +25,7 @@ runs:
     env:
       COVERAGE_FILE: .coverage.smoke-generate.${{ inputs.artifact-identifier }}
     run: |
-      DISTRO_ARCH="$(dpkg --print-architecture)"
-      coverage run $(which debsbom) -v generate --distro-arch $DISTRO_ARCH -t spdx -t cdx -o sbom --validate
+      coverage run $(which debsbom) -v generate -t spdx -t cdx -o sbom --validate
 
   - name: smoke test merge
     shell: bash
