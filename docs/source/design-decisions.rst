@@ -27,7 +27,7 @@ Information Sources
     :widths: 15, 15
 
     /var/lib/dpkg/status, Contains the installed package list for the distribution; is required unless ``--from-pkglist`` is used
-    /var/lib/dpkg/arch-native, Contains the native architecture for the distribution; required unless ``--distro-arch`` is specified
+    /var/lib/dpkg/arch-native, Contains the native architecture for the distribution when written by dpkg 1.22.16 or newer; optional
     /var/lib/apt/lists/*, "Contains apt-cache information, used for enrichment of source and binary packages; optional"
     /var/lib/apt/extended-states, Contains information which packages are manually installed; used for building of the dependency graph; optional
     /usr/share/doc/*/copyright, Contains licensing information for installed packages; only used with the ``--with-licenses`` option; optional
@@ -193,7 +193,17 @@ The reason for that is the dependency resolution for packages which have the ``a
     Depends: tex-common (>= 6.13), xfonts-utils, fonts-lmodern (= 2.005-1)
     [...]
 
-We can see that the ``Depends`` line does not specify which architecture the dependencies have. The Debian policy in these cases is that both native and ``all`` architecture are possible. The ``xfonts-utils`` dependency could thus resolve to multiple packages. In this case we would need to resolve to the native architecture version of the package, and for that we need to know what the architecture actually is. ``debsbom`` tries to parse the distribution architecture from the used rootfs, but if that is not possible it needs to be specified on the command line.
+We can see that the ``Depends`` line does not specify which architecture the dependencies have. The Debian policy in these cases is that both native and ``all`` architecture are possible. The ``xfonts-utils`` dependency could thus resolve to multiple packages. In this case we would need to resolve to the native architecture version of the package, and for that we need to know what the architecture actually is.
+
+When scanning a rootfs, ``debsbom`` resolves the distribution architecture in this order:
+
+#. The value specified with ``--distro-arch``.
+#. The value in ``/var/lib/dpkg/arch-native``.
+#. The ``Architecture`` of the installed ``dpkg`` package in ``/var/lib/dpkg/status``.
+
+The ``dpkg`` post-installation script writes ``DPKG_MAINTSCRIPT_ARCH`` to ``arch-native``. This is the same architecture recorded for the installed ``dpkg`` package, so deriving it from the status file does not introduce a guess. If the ``dpkg`` package is absent, generation fails and ``--distro-arch`` must be specified.
+
+Status-file derivation applies only when scanning a rootfs. Package data passed with ``--from-pkglist`` is assumed to be unrelated to the rootfs and is not used for this purpose. ``debsbom`` also does not use ``/var/lib/dpkg/arch``, which can list both native and foreign architectures, inspect architecture-specific filesystem paths, or execute the rootfs's ``dpkg`` command.
 
 Universal Ingress and Apt-Cache
 -------------------------------
