@@ -1,0 +1,31 @@
+Package: dpkg
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 6409
+Maintainer: Dpkg Developers <debian-dpkg@lists.debian.org>
+Architecture: arm64
+Multi-Arch: foreign
+Version: 1.21.22
+Essential: yes
+Description: Debian package management system
+
+Package: arch-independent
+Status: install ok installed
+Priority: optional
+Section: misc
+Installed-Size: 1
+Maintainer: Test Maintainer <test@example.com>
+Architecture: all
+Version: 1.0
+Description: Architecture-independent test package
+
+Package: foreign-package
+Status: install ok installed
+Priority: optional
+Section: misc
+Installed-Size: 1
+Maintainer: Test Maintainer <test@example.com>
+Architecture: amd64
+Version: 1.0
+Description: Foreign-architecture test package

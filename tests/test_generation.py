@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import pytest
+import shutil
 import subprocess
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
@@ -21,6 +22,7 @@ from debsbom.bomwriter.bomwriter import BomWriter
 from debsbom.dpkg.package import ChecksumAlgo
 from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
+from debsbom.generate.generate import DistroArchUnknownError
 from debsbom.sbom import BOM_Standard
 
 
@@ -78,6 +80,14 @@ def sbom_generator():
         )
 
     return setup_sbom_generator
+
+
+@pytest.fixture
+def arch_native_root(tmp_path):
+    root = tmp_path / "root"
+    shutil.copytree("tests/root/arch-detect", root)
+    (root / "var/lib/dpkg/arch-native").write_text("riscv64\n", encoding="utf-8")
+    return root
 
 
 def test_tree_generation(tmpdir, sbom_generator):
@@ -174,6 +184,37 @@ def test_dependency_generation(tmpdir, sbom_generator):
             "dependsOn": [libc_ref, libgcc_s1_ref],
             "ref": "CDXRef-pytest-distro",
         } in deps
+
+
+def test_distro_arch_derived_from_dpkg_status():
+    dbom = Debsbom(distro_name="pytest-distro", root="tests/root/arch-detect")
+
+    dbom.scan()
+
+    assert dbom.distro_arch == "arm64"
+
+
+def test_arch_native_file_overrides_status(arch_native_root):
+    dbom = Debsbom(distro_name="pytest-distro", root=arch_native_root)
+
+    dbom.scan()
+
+    assert dbom.distro_arch == "riscv64"
+
+
+def test_explicit_distro_arch_overrides_rootfs(arch_native_root):
+    dbom = Debsbom(distro_name="pytest-distro", root=arch_native_root, distro_arch="s390x")
+
+    dbom.scan()
+
+    assert dbom.distro_arch == "s390x"
+
+
+def test_distro_arch_unknown_without_dpkg_package():
+    dbom = Debsbom(distro_name="pytest-distro", root="tests/root/dependency")
+
+    with pytest.raises(DistroArchUnknownError):
+        dbom.scan()
 
 
 def test_standard_bom(tmpdir):
