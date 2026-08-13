@@ -653,6 +653,46 @@ def test_license_exception_information(tmpdir, sbom_generator):
         assert not source_components["exception-unresolved"].get("licenses")
 
 
+def _spdx_source_package(test_root, source_name, tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    dbom = sbom_generator(
+        test_root,
+        with_licenses=True,
+        sbom_types=[SBOMType.SPDX],
+    )
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        return next(
+            package
+            for package in spdx_json["packages"]
+            if package["name"] == source_name
+            and any(
+                "arch=source" in ref["referenceLocator"]
+                for ref in package.get("externalRefs") or []
+            )
+        )
+
+
+def test_copyright_from_sibling_binary_package(tmpdir, sbom_generator):
+    """A broken doc link must not prevent lookup through another sibling."""
+    source = _spdx_source_package("tests/root/copyright-sibling", "sibling", tmpdir, sbom_generator)
+
+    assert source["licenseDeclared"] == "MIT"
+
+
+def test_copyright_from_linked_doc_directory(tmpdir, sbom_generator):
+    """A valid linked doc directory resolves its target's copyright file."""
+    source = _spdx_source_package(
+        "tests/root/copyright-linked-doc", "sibling", tmpdir, sbom_generator
+    )
+
+    assert source["licenseDeclared"] == "MIT"
+
+
 def test_virtual_package(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")
