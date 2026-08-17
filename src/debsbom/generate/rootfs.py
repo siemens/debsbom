@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 import io
-import os
 from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
@@ -23,18 +22,8 @@ _APT_LISTS = "var/lib/apt/lists"
 _COPYRIGHT_ROOT = PurePosixPath("usr/share/doc")
 
 
-def _normalized_member_path(name: str) -> PurePosixPath:
-    if "\\" in name:
-        raise ValueError(f"tar archive member uses an invalid path separator: {name}")
-    while name.startswith("./"):
-        name = name[2:]
-    path = PurePosixPath(name)
-    if path.is_absolute() or ".." in path.parts:
-        raise ValueError(f"tar archive member escapes the rootfs: {name}")
-    return path
-
-
-def _is_rootfs_metadata(path: PurePosixPath, include_copyright: bool) -> bool:
+def _is_rootfs_metadata(name: str, include_copyright: bool) -> bool:
+    path = PurePosixPath(name.lstrip("/"))
     archive_path = path.as_posix()
     if archive_path in _ROOT_FILES:
         return True
@@ -50,62 +39,34 @@ def _is_rootfs_metadata(path: PurePosixPath, include_copyright: bool) -> bool:
     )
 
 
-def _normalized_link_target(member_path: PurePosixPath, linkname: str) -> PurePosixPath:
-    if "\\" in linkname:
-        raise ValueError(f"tar archive link uses an invalid path separator: {linkname}")
+def _metadata_filter(
+    include_copyright: bool,
+) -> Callable[[tarfile.TarInfo, str | Path], tarfile.TarInfo | None]:
+    """Build an extraction filter selecting rootfs metadata, hardened by :data:`tarfile.data_filter`.
 
-    link_path = PurePosixPath(linkname)
-    if link_path.is_absolute():
-        combined = PurePosixPath(*link_path.parts[1:])
-    else:
-        combined = member_path.parent / link_path
+    Path traversal, links leaving the destination and special files are rejected by the
+    tarfile data filter, which raises a :class:`tarfile.FilterError` for the offending member.
+    """
 
-    normalized_parts: list[str] = []
-    for part in combined.parts:
-        if part in ("", "."):
-            continue
-        if part == "..":
-            if not normalized_parts:
-                raise ValueError(f"tar archive link escapes the rootfs: {linkname}")
-            normalized_parts.pop()
-            continue
-        normalized_parts.append(part)
-    return PurePosixPath(*normalized_parts)
+    def select(member: tarfile.TarInfo, destination: str | Path) -> tarfile.TarInfo | None:
+        if not _is_rootfs_metadata(member.name, include_copyright):
+            return None
+        if member.islnk() and not _is_rootfs_metadata(member.linkname, include_copyright):
+            # the target is skipped, so the link cannot be materialized from the stream
+            raise ValueError(
+                f"tar archive hard link points outside the scanned rootfs metadata: {member.name}"
+            )
+        return tarfile.data_filter(member, destination)
+
+    return select
 
 
 def _materialize_rootfs_metadata(
     archive: tarfile.TarFile, destination: Path, include_copyright: bool
 ) -> None:
-    for member in archive:
-        member_path = _normalized_member_path(member.name)
-        if not _is_rootfs_metadata(member_path, include_copyright):
-            continue
-
-        output_path = destination.joinpath(*member_path.parts)
-        if member.isdir():
-            output_path.mkdir(parents=True, exist_ok=True)
-            continue
-        if member.issym():
-            target_path = _normalized_link_target(member_path, member.linkname)
-            if not _is_rootfs_metadata(target_path, include_copyright):
-                raise ValueError(
-                    f"tar archive link points outside the scanned rootfs metadata: {member.name}"
-                )
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            relative_target = os.path.relpath(
-                destination.joinpath(*target_path.parts), output_path.parent
-            )
-            output_path.symlink_to(relative_target)
-            continue
-        if not member.isfile():
-            raise ValueError(f"unsupported tar archive member type: {member.name}")
-
-        source = archive.extractfile(member)
-        if source is None:
-            raise RuntimeError(f"Unable to read tar archive member: {member.name}")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with source, output_path.open("wb") as output:
-            shutil.copyfileobj(source, output)
+    # an SBOM must not silently lose metadata, so extraction errors are fatal
+    archive.errorlevel = 2
+    archive.extractall(path=destination, filter=_metadata_filter(include_copyright))
 
 
 @contextmanager
