@@ -385,3 +385,21 @@ def test_vex_with_product(scanner, vex_schema):
     product = statement["products"][0]
     assert product["@id"] == "Product"
     assert "deb/debian/fake-crypto" in product["subcomponents"][0]["@id"]
+
+
+def test_distro_from_package(scanner, vex_schema):
+    """Test if CVEs get assigned correctly based on package distribution information."""
+    package = SourcePackage(name="fake-shell", version="5.2.37-2")
+    package.distro = "forky"
+
+    results = list(scanner.scan([package], min_urgency=CveUrgency.NOT_YET_ASSIGNED))
+    cves = {r.vulnerability.cve for r in results}
+    assert "TEMP-0000-000001" in cves
+    assert len(results) == 1
+
+    package.distro = "sid"
+    results = list(scanner.scan([package], min_urgency=CveUrgency.NOT_YET_ASSIGNED))
+    cves = {r.vulnerability.cve for r in results}
+    assert "TEMP-0000-000001" in cves
+    assert "CVE-0000-0001" in cves
+    assert len(results) == 2

@@ -214,6 +214,7 @@ class Package(ABC):
     version: Version
     maintainer: str | None = None
     homepage: str | None = None
+    distro: str | None = None
     checksums: dict[ChecksumAlgo, str]
 
     def __init__(self, name: str, version: str | Version):
@@ -329,13 +330,17 @@ class Package(ABC):
         if not purl.type == "deb":
             raise RuntimeError("Not a debian purl", purl)
         if purl.qualifiers.get("arch") == "source":
-            return SourcePackage(purl.name, purl.version)
+            package = SourcePackage(purl.name, purl.version)
+            package.distro = purl.qualifiers.get("distro")
+            return package
         else:
-            return BinaryPackage(
+            package = BinaryPackage(
                 name=purl.name,
                 architecture=purl.qualifiers.get("arch"),
                 version=purl.version,
             )
+            package.distro = purl.qualifiers.get("distro")
+            return package
 
     @classmethod
     def inject_src_packages(cls, binpkgs: Iterable["BinaryPackage"]) -> Iterable["Package"]:
@@ -378,6 +383,8 @@ class Package(ABC):
             self.maintainer = other.maintainer
         if not self.homepage:
             self.homepage = other.homepage
+        if not self.distro:
+            self.distro = other.distro
         self.checksums |= other.checksums
 
     @classmethod
@@ -483,18 +490,25 @@ class SourcePackage(Package):
         self.copyright = copyright
 
     def __hash__(self):
-        return hash(self.purl())
+        return hash((self.name, self.version))
 
     def __eq__(self, other):
         # For compatibility reasons
         if other.is_source():
-            return self.purl() == other.purl()
+            return (self.name, self.version) == (other.name, other.version)
         return NotImplemented
 
     def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        return PackageURL.from_string(
-            "pkg:deb/{}/{}@{}?arch=source".format(vendor, self.name, self.version)
+        qualifiers = {"arch": "source"}
+        if self.distro:
+            qualifiers["distro"] = self.distro
+        return PackageURL(
+            type="deb",
+            namespace=vendor,
+            name=self.name,
+            version=str(self.version),
+            qualifiers=qualifiers,
         )
 
     @property
@@ -635,19 +649,31 @@ class BinaryPackage(Package):
         self.status = status
 
     def __hash__(self):
-        return hash(self.purl())
+        return hash((self.name, self.version, self.architecture))
 
     def __eq__(self, other):
         if other.is_binary():
-            return self.purl() == other.purl()
+            return (self.name, self.version, self.architecture) == (
+                other.name,
+                other.version,
+                other.architecture,
+            )
         return NotImplemented
 
     def purl(self, vendor="debian") -> PackageURL:
         """Return the PURL of the package."""
-        purl = "pkg:deb/{}/{}@{}".format(vendor, self.name, self.version)
+        qualifiers = {}
         if self.architecture:
-            purl = purl + "?arch={}".format(self.architecture)
-        return PackageURL.from_string(purl)
+            qualifiers["arch"] = self.architecture
+        if self.distro:
+            qualifiers["distro"] = self.distro
+        return PackageURL(
+            type="deb",
+            namespace=vendor,
+            name=self.name,
+            version=str(self.version),
+            qualifiers=qualifiers,
+        )
 
     def source_package(self) -> SourcePackage | None:
         """Construct a source package from the referenced source dependency."""

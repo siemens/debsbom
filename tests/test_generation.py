@@ -892,3 +892,38 @@ def test_built_using(tmpdir, sbom_generator):
             ],
             "ref": "pkg:deb/debian/debcargo@2.7.8-4?arch=amd64",
         } in dependencies
+
+
+def test_apt_codename(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/distro-codename")
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+        for package in packages:
+            if package["name"] == "pytest-distro":
+                continue
+            seen = False
+            for ref in package["externalRefs"]:
+                if ref["referenceType"] == "purl":
+                    seen = True
+                    # only the debsbom packages are referenced in the apt cache
+                    if "debsbom" in package["name"]:
+                        assert "distro=codename-stable" in ref["referenceLocator"]
+                    else:
+                        assert "distro=codename-stable" not in ref["referenceLocator"]
+                    break
+            assert seen
+    with open(outdir / "sbom.cdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["components"]
+        for pkg in packages:
+            # only the debsbom packages are referenced in the apt cache
+            if "debsbom" in pkg["name"]:
+                assert "distro=codename-stable" in pkg["purl"]
+            else:
+                assert "distro=codename-stable" not in pkg["purl"]

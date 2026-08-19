@@ -220,13 +220,18 @@ class Repository:
         self, filter_fn: Callable[[SourcePackageFilter], bool] | None = None
     ) -> Iterable[SourcePackage]:
         """Get all source packages from this repository."""
+
+        def _add_distro(p: SourcePackage) -> SourcePackage:
+            p.distro = self.codename
+            return p
+
         if self.components:
             for component in self.components:
                 sources_file = "_".join([self.repo_base, component, "source", "Sources"])
-                yield from self._parse_sources(sources_file, filter_fn)
+                yield from map(_add_distro, self._parse_sources(sources_file, filter_fn))
         else:
             sources_file = "_".join([self.repo_base, "source", "Sources"])
-            return self._parse_sources(sources_file, filter_fn)
+            return map(_add_distro, self._parse_sources(sources_file, filter_fn))
 
     def binpackages(
         self,
@@ -242,6 +247,7 @@ class Repository:
                     )
                     for p in self._parse_packages(packages_file, filter_fn):
                         p.manually_installed = ext_states.is_manual(p.name, p.architecture)
+                        p.distro = self.codename
                         yield p
         else:
             for arch in self.architectures:
