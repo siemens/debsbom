@@ -41,6 +41,24 @@ and `umoci <https://github.com/opencontainers/umoci>`__ instead:
     umoci raw unpack --rootless --image debian:trixie ./rootfs
     debsbom generate -t spdx --root ./rootfs
 
+You can also scan a container export directly, without unpacking the complete root filesystem:
+
+.. code-block:: bash
+
+    CRT=$(podman create debian:trixie)
+    podman export "$CRT" -o rootfs.tar
+    debsbom generate -t spdx --root rootfs.tar
+
+To avoid the temporary tar file as well, stream the uncompressed export through stdin:
+
+.. code-block:: bash
+
+    podman export "$CRT" | debsbom generate -t spdx --root -
+
+Compressed tar files use their filename extension to select the decompressor. The supported
+extensions are ``.bz2``, ``.gz``, ``.xz``, ``.zst``, and ``.lz4``. Compression cannot be
+selected by filename when reading from stdin, so ``podman export`` should be piped directly.
+
 From Package List
 ^^^^^^^^^^^^^^^^^
 
