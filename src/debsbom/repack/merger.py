@@ -173,7 +173,7 @@ class SourceArchiveMerger:
             ]
             with open(tmpfile, "wb") as outfile:
                 tar_writer = subprocess.Popen(
-                    ["tar", "c"] + repro_tar_opts + sorted(sources),
+                    ["tar", "c"] + repro_tar_opts + ["--"] + sorted(sources),
                     stdout=subprocess.PIPE,
                     cwd=tmpdir,
                 )

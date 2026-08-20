@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from debian import deb822
 import logging
+import re
 import requests
 from requests.exceptions import RequestException
 
@@ -29,6 +30,16 @@ logger = logging.getLogger(__name__)
 
 
 UPSTREAM_ARCHIVE_ORDER = ["debian", "debian-security", "debian-debug", "debian-ports"]
+
+# Characters allowed in a debian package file name: package name, version
+# (incl. epoch ':' and revision '-'), architecture, separators and extension.
+_FILENAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9.+~:_-]*")
+
+# A SHA-1 digest as used to address files on the snapshot farm.
+_SHA1_RE = re.compile(r"[0-9a-fA-F]{40}")
+
+# Characters allowed in a debian archive name.
+_ARCHIVE_RE = re.compile(r"[a-zA-Z0-9-]+")
 
 
 class SnapshotDataLakeError(Exception):
@@ -178,18 +189,61 @@ class SnapshotRemoteFile(RemoteFile):
     architecture: str | None = None
 
     @staticmethod
+    def _sanitize_filename(name: str) -> str:
+        """
+        Ensure a debian package file name only consists of the allowed set of
+        characters and return it. Raises ValueError otherwise.
+        """
+        if not _FILENAME_RE.fullmatch(name):
+            raise ValueError(f"invalid debian file name: {name!r}")
+        return name
+
+    @staticmethod
+    def _sanitize_hash(hash: str) -> str:
+        """
+        Ensure the file hash is a valid SHA-1 digest and return it.
+        Raises ValueError otherwise.
+        """
+        if not _SHA1_RE.fullmatch(hash):
+            raise ValueError(f"invalid sha1 hash: {hash!r}")
+        return hash
+
+    @staticmethod
+    def _sanitize_archive_name(name: str) -> str:
+        """
+        Ensure the archive name only consists of the allowed set of characters
+        and return it. Raises ValueError otherwise.
+        """
+        if not _ARCHIVE_RE.fullmatch(name):
+            raise ValueError(f"invalid archive name: {name!r}")
+        return name
+
+    @staticmethod
+    def _sanitize_path(path: str) -> str:
+        """
+        Ensure the path is absolute and free of '..' components and return it.
+        Raises ValueError otherwise.
+        """
+        if not path.startswith("/") or ".." in path.split("/"):
+            raise ValueError(f"invalid path: {path!r}")
+        return path
+
+    @staticmethod
     def fromfileinfo(sdl, hash: str, fileinfo: Mapping) -> "SnapshotRemoteFile":
         """
         Factory to create a ``SnapshotRemoteFile`` from a fileinfo object.
+        The hash, name, archive_name and path are sanitized and raise ValueError if not valid.
         """
+        hash = SnapshotRemoteFile._sanitize_hash(hash)
+        filename = SnapshotRemoteFile._sanitize_filename(fileinfo["name"])
         return SnapshotRemoteFile(
             checksums={ChecksumAlgo.SHA1SUM: hash},
-            filename=fileinfo["name"],
-            size=fileinfo["size"],
-            archive_name=fileinfo["archive_name"],
-            path=fileinfo["path"],
+            filename=filename,
+            size=int(fileinfo["size"]),
+            archive_name=SnapshotRemoteFile._sanitize_archive_name(fileinfo["archive_name"]),
+            path=SnapshotRemoteFile._sanitize_path(fileinfo["path"]),
             first_seen=int(datetime.fromisoformat(fileinfo["first_seen"]).timestamp()),
-            downloadurl=sdl.url + f"/file/{hash}/{fileinfo['name']}",
+            downloadurl=sdl.url + f"/file/{hash}/{filename}",
         )
 
 

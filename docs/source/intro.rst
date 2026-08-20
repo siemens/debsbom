@@ -88,3 +88,11 @@ Reliably and correctly identifying if a package is a vendor package or not is no
 .. rubric:: Footnotes
 
 .. [#f1] https://github.com/CycloneDX/specification/issues/612
+
+Security Boundaries
+-------------------
+
+Unless stated otherwise, all input to debsbom is considered trusted.
+Data from external services (e.g. the Debian snapshot service) is sanitized on a best-effort basis: its meta-data is untrusted and sanitized by debsbom, while the file content itself is considered trusted.
+If an SBOM provides checksums for an artifact (e.g. a source or binary package), the downloaded artifact is verified against them, including transitive checksums such as those in a ``.dsc`` file; without checksums, artifacts are considered trusted and not verified.
+All debsbom plugins are considered trusted code.

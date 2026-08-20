@@ -8,10 +8,48 @@ from debsbom.snapshot.client import (
     BinaryPackage,
     NotFoundOnSnapshotError,
     Package,
+    SnapshotDataLake,
     SnapshotDataLakeError,
+    SnapshotRemoteFile,
     SourcePackage,
 )
 from debsbom.util.checksum import ChecksumAlgo
+
+
+def test_fromfileinfo_sanitization():
+    sdl = SnapshotDataLake()
+    hash = "1f3a43c181b81e3578d609dc0931ff147623eb38"
+    fileinfo = {
+        "name": "pytest_8.4.2-1.dsc",
+        "size": "2757",
+        "archive_name": "debian",
+        "path": "/pool/main/p/pytest",
+        "first_seen": "2025-09-07T19:03:19",
+    }
+
+    rf = SnapshotRemoteFile.fromfileinfo(sdl, hash, fileinfo)
+    assert rf.filename == "pytest_8.4.2-1.dsc"
+    assert rf.checksums[ChecksumAlgo.SHA1SUM] == hash
+    assert rf.size == 2757
+    assert rf.archive_name == "debian"
+    assert rf.path == "/pool/main/p/pytest"
+    assert rf.downloadurl == f"{sdl.url}/file/{hash}/pytest_8.4.2-1.dsc"
+
+    # a non-hex/short hash is rejected
+    with pytest.raises(ValueError):
+        SnapshotRemoteFile.fromfileinfo(sdl, "nothex", fileinfo)
+
+    # each malicious field must be rejected
+    for field, value in [
+        ("name", "../../../etc/foo"),
+        ("archive_name", "../debian"),
+        ("path", "pool/main/p/pytest"),  # not absolute
+        ("path", "/pool/../../etc"),  # contains ..
+    ]:
+        bad = dict(fileinfo)
+        bad[field] = value
+        with pytest.raises(ValueError):
+            SnapshotRemoteFile.fromfileinfo(sdl, hash, bad)
 
 
 @pytest.mark.online
