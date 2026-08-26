@@ -475,6 +475,7 @@ class SourcePackage(Package):
         vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
         copyright: Copyright | None = None,
+        distro: str | None = None,
     ):
         self.name = name
         self.version = Version(version)
@@ -484,6 +485,7 @@ class SourcePackage(Package):
         self.vcs = vcs
         self.checksums = checksums or {}
         self.copyright = copyright
+        self.distro = distro
 
     def __hash__(self):
         return hash((self.name, self.version))
@@ -622,6 +624,7 @@ class BinaryPackage(Package):
         checksums: dict[ChecksumAlgo, str] | None = None,
         manually_installed: bool = True,
         status: DpkgStatus = DpkgStatus.DEBSBOM_UNKNOWN,
+        distro: str | None = None,
     ):
         self.name = name
         self.section = section
@@ -643,6 +646,7 @@ class BinaryPackage(Package):
         self.checksums = checksums or {}
         self.manually_installed = manually_installed
         self.status = status
+        self.distro = distro
 
     def __hash__(self):
         return hash((self.name, self.version, self.architecture))
