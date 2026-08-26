@@ -402,10 +402,10 @@ class Package(ABC):
             # Add partial source package. This can later be enhanced by merging it with
             # a more complete source package we discovered via other mechanisms (e.g. apt cache).
             logger.debug(f"Found built-using source package: '{bu.name}@{bu.version[1]}'")
-            yield SourcePackage(bu.name, bu.version[1])
+            yield SourcePackage(bu.name, bu.version[1], pkg.distro)
         for sbu in pkg.static_built_using:
             logger.debug(f"Found static-built-using source package: '{sbu.name}@{sbu.version[1]}'")
-            yield SourcePackage(sbu.name, sbu.version[1])
+            yield SourcePackage(sbu.name, sbu.version[1], pkg.distro)
         if add_pkg:
             yield pkg
 
@@ -683,7 +683,12 @@ class BinaryPackage(Package):
     def source_package(self) -> SourcePackage | None:
         """Construct a source package from the referenced source dependency."""
         if self.source:
-            return SourcePackage(self.source.name, self.source.version[1], self.maintainer)
+            return SourcePackage(
+                self.source.name,
+                self.source.version[1],
+                self.maintainer,
+                distro=self.distro,
+            )
         else:
             return None
 
