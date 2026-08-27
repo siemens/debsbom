@@ -7,10 +7,10 @@ from pathlib import Path
 import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 
 from .bomwriter import BomWriter
-from ..sbom import CDXType
+from ..sbom import SPDXType
 
 
-class SpdxBomWriter(BomWriter, CDXType):
+class SpdxBomWriter(BomWriter, SPDXType):
     @staticmethod
     def write_to_file(bom, outfile: Path, validate: bool):
         spdx_json_writer.write_document_to_file(bom, str(outfile), validate)
