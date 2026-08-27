@@ -84,9 +84,7 @@ class GenerateCmd(GenerateInput):
                     t,
                     progress_cb=progress_cb if args.progress else None,
                 )
-                opts = SerializerOpts.create(
-                    bomtype=t, schema_version=args.cdx_schema_version
-                )
+                opts = SerializerOpts.create(bomtype=t, schema_version=args.cdx_schema_version)
                 SbomOutput.write_out_arg(bom, t, args.out, args.validate, opts)
 
     @classmethod

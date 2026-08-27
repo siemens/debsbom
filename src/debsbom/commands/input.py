@@ -132,6 +132,14 @@ class GenerateInput:
     """
 
     @classmethod
+    def get_cdx_schema_versions(cls) -> list[str]:
+        try:
+            import cyclonedx.schema as cdx_schema
+        except ModuleNotFoundError:
+            return []
+        return [v.to_version() for v in sorted(cdx_schema.SchemaVersion)]
+
+    @classmethod
     def parser_add_generate_input_args(cls, parser, default_out):
         from ..cli import arg_mark_as_file
 
@@ -188,8 +196,8 @@ class GenerateInput:
         )
         parser.add_argument(
             "--cdx-schema-version",
-            choices=["1.6"],
-            default="1.6",
+            choices=cls.get_cdx_schema_versions() + ["latest"],
+            default="latest",
             help="CycloneDX schema version (default: %(default)s)",
         )
         parser.add_argument(
