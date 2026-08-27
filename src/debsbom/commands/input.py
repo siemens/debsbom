@@ -175,16 +175,16 @@ class GenerateInput:
             default="debian",
         )
         parser.add_argument(
-            "--cdx-standard",
-            choices=["default", "standard-bom"],
-            help="generate SBOM according to this spec (only for CDX)",
-            default="default",
-        )
-        parser.add_argument(
             "--spdx-namespace",
             type=urlparse,
             help="document namespace, must be a valid URI (only for SPDX)",
             default=None,
+        )
+        parser.add_argument(
+            "--cdx-standard",
+            choices=["default", "standard-bom"],
+            help="generate SBOM according to this spec (only for CDX)",
+            default="default",
         )
         parser.add_argument(
             "--cdx-schema-version",
