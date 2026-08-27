@@ -87,7 +87,7 @@ def make_creation_info(
         )
 
     if timestamp is None:
-        timestamp = datetime.now()
+        timestamp = datetime.now().astimezone()
 
     creation_info = spdx_document.CreationInfo(
         spdx_version="SPDX-2.3",
