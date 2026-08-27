@@ -64,6 +64,7 @@ class Debsbom:
         with_licenses: bool = False,
         recommends_deps: bool = True,
         suggests_deps: bool = False,
+        cdx_schema_version: str = "1.6",
     ):
         self.root = Path(root)
         self.distro_name = distro_name
@@ -76,6 +77,7 @@ class Debsbom:
         self.with_licenses = with_licenses
         self.recommends_deps = recommends_deps
         self.suggests_deps = suggests_deps
+        self.cdx_schema_version = cdx_schema_version
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
