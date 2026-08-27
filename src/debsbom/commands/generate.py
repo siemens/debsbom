@@ -10,6 +10,7 @@ from debsbom import HAS_PYTHON_APT
 from .output import SbomOutput
 from .input import GenerateInput, warn_if_tty
 from ..generate.generate import Debsbom
+from ..generate.rootfs import rootfs_directory
 from ..sbom import BOM_Standard, SBOMType
 from ..util.progress import progress_cb
 
@@ -49,37 +50,44 @@ class GenerateCmd(GenerateInput):
         if not HAS_PYTHON_APT:
             logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
-        debsbom = Debsbom(
-            distro_name=args.distro_name,
-            distro_arch=None if args.distro_arch == "auto" else args.distro_arch,
-            root=args.root,
-            distro_supplier=args.distro_supplier,
-            distro_version=args.distro_version,
-            distro_summary=args.distro_summary,
-            base_distro_vendor=args.base_distro_vendor,
-            spdx_namespace=args.spdx_namespace,
-            cdx_serialnumber=args.cdx_serialnumber,
-            timestamp=args.timestamp,
-            add_meta_data=args.add_meta_data,
-            cdx_standard=cdx_standard,
-            with_licenses=args.with_licenses,
-            recommends_deps=args.recommends_deps,
-            suggests_deps=args.suggests_deps,
-        )
-        if args.from_pkglist:
+        if args.root == "-" and args.from_pkglist:
+            raise ValueError("--root - cannot be combined with --from-pkglist")
+        if args.root == "-":
             warn_if_tty()
-        debsbom.scan(pkgs_stream=sys.stdin if args.from_pkglist else None)
-        for t in sbom_types:
-            logger.info(f"Generating {t} SBOM...")
-            bom = debsbom.generate(
-                t,
-                progress_cb=progress_cb if args.progress else None,
+        input_stream = getattr(sys.stdin, "buffer", sys.stdin)
+
+        with rootfs_directory(args.root, input_stream, args.with_licenses) as root:
+            debsbom = Debsbom(
+                distro_name=args.distro_name,
+                distro_arch=None if args.distro_arch == "auto" else args.distro_arch,
+                root=root,
+                distro_supplier=args.distro_supplier,
+                distro_version=args.distro_version,
+                distro_summary=args.distro_summary,
+                base_distro_vendor=args.base_distro_vendor,
+                spdx_namespace=args.spdx_namespace,
+                cdx_serialnumber=args.cdx_serialnumber,
+                timestamp=args.timestamp,
+                add_meta_data=args.add_meta_data,
+                cdx_standard=cdx_standard,
+                with_licenses=args.with_licenses,
+                recommends_deps=args.recommends_deps,
+                suggests_deps=args.suggests_deps,
             )
-            SbomOutput.write_out_arg(bom, t, args.out, args.validate)
+            if args.from_pkglist:
+                warn_if_tty()
+            debsbom.scan(pkgs_stream=sys.stdin if args.from_pkglist else None)
+            for t in sbom_types:
+                logger.info(f"Generating {t} SBOM...")
+                bom = debsbom.generate(
+                    t,
+                    progress_cb=progress_cb if args.progress else None,
+                )
+                SbomOutput.write_out_arg(bom, t, args.out, args.validate)
 
     @classmethod
     def setup_parser(cls, parser):
-        from ..cli import arg_mark_as_dir
+        from ..cli import arg_mark_as_file
 
         cls.parser_add_generate_input_args(parser, default_out="sbom")
         parser.add_argument(
@@ -89,12 +97,15 @@ class GenerateCmd(GenerateInput):
             action="append",
             help="SBOM type to generate, can be passed multiple times (default: all)",
         )
-        arg_mark_as_dir(
+        arg_mark_as_file(
             parser.add_argument(
                 "-r",
                 "--root",
                 type=str,
-                help="root directory to look for dpkg status file and apt cache",
+                help=(
+                    "root directory or tar archive to scan for dpkg status and apt cache; "
+                    "use '-' to read an uncompressed tar archive from stdin"
+                ),
                 default="/",
             )
         )
