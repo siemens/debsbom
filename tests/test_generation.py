@@ -120,6 +120,16 @@ def test_tree_generation(tmpdir, sbom_generator):
         assert cdx_json["serialNumber"] == "urn:uuid:{}".format(uuid)
 
 
+def test_default_spdx_creation_timestamp_has_timezone():
+    pytest.importorskip("spdx_tools")
+
+    from debsbom.generate.spdx import make_creation_info
+
+    creation_info = make_creation_info("pytest-distro")
+
+    assert creation_info.created.utcoffset() is not None
+
+
 def test_dependency_generation(tmpdir, sbom_generator):
     _spdx_tools = pytest.importorskip("spdx_tools")
     _cyclonedx = pytest.importorskip("cyclonedx")
