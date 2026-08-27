@@ -187,6 +187,12 @@ class GenerateInput:
             default=None,
         )
         parser.add_argument(
+            "--cdx-schema-version",
+            choices=["1.6"],
+            default="1.6",
+            help="CycloneDX schema version (default: %(default)s)",
+        )
+        parser.add_argument(
             "--cdx-serialnumber",
             type=UUID,
             help="document serial number, must be a UUID in 8-4-4-4-12 format (only for CDX)",

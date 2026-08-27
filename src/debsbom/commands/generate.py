@@ -9,6 +9,7 @@ import sys
 from debsbom import HAS_PYTHON_APT
 from .output import SbomOutput
 from .input import GenerateInput, warn_if_tty
+from ..bomwriter.bomwriter import SerializerOpts
 from ..generate.generate import Debsbom
 from ..generate.rootfs import rootfs_directory
 from ..sbom import BOM_Standard, SBOMType
@@ -83,7 +84,10 @@ class GenerateCmd(GenerateInput):
                     t,
                     progress_cb=progress_cb if args.progress else None,
                 )
-                SbomOutput.write_out_arg(bom, t, args.out, args.validate)
+                opts = SerializerOpts.create(
+                    bomtype=t, schema_version=args.cdx_schema_version
+                )
+                SbomOutput.write_out_arg(bom, t, args.out, args.validate, opts)
 
     @classmethod
     def setup_parser(cls, parser):

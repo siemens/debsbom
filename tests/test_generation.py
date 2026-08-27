@@ -18,7 +18,7 @@ from io import TextIOWrapper
 
 from debsbom.apt.cache import ExtendedStates, Repository
 from debsbom.apt import cache as apt_cache
-from debsbom.bomwriter.bomwriter import BomWriter
+from debsbom.bomwriter.bomwriter import BomWriter, SerializerOpts
 from debsbom.dpkg.package import ChecksumAlgo
 from debsbom.util.compression import Compression
 from debsbom.generate import Debsbom, SBOMType
@@ -128,6 +128,25 @@ def test_default_spdx_creation_timestamp_has_timezone():
     creation_info = make_creation_info("pytest-distro")
 
     assert creation_info.created.utcoffset() is not None
+
+
+@pytest.mark.parametrize(
+    ("schema_version", "expected_schema_version"),
+    [("1.6", "1.6"), ("latest", None)],
+)
+def test_cdx_schema_version_selection(schema_version, expected_schema_version):
+    pytest.importorskip("cyclonedx")
+
+    import cyclonedx.schema as cdx_schema
+
+    opts = SerializerOpts.create(SBOMType.CycloneDX, schema_version)
+
+    expected = (
+        max(cdx_schema.SchemaVersion)
+        if expected_schema_version is None
+        else cdx_schema.SchemaVersion.from_version(expected_schema_version)
+    )
+    assert opts.cdx_schema_version == expected
 
 
 def test_dependency_generation(tmpdir, sbom_generator):
