@@ -73,7 +73,15 @@ def _materialize_rootfs_metadata(
     # ship no apt lists, and var/lib/dpkg/arch-native only exists from trixie on. Missing
     # data is handled downstream, so tarfile's default errorlevel is kept and only the
     # filter rejections below stay fatal.
-    archive.extractall(path=destination, filter=_metadata_filter(include_copyright))
+    if hasattr(tarfile, "data_filter"):
+        archive.extractall(path=destination, filter=_metadata_filter(include_copyright))
+    else:
+        logger.warning(
+            "tarfile.data_filter not available, extracting all rootfs metadata without filtering. "
+            "This is a potentially unsafe operation. "
+            "To mitigate the risk please update your Python version to >3.11.4."
+        )
+        archive.extractall(path=destination)
 
 
 @contextmanager
