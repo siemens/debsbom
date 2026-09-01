@@ -15,6 +15,11 @@ from debsbom.generate.generate import Debsbom
 from debsbom.generate.rootfs import rootfs_directory
 from debsbom.util.compression import Compression
 
+requires_tarfile_filter = pytest.mark.skipif(
+    not hasattr(tarfile, "data_filter"),
+    reason="tarfile.data_filter is required to restrict extraction to rootfs metadata",
+)
+
 
 def _add_rootfs(archive: tarfile.TarFile) -> None:
     archive.add("tests/root/tree", arcname=".")
@@ -32,6 +37,7 @@ def _assert_scannable(root: Path) -> None:
     assert not (root / "etc/not-needed").exists()
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_file(tmp_path):
     archive_path = tmp_path / "rootfs.tar"
     with tarfile.open(archive_path, mode="w") as archive:
@@ -52,6 +58,7 @@ def test_directory_rootfs_is_used_directly():
         _assert_scannable(root)
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_stdin():
     stream = BytesIO()
     with tarfile.open(fileobj=stream, mode="w") as archive:
@@ -62,6 +69,7 @@ def test_tar_rootfs_stdin():
         _assert_scannable(root)
 
 
+@requires_tarfile_filter
 @pytest.mark.parametrize("compression", Compression.formats(), ids=lambda comp: comp.tool)
 def test_compressed_tar_rootfs_file(tmp_path, compression):
     tool = shutil.which(compression.tool)
@@ -84,6 +92,7 @@ def test_compressed_tar_rootfs_file(tmp_path, compression):
         _assert_scannable(root)
 
 
+@requires_tarfile_filter
 def test_copyright_files_are_materialized_only_when_requested(tmp_path):
     archive_path = tmp_path / "rootfs.tar"
     with tarfile.open(archive_path, mode="w") as archive:
@@ -124,6 +133,7 @@ def _stdin_rootfs(member: tarfile.TarInfo, content: bytes | None = None) -> Byte
     return stream
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_rejects_metadata_symlink_escape():
     member = tarfile.TarInfo("var/lib/dpkg/status")
     member.type = tarfile.SYMTYPE
@@ -134,6 +144,7 @@ def test_tar_rootfs_rejects_metadata_symlink_escape():
             pass
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_rejects_parent_traversal():
     member = tarfile.TarInfo("var/lib/apt/lists/../../../../../escape")
     member.size = len(b"escape")
@@ -143,6 +154,7 @@ def test_tar_rootfs_rejects_parent_traversal():
             pass
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_rejects_special_file():
     member = tarfile.TarInfo("var/lib/dpkg/status")
     member.type = tarfile.CHRTYPE
@@ -152,6 +164,7 @@ def test_tar_rootfs_rejects_special_file():
             pass
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_skips_hard_link_to_skipped_member(caplog):
     stream = BytesIO()
     with tarfile.open(fileobj=stream, mode="w") as archive:
@@ -203,6 +216,7 @@ def test_tar_rootfs_materializes_hard_link_between_metadata_files():
         assert (root / "var/lib/apt/lists/copy").read_bytes() == b"Package: libc6\n"
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_accepts_absolute_member_paths():
     member = tarfile.TarInfo("//var/lib/dpkg/arch-native")
     member.size = len(b"amd64\n")
@@ -211,6 +225,7 @@ def test_tar_rootfs_accepts_absolute_member_paths():
         assert (root / "var/lib/dpkg/arch-native").read_bytes() == b"amd64\n"
 
 
+@requires_tarfile_filter
 def test_tar_rootfs_ignores_members_outside_the_metadata():
     member = tarfile.TarInfo("../escape")
     member.size = len(b"escape")
