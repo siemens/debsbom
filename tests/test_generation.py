@@ -940,11 +940,7 @@ def test_apt_codename(tmpdir, sbom_generator):
             for ref in package["externalRefs"]:
                 if ref["referenceType"] == "purl":
                     seen = True
-                    # only the debsbom packages are referenced in the apt cache
-                    if "debsbom" in package["name"]:
-                        assert "distro=codename-stable" in ref["referenceLocator"]
-                    else:
-                        assert "distro=codename-stable" not in ref["referenceLocator"]
+                    assert "distro=codename-stable" in ref["referenceLocator"]
                     break
             assert seen
     with open(outdir / "sbom.cdx.json") as file:
@@ -952,7 +948,4 @@ def test_apt_codename(tmpdir, sbom_generator):
         packages = spdx_json["components"]
         for pkg in packages:
             # only the debsbom packages are referenced in the apt cache
-            if "debsbom" in pkg["name"]:
-                assert "distro=codename-stable" in pkg["purl"]
-            else:
-                assert "distro=codename-stable" not in pkg["purl"]
+            assert "distro=codename-stable" in pkg["purl"]
