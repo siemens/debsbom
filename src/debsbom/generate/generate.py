@@ -139,7 +139,6 @@ class Debsbom:
 
         self.packages = self._merge_apt_data(
             pkgdict,
-            inject_sources=packages_it.kind != PkgListType.STATUS_FILE,
             merge_ext_states=merge_ext_states,
             with_licenses=self.with_licenses,
         )
@@ -241,7 +240,6 @@ class Debsbom:
     def _merge_apt_data(
         self,
         packages: dict[int, Package],
-        inject_sources: bool = False,
         merge_ext_states: bool = True,
         with_licenses: bool = False,
     ) -> set[Package]:
@@ -262,20 +260,18 @@ class Debsbom:
         # discover previously unknown source packages
         self._merge_apt_binary_data(packages, repos, binary_filter)
 
-        # add any newly discovered source packages, if needed
-        if inject_sources:
-            to_add = []
-            for source_pkg in Package.referenced_src_packages(filter_binaries(packages.values())):
-                shash = hash(source_pkg)
-                if shash not in packages:
-                    to_add.append(source_pkg)
-                else:
-                    # at this point in time we already have the apt data, so we merge our
-                    # incomplete source packages with the proper ones from apt.
-                    packages[shash].merge_with(source_pkg)
-            # we add it in a separate loop so we do not invalidate the packages iterator
-            for source_pkg in to_add:
-                packages[hash(source_pkg)] = source_pkg
+        to_add = []
+        for source_pkg in Package.referenced_src_packages(filter_binaries(packages.values())):
+            shash = hash(source_pkg)
+            if shash not in packages:
+                to_add.append(source_pkg)
+            else:
+                # at this point in time we already have the apt data, so we merge our
+                # incomplete source packages with the proper ones from apt.
+                packages[shash].merge_with(source_pkg)
+        # we add it in a separate loop so we do not invalidate the packages iterator
+        for source_pkg in to_add:
+            packages[hash(source_pkg)] = source_pkg
 
         # now that we are sure have discovered all source packages, we can add any
         # additional apt-cache package data to them
