@@ -228,7 +228,7 @@ class Package(ABC):
         """
         logger.info(f"Parsing status file '{status_file}'...")
         deb822_stream = open(status_file, "r", encoding="utf-8")
-        pkgs_it = cls.inject_src_packages(filter_installed(cls._parse_dpkg_status(deb822_stream)))
+        pkgs_it = filter_installed(cls._parse_dpkg_status(deb822_stream))
         return PkgListStream(deb822_stream, PkgListType.STATUS_FILE, pkgs_it)
 
     @classmethod

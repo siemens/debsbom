@@ -39,7 +39,9 @@ def test_parse_dependency():
 def test_parse_minimal_status_file(mode):
     status_file = Path("tests/data/dpkg-status-minimal")
     if mode == "file":
-        packages = list(BinaryPackage.parse_status_file(status_file))
+        packages = list(
+            BinaryPackage.inject_src_packages(BinaryPackage.parse_status_file(status_file))
+        )
     elif mode == "stream":
         with open(status_file, "r") as stream:
             packages = list(BinaryPackage.parse_pkglist_stream(stream))
@@ -88,7 +90,11 @@ def test_parse_status_file_as_utf8(c_ctype_locale, monkeypatch):
 
 
 def test_parse_source_status_file():
-    packages = list(BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-source")))
+    packages = list(
+        BinaryPackage.inject_src_packages(
+            BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-source"))
+        )
+    )
     bpkg = [p for p in packages if isinstance(p, BinaryPackage)][0]
 
     assert bpkg.name == "apt-utils"
