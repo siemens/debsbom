@@ -43,7 +43,9 @@ def spdx_bomfile(tmpdir):
 
     import spdx_tools.spdx.writer.json.json_writer as spdx_json_writer
 
-    pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
+    pkgs = BinaryPackage.inject_src_packages(
+        BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
+    )
     bom = spdx_bom(set(pkgs), "debian", "amd64")
     outfile = Path(tmpdir) / "bom.spdx.json"
     spdx_json_writer.write_document_to_file(bom, outfile, False)
@@ -62,7 +64,9 @@ def cdx_bomfile(tmpdir):
     import cyclonedx.output as cdx_output
     import cyclonedx.schema as cdx_schema
 
-    pkgs = BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
+    pkgs = BinaryPackage.inject_src_packages(
+        BinaryPackage.parse_status_file(Path("tests/data/dpkg-status-minimal"))
+    )
     bom = cyclonedx_bom(set(pkgs), "debian", "amd64")
     outfile = Path(tmpdir) / "bom.cdx.json"
     cdx_output.make_outputter(
