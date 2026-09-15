@@ -42,11 +42,11 @@ for ep in resolver_endpoints:
     RESOLVERS[ep.name] = setup_fn
 
 
-class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
+class DownloadInput(SbomInput):
     """
-    Processes a SBOM and downloads the referenced packages.
-    If no SBOM is provided, it reads line separated entries (name version arch)
-    from stdin to define what shall be downloaded.
+    Abstract class for download commands.
+    Does not live in the inputs module as the dependency import logic depends on
+    it being imported from here.
     """
 
     @staticmethod
@@ -124,6 +124,31 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
             logger.debug(f"{r.status}: {r.filename}")
 
     @classmethod
+    def parser_add_download_args(cls, parser):
+        from ..cli import arg_mark_as_dir
+
+        cls.parser_add_sbom_input_args(parser)
+        arg_mark_as_dir(
+            parser.add_argument(
+                "--outdir", default="downloads", help="directory to store downloaded files"
+            )
+        )
+        parser.add_argument(
+            "--resolver",
+            choices=RESOLVERS.keys(),
+            default="debian-snapshot",
+            help="resolver to use to find upstream packages (default: %(default)s)",
+        )
+
+
+class DownloadCmd(DownloadInput, SourceBinaryInput, PkgStreamInput):
+    """
+    Processes a SBOM and downloads the referenced packages.
+    If no SBOM is provided, it reads line separated entries (name version arch)
+    from stdin to define what shall be downloaded.
+    """
+
+    @classmethod
     def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
@@ -154,23 +179,10 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
 
     @classmethod
     def setup_parser(cls, parser):
-        from ..cli import arg_mark_as_dir
-
-        cls.parser_add_sbom_input_args(parser)
-        arg_mark_as_dir(
-            parser.add_argument(
-                "--outdir", default="downloads", help="directory to store downloaded files"
-            )
-        )
+        cls.parser_add_download_args(parser)
         cls.parser_add_source_binary_args(parser)
         parser.add_argument(
             "--skip-pkgs",
             metavar="SKIP",
             help="packages to exclude from the download, in package-list format",
-        )
-        parser.add_argument(
-            "--resolver",
-            choices=RESOLVERS.keys(),
-            default="debian-snapshot",
-            help="resolver to use to find upstream packages (default: %(default)s)",
         )
