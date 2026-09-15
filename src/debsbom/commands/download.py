@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 
 from .input import PkgStreamInput, SbomInput, SourceBinaryInput
+from ..dpkg.package import Package
 from ..resolver.resolver import PackageStreamResolver
 from ..util.progress import progress_cb
 
@@ -65,6 +66,63 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
         if p.is_source() and not any(f.filename == p.dscfile() for f in files):
             logger.warning(f"no .dsc file found for {p}")
 
+    @staticmethod
+    def _create_default_session() -> requests.Session:
+        rs = requests.Session()
+        rs.mount("file:///", LocalFileAdapter())
+        rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
+        return rs
+
+    @staticmethod
+    def _create_default_resolver(args, session, outdir) -> PackageResolverCache:
+        u_resolver = RESOLVERS[args.resolver](session)
+        if type(u_resolver.cache) is PackageResolverCache:
+            cachedir = outdir / ".cache"
+            cachedir.mkdir(exist_ok=True)
+            cache = PersistentResolverCache(cachedir / args.resolver)
+            u_resolver.cache = cache
+        return u_resolver
+
+    @staticmethod
+    def _download_packages(
+        downloader: PackageDownloader,
+        resolver_cache: PackageResolverCache,
+        pkgs: list[Package],
+        progress: bool | None,
+        json: bool | None,
+    ):
+        logger.info("Resolving upstream packages...")
+        for idx, pkg in enumerate(pkgs):
+            if progress:
+                progress_cb(idx, len(pkgs), pkg.name)
+            try:
+                files = list(resolver_cache._resolve_pkg(pkg))
+                DownloadCmd._check_for_dsc(pkg, files)
+                downloader.register(files, pkg)
+            except ResolveError:
+                pkg_type = "source" if pkg.is_source() else "binary"
+                logger.warning(f"failed to resolve {pkg_type} package: {pkg}")
+                if json:
+                    print(
+                        DownloadResult(
+                            path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
+                        ).json()
+                    )
+
+        if not json:
+            nfiles, nbytes, cfiles, cbytes = downloader.stat()
+            print(
+                f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
+                f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
+            )
+
+        dl_results = downloader.download(progress_cb=progress_cb if progress else None)
+
+        for r in dl_results:
+            if json:
+                print(r.json())
+            logger.debug(f"{r.status}: {r.filename}")
+
     @classmethod
     def run(cls, args):
         outdir = Path(args.outdir)
@@ -73,15 +131,8 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
             resolvers = cls.get_sbom_resolvers(args)
         else:
             resolvers = [cls.get_pkgstream_resolver()]
-        rs = requests.Session()
-        rs.mount("file:///", LocalFileAdapter())
-        rs.headers.update({"User-Agent": f"debsbom/{version('debsbom')}"})
-        u_resolver = RESOLVERS[args.resolver](rs)
-        if type(u_resolver.cache) is PackageResolverCache:
-            cachedir = outdir / ".cache"
-            cachedir.mkdir(exist_ok=True)
-            cache = PersistentResolverCache(cachedir / args.resolver)
-            u_resolver.cache = cache
+        rs = DownloadCmd._create_default_session()
+        u_resolver = cls._create_default_resolver(args, rs, outdir)
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:
@@ -99,37 +150,7 @@ class DownloadCmd(SbomInput, PkgStreamInput, SourceBinaryInput):
                 )
             )
 
-        logger.info("Resolving upstream packages...")
-        for idx, pkg in enumerate(pkgs):
-            if args.progress:
-                progress_cb(idx, len(pkgs), pkg.name)
-            try:
-                files = list(u_resolver._resolve_pkg(pkg))
-                DownloadCmd._check_for_dsc(pkg, files)
-                downloader.register(files, pkg)
-            except ResolveError:
-                pkg_type = "source" if pkg.is_source() else "binary"
-                logger.warning(f"failed to resolve {pkg_type} package: {pkg}")
-                if args.json:
-                    print(
-                        DownloadResult(
-                            path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
-                        ).json()
-                    )
-
-        if not args.json:
-            nfiles, nbytes, cfiles, cbytes = downloader.stat()
-            print(
-                f"downloading {nfiles} files, {DownloadCmd.human_readable_bytes(nbytes)} "
-                f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
-            )
-
-        dl_results = downloader.download(progress_cb=progress_cb if args.progress else None)
-
-        for r in dl_results:
-            if args.json:
-                print(r.json())
-            logger.debug(f"{r.status}: {r.filename}")
+        cls._download_packages(downloader, u_resolver, pkgs, args.progress, args.json)
 
     @classmethod
     def setup_parser(cls, parser):
