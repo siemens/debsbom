@@ -1,0 +1,22 @@
+Package: sibling-app
+Source: sibling
+Status: install ok installed
+Priority: optional
+Section: devel
+Installed-Size: 1234
+Maintainer: Siemens
+Architecture: amd64
+Version: 1.0.0
+Depends: sibling-common (= 1.0.0)
+Description: sibling package whose documentation links to sibling-common
+
+Package: sibling-common
+Source: sibling
+Status: install ok installed
+Priority: optional
+Section: misc
+Installed-Size: 1234
+Maintainer: Siemens
+Architecture: amd64
+Version: 1.0.0
+Description: sibling package that owns the shared documentation
