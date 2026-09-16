@@ -316,8 +316,8 @@ class Debsbom:
             if not src_pkg or src_hash in src_processed:
                 continue
             try:
-                src_processed.add(src_hash)
                 src_pkg.copyright = cr_dir.copyright(bin_pkg)
+                src_processed.add(src_hash)
             except FileNotFoundError:
                 logger.debug(f"no copyright information for {bin_pkg}")
                 continue
