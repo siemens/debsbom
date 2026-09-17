@@ -65,6 +65,7 @@ class Debsbom:
         recommends_deps: bool = True,
         suggests_deps: bool = False,
         cdx_schema_version: str = "1.6",
+        artifact: Path | None = None,
     ):
         self.root = Path(root)
         self.distro_name = distro_name
@@ -78,6 +79,7 @@ class Debsbom:
         self.recommends_deps = recommends_deps
         self.suggests_deps = suggests_deps
         self.cdx_schema_version = cdx_schema_version
+        self.artifact = artifact
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -364,6 +366,7 @@ class Debsbom:
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 distro_summary=self.distro_summary,
+                artifact=self.artifact,
                 serial_number=self.cdx_serialnumber,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
@@ -384,6 +387,7 @@ class Debsbom:
                 distro_supplier=self.distro_supplier,
                 distro_version=self.distro_version,
                 distro_summary=self.distro_summary,
+                artifact=self.artifact,
                 namespace=self.spdx_namespace,
                 base_distro_vendor=self.base_distro_vendor,
                 timestamp=self.timestamp,
