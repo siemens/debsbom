@@ -4,9 +4,11 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
+from hashlib import sha1, sha256
 from importlib.metadata import version
 from license_expression import AND, ExpressionError
 import logging
+from pathlib import Path
 import spdx_tools.spdx.model.actor as spdx_actor
 import spdx_tools.spdx.model.document as spdx_document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
@@ -25,11 +27,17 @@ from ..dpkg.package import (
     VirtualPackage,
     filter_binaries,
 )
+from ..util.checksum import calculate_checksums
 from ..util.checksum_spdx import checksum_to_spdx
+from ..util.gitoid import gitoid_hashes
+from ..util.omnibor import artifact_id_from_digest
+from ..util.swh import swh_id_from_digest
 from ..sbom import (
     Reference,
     SPDX_REF_PREFIX,
     SPDX_REF_DOCUMENT,
+    SPDX_REFERENCE_TYPE_GITOID,
+    SPDX_REFERENCE_TYPE_SWH,
     SUPPLIER_PATTERN,
     SPDX_REFERENCE_TYPE_PURL,
     SPDX_REFERENCE_TYPE_VCS,
@@ -45,6 +53,7 @@ def make_distro_package(
     distro_version: str | None = None,
     distro_supplier: str | None = None,
     distro_summary: str | None = None,
+    artifact: Path | None = None,
 ) -> spdx_package.Package:
     if distro_supplier is None:
         supplier = None
@@ -69,6 +78,33 @@ def make_distro_package(
         license_declared=SpdxNoAssertion(),
         copyright_text=SpdxNoAssertion(),
     )
+
+    external_references = None
+    if artifact:
+        distro_package.file_name = artifact.name
+
+        sha1_digest, sha256_digest = gitoid_hashes(artifact, hashers=[sha1(), sha256()])
+
+        external_references = [
+            spdx_package.ExternalPackageRef(
+                category=spdx_package.ExternalPackageRefCategory.PERSISTENT_ID,
+                reference_type=SPDX_REFERENCE_TYPE_GITOID,
+                locator=artifact_id_from_digest(sha256_digest),
+            ),
+            spdx_package.ExternalPackageRef(
+                category=spdx_package.ExternalPackageRefCategory.PERSISTENT_ID,
+                reference_type=SPDX_REFERENCE_TYPE_SWH,
+                locator=swh_id_from_digest(sha1_digest),
+            ),
+        ]
+
+        distro_package.external_references = external_references
+
+        distro_package.checksums = [
+            Checksum(checksum_to_spdx(alg), dig)
+            for alg, dig in calculate_checksums(artifact).items()
+        ]
+
     return distro_package
 
 
@@ -259,6 +295,7 @@ def spdx_bom(
     distro_supplier: str | None = None,
     distro_version: str | None = None,
     distro_summary: str | None = None,
+    artifact: Path | None = None,
     base_distro_vendor: str | None = "debian",
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
@@ -277,6 +314,7 @@ def spdx_bom(
         distro_version=distro_version,
         distro_supplier=distro_supplier,
         distro_summary=distro_summary,
+        artifact=artifact,
     )
     distro_ref = distro_package.spdx_id
     data.append(distro_package)
