@@ -4,6 +4,7 @@
 
 import argparse
 import logging
+from pathlib import Path
 import sys
 
 from debsbom import HAS_PYTHON_APT
@@ -74,6 +75,7 @@ class GenerateCmd(GenerateInput):
                 with_licenses=args.with_licenses,
                 recommends_deps=args.recommends_deps,
                 suggests_deps=args.suggests_deps,
+                artifact=Path(args.artifact) if args.artifact else None,
             )
             if args.from_pkglist:
                 warn_if_tty()
@@ -139,4 +141,14 @@ class GenerateCmd(GenerateInput):
             action=argparse.BooleanOptionalAction,
             help="track suggested package dependencies (default: %(default)s)",
             default=False,
+        )
+        arg_mark_as_file(
+            parser.add_argument(
+                "--artifact",
+                type=str,
+                help=(
+                    "associate this file artifact with the generated SBOM; used for "
+                    "generation of content-based hashes"
+                ),
+            )
         )
