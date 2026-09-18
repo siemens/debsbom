@@ -17,8 +17,10 @@ from cyclonedx.model.license import LicenseAcknowledgement, LicenseExpression, L
 from datetime import datetime
 from license_expression import AND, ExpressionError
 import logging
+from pathlib import Path
 from sortedcontainers import SortedSet
 from uuid import UUID, uuid4
+from urllib.parse import quote
 from collections.abc import Callable
 
 from ..apt.copyright import UnknownLicenseError
@@ -32,6 +34,10 @@ from ..dpkg.package import (
     filter_binaries,
 )
 from ..sbom import SUPPLIER_PATTERN, CDX_REF_PREFIX, Reference, SBOMType, BOM_Standard
+from ..util.checksum import calculate_checksums
+from ..util.gitoid import gitoid_hash
+from ..util.omnibor import artifact_id_from_digest
+from ..util.swh import swh_id_from_digest
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +139,7 @@ def make_distro_component(
     distro_version: str | None,
     distro_supplier: str | None,
     distro_summary: str | None,
+    artifact: Path | None = None,
 ) -> cdx_component.Component:
     distro_bom_ref = CDX_REF_PREFIX + distro_name
 
@@ -144,6 +151,27 @@ def make_distro_component(
         version=distro_version,
         description=distro_summary,
     )
+
+    if artifact:
+        filename_url = quote(str(artifact.name))
+        external_ref = cdx_model.ExternalReference(
+            url=f"file://{filename_url}",
+            type=cdx_model.ExternalReferenceType.DISTRIBUTION,
+        )
+        distro_component.external_references = (external_ref,)
+
+        digest = gitoid_hash(artifact)
+        omnibor_id = artifact_id_from_digest(digest)
+        distro_component.omnibor_ids = [omnibor_id]
+
+        distro_component.hashes = [
+            cdx_hashtype(alg=checksum_to_cdx(alg), content=dig)
+            for alg, dig in calculate_checksums(artifact).items()
+        ]
+
+        swhid = swh_id_from_digest(digest)
+        distro_component.swhids = [swhid]
+
     return distro_component
 
 
@@ -210,6 +238,7 @@ def cyclonedx_bom(
     distro_supplier: str | None = None,
     distro_version: str | None = None,
     distro_summary: str | None = None,
+    artifact: Path | None = None,
     base_distro_vendor: str | None = "debian",
     serial_number: UUID | None = None,
     timestamp: datetime | None = None,
@@ -317,7 +346,11 @@ def cyclonedx_bom(
             dependencies.add(dependency)
 
     distro_component = make_distro_component(
-        distro_name, distro_version, distro_supplier, distro_summary
+        distro_name,
+        distro_version,
+        distro_supplier,
+        distro_summary,
+        artifact,
     )
     refs[distro_component.bom_ref] = distro_component.bom_ref
 

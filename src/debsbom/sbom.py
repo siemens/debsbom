@@ -17,6 +17,8 @@ SPDX_REF_DOCUMENT = SPDX_REF_PREFIX + "DOCUMENT"
 SPDX_REFERENCE_TYPE_PURL = "purl"
 SPDX_REFERENCE_TYPE_VCS = "vcs"
 SPDX_REFERENCE_TYPE_DISTRIBUTION = "distribution"
+SPDX_REFERENCE_TYPE_GITOID = "gitoid"
+SPDX_REFERENCE_TYPE_SWH = "swh"
 # SPDX IDs only allow alphanumeric, '.' and '-'
 SPDX_ID_RE = re.compile(r"[^A-Za-z0-9.\-]+")
 
