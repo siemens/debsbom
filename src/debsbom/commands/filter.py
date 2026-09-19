@@ -4,9 +4,8 @@
 
 import logging
 import json
+import re
 from pathlib import Path
-
-from ..dpkg.package import Package
 
 from ..graph.walker import PackageRepr
 from .output import SbomOutput
@@ -14,6 +13,8 @@ from .input import SbomInput, SourceBinaryInput
 from ..sbom import Reference, SBOMType
 
 logger = logging.getLogger(__name__)
+
+SOURCE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9+.-]+")
 
 
 class FilterCmd(SbomInput, SourceBinaryInput):
@@ -24,41 +25,21 @@ class FilterCmd(SbomInput, SourceBinaryInput):
         resolvers = cls.get_sbom_resolvers(args)
         patterns = getattr(args, "exclude_binary", None) or []
         source_file = getattr(args, "exclude_source_file", None)
-        status_file = getattr(args, "installed_status", None)
         report_file = getattr(args, "exclusion_report", None)
-        sources = []
-        installed = None
-        if source_file:
-            with open(source_file, encoding="utf-8") as stream:
-                data = json.load(stream)
-            if not isinstance(data, list):
-                raise ValueError("source exclusion file must contain a JSON array")
-            for entry in data:
-                if (
-                    not isinstance(entry, dict)
-                    or set(entry) != {"name", "version"}
-                    or not all(isinstance(v, str) for v in entry.values())
-                ):
-                    raise ValueError("source exclusions must have string name and version fields")
-                sources.append((entry["name"], entry["version"]))
-            if not status_file:
-                raise ValueError("--exclude-source-file requires --installed-status")
+        sources = cls.read_source_exclusions(source_file) if source_file else []
         exclusions = bool(patterns or source_file)
-        if (status_file or report_file) and not exclusions:
-            raise ValueError("--installed-status and --exclusion-report require exclusions")
+        if report_file and not exclusions:
+            raise ValueError("--exclusion-report requires exclusions")
         if exclusions:
             if args.package:
                 raise ValueError("--package cannot be combined with exclusions")
             if any(r.sbom_type() != SBOMType.CycloneDX for r in resolvers):
                 raise ValueError("package exclusions currently require a CycloneDX SBOM")
-            if status_file:
-                with Package.parse_status_file(Path(status_file)) as packages:
-                    installed = list(packages)
             if report_file:
                 output = (
                     args.bomout if args.bomout.endswith(".cdx.json") else args.bomout + ".cdx.json"
                 )
-                protected = [args.bomin, output, source_file, status_file]
+                protected = [args.bomin, output, source_file]
                 if Path(report_file).resolve() in {Path(p).resolve() for p in protected if p}:
                     raise ValueError(
                         "exclusion report must use a different file from its inputs and SBOM"
@@ -99,10 +80,7 @@ class FilterCmd(SbomInput, SourceBinaryInput):
                 from ..filter.cdx import CdxSbomFilter
 
                 report = CdxSbomFilter.exclude(
-                    resolver.document,
-                    binary_patterns=patterns,
-                    source_packages=sources,
-                    installed_packages=installed,
+                    resolver.document, binary_patterns=patterns, source_packages=sources
                 )
                 logger.info(
                     "Excluded %d binaries and %d sources",
@@ -134,7 +112,36 @@ class FilterCmd(SbomInput, SourceBinaryInput):
                 resolver.document, resolver.sbom_type(), args.bomout, args.validate
             )
             if report_file:
-                Path(report_file).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+                Path(report_file).write_text(json.dumps(report) + "\n", encoding="utf-8")
+
+    @staticmethod
+    def read_source_exclusions(filename) -> list[tuple[str, str]]:
+        """
+        Read source exclusions from a JSON lines file. Each line is an object
+        according to the ``schema-filter-exclude.json`` schema.
+        """
+        sources = []
+        with open(filename, encoding="utf-8") as stream:
+            for number, line in enumerate(stream, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError as error:
+                    raise ValueError(f"{filename}:{number}: invalid JSON: {error}") from error
+                if (
+                    not isinstance(entry, dict)
+                    or set(entry) != {"name", "version"}
+                    or not all(isinstance(v, str) for v in entry.values())
+                    or not SOURCE_NAME_RE.fullmatch(entry["name"])
+                    or not entry["version"]
+                ):
+                    raise ValueError(
+                        f"{filename}:{number}: source exclusions must be objects with "
+                        "a valid source package name and a version"
+                    )
+                sources.append((entry["name"], entry["version"]))
+        return sources
 
     @classmethod
     def setup_parser(cls, parser):
@@ -166,15 +173,9 @@ class FilterCmd(SbomInput, SourceBinaryInput):
         arg_mark_as_file(
             parser.add_argument(
                 "--exclude-source-file",
-                metavar="JSON",
-                help="exclude sources listed as JSON name/version objects and their installed binaries",
-            )
-        )
-        arg_mark_as_file(
-            parser.add_argument(
-                "--installed-status",
-                metavar="STATUS",
-                help="dpkg status file for exact binary mapping (required for source exclusions)",
+                metavar="JSONL",
+                help="exclude the sources listed as JSON lines of name/version objects, "
+                "together with their binaries",
             )
         )
         arg_mark_as_file(
