@@ -22,4 +22,5 @@ def test_swhid():
     artifact = Path("tests/data/artifact.txt")
 
     artifact_id = swh_id(artifact)
+    # reference created with swhid-rs
     assert artifact_id == "swh:1:cnt:4431b185ad78f191f7002a1756538aaa4fe12908"
