@@ -58,6 +58,7 @@ def sbom_generator():
         distro_supplier: str | None = None,
         recommends_deps: bool = True,
         suggests_deps: bool = False,
+        artifact: Path | None = None,
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
@@ -77,6 +78,7 @@ def sbom_generator():
             with_licenses=with_licenses,
             recommends_deps=recommends_deps,
             suggests_deps=suggests_deps,
+            artifact=artifact,
         )
 
     return setup_sbom_generator
@@ -989,3 +991,75 @@ def test_apt_codename(tmpdir, sbom_generator):
         for pkg in packages:
             # only the debsbom packages are referenced in the apt cache
             assert "distro=codename-stable" in pkg["purl"]
+
+
+def test_artifact_root_component(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+    _cyclonedx = pytest.importorskip("cyclonedx")
+    _component_evidence = pytest.importorskip("cyclonedx.model.component_evidence")
+
+    dbom = sbom_generator("tests/root/tree", artifact=Path("tests/data/artifact.txt"))
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+
+        seen = False
+        for package in packages:
+            if package["name"] == "pytest-distro":
+                seen = True
+                assert package["packageFileName"] == "artifact.txt"
+                assert {
+                    "referenceCategory": "PERSISTENT_ID",
+                    "referenceLocator": "gitoid:blob:sha256:cb16a7604bae14bc2d888df559984c2c60920a65c8f4645a7583aa0f1dee8341",
+                    "referenceType": "gitoid",
+                } in package["externalRefs"]
+                assert {
+                    "referenceCategory": "PERSISTENT_ID",
+                    "referenceLocator": "swh:1:cnt:4431b185ad78f191f7002a1756538aaa4fe12908",
+                    "referenceType": "swh",
+                } in package["externalRefs"]
+                assert {
+                    "algorithm": "SHA512",
+                    "checksumValue": "c16544b5273c7695bc6b594d45b873cda8ce2fc6231248ace1d691c50c5e70821d5dab9188a5f64e098dd35ac22be56d62b3afde09b33a1b0aa1148750a4de9e",
+                } in package["checksums"]
+                assert {
+                    "algorithm": "SHA256",
+                    "checksumValue": "0f2366abf85f1171b7247149f72a23fbec3cc35aed75fd25fa32da4d5ecadc9c",
+                } in package["checksums"]
+                assert {
+                    "algorithm": "SHA1",
+                    "checksumValue": "31139c0ca48509411007972344567f33b980f552",
+                } in package["checksums"]
+                assert {
+                    "algorithm": "MD5",
+                    "checksumValue": "74c825e774f0c103992f423632f3fe7b",
+                } in package["checksums"]
+                break
+        assert seen
+
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        root_component = cdx_json["metadata"]["component"]
+        assert root_component["evidence"]["occurrences"] == [{"location": "artifact.txt"}]
+        assert root_component["omniborId"] == [
+            "gitoid:blob:sha256:cb16a7604bae14bc2d888df559984c2c60920a65c8f4645a7583aa0f1dee8341"
+        ]
+        assert root_component["swhid"] == ["swh:1:cnt:4431b185ad78f191f7002a1756538aaa4fe12908"]
+        assert {
+            "alg": "SHA-512",
+            "content": "c16544b5273c7695bc6b594d45b873cda8ce2fc6231248ace1d691c50c5e70821d5dab9188a5f64e098dd35ac22be56d62b3afde09b33a1b0aa1148750a4de9e",
+        } in root_component["hashes"]
+        assert {
+            "alg": "SHA-256",
+            "content": "0f2366abf85f1171b7247149f72a23fbec3cc35aed75fd25fa32da4d5ecadc9c",
+        } in root_component["hashes"]
+        assert {
+            "alg": "SHA-1",
+            "content": "31139c0ca48509411007972344567f33b980f552",
+        } in root_component["hashes"]
+        assert {
+            "alg": "MD5",
+            "content": "74c825e774f0c103992f423632f3fe7b",
+        } in root_component["hashes"]
