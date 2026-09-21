@@ -237,3 +237,17 @@ Limitations
 Annotation of license information is currently only possible for ~50% of all packages. As ``debsbom`` is not a license scanner it relies solely on the information provided by the package authors. This information is unfortunately sometimes not machine-readable and sometimes includes custom or esoteric licenses, ambiguous exception names, or ``public domain`` licensing. Nonetheless, if you find any unrecognized license specifiers that can be cleanly mapped to SPDX identifiers please let us know and we will try to incorporate them.
 
 If you want to add more complete license information the SBOM you can use a proper scanner and add that information to the SBOM manually. If enough interest arises we could also consider adding plugin infrastructure to directly incorporate different scanners during the SBOM generation.
+
+Association of artifacts
+------------------------
+
+For some commands artifacts can be associated for an SBOM with the ``--artifact`` flag. An SBOM describes its associated artifact, and as such ``debsbom``  will add the following information to the root component:
+
+..  csv-table:: Root component fields with associated artifact
+    :header: Artifact Information, SPDX Package Field, CDX Component Field
+    :widths: 15, 15, 15
+
+    Filename, ``packageFileName``, ``evidence.occurence``
+    Omnibor ID, ``externalRefs`` with type ``gitoid``, ``omniborId``
+    SWHID, ``externalRefs`` with type ``swh``, ``swhid``
+    Checksums, ``checksums``, ``hashes``
