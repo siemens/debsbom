@@ -33,6 +33,11 @@ class CdxPackageResolver(PackageResolver, CDXType):
         """get the parsed SBOM document"""
         return self._document
 
+    @property
+    def packages_by_ref(self) -> dict[BomRef, Package]:
+        """Debian packages of the SBOM with resolved relations, by bom-ref"""
+        return self._pkgs_by_id
+
     def __next__(self) -> Package:
         return next(self._pkgs)
 
