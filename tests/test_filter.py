@@ -546,6 +546,7 @@ def test_empty_result_is_a_readable_sbom(tmp_path):
 
 
 def test_filter_cli_writes_sbom_and_single_line_report(tmp_path, capsys):
+    pytest.importorskip("cyclonedx")
     jsonschema = pytest.importorskip("jsonschema")
     from debsbom.schema import filter_report
 
@@ -563,6 +564,7 @@ def test_filter_cli_writes_sbom_and_single_line_report(tmp_path, capsys):
 
 
 def test_filter_cli_reads_source_exclusions_as_json_lines(tmp_path, capsys):
+    pytest.importorskip("cyclonedx")
     sources = tmp_path / "sources.jsonl"
     sources.write_text(
         '{"name": "dash", "version": "0.5.12-12"}\n\n{"name": "xz", "version": "1"}\n'
@@ -596,6 +598,7 @@ INVALID_SOURCE_LINES = [
 
 @pytest.mark.parametrize("line", INVALID_SOURCE_LINES + ["{"])
 def test_cli_rejects_invalid_source_file_before_writing(tmp_path, line):
+    pytest.importorskip("cyclonedx")
     sources = tmp_path / "sources.jsonl"
     sources.write_text('{"name": "dash", "version": "1"}\n' + line + "\n")
     output = tmp_path / "out.cdx.json"
@@ -622,6 +625,7 @@ def test_source_exclusion_schema_matches_validation():
     ],
 )
 def test_cli_rejects_invalid_combinations(tmp_path, options, match):
+    pytest.importorskip("cyclonedx")
     output = tmp_path / "out.cdx.json"
     with pytest.raises(ValueError, match=match):
         run_filter("tests/data/filter.cdx.json", output, *options)
@@ -635,11 +639,13 @@ def test_cli_rejects_spdx_exclusions(tmp_path):
 
 
 def test_json_report_cannot_mix_with_sbom_on_stdout(tmp_path):
+    pytest.importorskip("cyclonedx")
     with pytest.raises(ValueError, match="SBOM output file"):
         run_filter("tests/data/filter.cdx.json", "-", "--exclude-binary", "dash", json_report=True)
 
 
 def test_cli_stdin_keeps_report_separate_from_sbom(tmp_path, monkeypatch, capsys):
+    pytest.importorskip("cyclonedx")
     monkeypatch.setattr(sys, "stdin", io.StringIO(Path("tests/data/filter.cdx.json").read_text()))
     output = tmp_path / "out.cdx.json"
     run_filter("-t", "cdx", "-", output, "--exclude-binary", "dash", json_report=True)
@@ -650,6 +656,7 @@ def test_cli_stdin_keeps_report_separate_from_sbom(tmp_path, monkeypatch, capsys
 
 
 def test_filtered_sources_are_not_acquired(tmp_path, monkeypatch):
+    pytest.importorskip("cyclonedx")
     from debsbom.commands.download import DownloadCmd
     from debsbom.commands import download
 
@@ -669,6 +676,7 @@ def test_filtered_sources_are_not_acquired(tmp_path, monkeypatch):
 
 
 def test_filtered_sources_are_not_repacked(tmp_path, monkeypatch):
+    pytest.importorskip("cyclonedx")
     from debsbom.commands.repack import RepackCmd
     from debsbom.commands import repack
 
