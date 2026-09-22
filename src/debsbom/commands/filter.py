@@ -5,8 +5,8 @@
 import logging
 import json
 import re
-from pathlib import Path
 
+from ..dpkg.package import Package
 from ..graph.walker import PackageRepr
 from .output import SbomOutput
 from .input import SbomInput, SourceBinaryInput
@@ -106,31 +106,23 @@ class FilterCmd(SbomInput, SourceBinaryInput):
 
     @staticmethod
     def read_source_exclusions(filename) -> list[tuple[str, str]]:
-        """
-        Read source exclusions from a JSON lines file. Each line is an object
-        according to the ``schema-filter-exclude.json`` schema.
-        """
+        """Read exact source names and versions using universal package ingress."""
         sources = []
-        with open(filename, encoding="utf-8") as stream:
-            for number, line in enumerate(stream, start=1):
-                if not line.strip():
-                    continue
-                try:
-                    entry = json.loads(line)
-                except json.JSONDecodeError as error:
-                    raise ValueError(f"{filename}:{number}: invalid JSON: {error}") from error
-                if (
-                    not isinstance(entry, dict)
-                    or set(entry) != {"name", "version"}
-                    or not all(isinstance(v, str) for v in entry.values())
-                    or not SOURCE_NAME_RE.fullmatch(entry["name"])
-                    or not entry["version"]
-                ):
-                    raise ValueError(
-                        f"{filename}:{number}: source exclusions must be objects with "
-                        "a valid source package name and a version"
-                    )
-                sources.append((entry["name"], entry["version"]))
+        with open(filename, "rb") as stream:
+            try:
+                for package in Package.parse_pkglist_stream(stream):
+                    if not package.is_source():
+                        continue
+                    version = str(package.version)
+                    if not SOURCE_NAME_RE.fullmatch(package.name) or not re.match(
+                        r"[0-9]", version
+                    ):
+                        raise ValueError("source exclusions require a valid name and exact version")
+                    entry = (package.name, version)
+                    if entry not in sources:
+                        sources.append(entry)
+            except ValueError as error:
+                raise ValueError(f"{filename}: invalid source package input: {error}") from error
         return sources
 
     @classmethod
@@ -163,7 +155,7 @@ class FilterCmd(SbomInput, SourceBinaryInput):
         arg_mark_as_file(
             parser.add_argument(
                 "--exclude-source-file",
-                metavar="JSONL",
-                help="exclude the sources listed as JSON lines of name/version objects",
+                metavar="FILE",
+                help="exclude exact source packages from universal package input",
             )
         )

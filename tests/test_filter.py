@@ -563,12 +563,10 @@ def test_filter_cli_writes_sbom_and_single_line_report(tmp_path, capsys):
     assert result["removed_binaries"] == ["a", "bar", "lib"]
 
 
-def test_filter_cli_reads_source_exclusions_as_json_lines(tmp_path, capsys):
+def test_filter_cli_reads_source_exclusions_as_package_list(tmp_path, capsys):
     pytest.importorskip("cyclonedx")
-    sources = tmp_path / "sources.jsonl"
-    sources.write_text(
-        '{"name": "dash", "version": "0.5.12-12"}\n\n{"name": "xz", "version": "1"}\n'
-    )
+    sources = tmp_path / "sources.txt"
+    sources.write_text("dash 0.5.12-12 source\nxz 1 source\n")
     output = tmp_path / "out.cdx.json"
     run_filter(
         "tests/data/filter.cdx.json",
@@ -585,36 +583,39 @@ def test_filter_cli_reads_source_exclusions_as_json_lines(tmp_path, capsys):
     assert result["unmatched_sources"] == [{"name": "xz", "version": "1"}]
 
 
-INVALID_SOURCE_LINES = [
-    "[]",
-    "{}",
-    '{"name": "dash"}',
-    '{"name": "dash", "version": 1}',
-    '{"name": "dash", "version": ""}',
-    '{"name": "Dash", "version": "1"}',
-    '{"name": "dash", "version": "1", "extra": true}',
-]
-
-
-@pytest.mark.parametrize("line", INVALID_SOURCE_LINES + ["{"])
-def test_cli_rejects_invalid_source_file_before_writing(tmp_path, line):
+@pytest.mark.parametrize(
+    "text",
+    [
+        "dash",
+        "dash 1",
+        "Dash 1 source",
+        "pkg:deb/debian/dash?arch=source",
+        '{"name": "dash", "version": "1"}',
+    ],
+)
+def test_cli_rejects_invalid_source_file_before_writing(tmp_path, text):
     pytest.importorskip("cyclonedx")
-    sources = tmp_path / "sources.jsonl"
-    sources.write_text('{"name": "dash", "version": "1"}\n' + line + "\n")
+    sources = tmp_path / "sources.txt"
+    sources.write_text(text)
     output = tmp_path / "out.cdx.json"
-    with pytest.raises(ValueError, match="sources.jsonl:2"):
+    with pytest.raises(ValueError, match="sources.txt"):
         run_filter("tests/data/filter.cdx.json", output, "--exclude-source-file", sources)
     assert not output.exists()
 
 
-def test_source_exclusion_schema_matches_validation():
-    jsonschema = pytest.importorskip("jsonschema")
-    from debsbom.schema import filter_exclude
-
-    jsonschema.validate({"name": "dash", "version": "0.5.12-12"}, filter_exclude)
-    for line in INVALID_SOURCE_LINES:
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(json.loads(line), filter_exclude)
+@pytest.mark.parametrize(
+    "text",
+    [
+        "dash 1 source\ndash 1 source\nother 2 amd64\n",
+        "pkg:deb/debian/dash@1?arch=source\npkg:deb/debian/other@2?arch=amd64\n",
+        "dash|1|dash:amd64|1+b1\n",
+        "Package: dash\nStatus: install ok installed\nArchitecture: amd64\nVersion: 1+b1\nSource: dash (1)\n\n",
+    ],
+)
+def test_source_exclusions_use_universal_ingress(tmp_path, text):
+    sources = tmp_path / "sources.txt"
+    sources.write_text(text)
+    assert FilterCmd.read_source_exclusions(sources) == [("dash", "1")]
 
 
 @pytest.mark.parametrize(

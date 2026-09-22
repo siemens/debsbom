@@ -24,18 +24,22 @@ For example, filter out kernel image packages before acquiring sources::
     debsbom download --sources --outdir downloads filtered.cdx.json
     debsbom repack --sources --dldir downloads filtered.cdx.json repacked.cdx.json
 
-To exclude source packages by exact name and Debian version, pass a file with one
-JSON object per line to ``--exclude-source-file``:
+To exclude source packages by exact name and Debian version, pass a file to
+``--exclude-source-file`` using the same universal ingress formats as
+`From Package List <../examples.html#from-package-list>`_: package lists, Debian PURLs,
+Isar manifests, or dpkg status files. Only source entries are selected; binary
+entries in a manifest or status file are not excluded. Source versions must be
+specified explicitly.
 
-.. code-block:: json
+For example, a package list marks sources with the ``source`` architecture::
 
-    {"name": "linux", "version": "6.12.73-1"}
-    {"name": "example-source", "version": "2:1.0-1"}
+    linux 6.12.73-1 source
+    example-source 2:1.0-1 source
 
-Each line follows this schema:
+The equivalent PURL input is::
 
-.. literalinclude:: ../../../src/debsbom/schema/schema-filter-exclude.json
-   :language: json
+    pkg:deb/debian/linux@6.12.73-1?arch=source
+    pkg:deb/debian/example-source@2:1.0-1?arch=source
 
 A matching source package is excluded without removing binaries built from it.
 Dependencies of excluded packages are removed only when no retained package
