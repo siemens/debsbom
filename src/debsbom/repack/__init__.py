@@ -2,5 +2,5 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .packer import Packer, BomTransformer
+from .packer import Packer, StandardBomTransformer
 from .merger import SourceArchiveMerger, CorruptedFileError, DscFileNotFoundError

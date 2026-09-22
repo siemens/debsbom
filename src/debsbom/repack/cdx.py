@@ -11,12 +11,12 @@ from cyclonedx.model import HashType as cdx_hashtype
 
 from ..generate.cdx import cdx_package_repr, make_standard_bom_standard
 from ..sbom import CDXType
-from .packer import BomTransformer
+from .packer import StandardBomTransformer
 from ..dpkg.package import Package
 from ..util.checksum_cdx import checksum_to_cdx
 
 
-class StandardBomTransformerCDX(BomTransformer, CDXType):
+class StandardBomTransformerCDX(StandardBomTransformer, CDXType):
     def __init__(self, bom: cdx_bom.Bom):
         self._document = bom
 

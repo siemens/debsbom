@@ -8,7 +8,7 @@ import sys
 
 from .output import SbomOutput
 from .input import SbomInput, RepackInput, SourceBinaryInput
-from ..repack.packer import BomTransformer, Packer
+from ..repack.packer import StandardBomTransformer, Packer
 from ..resolver.resolver import PackageStreamResolver
 from ..util.compression import Compression
 from .download import DownloadCmd
@@ -59,7 +59,7 @@ class RepackCmd(SbomInput, RepackInput, SourceBinaryInput):
                 filter(lambda p: DownloadCmd._filter_pkg(p, args.sources, args.binaries), resolver)
             )
             cls.filter_binary_source(resolver, args.sources, args.binaries)
-            bt = BomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
+            bt = StandardBomTransformer.create(args.format, resolver.sbom_type(), resolver.document)
             if pkg_subset:
                 pkgs = filter(lambda p: p in pkg_subset, filtered_pkgs)
             else:

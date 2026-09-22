@@ -9,14 +9,14 @@ from spdx_tools.spdx.model.checksum import Checksum
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 from ..generate.spdx import spdx_package_repr
+from .packer import StandardBomTransformer
 from ..resolver.spdx import SpdxPackageResolver
 from ..sbom import SPDX_REFERENCE_TYPE_DISTRIBUTION, SPDXType, SPDX_REFERENCE_TYPE_PURL
-from .packer import BomTransformer
 from ..dpkg.package import Package
 from ..util.checksum_spdx import checksum_to_spdx
 
 
-class StandardBomTransformerSPDX(BomTransformer, SPDXType):
+class StandardBomTransformerSPDX(StandardBomTransformer, SPDXType):
     def __init__(self, bom: spdx_document.Document):
         self._document = bom
         self.pkgs_by_purl = dict(
