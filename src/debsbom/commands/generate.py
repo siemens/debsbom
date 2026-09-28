@@ -142,6 +142,12 @@ class GenerateCmd(GenerateInput):
             help="track suggested package dependencies (default: %(default)s)",
             default=False,
         )
+        parser.add_argument(
+            "--package-archives",
+            action=argparse.BooleanOptionalAction,
+            help="use apt package archives to add more information (default: %(default)s)",
+            default=False,
+        )
         arg_mark_as_file(
             parser.add_argument(
                 "--artifact",

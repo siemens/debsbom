@@ -216,6 +216,8 @@ class Package(ABC):
     homepage: str | None = None
     distro: str | None = None
     checksums: dict[ChecksumAlgo, str]
+    omnibor_id: str | None
+    swh_id: str | None
 
     def __init__(self, name: str, version: str | Version):
         self.name = name
@@ -479,6 +481,8 @@ class SourcePackage(Package):
         homepage: str | None = None,
         vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
+        omnibor_id: str | None = None,
+        swh_id: str | None = None,
         copyright: Copyright | None = None,
         distro: str | None = None,
     ):
@@ -489,6 +493,8 @@ class SourcePackage(Package):
         self.homepage = homepage
         self.vcs = vcs
         self.checksums = checksums or {}
+        self.omnibor_id = omnibor_id
+        self.swh_id = swh_id
         self.copyright = copyright
         self.distro = distro
 
@@ -627,6 +633,8 @@ class BinaryPackage(Package):
         priority: DebianPriority | None = None,
         homepage: str | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
+        omnibor_id: str | None = None,
+        swh_id: str | None = None,
         manually_installed: bool = True,
         status: DpkgStatus = DpkgStatus.DEBSBOM_UNKNOWN,
         distro: str | None = None,
@@ -649,6 +657,8 @@ class BinaryPackage(Package):
         self.priority = priority
         self.homepage = homepage
         self.checksums = checksums or {}
+        self.omnibor_id = omnibor_id
+        self.swh_id = swh_id
         self.manually_installed = manually_installed
         self.status = status
         self.distro = distro

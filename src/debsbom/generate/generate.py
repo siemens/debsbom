@@ -4,12 +4,14 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
+from hashlib import sha1, sha256
 from io import TextIOWrapper
 import itertools
 import logging
 from pathlib import Path
 from uuid import UUID
 
+from ..apt.archive import ArchiveCache
 from ..apt.cache import Repository, ExtendedStates
 from ..apt.copyright import CopyrightDirectory
 from ..dpkg.package import (
@@ -20,6 +22,10 @@ from ..dpkg.package import (
     filter_sources,
 )
 from ..sbom import SBOMType, BOM_Standard
+from ..util.checksum import calculate_checksums
+from ..util.gitoid import gitoid_hashes
+from ..util.omnibor import artifact_id_from_digest
+from ..util.swh import swh_id_from_digest
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +65,7 @@ class Debsbom:
         with_licenses: bool = False,
         recommends_deps: bool = True,
         suggests_deps: bool = False,
+        with_pkg_archives: bool = True,
         cdx_schema_version: str = "1.6",
         artifact: Path | None = None,
     ):
@@ -73,6 +80,7 @@ class Debsbom:
         self.with_licenses = with_licenses
         self.recommends_deps = recommends_deps
         self.suggests_deps = suggests_deps
+        self.with_pkg_archives = with_pkg_archives
         self.cdx_schema_version = cdx_schema_version
         self.artifact = artifact
 
@@ -138,6 +146,7 @@ class Debsbom:
             pkgdict,
             merge_ext_states=merge_ext_states,
             with_licenses=self.with_licenses,
+            with_pkg_archives=self.with_pkg_archives,
         )
 
         self.virtual_packages = self._virtual_packages()
@@ -234,11 +243,24 @@ class Debsbom:
         for p in filter_binaries(packages.values()):
             p.manually_installed = ext_states.is_manual(p.name, p.architecture)
 
+    def _add_pkg_archive_data(self, packages: dict[int, Package]):
+        archive = ArchiveCache(self.root / "var/cache/apt/archives")
+        for package in filter_binaries(packages.values()):
+            package_file = archive.package_file(package)
+            if package_file:
+                sha256_digest, sha1_digest = gitoid_hashes(package_file, [sha256(), sha1()])
+                package.omnibor_id = artifact_id_from_digest(sha256_digest)
+                package.swh_id = swh_id_from_digest(sha1_digest)
+                package.checksums = calculate_checksums(package_file)
+            else:
+                logger.debug(f"{package.name}: missing package archive data")
+
     def _merge_apt_data(
         self,
         packages: dict[int, Package],
         merge_ext_states: bool = True,
         with_licenses: bool = False,
+        with_pkg_archives: bool = True,
     ) -> set[Package]:
         bin_names_apt = set(
             map(
@@ -256,6 +278,9 @@ class Debsbom:
         # by incorporating the binary data from the apt-cache first we might
         # discover previously unknown source packages
         self._merge_apt_binary_data(packages, repos, binary_filter)
+
+        if with_pkg_archives:
+            self._add_pkg_archive_data(packages)
 
         to_add = []
         for source_pkg in Package.referenced_src_packages(filter_binaries(packages.values())):
