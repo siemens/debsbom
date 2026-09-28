@@ -30,6 +30,7 @@ Information Sources
     /var/lib/dpkg/arch-native, Contains the native architecture for the distribution when written by dpkg 1.22.16 or newer; optional
     /var/lib/apt/lists/*, "Contains apt-cache information, used for enrichment of source and binary packages; optional"
     /var/lib/apt/extended-states, Contains information which packages are manually installed; used for building of the dependency graph; optional
+    /var/cache/apt/archives/*, Contains downloaded .deb files for installed binary packages; used for checksums and persistent IDs; optional
     /usr/share/doc/*/copyright, Contains licensing information for installed packages; only used with the ``--with-licenses`` option; optional
 
 Mapping of Debian Binary Packages to SBOM Packages/Components
