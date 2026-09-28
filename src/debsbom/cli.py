@@ -15,6 +15,7 @@ from .generate.generate import DistroArchUnknownError
 
 from .commands.generate import GenerateCmd
 from .commands.download import DownloadCmd
+from .commands.enrich import EnrichCmd
 from .commands.merge import MergeCmd
 from .commands.source_merge import SourceMergeCmd
 from .commands.repack import RepackCmd
@@ -112,6 +113,11 @@ def setup_parser():
     SecurityScanCmd.setup_parser(
         subparser.add_parser("sec-scan", help="check SBOM for security vulnerabilities")
     )
+    EnrichCmd.setup_parser(
+        subparser.add_parser(
+            "enrich", help="enrich SBOM with additional information from the internet"
+        )
+    )
 
     return parser
 
@@ -156,6 +162,11 @@ def main():
             FilterCmd.run(args)
         elif args.cmd == "sec-scan":
             SecurityScanCmd.run(args)
+        elif args.cmd == "enrich":
+            if HAS_DOWNLOAD_DEPS:
+                EnrichCmd.run(args)
+            else:
+                raise RuntimeError(f"{MISSING_MODULE_DOWNLOAD}. {args.cmd} not available")
     except DistroArchUnknownError as e:
         logger.error(f"debsbom: error: {e}. Set --distro-arch to dpkg architecture (e.g. amd64)")
         sys.exit(-2)
