@@ -174,8 +174,6 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             version=str(package.version),
             supplier=supplier,
             files_analyzed=False,
-            # TODO: it should be possible to conclude license/copyright
-            # information, we could look e.g. in /usr/share/doc/*/copyright
             license_concluded=SpdxNoAssertion(),
             license_declared=SpdxNoAssertion(),
             copyright_text=SpdxNoAssertion(),
