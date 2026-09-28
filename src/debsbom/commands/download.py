@@ -127,10 +127,10 @@ class DownloadInput(SbomInput):
             yield r
 
     @classmethod
-    def parser_add_download_args(cls, parser):
+    def parser_add_download_args(cls, parser, input_required: bool = False):
         from ..cli import arg_mark_as_dir
 
-        cls.parser_add_sbom_input_args(parser)
+        cls.parser_add_sbom_input_args(parser, required=input_required)
         arg_mark_as_dir(
             parser.add_argument(
                 "--outdir", default="downloads", help="directory to store downloaded files"
