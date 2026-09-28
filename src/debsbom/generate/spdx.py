@@ -167,6 +167,29 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
         supplier = SpdxNoAssertion()
         logger.warning(f"no supplier for {package}")
     if package.is_binary():
+        external_refs = [
+            spdx_package.ExternalPackageRef(
+                category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
+                reference_type=SPDX_REFERENCE_TYPE_PURL,
+                locator=package.purl(vendor).to_string(),
+            )
+        ]
+        if package.omnibor_id:
+            external_refs.append(
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.PERSISTENT_ID,
+                    reference_type=SPDX_REFERENCE_TYPE_GITOID,
+                    locator=package.omnibor_id,
+                )
+            )
+        if package.swh_id:
+            external_refs.append(
+                spdx_package.ExternalPackageRef(
+                    category=spdx_package.ExternalPackageRefCategory.PERSISTENT_ID,
+                    reference_type=SPDX_REFERENCE_TYPE_SWH,
+                    locator=package.swh_id,
+                )
+            )
         spdx_pkg = spdx_package.Package(
             spdx_id=Reference.make_from_pkg(package).as_str(SBOMType.SPDX),
             name=package.name,
@@ -178,13 +201,7 @@ def spdx_package_repr(package: Package, vendor: str = "debian") -> spdx_package.
             license_declared=SpdxNoAssertion(),
             copyright_text=SpdxNoAssertion(),
             summary=package.description.split("\n")[0] if package.description else None,
-            external_references=[
-                spdx_package.ExternalPackageRef(
-                    category=spdx_package.ExternalPackageRefCategory.PACKAGE_MANAGER,
-                    reference_type=SPDX_REFERENCE_TYPE_PURL,
-                    locator=package.purl(vendor).to_string(),
-                )
-            ],
+            external_references=external_refs,
             primary_package_purpose=spdx_package.PackagePurpose.LIBRARY,
             checksums=[
                 Checksum(checksum_to_spdx(alg), dig) for alg, dig in package.checksums.items()
