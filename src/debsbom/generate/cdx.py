@@ -130,6 +130,12 @@ def cdx_package_repr(
         logger.debug(f"Created source component: {entry}")
     else:
         raise RuntimeError(f"The package {package} is neither a source nor a binary package")
+
+    if package.omnibor_id:
+        entry.omnibor_ids = [package.omnibor_id]
+    if package.swh_id:
+        entry.swhids = [package.swh_id]
+
     entry.external_references = external_refs
     return entry
 
