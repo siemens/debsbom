@@ -1068,3 +1068,47 @@ def test_artifact_root_component(tmpdir, sbom_generator):
             "alg": "MD5",
             "content": "74c825e774f0c103992f423632f3fe7b",
         } in root_component["hashes"]
+
+
+def test_apt_archive_spdx(tmpdir, sbom_generator):
+    _spdx_tools = pytest.importorskip("spdx_tools")
+
+    dbom = sbom_generator("tests/root/apt-archive", sbom_types=[SBOMType.SPDX])
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.spdx.json") as file:
+        spdx_json = json.loads(file.read())
+        packages = spdx_json["packages"]
+        for package in packages:
+            external_refs = package.get("externalRefs") or []
+            if len(external_refs) == 0:
+                # root package
+                continue
+            source_pkg = False
+            for ref in external_refs:
+                if ref["referenceType"] == "purl":
+                    if "arch=source" in ref["referenceLocator"]:
+                        source_pkg = True
+                        break
+            if source_pkg:
+                continue
+            ref_types = list(map(lambda ref: ref["referenceType"], external_refs))
+            assert "gitoid" in ref_types
+            assert "swh" in ref_types
+            assert len(package["checksums"]) > 0
+
+
+def test_apt_archive_cdx(tmpdir, sbom_generator):
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    dbom = sbom_generator("tests/root/apt-archive", sbom_types=[SBOMType.CycloneDX])
+    outdir = Path(tmpdir)
+    dbom.generate(str(outdir / "sbom"), validate=True)
+    with open(outdir / "sbom.cdx.json") as file:
+        cdx_json = json.loads(file.read())
+        components = cdx_json["components"]
+        for component in components:
+            if "arch=source" not in component["purl"]:
+                assert len(component["hashes"]) > 0
+                assert component.get("omniborId")
+                assert component.get("swhid")

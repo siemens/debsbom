@@ -1,0 +1,15 @@
+Package: normal-version
+Version: 1.0
+Architecture: amd64
+
+Package: epoch-version
+Version: 1:2.0
+Architecture: amd64
+
+Package: debian-version
+Version: 2.0+deb13u1
+Architecture: amd64
+
+Package: pre-version
+Version: 1.0~
+Architecture: amd64
