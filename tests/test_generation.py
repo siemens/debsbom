@@ -710,7 +710,12 @@ def _spdx_source_package(test_root, source_name, tmpdir, sbom_generator):
 
 def test_copyright_from_sibling_binary_package(tmpdir, sbom_generator):
     """A broken doc link must not prevent lookup through another sibling."""
-    source = _spdx_source_package("tests/root/copyright-sibling", "sibling", tmpdir, sbom_generator)
+    # the dangling symlink is created here, as committing it breaks source tree copies
+    test_root = Path(tmpdir) / "copyright-sibling"
+    shutil.copytree("tests/root/copyright-sibling", test_root, symlinks=True)
+    (test_root / "usr/share/doc/sibling-app").symlink_to("sibling-common")
+
+    source = _spdx_source_package(str(test_root), "sibling", tmpdir, sbom_generator)
 
     assert source["licenseDeclared"] == "MIT"
 
