@@ -4,10 +4,8 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
-from debian.debian_support import Version
 from io import TextIOWrapper
 import itertools
-import sys
 import logging
 from pathlib import Path
 from uuid import UUID
@@ -16,14 +14,11 @@ from ..apt.cache import Repository, ExtendedStates
 from ..apt.copyright import CopyrightDirectory
 from ..dpkg.package import (
     BinaryPackage,
-    Dependency,
     Package,
-    PkgListType,
     VirtualPackage,
     filter_binaries,
     filter_sources,
 )
-from ..bomwriter import BomWriter
 from ..sbom import SBOMType, BOM_Standard
 
 logger = logging.getLogger(__name__)
