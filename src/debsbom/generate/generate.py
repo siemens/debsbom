@@ -21,7 +21,6 @@ from ..dpkg.package import (
     filter_sources,
 )
 from ..sbom import SBOMType, BOM_Standard
-from ..util.checksum import calculate_checksums
 
 logger = logging.getLogger(__name__)
 
@@ -245,7 +244,6 @@ class Debsbom:
             package_file = archive.package_file(package)
             if package_file:
                 package.local_file = package_file
-                package.checksums = calculate_checksums(package_file)
             else:
                 logger.debug(f"{package.name}: missing package archive data")
 

@@ -17,7 +17,12 @@ import re
 from packageurl import PackageURL
 
 from ..apt.copyright import Copyright
-from ..util.checksum import ChecksumAlgo, checksums_from_dsc, checksums_from_package
+from ..util.checksum import (
+    ChecksumAlgo,
+    checksums_from_dsc,
+    checksums_from_package,
+    calculate_checksums,
+)
 from ..util.gitoid import gitoid_hashes
 from ..util.omnibor import artifact_id_from_digest
 from ..util.swh import swh_id_from_digest
@@ -453,6 +458,19 @@ class Package(ABC):
         self._swh_id = swh_id_from_digest(sha1_digest)
 
     @property
+    def checksums(self) -> dict[ChecksumAlgo, str]:
+        if self.local_file and len(self._checksums) < len(ChecksumAlgo):
+            try:
+                self._checksums = calculate_checksums(self.local_file)
+            except FileNotFoundError:
+                return {}
+        return self._checksums
+
+    @checksums.setter
+    def checksums(self, checksums: dict[ChecksumAlgo, str]):
+        self._checksums = checksums
+
+    @property
     def omnibor_id(self) -> str | None:
         """
         Calculate and return the omnibor ID of a package.
@@ -533,10 +551,10 @@ class SourcePackage(Package):
         self.binaries = binaries or []
         self.homepage = homepage
         self.vcs = vcs
-        self.checksums = checksums or {}
         self.copyright = copyright
         self.distro = distro
 
+        self._checksums = checksums or {}
         self._omnibor_id = None
         self._swh_id = None
 
@@ -696,11 +714,11 @@ class BinaryPackage(Package):
         self.essential = essential
         self.priority = priority
         self.homepage = homepage
-        self.checksums = checksums or {}
         self.manually_installed = manually_installed
         self.status = status
         self.distro = distro
 
+        self._checksums = checksums or {}
         self._omnibor_id = None
         self._swh_id = None
 
