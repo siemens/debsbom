@@ -24,13 +24,8 @@ class NoMatchingDigestError(ValueError):
 
 
 class ChecksumMismatchError(RuntimeError):
-    def __init__(self, name: str, purl: str | None, alg: str, checksum1: str, checksum2: str):
-        if purl:
-            super().__init__(
-                f"Checksum mismatch for '{name}' ({purl}): {alg}: {checksum1} != {checksum2}"
-            )
-        else:
-            super().__init__(f"Checksum mismatch for '{name}': {alg}: {checksum1} != {checksum2}")
+    def __init__(self, checksum1: str, checksum2: str):
+        super().__init__(f"Checksum mismatch: {checksum1} != {checksum2}")
 
 
 class ChecksumAlgo(IntEnum):
@@ -102,23 +97,17 @@ def _best_matching_digest(
 def verify_best_matching_digest(
     digests_a: Mapping[ChecksumAlgo, str],
     digests_b: Mapping[ChecksumAlgo, str],
-    name: str | None = None,
-    purl: str | None = None,
-) -> bool:
+):
     """
     Verifies if the best matching digest between two sets matches.
 
-    Returns True if a common algorithm is found and its digests match.
-    Returns False if no common digest algorithms are found.
     Raises NoMatchingDigestError if no common digest algorithms are found.
-    If `name` is set and a mismatch occurs, a `ChecksumMismatchError`
-    is raised, with the corresponding 'name' and 'purl'.
+    If a mismatch occurs, a `ChecksumMismatchError` is raised.
     """
     alg, digest_a, digest_b = _best_matching_digest(digests_a, digests_b)
     result = compare_digest(digest_a, digest_b)
-    if name and not result:
-        raise ChecksumMismatchError(name, purl, str(alg), digest_a, digest_b)
-    return result
+    if not result:
+        raise ChecksumMismatchError(digest_a, digest_b)
 
 
 def check_hash_from_path(file: Path, checksums: Mapping[ChecksumAlgo, str]) -> bool:

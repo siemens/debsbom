@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from requests import RequestException
 from debian import deb822
 from ..util.checksum import (
+    ChecksumMismatchError,
     NoMatchingDigestError,
     calculate_checksums,
     checksums_from_dsc,
@@ -57,7 +58,7 @@ class RemoteDscFile:
         dsc_checksums = checksums_from_dsc(self._dsc)
         for rf in self.allfiles:
             try:
-                if verify_best_matching_digest(rf.checksums, dsc_checksums.get(rf.filename)):
-                    yield rf
-            except NoMatchingDigestError:
+                verify_best_matching_digest(rf.checksums, dsc_checksums.get(rf.filename))
+                yield rf
+            except (NoMatchingDigestError, ChecksumMismatchError):
                 continue

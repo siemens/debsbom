@@ -49,8 +49,6 @@ class SpdxSbomMerger(SbomMerger):
             verify_best_matching_digest(
                 checksum_dict_from_spdx(package.checksums),
                 checksum_dict_from_spdx(other.checksums),
-                name=package.name,
-                purl=self._purl_from_package(package),
             )
         except NoMatchingDigestError:
             pass

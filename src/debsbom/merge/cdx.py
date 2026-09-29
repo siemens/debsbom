@@ -29,8 +29,6 @@ class CdxSbomMerger(SbomMerger):
             verify_best_matching_digest(
                 checksum_dict_from_cdx(component.hashes),
                 checksum_dict_from_cdx(other.hashes),
-                name=component.name,
-                purl=str(component.purl),
             )
         except NoMatchingDigestError:
             pass
