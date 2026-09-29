@@ -20,6 +20,7 @@ from requests.exceptions import RequestException
 from ..dpkg import package
 from ..util.checksum import (
     ChecksumAlgo,
+    ChecksumMismatchError,
     NoMatchingDigestError,
     calculate_checksums,
     checksums_from_dsc,
@@ -339,9 +340,9 @@ class SnapshotRemoteDscFile:
         dsc_checksums = checksums_from_dsc(self._dsc)
         for rf in self.allfiles:
             try:
-                if verify_best_matching_digest(rf.checksums, dsc_checksums.get(rf.filename)):
-                    yield rf
-            except NoMatchingDigestError:
+                verify_best_matching_digest(rf.checksums, dsc_checksums.get(rf.filename))
+                yield rf
+            except (ChecksumMismatchError, NoMatchingDigestError):
                 continue
 
 
@@ -445,11 +446,11 @@ class UpstreamResolver(Resolver):
         dscfiles = self._resolve_dsc_files(sdlpkg, archive=None)
         for d in dscfiles:
             try:
-                if verify_best_matching_digest(d.checksums, srcpkg.checksums):
-                    yield d.dscfile
-                    yield from d.srcfiles()
-                    return
-            except NoMatchingDigestError:
+                verify_best_matching_digest(d.checksums, srcpkg.checksums)
+                yield d.dscfile
+                yield from d.srcfiles()
+                return
+            except (ChecksumMismatchError, NoMatchingDigestError):
                 continue
 
     def resolve(self, p: package.Package) -> list["RemoteFile"]:
