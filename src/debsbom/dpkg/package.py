@@ -19,9 +19,12 @@ from packageurl import PackageURL
 from ..apt.copyright import Copyright
 from ..util.checksum import (
     ChecksumAlgo,
+    ChecksumMismatchError,
+    NoMatchingDigestError,
     checksums_from_dsc,
     checksums_from_package,
     calculate_checksums,
+    verify_best_matching_digest,
 )
 from ..util.gitoid import gitoid_hashes
 from ..util.omnibor import artifact_id_from_digest
@@ -229,6 +232,8 @@ class Package(ABC):
     _omnibor_id: str | None = None
     _swh_id: str | None = None
 
+    _checksum_conflict: bool = False
+
     def __init__(self, name: str, version: str | Version):
         self.name = name
         self.version = Version(version)
@@ -398,7 +403,7 @@ class Package(ABC):
             self.homepage = other.homepage
         if not self.distro:
             self.distro = other.distro
-        self.checksums |= other.checksums
+        self._merge_checksums(other.checksums)
 
     @classmethod
     def _resolve_sources(cls, pkg: "BinaryPackage", add_pkg=False) -> Iterable["Package"]:
@@ -457,11 +462,34 @@ class Package(ABC):
         self._omnibor_id = artifact_id_from_digest(sha256_digest)
         self._swh_id = swh_id_from_digest(sha1_digest)
 
+    def _merge_checksums(self, other: dict[ChecksumAlgo, str]):
+        if not self._checksums:
+            self._checksums = other
+        if not other:
+            return
+
+        try:
+            verify_best_matching_digest(self._checksums, other)
+        except ChecksumMismatchError as e:
+            logger.warning(f"{self.name}: {e}; leaving checksums empty")
+            self._checksum_conflict = True
+            self._checksums = {}
+            self._omnibor_id = None
+            self._swh_id = None
+            return
+        except NoMatchingDigestError:
+            pass
+        self._checksums |= other
+
     @property
     def checksums(self) -> dict[ChecksumAlgo, str]:
+        # if we detected a conflict already, the situation is clearly complicated;
+        # the best course of action is to not emit anything
+        if self._checksum_conflict:
+            return {}
         if self.local_file and len(self._checksums) < len(ChecksumAlgo):
             try:
-                self._checksums = calculate_checksums(self.local_file)
+                self._merge_checksums(calculate_checksums(self.local_file))
             except FileNotFoundError:
                 return {}
         return self._checksums
@@ -477,6 +505,8 @@ class Package(ABC):
 
         Returns None if no file is associated with this package.
         """
+        if self._checksum_conflict:
+            return None
         if self.local_file:
             if not self._omnibor_id:
                 self._calculate_persistent_ids()
@@ -491,6 +521,8 @@ class Package(ABC):
 
         Returns None if no file is associated with this package.
         """
+        if self._checksum_conflict:
+            return None
         if self.local_file:
             if not self._swh_id:
                 self._calculate_persistent_ids()
