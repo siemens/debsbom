@@ -4,7 +4,6 @@
 
 from collections.abc import Callable, Iterable
 from datetime import datetime
-from hashlib import sha1, sha256
 from io import TextIOWrapper
 import itertools
 import logging
@@ -23,9 +22,6 @@ from ..dpkg.package import (
 )
 from ..sbom import SBOMType, BOM_Standard
 from ..util.checksum import calculate_checksums
-from ..util.gitoid import gitoid_hashes
-from ..util.omnibor import artifact_id_from_digest
-from ..util.swh import swh_id_from_digest
 
 logger = logging.getLogger(__name__)
 
@@ -248,9 +244,7 @@ class Debsbom:
         for package in filter_binaries(packages.values()):
             package_file = archive.package_file(package)
             if package_file:
-                sha256_digest, sha1_digest = gitoid_hashes(package_file, [sha256(), sha1()])
-                package.omnibor_id = artifact_id_from_digest(sha256_digest)
-                package.swh_id = swh_id_from_digest(sha1_digest)
+                package.local_file = package_file
                 package.checksums = calculate_checksums(package_file)
             else:
                 logger.debug(f"{package.name}: missing package archive data")

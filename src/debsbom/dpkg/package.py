@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from collections.abc import Iterable
 from enum import Enum
+from hashlib import sha1, sha256
 import io
 import itertools
 from pathlib import Path
@@ -17,6 +18,9 @@ from packageurl import PackageURL
 
 from ..apt.copyright import Copyright
 from ..util.checksum import ChecksumAlgo, checksums_from_dsc, checksums_from_package
+from ..util.gitoid import gitoid_hashes
+from ..util.omnibor import artifact_id_from_digest
+from ..util.swh import swh_id_from_digest
 from .. import HAS_PYTHON_APT
 
 logger = logging.getLogger(__name__)
@@ -215,9 +219,10 @@ class Package(ABC):
     maintainer: str | None = None
     homepage: str | None = None
     distro: str | None = None
+    local_file: Path | None = None
     checksums: dict[ChecksumAlgo, str]
-    omnibor_id: str | None
-    swh_id: str | None
+    _omnibor_id: str | None = None
+    _swh_id: str | None = None
 
     def __init__(self, name: str, version: str | Version):
         self.name = name
@@ -437,6 +442,44 @@ class Package(ABC):
         """Return the filename part from the locator of a package."""
         return self.locator.split("/")[-1]
 
+    def _calculate_persistent_ids(self):
+        """Calculate omnibor ID and swh ID and add them to the instance."""
+        try:
+            sha256_digest, sha1_digest = gitoid_hashes(self.local_file, [sha256(), sha1()])
+        except FileNotFoundError:
+            # simply keep the fields empty and return
+            return
+        self._omnibor_id = artifact_id_from_digest(sha256_digest)
+        self._swh_id = swh_id_from_digest(sha1_digest)
+
+    @property
+    def omnibor_id(self) -> str | None:
+        """
+        Calculate and return the omnibor ID of a package.
+
+        Returns None if no file is associated with this package.
+        """
+        if self.local_file:
+            if not self._omnibor_id:
+                self._calculate_persistent_ids()
+            return self._omnibor_id
+        else:
+            return None
+
+    @property
+    def swh_id(self) -> str | None:
+        """
+        Calculate and return the swh ID of a package.
+
+        Returns None if no file is associated with this package.
+        """
+        if self.local_file:
+            if not self._swh_id:
+                self._calculate_persistent_ids()
+            return self._swh_id
+        else:
+            return None
+
     def __str__(self) -> str:
         return f"{self.name}@{self.version}"
 
@@ -481,8 +524,6 @@ class SourcePackage(Package):
         homepage: str | None = None,
         vcs: VcsInfo | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
-        omnibor_id: str | None = None,
-        swh_id: str | None = None,
         copyright: Copyright | None = None,
         distro: str | None = None,
     ):
@@ -493,10 +534,11 @@ class SourcePackage(Package):
         self.homepage = homepage
         self.vcs = vcs
         self.checksums = checksums or {}
-        self.omnibor_id = omnibor_id
-        self.swh_id = swh_id
         self.copyright = copyright
         self.distro = distro
+
+        self._omnibor_id = None
+        self._swh_id = None
 
     def __hash__(self):
         return hash((self.name, self.version))
@@ -633,8 +675,6 @@ class BinaryPackage(Package):
         priority: DebianPriority | None = None,
         homepage: str | None = None,
         checksums: dict[ChecksumAlgo, str] | None = None,
-        omnibor_id: str | None = None,
-        swh_id: str | None = None,
         manually_installed: bool = True,
         status: DpkgStatus = DpkgStatus.DEBSBOM_UNKNOWN,
         distro: str | None = None,
@@ -657,11 +697,12 @@ class BinaryPackage(Package):
         self.priority = priority
         self.homepage = homepage
         self.checksums = checksums or {}
-        self.omnibor_id = omnibor_id
-        self.swh_id = swh_id
         self.manually_installed = manually_installed
         self.status = status
         self.distro = distro
+
+        self._omnibor_id = None
+        self._swh_id = None
 
     def __hash__(self):
         return hash((self.name, self.version, self.architecture))
