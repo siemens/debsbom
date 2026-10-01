@@ -66,15 +66,57 @@ jobs:
 
   test-debian-trixie-compat:
     runs-on: ubuntu-24.04
+    container:
+      image: debian:trixie
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Install dependencies as found in Debian trixie
+      - name: Install other required dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-trixie.txt
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            python3 \
+            python-is-python3 \
+            python3-pip \
+            python3-setuptools \
+            python3-wheel \
+            dpkg-dev \
+            bzip2 \
+            gzip \
+            xz-utils \
+            zstd \
+            lz4
+      - name: Install debsbom dependencies from apt
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y --no-install-recommends \
+            black \
+            python3-apt \
+            python3-beartype \
+            python3-coverage \
+            python3-cyclonedx-lib \
+            python3-debian \
+            python3-jsonschema \
+            python3-license-expression \
+            python3-lz4 \
+            python3-networkx \
+            python3-packageurl \
+            python3-pytest \
+            python3-pytest-cov \
+            python3-requests \
+            python3-shtab \
+            python3-zstandard
+          rm -rf /var/lib/apt/lists/*
+          ln -s /usr/bin/python3-coverage /usr/local/bin/coverage
+      - name: Install debsbom with system packages only
+        run: |
+          # Install spdx-tools with pip, as it is currently not available in trixie
+          pip install spdx-tools==0.8.5 --break-system-packages
+          pip install . --break-system-packages --no-deps
       - uses: ./.github/actions/pytest
         with:
           artifact-identifier: "debian-trixie-compat"
+          skip-setup: "true"
 
   coverage:
     name: Check coverage
@@ -110,6 +152,7 @@ jobs:
               src/debsbom
               */site-packages/debsbom
               */runner/work/debsbom/src/debsbom
+              */dist-packages/debsbom
           EOF
 
           python -m coverage combine
