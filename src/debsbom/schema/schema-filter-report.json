@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/siemens/debsbom/refs/heads/main/src/debsbom/schema/schema-filter-report.json",
+  "title": "Exclusion Report",
+  "description": "The result of excluding packages from an SBOM.",
+  "type": "object",
+  "$defs": {
+    "source": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the source package."
+        },
+        "version": {
+          "type": "string",
+          "description": "The version of the source package."
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "properties": {
+    "matched_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Binary exclusion patterns that matched at least one package."
+    },
+    "unmatched_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Binary exclusion patterns that did not match any package."
+    },
+    "matched_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "description": "Source exclusions that matched a source package."
+    },
+    "unmatched_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "description": "Source exclusions that did not match any source package."
+    },
+    "removed_binaries": {
+      "$ref": "#/$defs/refs",
+      "description": "References of the removed binary packages."
+    },
+    "removed_sources": {
+      "$ref": "#/$defs/refs",
+      "description": "References of the removed source packages."
+    }
+  },
+  "required": [
+    "matched_patterns",
+    "unmatched_patterns",
+    "matched_sources",
+    "unmatched_sources",
+    "removed_binaries",
+    "removed_sources"
+  ]
+}
