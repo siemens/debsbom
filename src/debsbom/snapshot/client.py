@@ -27,6 +27,7 @@ from ..util.checksum import (
     verify_best_matching_digest,
 )
 from ..download.resolver import RemoteFile, PackageResolverCache, Resolver, ResolveError
+from ..download.resolver import NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,10 @@ class NotFoundOnSnapshotError(SnapshotDataLakeError, FileNotFoundError):
 
 class SnapshotResolveError(ResolveError):
     pass
+
+
+class SnapshotNotFoundError(SnapshotResolveError, NotFoundError):
+    """The package is not known by the snapshot mirror (it answered with a 404)."""
 
 
 class Package:
@@ -466,6 +471,8 @@ class UpstreamResolver(Resolver):
                     arch=p.architecture
                 )
             files_list = list(files)
+        except NotFoundOnSnapshotError as e:
+            raise SnapshotNotFoundError(e)
         except SnapshotDataLakeError as e:
             raise SnapshotResolveError(e)
         return files_list
