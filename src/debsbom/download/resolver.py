@@ -22,6 +22,14 @@ class ResolveError(Exception):
     """Exception for any expected error during resolving."""
 
 
+class NotFoundError(ResolveError):
+    """The package is not available upstream (404). Only these results may be cached."""
+
+
+#: cache entry marking a negative result
+NOT_FOUND = {"not_found": True}
+
+
 @dataclasses.dataclass
 class RemoteFile:
     #: Available checksums for the remote file.
@@ -53,13 +61,17 @@ class PackageResolverCache:
     """
 
     def lookup(self, p: package.SourcePackage | package.BinaryPackage) -> list["RemoteFile"] | None:
-        """Lookup package files in cache"""
+        """Lookup package files in cache. Raises NotFoundError on a cached negative result."""
         return None
 
     def insert(
         self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
     ) -> None:
         """Insert package files into cache"""
+        pass
+
+    def insert_not_found(self, p: package.SourcePackage | package.BinaryPackage) -> None:
+        """Remember that the package is not available upstream"""
         pass
 
 
@@ -102,6 +114,8 @@ class PersistentResolverCache(PackageResolverCache):
         ):
             try:
                 data = json.load(f)
+                if data == NOT_FOUND:
+                    raise NotFoundError(f"{p} is not available upstream (cached)")
                 for d in data:
                     d["checksums"] = {ChecksumAlgo(int(k)): v for k, v in d["checksums"].items()}
             except json.decoder.JSONDecodeError:
@@ -110,18 +124,23 @@ class PersistentResolverCache(PackageResolverCache):
         logger.debug(f"Package '{p.name}' already cached")
         return [RemoteFile(**d) for d in data]
 
-    def insert(
-        self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
-    ) -> None:
-        hash = self._package_hash(p)
+    def _write_entry(self, hash: str, data) -> None:
         entry = self._entry_path(hash)
         with (
             open(entry.with_suffix(".tmp"), "wb") as _f,
             self.cctx.stream_writer(_f) as cf,
             io.TextIOWrapper(cf, encoding="utf-8") as f,
         ):
-            json.dump([dataclasses.asdict(rf.as_base()) for rf in files], f)
+            json.dump(data, f)
         entry.with_suffix(".tmp").rename(entry)
+
+    def insert(
+        self, p: package.SourcePackage | package.BinaryPackage, files: list["RemoteFile"]
+    ) -> None:
+        self._write_entry(self._package_hash(p), [dataclasses.asdict(rf.as_base()) for rf in files])
+
+    def insert_not_found(self, p: package.SourcePackage | package.BinaryPackage) -> None:
+        self._write_entry(self._package_hash(p), NOT_FOUND)
 
 
 class Resolver(ABC):
@@ -143,9 +162,13 @@ class Resolver(ABC):
         if cached_files:
             return cached_files
 
-        files = self.resolve(p)
+        try:
+            files_list = list(self.resolve(p))
+        except NotFoundError:
+            # a 404 is a stable result, any other error might be transient
+            self.cache.insert_not_found(p)
+            raise
 
-        files_list = list(files)
         self.cache.insert(p, files_list)
         logger.debug(f"Resolved '{p.name}': {files_list}")
         return files_list
