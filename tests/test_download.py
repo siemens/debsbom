@@ -14,6 +14,7 @@ from debsbom.download import (
     PersistentResolverCache,
 )
 from debsbom.download.download import DownloadResult, DownloadStatus
+from debsbom.download.resolver import NotFoundError
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom import schema
 from debsbom.dpkg.package import (
@@ -154,6 +155,36 @@ def test_package_resolver_resolve_spdx(spdx_bomfile, tmpdir, sdl):
     prs = PackageResolver.create(spdx_bomfile)
     files = list(urs.resolve(next(filter(lambda p: p.name == "binutils", prs))))
     assert "binutils" in files[0].filename
+
+
+def test_resolver_cache_negative(tmpdir):
+    """
+    404s (and only those) are cached as negative result
+    """
+    pkg = BinaryPackage(name="does-not-exist", architecture="amd64", version="1.0")
+
+    class _Resolver(sdlclient.Resolver):
+        def resolve(self, p):
+            self.calls += 1
+            raise self.exc
+
+    urs = _Resolver(PersistentResolverCache(Path(tmpdir) / ".cache"))
+    urs.calls = 0
+
+    # transient errors are not cached
+    urs.exc = sdlclient.SnapshotResolveError("boom")
+    for _ in range(2):
+        with pytest.raises(sdlclient.SnapshotResolveError):
+            urs._resolve_pkg(pkg)
+    assert urs.calls == 2
+
+    # 404s are cached
+    urs.exc = sdlclient.SnapshotNotFoundError("gone")
+    with pytest.raises(sdlclient.SnapshotNotFoundError):
+        urs._resolve_pkg(pkg)
+    with pytest.raises(NotFoundError):
+        urs._resolve_pkg(pkg)
+    assert urs.calls == 3
 
 
 @pytest.mark.online
