@@ -311,18 +311,21 @@ def test_srcpkg_with_checksum(sdl):
             DownloadStatus.OK,
             SourcePackage("foo", "1.0"),
             "foo.tar",
+            "file:///foo.tar",
         ),
         DownloadResult(
             None,
             DownloadStatus.NOT_FOUND,
             SourcePackage("foo", "1.0"),
             "bar.tar",
+            "file:///foo.tar",
         ),
         DownloadResult(
             None,
             DownloadStatus.CHECKSUM_MISMATCH,
             BinaryPackage("bar", "1.0"),
             "bar.tar",
+            "file:///foo.tar",
         ),
     ],
 )
