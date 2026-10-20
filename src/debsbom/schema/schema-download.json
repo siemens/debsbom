@@ -43,10 +43,15 @@
     "path": {
       "type": "string",
       "description": "The absolute path to the downloaded file on success."
+    },
+    "source": {
+      "type": "string",
+      "description": "The source URL of the processed file."
     }
   },
   "required": [
     "status",
-    "package"
+    "package",
+    "source"
   ]
 }
