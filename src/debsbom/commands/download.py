@@ -4,6 +4,8 @@
 
 from importlib.metadata import entry_points, version
 
+from collections import deque
+from collections.abc import Iterable
 from io import BytesIO
 import logging
 from pathlib import Path
@@ -90,7 +92,7 @@ class DownloadInput(SbomInput):
         pkgs: list[Package],
         progress: bool | None,
         json: bool | None,
-    ):
+    ) -> Iterable[DownloadResult]:
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
             if progress:
@@ -122,6 +124,7 @@ class DownloadInput(SbomInput):
             if json:
                 print(r.json())
             logger.debug(f"{r.status}: {r.filename}")
+            yield r
 
     @classmethod
     def parser_add_download_args(cls, parser):
@@ -175,7 +178,10 @@ class DownloadCmd(DownloadInput, SourceBinaryInput, PkgStreamInput):
                 )
             )
 
-        cls._download_packages(downloader, u_resolver, pkgs, args.progress, args.json)
+        # immediately drop the results, we just need to exhaust the iterator
+        deque(
+            cls._download_packages(downloader, u_resolver, pkgs, args.progress, args.json), maxlen=0
+        )
 
     @classmethod
     def setup_parser(cls, parser):
