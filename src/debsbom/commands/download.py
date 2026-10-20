@@ -90,7 +90,7 @@ class DownloadInput(SbomInput):
         pkgs: list[Package],
         progress: bool | None,
         json: bool | None,
-    ):
+    ) -> list[DownloadResult]:
         logger.info("Resolving upstream packages...")
         for idx, pkg in enumerate(pkgs):
             if progress:
@@ -116,12 +116,13 @@ class DownloadInput(SbomInput):
                 f"(cached: {cfiles}, {DownloadCmd.human_readable_bytes(cbytes)})"
             )
 
-        dl_results = downloader.download(progress_cb=progress_cb if progress else None)
+        dl_results = list(downloader.download(progress_cb=progress_cb if progress else None))
 
         for r in dl_results:
             if json:
                 print(r.json())
             logger.debug(f"{r.status}: {r.filename}")
+        return dl_results
 
     @classmethod
     def parser_add_download_args(cls, parser):
