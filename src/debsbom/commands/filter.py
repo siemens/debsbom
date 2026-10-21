@@ -3,13 +3,18 @@
 # SPDX-License-Identifier: MIT
 
 import logging
+import json
+import re
 
+from ..dpkg.package import Package
 from ..graph.walker import PackageRepr
 from .output import SbomOutput
 from .input import SbomInput, SourceBinaryInput
 from ..sbom import Reference, SBOMType
 
 logger = logging.getLogger(__name__)
+
+SOURCE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9+.-]+")
 
 
 class FilterCmd(SbomInput, SourceBinaryInput):
@@ -18,6 +23,17 @@ class FilterCmd(SbomInput, SourceBinaryInput):
     @classmethod
     def run(cls, args):
         resolvers = cls.get_sbom_resolvers(args)
+        patterns = args.exclude_binary or []
+        source_file = args.exclude_source_file
+        sources = cls.read_source_exclusions(source_file) if source_file else []
+        exclusions = bool(patterns or source_file)
+        if args.json and args.bomout == "-":
+            raise ValueError("--json requires an SBOM output file to keep the report separate")
+        if exclusions:
+            if args.package:
+                raise ValueError("--package cannot be combined with exclusions")
+            if any(r.sbom_type() != SBOMType.CycloneDX for r in resolvers):
+                raise ValueError("package exclusions currently require a CycloneDX SBOM")
 
         def get_package_repr(sbom_type: SBOMType) -> tuple[PackageRepr, str]:
             candidates = list(
@@ -50,6 +66,17 @@ class FilterCmd(SbomInput, SourceBinaryInput):
                 )
 
         for resolver in resolvers:
+            if exclusions:
+                from ..filter.cdx import CdxSbomFilter
+
+                report = CdxSbomFilter.exclude(
+                    resolver.document, binary_patterns=patterns, source_packages=sources
+                )
+                logger.info(
+                    "Excluded %d binaries and %d sources",
+                    len(report["removed_binaries"]),
+                    len(report["removed_sources"]),
+                )
             if args.package:
                 if resolver.sbom_type() == SBOMType.CycloneDX:
                     from ..filter.cdx import CdxSbomFilter
@@ -74,6 +101,29 @@ class FilterCmd(SbomInput, SourceBinaryInput):
             SbomOutput.write_out_arg(
                 resolver.document, resolver.sbom_type(), args.bomout, args.validate
             )
+            if exclusions and args.json:
+                print(json.dumps(report))
+
+    @staticmethod
+    def read_source_exclusions(filename) -> list[tuple[str, str]]:
+        """Read exact source names and versions using universal package ingress."""
+        sources = []
+        with open(filename, "rb") as stream:
+            try:
+                for package in Package.parse_pkglist_stream(stream):
+                    if not package.is_source():
+                        continue
+                    version = str(package.version)
+                    if not SOURCE_NAME_RE.fullmatch(package.name) or not re.match(
+                        r"[0-9]", version
+                    ):
+                        raise ValueError("source exclusions require a valid name and exact version")
+                    entry = (package.name, version)
+                    if entry not in sources:
+                        sources.append(entry)
+            except ValueError as error:
+                raise ValueError(f"{filename}: invalid source package input: {error}") from error
+        return sources
 
     @classmethod
     def setup_parser(cls, parser):
@@ -94,4 +144,18 @@ class FilterCmd(SbomInput, SourceBinaryInput):
             "--package",
             type=str,
             help="filter the SBOM by only including the package and its dependency subgraph",
+        )
+
+        parser.add_argument(
+            "--exclude-binary",
+            action="append",
+            metavar="REGEX",
+            help="exclude binary packages whose entire Debian name matches REGEX; repeatable",
+        )
+        arg_mark_as_file(
+            parser.add_argument(
+                "--exclude-source-file",
+                metavar="FILE",
+                help="exclude exact source packages from universal package input",
+            )
         )
