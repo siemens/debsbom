@@ -124,7 +124,19 @@ class PkgStreamInput:
         return PackageStreamResolver(sys.stdin)
 
 
-class GenerateInput:
+class SbomValidationInput:
+    """Mixin for SBOM validation arg."""
+
+    @classmethod
+    def parser_add_validation_input_arg(cls, parser):
+        parser.add_argument(
+            "--validate",
+            help="validate generated SBOM (only for SPDX)",
+            action="store_true",
+        )
+
+
+class GenerateInput(SbomValidationInput):
     """
     Mixin for SBOM generating commands.
 
@@ -142,6 +154,8 @@ class GenerateInput:
     @classmethod
     def parser_add_generate_input_args(cls, parser, default_out):
         from ..cli import arg_mark_as_file
+
+        SbomValidationInput.parser_add_validation_input_arg(parser)
 
         arg_mark_as_file(
             parser.add_argument(
@@ -217,11 +231,6 @@ class GenerateInput:
             action="append",
             metavar="key=value",
             help="add arbitrary metadata properties to the SBOM",
-        )
-        parser.add_argument(
-            "--validate",
-            help="validate generated SBOM (only for SPDX)",
-            action="store_true",
         )
 
 
