@@ -86,7 +86,12 @@ class GenerateCmd(GenerateInput):
                     t,
                     progress_cb=progress_cb if args.progress else None,
                 )
-                opts = SerializerOpts.create(bomtype=t, schema_version=args.cdx_schema_version)
+                opts = SerializerOpts.create(
+                    bomtype=t,
+                    schema_version=args.cdx_schema_version,
+                    cdx_output_format=getattr(args, "cdx_output_format", None),
+                    spdx_output_format=getattr(args, "spdx_output_format", None),
+                )
                 SbomOutput.write_out_arg(bom, t, args.out, args.validate, opts)
 
     @classmethod
@@ -148,6 +153,29 @@ class GenerateCmd(GenerateInput):
             help="use apt package archives to add more information (default: %(default)s)",
             default=False,
         )
+
+        try:
+            from ..bomwriter.cdxbomwriter import output_format_map as cdx_format_map
+
+            parser.add_argument(
+                "--cdx-output-format",
+                choices=cdx_format_map.keys(),
+                help="set the CycloneDX format",
+            )
+        except ImportError:
+            pass
+
+        try:
+            from ..bomwriter.spdxbomwriter import output_format_map as spdx_format_map
+
+            parser.add_argument(
+                "--spdx-output-format",
+                choices=spdx_format_map.keys(),
+                help="set the SPDX 2 output format. "
+                "Implicitly set by giving the output file one of these extensions.",
+            )
+        except ImportError:
+            pass
         arg_mark_as_file(
             parser.add_argument(
                 "--artifact",
