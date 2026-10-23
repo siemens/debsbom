@@ -40,6 +40,7 @@ class DownloadResult:
     status: DownloadStatus
     package: Package
     filename: str | None
+    source: str
 
     def json(self) -> str:
         result = {
@@ -54,6 +55,7 @@ class DownloadResult:
             result["filename"] = self.filename
         if self.path:
             result["path"] = str(self.path.absolute())
+        result["source"] = self.source
         return json.dumps(result)
 
 
@@ -130,7 +132,11 @@ class PackageDownloader:
                     logger.debug(f"File '{target}' already downloaded.")
                     self.known_hashes[hashable_file_checksums] = target
                     yield DownloadResult(
-                        path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+                        path=target,
+                        status=DownloadStatus.OK,
+                        package=pkg,
+                        filename=f.filename,
+                        source=f.downloadurl,
                     )
                     continue
                 logger.warning(f"Checksum mismatch on {f.filename}. Download again.")
@@ -146,7 +152,11 @@ class PackageDownloader:
                 target.symlink_to(o_target_rel)
                 logger.debug(f"Linking '{target}' to already downloaded '{o_target_rel}'")
                 yield DownloadResult(
-                    path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+                    path=target,
+                    status=DownloadStatus.OK,
+                    package=pkg,
+                    filename=f.filename,
+                    source=f.downloadurl,
                 )
                 continue
 
@@ -167,6 +177,7 @@ class PackageDownloader:
                         status=DownloadStatus.CHECKSUM_MISMATCH,
                         package=pkg,
                         filename=f.filename,
+                        source=f.downloadurl,
                     )
                     continue
             else:
@@ -176,7 +187,11 @@ class PackageDownloader:
             fdst.rename(target)
             self.known_hashes[hashable_file_checksums] = target
             yield DownloadResult(
-                path=target, status=DownloadStatus.OK, package=pkg, filename=f.filename
+                path=target,
+                status=DownloadStatus.OK,
+                package=pkg,
+                filename=f.filename,
+                source=f.downloadurl,
             )
         self.to_download = []
         self.known_hashes.clear()

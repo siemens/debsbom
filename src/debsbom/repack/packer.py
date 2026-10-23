@@ -12,11 +12,12 @@ import os
 import sys
 
 from ..util.checksum import calculate_checksums
-from ..sbom import BomSpecific, SBOMType
+from ..sbom import SBOMType
 from ..dpkg.package import Package
 from ..dpkg.package import ChecksumAlgo as CSA
 from .merger import DscFileNotFoundError, SourceArchiveMerger
 from ..util import Compression
+from ..transform import BomTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -119,14 +120,10 @@ class StandardBomPacker(Packer):
         return pkg
 
 
-class BomTransformer(BomSpecific):
-    @abstractmethod
-    def transform(self, packages: Iterable[Package]):
-        raise NotImplementedError()
-
-    @property
-    def document(self):
-        return self._document
+class StandardBomTransformer(BomTransformer):
+    """
+    Transformer for the Siemens Standard BOM.
+    """
 
     @staticmethod
     def create(standard: str, sbom_type: SBOMType, bom):

@@ -24,7 +24,7 @@ from debsbom.dpkg.package import (
     filter_binaries,
     filter_sources,
 )
-from debsbom.repack.packer import BomTransformer, Packer
+from debsbom.repack.packer import Packer, StandardBomTransformer
 from debsbom.snapshot.client import SnapshotRemoteFile, UpstreamResolver
 import debsbom.snapshot.client as sdlclient
 
@@ -251,7 +251,9 @@ def test_repack(tmpdir, spdx_bomfile, cdx_bomfile, http_session, sdl):
         assert len(files) == 3
 
         # merge the source package
-        bt = BomTransformer.create("standard-bom-package", resolver.sbom_type(), resolver.document)
+        bt = StandardBomTransformer.create(
+            "standard-bom-package", resolver.sbom_type(), resolver.document
+        )
         repacked = list(filter(lambda p: p, map(lambda p: packer.repack(p, symlink=True), pkgs)))
         assert len(repacked) == 1
         assert ".merged.tar" in repacked[0].filename
@@ -305,11 +307,25 @@ def test_srcpkg_with_checksum(sdl):
     "dlresult",
     [
         DownloadResult(
-            Path("/tmp/foo.tar"), DownloadStatus.OK, SourcePackage("foo", "1.0"), "foo.tar"
+            Path("/tmp/foo.tar"),
+            DownloadStatus.OK,
+            SourcePackage("foo", "1.0"),
+            "foo.tar",
+            "file:///foo.tar",
         ),
-        DownloadResult(None, DownloadStatus.NOT_FOUND, SourcePackage("foo", "1.0"), "bar.tar"),
         DownloadResult(
-            None, DownloadStatus.CHECKSUM_MISMATCH, BinaryPackage("bar", "1.0"), "bar.tar"
+            None,
+            DownloadStatus.NOT_FOUND,
+            SourcePackage("foo", "1.0"),
+            "bar.tar",
+            "file:///foo.tar",
+        ),
+        DownloadResult(
+            None,
+            DownloadStatus.CHECKSUM_MISMATCH,
+            BinaryPackage("bar", "1.0"),
+            "bar.tar",
+            "file:///foo.tar",
         ),
     ],
 )
