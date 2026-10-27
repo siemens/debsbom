@@ -23,7 +23,12 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
-    from ..download.resolver import PackageResolverCache, PersistentResolverCache, ResolveError
+    from ..download.resolver import (
+        PackageResolverCache,
+        PersistentResolverCache,
+        ResolveError,
+        Resolver,
+    )
 except ModuleNotFoundError:
     pass
 
@@ -88,7 +93,7 @@ class DownloadInput(SbomInput):
     @staticmethod
     def _download_packages(
         downloader: PackageDownloader,
-        resolver_cache: PackageResolverCache,
+        upstream_resolver: Resolver,
         pkgs: list[Package],
         progress: bool | None,
         json: bool | None,
@@ -98,7 +103,7 @@ class DownloadInput(SbomInput):
             if progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(resolver_cache._resolve_pkg(pkg))
+                files = list(upstream_resolver._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except ResolveError:
