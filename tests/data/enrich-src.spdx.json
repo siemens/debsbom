@@ -1,0 +1,58 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2026-10-27T14:00:28Z",
+        "creators": [
+            "Tool: debsbom-0.10.2"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "Debian",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.10.2-b0fbc972-def3-4d4f-96e0-28ca0fa55d23",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Debian",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "Debian",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-debsbom-0.10.1-1.bpo13.1-srcpkg",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=source&distro=trixie-backports",
+                    "referenceType": "purl"
+                },
+                {
+                    "comment": "Version control system of type Git",
+                    "referenceCategory": "OTHER",
+                    "referenceLocator": "https://salsa.debian.org/python-team/packages/debsbom.git",
+                    "referenceType": "vcs"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debsbom",
+            "primaryPackagePurpose": "SOURCE",
+            "summary": "Debian source code package 'debsbom'",
+            "supplier": "Organization: Debian Python Team (team+python@tracker.debian.org)",
+            "versionInfo": "0.10.1-1~bpo13+1"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}
