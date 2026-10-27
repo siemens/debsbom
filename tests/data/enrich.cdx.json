@@ -1,0 +1,85 @@
+{
+    "components": [
+        {
+            "bom-ref": "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=all&distro=trixie-backports",
+            "group": "debian",
+            "hashes": [
+                {
+                    "alg": "MD5",
+                    "content": "539cff65e924bcd391d658c26031c5c6"
+                },
+                {
+                    "alg": "SHA-1",
+                    "content": "8f18211ccd48cb2a170e6ccd41612d4bb081d37d"
+                },
+                {
+                    "alg": "SHA-256",
+                    "content": "bf29ed4befce0e2a71686d401ae8194941ba9d02d378245280a9fca21615c4cd"
+                },
+                {
+                    "alg": "SHA-512",
+                    "content": "4e8b067727a046fb6deeff48ca422281fadc62ce83bbace40c5b4be1ebaa149080751bfae057b2742b549b7b21206203157d7941092584a38791061ab99c0d24"
+                }
+            ],
+            "name": "debsbom",
+            "omniborId": [
+                "gitoid:blob:sha256:75576edffe8dddbacd14dc19be3db7b153830146ac46e1863e23c517a8b3fc54"
+            ],
+            "properties": [
+                {
+                    "name": "essential",
+                    "value": "no"
+                },
+                {
+                    "name": "section"
+                }
+            ],
+            "purl": "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=all&distro=trixie-backports",
+            "swhid": [
+                "swh:1:cnt:b6cce72c3dd4e742096d2a48b880c6243c4adda2"
+            ],
+            "type": "library",
+            "version": "0.10.1-1~bpo13+1"
+        }
+    ],
+    "dependencies": [
+        {
+            "dependsOn": [
+                "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=all&distro=trixie-backports"
+            ],
+            "ref": "CDXRef-Debian"
+        },
+        {
+            "ref": "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=all&distro=trixie-backports"
+        }
+    ],
+    "metadata": {
+        "component": {
+            "bom-ref": "CDXRef-Debian",
+            "name": "Debian",
+            "type": "operating-system"
+        },
+        "timestamp": "2026-10-23T12:45:28.549857+02:00",
+        "tools": {
+            "components": [
+                {
+                    "bom-ref": "CDXRef-debsbom-0.10.2",
+                    "externalReferences": [
+                        {
+                            "type": "website",
+                            "url": "https://github.com/siemens/debsbom"
+                        }
+                    ],
+                    "name": "debsbom",
+                    "type": "application",
+                    "version": "0.10.2"
+                }
+            ]
+        }
+    },
+    "serialNumber": "urn:uuid:f81829ba-afbd-477a-9be9-7f753a6ab2b3",
+    "version": 1,
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7"
+}
