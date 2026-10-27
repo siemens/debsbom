@@ -114,6 +114,23 @@ Alternatively, the download can be executed from the container image:
     docker run -v$(pwd)/downloads:/mnt/downloads -i ghcr.io/siemens/debsbom:latest \
         debsbom download --outdir /mnt/downloads --sources
 
+Enrich an SBOM
+~~~~~~~~~~~~~~
+
+Enrich an SBOM with additional information retrieved from online sources:
+
+.. code-block:: bash
+
+    debsbom --progress enrich sbom.cdx.json enriched.cdx.json
+
+Downloading of additional data only occurs if information is actually missing on the package. You can control what information is considered missing and added to the SBOM, e.g.:
+
+.. code-block:: bash
+
+    debsbom --progress enrich --no-omnibor-id --no-swh-id sbom.cdx.json enriched.cdx.json
+
+This will not download anything if only Omnibor ID and swh ID are missing, and also not add this information to the SBOM.
+
 Merge Source Packages
 ~~~~~~~~~~~~~~~~~~~~~
 
