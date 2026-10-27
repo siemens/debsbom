@@ -1,0 +1,56 @@
+{
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "creationInfo": {
+        "created": "2026-10-23T10:45:28Z",
+        "creators": [
+            "Tool: debsbom-0.10.2"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "name": "Debian",
+    "spdxVersion": "SPDX-2.3",
+    "documentNamespace": "https://spdx.org/spdxdocs/debsbom-0.10.2-f5fd3a39-7a78-4dce-9d5e-e3c4816488e0",
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Debian",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "Debian",
+            "primaryPackagePurpose": "OPERATING_SYSTEM"
+        },
+        {
+            "SPDXID": "SPDXRef-debsbom-all",
+            "copyrightText": "NOASSERTION",
+            "downloadLocation": "NOASSERTION",
+            "externalRefs": [
+                {
+                    "referenceCategory": "PACKAGE_MANAGER",
+                    "referenceLocator": "pkg:deb/debian/debsbom@0.10.1-1~bpo13%2B1?arch=all&distro=trixie-backports",
+                    "referenceType": "purl"
+                }
+            ],
+            "filesAnalyzed": false,
+            "licenseConcluded": "NOASSERTION",
+            "licenseDeclared": "NOASSERTION",
+            "name": "debsbom",
+            "primaryPackagePurpose": "LIBRARY",
+            "supplier": "NOASSERTION",
+            "versionInfo": "0.10.1-1~bpo13+1"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-debsbom-all",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "PACKAGE_OF"
+        },
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relatedSpdxElement": "SPDXRef-Debian",
+            "relationshipType": "DESCRIBES"
+        }
+    ]
+}
