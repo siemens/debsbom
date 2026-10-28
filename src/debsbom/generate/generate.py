@@ -63,6 +63,7 @@ class Debsbom:
         with_pkg_archives: bool = True,
         cdx_schema_version: str = "1.6",
         artifact: Path | None = None,
+        use_spdx3: bool = False,
     ):
         self.root = Path(root)
         self.distro_name = distro_name
@@ -78,6 +79,7 @@ class Debsbom:
         self.with_pkg_archives = with_pkg_archives
         self.cdx_schema_version = cdx_schema_version
         self.artifact = artifact
+        self.use_spdx3 = use_spdx3
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -407,5 +409,6 @@ class Debsbom:
                 virtual_packages=self.virtual_packages,
                 recommends_deps=self.recommends_deps,
                 suggests_deps=self.suggests_deps,
+                use_spdx3=self.use_spdx3,
                 progress_cb=progress_cb,
             )

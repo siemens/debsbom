@@ -76,6 +76,7 @@ class GenerateCmd(GenerateInput):
                 recommends_deps=args.recommends_deps,
                 suggests_deps=args.suggests_deps,
                 artifact=Path(args.artifact) if args.artifact else None,
+                use_spdx3=getattr(args, "use_spdx3", False),
             )
             if args.from_pkglist:
                 warn_if_tty()
@@ -173,6 +174,12 @@ class GenerateCmd(GenerateInput):
                 choices=spdx_format_map.keys(),
                 help="set the SPDX 2 output format. "
                 "Implicitly set by giving the output file one of these extensions.",
+            )
+            parser.add_argument(
+                "--use-spdx3",
+                action="store_true",
+                help="Use SPDX 3.x [Experimental]",
+                default=False,
             )
         except ImportError:
             pass
