@@ -46,6 +46,37 @@ class DebsbomLegacyProxy(Debsbom):
             bom = super().generate(t, progress_cb)
             BomWriter.create(t).write_to_file(bom, Path(outfile), validate)
 
+        # test all output formats & CDX format versions
+        for t in self._sbom_types:
+            bom = super().generate(t, progress_cb)
+            outfile = out.rstrip(f",{t}.json")
+            if t == SBOMType.CycloneDX:
+                import debsbom.bomwriter.cdxbomwriter as cdxbomwriter
+                import cyclonedx.schema as cdx_schema
+
+                variations = (
+                    (
+                        ext,
+                        cdxbomwriter.CdxSerializerOpts(
+                            cdx_schema_version=sv.to_version(), cdx_output_format=ext
+                        ),
+                    )
+                    for sv in cdx_schema.SchemaVersion
+                    for ext in cdxbomwriter.output_format_map.keys()
+                    if sv > cdx_schema.SchemaVersion.V1_2 or ext != "json"
+                )
+            elif t == SBOMType.SPDX:
+                import debsbom.bomwriter.spdxbomwriter as spdxbomwriter
+
+                variations = (
+                    (ext, spdxbomwriter.SpdxSerializerOpts(spdx_output_format=ext))
+                    for ext in spdxbomwriter.output_format_map.keys()
+                )
+            else:
+                variations = ()
+            for ext, so in variations:
+                BomWriter.create(t).write_to_file(bom, Path(outfile + "." + ext), validate, so)
+
 
 @pytest.fixture
 def sbom_generator():
