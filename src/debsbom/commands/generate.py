@@ -52,6 +52,9 @@ class GenerateCmd(GenerateInput):
         if not HAS_PYTHON_APT:
             logger.info("Module 'apt' from 'python-apt' missing. Using slower internal parser.")
 
+        if args.bsi_tr_031893 and SBOMType.SPDX in sbom_types:
+            raise ValueError("BSI TR-031893 requires SPDX3")
+
         if args.root == "-" and args.from_pkglist:
             raise ValueError("--root - cannot be combined with --from-pkglist")
         if args.root == "-":
@@ -76,6 +79,7 @@ class GenerateCmd(GenerateInput):
                 recommends_deps=args.recommends_deps,
                 suggests_deps=args.suggests_deps,
                 artifact=Path(args.artifact) if args.artifact else None,
+                bsi_tr_031893=args.bsi_tr_031893,
             )
             if args.from_pkglist:
                 warn_if_tty()
@@ -178,6 +182,12 @@ class GenerateCmd(GenerateInput):
             )
         except ImportError:
             pass
+        parser.add_argument(
+            "--bsi-tr-031893",
+            action="store_true",
+            help="attempt compliance with BSI TR-03183 Part 2, version 2.1.0 (SPDX requires 3.x, caveats apply)",
+            default=False,
+        )
         arg_mark_as_file(
             parser.add_argument(
                 "--artifact",

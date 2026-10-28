@@ -63,6 +63,7 @@ class Debsbom:
         with_pkg_archives: bool = True,
         cdx_schema_version: str = "1.6",
         artifact: Path | None = None,
+        bsi_tr_031893: bool = False,
     ):
         self.root = Path(root)
         self.distro_name = distro_name
@@ -72,12 +73,13 @@ class Debsbom:
         self.distro_summary = distro_summary
         self.base_distro_vendor = base_distro_vendor
         self.cdx_standard = cdx_standard
-        self.with_licenses = with_licenses
+        self.with_licenses = with_licenses or bsi_tr_031893
         self.recommends_deps = recommends_deps
         self.suggests_deps = suggests_deps
         self.with_pkg_archives = with_pkg_archives
         self.cdx_schema_version = cdx_schema_version
         self.artifact = artifact
+        self.bsi_tr_031893 = bsi_tr_031893
 
         self.spdx_namespace = spdx_namespace
         if spdx_namespace is not None and self.spdx_namespace.fragment:
@@ -387,6 +389,7 @@ class Debsbom:
                 virtual_packages=self.virtual_packages,
                 recommends_deps=self.recommends_deps,
                 suggests_deps=self.suggests_deps,
+                bsi_tr_031893=self.bsi_tr_031893,
                 progress_cb=progress_cb,
             )
         elif sbom_type is SBOMType.SPDX or sbom_type is SBOMType.SPDX3:
@@ -407,6 +410,7 @@ class Debsbom:
                 virtual_packages=self.virtual_packages,
                 recommends_deps=self.recommends_deps,
                 suggests_deps=self.suggests_deps,
+                bsi_tr_031893=self.bsi_tr_031893,
                 progress_cb=progress_cb,
             )
         else:

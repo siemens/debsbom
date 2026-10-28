@@ -55,7 +55,10 @@ def make_supplier_from_str(supplier: str) -> cdx_contact.OrganizationalEntity | 
 
 
 def cdx_package_repr(
-    package: Package, refs: dict[str, cdx_bom_ref.BomRef], vendor: str = "debian"
+    package: Package,
+    refs: dict[str, cdx_bom_ref.BomRef],
+    vendor: str = "debian",
+    bsi_tr_031893: bool = False,
 ) -> cdx_component.Component | None:
     """
     Get the CDX representation of a Package.
@@ -130,6 +133,40 @@ def cdx_package_repr(
         logger.debug(f"Created source component: {entry}")
     else:
         raise RuntimeError(f"The package {package} is neither a source nor a binary package")
+    if bsi_tr_031893:
+        entry.manufacturer = entry.supplier
+        entry.properties.add(
+            cdx_model.Property(
+                name="bsi:component:filename",
+                value=package.package_filename(),
+            )
+        )
+        entry.properties.add(
+            cdx_model.Property(
+                name="bsi:component:executable",
+                value="non-executable",
+            )
+        )
+        entry.properties.add(
+            cdx_model.Property(
+                name="bsi:component:archive",
+                value="archive",
+            )
+        )
+        entry.properties.add(
+            cdx_model.Property(
+                name="bsi:component:structured",
+                value="structured",
+            )
+        )
+        # TODO: if download URL available, use that here
+        external_refs.append(
+            cdx_model.ExternalReference(
+                type=cdx_model.ExternalReferenceType.DISTRIBUTION,
+                url=cdx_model.XsUri(str(entry.purl)),
+                hashes=entry.hashes,
+            )
+        )
 
     if package.omnibor_id:
         entry.omnibor_ids = [cdx_component.OmniborId(package.omnibor_id)]
@@ -190,6 +227,7 @@ def make_metadata(
     component: cdx_component.Component,
     timestamp: datetime | None = None,
     add_meta_data: dict[str, str] | None = None,
+    bsi_tr_031893: bool = False,
 ) -> cdx_bom.BomMetaData:
     if timestamp is None:
         timestamp = datetime.now()
@@ -211,6 +249,8 @@ def make_metadata(
             ),
         )
 
+    if bsi_tr_031893:
+        component.manufacturer = component.supplier
     bom_metadata = cdx_bom.BomMetaData(
         timestamp=timestamp,
         component=component,
@@ -258,11 +298,16 @@ def cyclonedx_bom(
     virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
     recommends_deps: bool = True,
     suggests_deps: bool = False,
+    bsi_tr_031893: bool = False,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> cdx_bom.Bom:
     """Return a valid CycloneDX SBOM."""
     data = SortedSet([])
+    cdx_comps = {}
     dependencies = SortedSet([])
+    # TODO: bsi_tr_031893 wants dependencies to be additionally recorded in /compositions
+    # but the cyclonedx Python library does not support compositions
+    # initialize list of compositions here
 
     binary_packages = list(filter_binaries(packages))
 
@@ -283,11 +328,14 @@ def cyclonedx_bom(
             progress_cb(cur_step, num_steps, package.name)
         cur_step += 1
 
-        entry = cdx_package_repr(package, refs, vendor=base_distro_vendor)
+        entry = cdx_package_repr(
+            package, refs, vendor=base_distro_vendor, bsi_tr_031893=bsi_tr_031893
+        )
         dependency_refs[Reference.make_from_pkg(package).as_str(SBOMType.CycloneDX)] = package
         if entry is None:
             continue
         data.add(entry)
+        cdx_comps[str(package.purl())] = entry
 
     distro_dependencies = []
     logger.info("Resolving dependencies...")
@@ -348,6 +396,21 @@ def cyclonedx_bom(
                     continue
 
             deps.add(cdx_dependency.Dependency(ref=dep_bom_ref))
+        if package.source and bsi_tr_031893:
+            source_ref = Reference.make_from_dep(package.source).as_str(SBOMType.CycloneDX)
+            comp = cdx_comps[str(package.purl())]
+            source_comp = cdx_comps[refs[source_ref].value]
+            # TODO: if download URI of source package available, use that here
+            comp.external_references.add(
+                cdx_model.ExternalReference(
+                    type=cdx_model.ExternalReferenceType.SOURCE_DISTRIBUTION,
+                    url=cdx_model.XsUri(refs[source_ref].value),
+                    comment="source package",
+                    hashes=source_comp.hashes,
+                )
+            )
+        # TODO: dependency.provides unsupported by cyclonedx Python library
+        # collect the refs of the packages provided by `package`
         if pkg_deps:
             dependency = cdx_dependency.Dependency(
                 ref=refs[reference.as_str(SBOMType.CycloneDX)],
@@ -355,6 +418,9 @@ def cyclonedx_bom(
             )
             logger.debug(f"Created dependency: {dependency}")
             dependencies.add(dependency)
+
+            # TODO: compositions unsupported by the cyclonedx Python library
+            # add a complete composition refering the bom
 
     distro_component = make_distro_component(
         distro_name,
@@ -372,7 +438,7 @@ def cyclonedx_bom(
     logger.debug(f"Created distro dependency: {dependency}")
     dependencies.add(dependency)
 
-    bom_metadata = make_metadata(distro_component, timestamp, add_meta_data)
+    bom_metadata = make_metadata(distro_component, timestamp, add_meta_data, bsi_tr_031893)
 
     if serial_number is None:
         serial_number = uuid4()
