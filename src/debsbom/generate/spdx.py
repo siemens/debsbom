@@ -371,6 +371,7 @@ def spdx_bom(
     recommends_deps: bool = True,
     suggests_deps: bool = False,
     use_spdx3: bool = False,
+    bsi_tr_031893: bool = False,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document | spdx3_payload.Payload:
     "Return a valid SPDX SBOM."
@@ -387,6 +388,20 @@ def spdx_bom(
             return spdx3_id_from_spdx2(SPDX_REF_PREFIX + suffix)
 
     payload = spdx3_payload.Payload()
+    if bsi_tr_031893:
+        agent_debian = spdx3_organization.Organization(
+            spdx_id=spdx3_id("AGENT-" + base_distro_vendor),
+            name="Debian",
+            comment="Debian is a registered trademark owned by Software in the Public Interest, Inc.",
+            external_reference=[
+                spdx3_external_reference.ExternalReference(
+                    external_reference_type=spdx3_external_reference.ExternalReferenceType.OTHER,
+                    locator=["https://www.debian.org"],
+                )
+            ],
+        )
+        payload.add_element(agent_debian)
+
     external_document_refs = []
     imports = []
     if use_spdx3:
@@ -470,6 +485,40 @@ def spdx_bom(
                     ),
                 )
 
+            if bsi_tr_031893:
+                file_reference = spdx3_id(
+                    "FILE-" + re.sub(SPDX_ID_RE, ".", package.package_filename())
+                )
+
+                # note: spdx_tools does not support fileKind
+                # property "binaryArtifact" in Table 11 seems to have been invented by the BSI
+                # it does not show up in the SPDX 3.0.1 specification
+                file3 = spdx3_file.File(
+                    spdx_id=file_reference,
+                    name="./" + package.package_filename(),
+                    primary_purpose=spdx3_software_purpose.SoftwarePurpose.INSTALL,
+                    additional_purpose=[
+                        spdx3_software_purpose.SoftwarePurpose.ARCHIVE,
+                        spdx3_software_purpose.SoftwarePurpose.CONTAINER,
+                    ],
+                    comment="software_additionalPurpose field is used "
+                    "to indicate the properties of BSI TR-03183-2",
+                    originated_by=[agent_debian.spdx_id],
+                    verified_using=package3.verified_using,
+                )
+                payload.add_element(file3)
+
+                relationship3 = spdx3_relationship.Relationship(
+                    spdx_id=gen_relationship_id(),
+                    from_element=package_reference,
+                    relationship_type=spdx3_relationship.RelationshipType.DISTRIBUTION_ARTIFACT,
+                    to=[file3.spdx_id],
+                    completeness=spdx3_relationship.RelationshipCompleteness.COMPLETE,
+                )
+                payload.add_element(relationship3)
+
+                package3 = payload.get_element(package_reference)
+                package3.originated_by = [agent_debian.spdx_id]
         else:
             data.append(entry)
 
@@ -566,6 +615,14 @@ def spdx_bom(
                 relationship_type=spdx_relationship.RelationshipType.GENERATES,
                 related_spdx_element_id=reference.as_str(SBOMType.SPDX),
             )
+            if bsi_tr_031893:
+                package3 = payload.get_element(spdx3_id_from_spdx2(sref_id))
+                package3.external_reference.append(
+                    spdx3_external_reference.ExternalReference(
+                        external_reference_type=spdx3_external_reference.ExternalReferenceType.SOURCE_ARTIFACT,
+                        locator=[str(package.purl())],
+                    )
+                )
             logger.debug(f"Created source relationship: {relationship}")
             relationships.append(relationship)
 

@@ -77,6 +77,7 @@ class GenerateCmd(GenerateInput):
                 suggests_deps=args.suggests_deps,
                 artifact=Path(args.artifact) if args.artifact else None,
                 use_spdx3=getattr(args, "use_spdx3", False),
+                bsi_tr_031893=args.bsi_tr_031893,
             )
             if args.from_pkglist:
                 warn_if_tty()
@@ -183,6 +184,12 @@ class GenerateCmd(GenerateInput):
             )
         except ImportError:
             pass
+        parser.add_argument(
+            "--bsi-tr-031893",
+            action="store_true",
+            help="attempt compliance with BSI TR-03183 Part 2, version 2.1.0 (SPDX requires 3.x, caveats apply)",
+            default=False,
+        )
         arg_mark_as_file(
             parser.add_argument(
                 "--artifact",
