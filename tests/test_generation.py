@@ -46,6 +46,37 @@ class DebsbomLegacyProxy(Debsbom):
             bom = super().generate(t, progress_cb)
             BomWriter.create(t).write_to_file(bom, Path(outfile), validate)
 
+        # test all output formats & CDX format versions
+        for t in self._sbom_types:
+            bom = super().generate(t, progress_cb)
+            outfile = out.rstrip(f",{t}.json")
+            if t == SBOMType.CycloneDX:
+                import debsbom.bomwriter.cdxbomwriter as cdxbomwriter
+                import cyclonedx.schema as cdx_schema
+
+                variations = (
+                    (
+                        ext,
+                        cdxbomwriter.CdxSerializerOpts(
+                            cdx_schema_version=sv.to_version(), cdx_output_format=ext
+                        ),
+                    )
+                    for sv in cdx_schema.SchemaVersion
+                    for ext in cdxbomwriter.output_format_map.keys()
+                    if sv > cdx_schema.SchemaVersion.V1_2 or ext != "json"
+                )
+            elif t == SBOMType.SPDX:
+                import debsbom.bomwriter.spdxbomwriter as spdxbomwriter
+
+                variations = (
+                    (ext, spdxbomwriter.SpdxSerializerOpts(spdx_output_format=ext))
+                    for ext in spdxbomwriter.output_format_map.keys()
+                )
+            else:
+                variations = ()
+            for ext, so in variations:
+                BomWriter.create(t).write_to_file(bom, Path(outfile + "." + ext), validate, so)
+
 
 @pytest.fixture
 def sbom_generator():
@@ -162,33 +193,33 @@ def test_dependency_generation(tmpdir, sbom_generator):
         spdx_json = json.loads(file.read())
         relationships = spdx_json["relationships"]
         assert {
-            "spdxElementId": "SPDXRef-libc6-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-libc6-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-libc6-amd64",
-            "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-libc6-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-libgcc-s1-amd64",
             "relationshipType": "DEPENDS_ON",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-glibc-2.36-9.deb12u10-srcpkg",
-            "relatedSpdxElement": "SPDXRef-libc6-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-glibc-2.36-9.deb12u10-srcpkg",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-libc6-amd64",
             "relationshipType": "GENERATES",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-libgcc-s1-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-libgcc-s1-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-libgcc-s1-amd64",
-            "relatedSpdxElement": "SPDXRef-libc6-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-libgcc-s1-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-libc6-amd64",
             "relationshipType": "DEPENDS_ON",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-gcc-12-12.2.0-14.deb12u1-srcpkg",
-            "relatedSpdxElement": "SPDXRef-libgcc-s1-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-gcc-12-12.2.0-14.deb12u1-srcpkg",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-libgcc-s1-amd64",
             "relationshipType": "GENERATES",
         } in relationships
         assert {
@@ -497,12 +528,12 @@ def test_apt_auto_installed_arch_all(tmpdir, sbom_generator):
 
     relationships = spdx_json["relationships"]
     assert {
-        "spdxElementId": "SPDXRef-python3-pkg-resources-all",
+        "spdxElementId": "SPDXRef-PACKAGE-python3-pkg-resources-all",
         "relatedSpdxElement": "SPDXRef-pytest-distro",
         "relationshipType": "PACKAGE_OF",
     } not in relationships
     assert {
-        "spdxElementId": "SPDXRef-binutils-bpf-amd64",
+        "spdxElementId": "SPDXRef-PACKAGE-binutils-bpf-amd64",
         "relatedSpdxElement": "SPDXRef-pytest-distro",
         "relationshipType": "PACKAGE_OF",
     } in relationships
@@ -743,10 +774,10 @@ def test_virtual_package(tmpdir, sbom_generator):
         found = False
         for relationship in relationships:
             if (
-                relationship["spdxElementId"] == "SPDXRef-foo-amd64"
+                relationship["spdxElementId"] == "SPDXRef-PACKAGE-foo-amd64"
                 and relationship["relationshipType"] == "DEPENDS_ON"
             ):
-                assert relationship["relatedSpdxElement"] == "SPDXRef-bar-plus-amd64"
+                assert relationship["relatedSpdxElement"] == "SPDXRef-PACKAGE-bar-plus-amd64"
                 found = True
                 break
         assert found
@@ -778,13 +809,13 @@ def test_pre_depends(tmpdir, sbom_generator):
         spdx_json = json.loads(file.read())
         relationships = spdx_json["relationships"]
         assert {
-            "spdxElementId": "SPDXRef-test-pre-depends-amd64",
-            "relatedSpdxElement": "SPDXRef-pre-depends-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-test-pre-depends-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-pre-depends-amd64",
             "relationshipType": "DEPENDS_ON",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-test-pre-depends-amd64",
-            "relatedSpdxElement": "SPDXRef-depends-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-test-pre-depends-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-depends-amd64",
             "relationshipType": "DEPENDS_ON",
         } in relationships
 
@@ -831,27 +862,27 @@ def test_essential_required_installed(tmpdir, sbom_generator):
         spdx_json = json.loads(file.read())
         relationships = spdx_json["relationships"]
         assert {
-            "spdxElementId": "SPDXRef-optional-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-optional-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-essential-required-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-essential-required-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-required-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-required-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-required-dependency-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-required-dependency-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-optional-dependency-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-optional-dependency-amd64",
             "relatedSpdxElement": "SPDXRef-pytest-distro",
             "relationshipType": "PACKAGE_OF",
         } not in relationships
@@ -883,14 +914,14 @@ def test_suggested_recommended(tmpdir, sbom_generator):
         spdx_json = json.loads(file.read())
         relationships = spdx_json["relationships"]
         assert {
-            "spdxElementId": "SPDXRef-test-pkg-amd64",
-            "relatedSpdxElement": "SPDXRef-recommended-pkg-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-test-pkg-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-recommended-pkg-amd64",
             "relationshipType": "DEPENDS_ON",
             "comment": "recommends",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-test-pkg-amd64",
-            "relatedSpdxElement": "SPDXRef-suggested-pkg-amd64",
+            "spdxElementId": "SPDXRef-PACKAGE-test-pkg-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-suggested-pkg-amd64",
             "relationshipType": "DEPENDS_ON",
             "comment": "suggests",
         } in relationships
@@ -919,38 +950,38 @@ def test_built_using(tmpdir, sbom_generator):
         spdx_json = json.loads(file.read())
         relationships = spdx_json["relationships"]
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rust-ahash-0.8.11-9-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rust-ahash-0.8.11-9-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "built-using",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rustc-1.85.0.dfsg3-1-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rustc-1.85.0.dfsg3-1-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "built-using",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rust-adler-1.0.2-2-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rust-adler-1.0.2-2-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "static-built-using",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rust-ahash-0.8.11-9-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rust-ahash-0.8.11-9-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "static-built-using",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rust-aho-corasick-1.1.3-1-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rust-aho-corasick-1.1.3-1-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "static-built-using",
         } in relationships
         assert {
-            "spdxElementId": "SPDXRef-debcargo-amd64",
-            "relatedSpdxElement": "SPDXRef-rustc-1.85.0.dfsg3-1-srcpkg",
+            "spdxElementId": "SPDXRef-PACKAGE-debcargo-amd64",
+            "relatedSpdxElement": "SPDXRef-PACKAGE-rustc-1.85.0.dfsg3-1-srcpkg",
             "relationshipType": "GENERATED_FROM",
             "comment": "static-built-using",
         } in relationships

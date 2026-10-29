@@ -46,13 +46,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=bind,target=/debsbom,rw \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-        python3-pip python3-setuptools && \
+        python3-pip\
+	python3-setuptools\
+	python3-packaging && \
     pip3 --proxy=$https_proxy install \
         --no-deps \
         --no-build-isolation \
         --break-system-packages \
         --root-user-action=ignore \
         spdx-tools==0.8.3 \
+	pyshacl==0.40.1 \
         /debsbom && \
     rm -rf $(pip3 cache dir) && \
     apt-get autopurge -y python3-pip python3-setuptools && \

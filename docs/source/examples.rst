@@ -290,7 +290,7 @@ You can also get the subgraph for a specific package:
 
     debsbom filter --package debsbom sbom.spdx.json package-filtered.spdx.json
 
-Combining multiple filters are logically ``and``ed. The following would give you all source packages ``debsbom`` transitively depends on:
+Combining multiple filters are logically ``and``-ed. The following would give you all source packages ``debsbom`` transitively depends on:
 
 .. code-block:: bash
 

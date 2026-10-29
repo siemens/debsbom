@@ -76,6 +76,8 @@ class GenerateCmd(GenerateInput):
                 recommends_deps=args.recommends_deps,
                 suggests_deps=args.suggests_deps,
                 artifact=Path(args.artifact) if args.artifact else None,
+                use_spdx3=getattr(args, "use_spdx3", False),
+                bsi_tr_031893=args.bsi_tr_031893,
             )
             if args.from_pkglist:
                 warn_if_tty()
@@ -86,7 +88,12 @@ class GenerateCmd(GenerateInput):
                     t,
                     progress_cb=progress_cb if args.progress else None,
                 )
-                opts = SerializerOpts.create(bomtype=t, schema_version=args.cdx_schema_version)
+                opts = SerializerOpts.create(
+                    bomtype=t,
+                    schema_version=args.cdx_schema_version,
+                    cdx_output_format=getattr(args, "cdx_output_format", None),
+                    spdx_output_format=getattr(args, "spdx_output_format", None),
+                )
                 SbomOutput.write_out_arg(bom, t, args.out, args.validate, opts)
 
     @classmethod
@@ -146,6 +153,41 @@ class GenerateCmd(GenerateInput):
             "--package-archives",
             action=argparse.BooleanOptionalAction,
             help="use apt package archives to add more information (default: %(default)s)",
+            default=False,
+        )
+
+        try:
+            from ..bomwriter.cdxbomwriter import output_format_map as cdx_format_map
+
+            parser.add_argument(
+                "--cdx-output-format",
+                choices=cdx_format_map.keys(),
+                help="set the CycloneDX format",
+            )
+        except ImportError:
+            pass
+
+        try:
+            from ..bomwriter.spdxbomwriter import output_format_map as spdx_format_map
+
+            parser.add_argument(
+                "--spdx-output-format",
+                choices=spdx_format_map.keys(),
+                help="set the SPDX 2 output format. "
+                "Implicitly set by giving the output file one of these extensions.",
+            )
+            parser.add_argument(
+                "--use-spdx3",
+                action="store_true",
+                help="Use SPDX 3.x [Experimental]",
+                default=False,
+            )
+        except ImportError:
+            pass
+        parser.add_argument(
+            "--bsi-tr-031893",
+            action="store_true",
+            help="attempt compliance with BSI TR-03183 Part 2, version 2.1.0 (SPDX requires 3.x, caveats apply)",
             default=False,
         )
         arg_mark_as_file(

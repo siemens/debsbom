@@ -109,7 +109,7 @@ class Reference:
         if sbom_type == SBOMType.CycloneDX:
             s = CDX_REF_PREFIX + self.target
         elif sbom_type == SBOMType.SPDX:
-            s = SPDX_REF_PREFIX + re.sub(SPDX_ID_RE, ".", self.target)
+            s = SPDX_REF_PREFIX + "PACKAGE-" + re.sub(SPDX_ID_RE, ".", self.target)
 
         if self.is_source:
             s += "-srcpkg"
