@@ -88,3 +88,58 @@ Reliably and correctly identifying if a package is a vendor package or not is no
 .. rubric:: Footnotes
 
 .. [#f1] https://github.com/CycloneDX/specification/issues/612
+
+
+Standards Compliance
+--------------------
+
+BSI TR-03183 Compliance
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The switch ``--bsi-tr-031893`` activates additional fields required by
+BSI Technical Recommendataion TR-03183.
+
+However there are some limitations:
+
+Licenses are out of scope for Debsbom. Effective (aka concluded) licenses are
+at the discretion of the end user in any case.
+
+CycloneDX
+^^^^^^^^^
+
+For CycloneDX, the ``compositions`` section is not set (see
+Table 9, row "Dependencies on other components") because the underlying
+CycloneDX Python library does not support ``compositions``.
+
+The Source Code URI  resp. URI of the deployable form of the component
+is currently filled with the package's source PURL resp. PURL (see Table 11).
+It is envisioned to fill this with a reference to the package on ``snapshots.debian.org``
+in future.
+
+SPDX
+^^^^
+
+For SPDX, ``Relationships`` are not marked with a ``Completeness``, as the underlying
+library sets this to ``None``.
+
+The underlying spdx-tools library serializes to a JSON-LD format that does not pass validation
+against the official SPDX 3 ``model.ttl`` SHACL constraints.
+It also does not validate against the official JSON schema.
+SPDX 3.x support (a precondition for BSI TR-03183)
+is therefore marked EXPERIMENTAL.
+
+NTIA Minimum Elements for an SBOM using SPDX / US Executive Order 14028
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As stated in https://github.com/spdx/using/blob/main/docs/comply-with-norms.md,
+the SPDX 3 specification fullfills NTIA if certain fields are filled.
+Debsbom fills these fields, namely
+
+- ``Core/Classes/CreationInfo.createdBy``,
+- ``Core/Classes/Artifact.suppliedBy``,
+- ``Software/Classes/Package.name``,
+- ``Software/Classes/Package/packageVersion``,
+- ``Core/Classes/Element.verifiedUsing``,
+- ``Software/Classes/Pacakge/PackageUrl``,
+- ``Core/Classes/Releationship``,
+- ``Core/Classes/CreationInfo.created``.

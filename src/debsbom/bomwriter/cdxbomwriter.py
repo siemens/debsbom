@@ -10,13 +10,18 @@ import cyclonedx.schema as cdx_schema
 from .bomwriter import BomWriter, SerializerOpts
 from ..sbom import CDXType
 
+output_format_map = {
+    "json": cdx_schema.OutputFormat.JSON,
+    # "xml": cdx_schema.OutputFormat.XML, # CycloneDX library dies
+}
+
 
 class CdxSerializerOpts(SerializerOpts):
     """
     Options for the SBOM serializer
     """
 
-    def __init__(self, cdx_schema_version: str):
+    def __init__(self, cdx_schema_version: str, **kwargs):
         try:
             match cdx_schema_version:
                 case "latest":
@@ -27,6 +32,9 @@ class CdxSerializerOpts(SerializerOpts):
                     )
         except ValueError:
             raise ValueError(f"Invalid CycloneDX schema version: {cdx_schema_version}")
+        self.output_format: cdx_schema.OutputFormat | None = output_format_map.get(
+            kwargs.get("cdx_output_format", None), None
+        )
 
 
 class CdxBomWriter(BomWriter, CDXType):
@@ -34,7 +42,9 @@ class CdxBomWriter(BomWriter, CDXType):
     def write_to_file(bom, outfile: Path, validate: bool, opts: CdxSerializerOpts | None = None):
         opts = opts or CdxSerializerOpts("latest")
         cdx_output.make_outputter(
-            bom, cdx_schema.OutputFormat.JSON, opts.cdx_schema_version
+            bom,
+            cdx_schema.OutputFormat.JSON if opts.output_format is None else opts.output_format,
+            opts.cdx_schema_version,
         ).output_to_file(str(outfile), allow_overwrite=True, indent=4)
 
     @staticmethod
@@ -44,6 +54,8 @@ class CdxBomWriter(BomWriter, CDXType):
         opts = opts or CdxSerializerOpts("latest")
         f.write(
             cdx_output.make_outputter(
-                bom, cdx_schema.OutputFormat.JSON, opts.cdx_schema_version
+                bom,
+                cdx_schema.OutputFormat.JSON if opts.output_format is None else opts.output_format,
+                opts.cdx_schema_version,
             ).output_as_string(indent=4)
         )

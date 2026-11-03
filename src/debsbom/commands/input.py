@@ -143,12 +143,25 @@ class GenerateInput:
     def parser_add_generate_input_args(cls, parser, default_out):
         from ..cli import arg_mark_as_file
 
+        try:
+            from ..bomwriter.spdxbomwriter import output_format_map as spdx_format_map
+
+            spdx_output_formats = (
+                " For SPDX 2 output, an explicitly provided extension sets the output format: "
+                + "|".join(spdx_format_map.keys())
+            )
+        except ImportError:
+            spdx_output_formats = ""
+
         arg_mark_as_file(
             parser.add_argument(
                 "-o",
                 "--out",
                 type=str,
-                help="filename for output (default: %(default)s). Use '-' to write to stdout",
+                help=(
+                    "filename for output (default: %(default)s). Use '-' to write to stdout."
+                    + spdx_output_formats
+                ),
                 default=default_out,
             )
         )
@@ -161,7 +174,7 @@ class GenerateInput:
         parser.add_argument(
             "--distro-supplier",
             type=str,
-            help="supplier for the root component",
+            help="supplier for the root component 'name <e-mail|url>'",
             default=None,
         )
         parser.add_argument(

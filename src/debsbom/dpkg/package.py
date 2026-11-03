@@ -447,6 +447,10 @@ class Package(ABC):
     def locator(self) -> str:
         raise NotImplementedError()
 
+    @abstractmethod
+    def package_filename(self) -> str:
+        raise NotImplementedError()
+
     @property
     def filename(self) -> str:
         """Return the filename part from the locator of a package."""
@@ -624,11 +628,15 @@ class SourcePackage(Package):
     def dscfile(self) -> str:
         """Return the name of the .dsc file"""
         # TODO: find where this filename format is specified
+        # See: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
         if self.version.debian_revision:
             version_wo_epoch = f"{self.version.upstream_version}-{self.version.debian_revision}"
         else:
             version_wo_epoch = self.version.upstream_version
         return f"{self.name}_{version_wo_epoch}.dsc"
+
+    def package_filename(self) -> str:
+        return self.dscfile()
 
     def merge_with(self, other: "SourcePackage"):
         """Copy properties from other which are unset on our side. Merge lists."""
@@ -879,17 +887,22 @@ class BinaryPackage(Package):
             list(self.static_built_using), other.static_built_using
         )
 
-    @property
-    def locator(self) -> str:
-        """Return the name (and path if available) of the .deb file"""
-        if self._locator:
-            return self._locator
+    def debfile(self) -> str:
         # TODO: find where this filename format is specified
+        # See: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
         if self.version.debian_revision:
             version_wo_epoch = f"{self.version.upstream_version}-{self.version.debian_revision}"
         else:
             version_wo_epoch = self.version.upstream_version
         return f"{self.name}_{version_wo_epoch}_{self.architecture}.deb"
+
+    def package_filename(self) -> str:
+        return self.debfile()
+
+    @property
+    def locator(self) -> str:
+        """Return the name (and path if available) of the .deb file"""
+        return self._locator or self.debfile()
 
     @locator.setter
     def locator(self, loc) -> None:
