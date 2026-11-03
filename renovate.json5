@@ -16,6 +16,15 @@
     "github-actions"
   ],
   minimumReleaseAge: '3 days',
+  packageRules: [
+    {
+      // Re-enable when GitHub officially announces deprecation of this runner.
+      // Currently needed for Python3.11 tests
+      matchDepTypes: ["github-runner"],
+      matchCurrentValue: "ubuntu-24.04",
+      enabled: false,
+    },
+  ],
   lockFileMaintenance: {
     enabled: false,
   },
