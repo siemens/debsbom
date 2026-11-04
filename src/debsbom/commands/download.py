@@ -23,7 +23,12 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
-    from ..download.resolver import PackageResolverCache, PersistentResolverCache, ResolveError
+    from ..download.resolver import (
+        PackageResolverCache,
+        PersistentResolverCache,
+        ResolveError,
+        Resolver,
+    )
 except ModuleNotFoundError:
     pass
 
@@ -88,7 +93,7 @@ class DownloadInput(SbomInput):
     @staticmethod
     def _download_packages(
         downloader: PackageDownloader,
-        resolver_cache: PackageResolverCache,
+        upstream_resolver: Resolver,
         pkgs: list[Package],
         progress: bool | None,
         json: bool | None,
@@ -98,7 +103,7 @@ class DownloadInput(SbomInput):
             if progress:
                 progress_cb(idx, len(pkgs), pkg.name)
             try:
-                files = list(resolver_cache._resolve_pkg(pkg))
+                files = list(upstream_resolver._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
             except ResolveError:
@@ -127,10 +132,10 @@ class DownloadInput(SbomInput):
             yield r
 
     @classmethod
-    def parser_add_download_args(cls, parser):
+    def parser_add_download_args(cls, parser, input_required: bool = False):
         from ..cli import arg_mark_as_dir
 
-        cls.parser_add_sbom_input_args(parser)
+        cls.parser_add_sbom_input_args(parser, required=input_required)
         arg_mark_as_dir(
             parser.add_argument(
                 "--outdir", default="downloads", help="directory to store downloaded files"

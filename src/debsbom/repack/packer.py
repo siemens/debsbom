@@ -12,7 +12,7 @@ import os
 import sys
 
 from ..util.checksum import calculate_checksums
-from ..sbom import BomSpecific, SBOMType
+from ..sbom import SBOMType
 from ..dpkg.package import Package
 from ..dpkg.package import ChecksumAlgo as CSA
 from .merger import DscFileNotFoundError, SourceArchiveMerger

@@ -14,3 +14,4 @@ Commands
   commands/filter
   commands/trace-path
   commands/sec-scan
+  commands/enrich
