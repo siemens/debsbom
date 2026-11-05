@@ -148,7 +148,7 @@ class GenerateInput:
                 "-o",
                 "--out",
                 type=str,
-                help="filename for output (default: %(default)s). Use '-' to write to stdout",
+                help=("filename for output (default: %(default)s). Use '-' to write to stdout."),
                 default=default_out,
             )
         )
