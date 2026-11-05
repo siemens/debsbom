@@ -2,11 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+import re
+from debian.debian_support import Version
+
 from cyclonedx.model.dependency import Dependency
 from cyclonedx.model.bom import Bom
 
 from .filter import SbomFilter
 from ..graph.walker import PackageRepr
+from ..resolver.cdx import CdxPackageResolver
 
 
 class CdxSbomFilter(SbomFilter):
@@ -62,3 +66,89 @@ class CdxSbomFilter(SbomFilter):
             new_deps.append(new_dep)
 
         document.dependencies = new_deps
+
+    @classmethod
+    def exclude(cls, document: Bom, *, patterns=(), packages=()) -> dict:
+        """Exclude packages and prune the dependency graph in-place.
+
+        Source and binary packages whose entire name matches one of ``patterns`` are
+        removed. ``packages`` holds exact ``(name, version, architecture)`` triples.
+        Afterwards, packages that are no longer referenced by any remaining
+        package are removed as well, until no more
+        packages become unreferenced.
+        """
+        patterns = list(dict.fromkeys(patterns))
+        compiled = []
+        for pattern in patterns:
+            try:
+                compiled.append(re.compile(pattern))
+            except re.error as error:
+                raise ValueError(f"invalid exclusion pattern {pattern!r}: {error}") from error
+        packages = list(dict.fromkeys(packages))
+        selectors = [(name, Version(version), arch) for name, version, arch in packages]
+
+        def is_source(component):
+            return component.purl.qualifiers.get("arch") == "source"
+
+        debian = {
+            str(c.bom_ref): c for c in document.components if CdxPackageResolver.is_debian_pkg(c)
+        }
+        removed = set()
+        matched_patterns = set()
+        matched_packages = set()
+        for ref, component in debian.items():
+            name = component.purl.name
+            for selector, (sel_name, sel_version, sel_arch) in zip(packages, selectors):
+                if (
+                    name == sel_name
+                    and component.purl.qualifiers.get("arch") == sel_arch
+                    and Version(component.purl.version) == sel_version
+                ):
+                    removed.add(ref)
+                    matched_packages.add(selector)
+            for pattern in compiled:
+                if pattern.fullmatch(name):
+                    removed.add(ref)
+                    matched_patterns.add(pattern.pattern)
+
+        # repeatedly remove packages that are only referenced by removed packages
+        components = {str(c.bom_ref) for c in document.components}
+        children = {
+            str(d.ref): {str(child.ref) for child in d.dependencies} for d in document.dependencies
+        }
+        frontier = set(removed)
+        while frontier:
+            candidates = set().union(*(children.get(ref, set()) for ref in frontier))
+            referenced = set().union(
+                *(refs for ref, refs in children.items() if ref not in removed)
+            )
+            frontier = (candidates & components) - removed - referenced
+            removed |= frontier
+
+        removed_sources = {ref for ref in removed if ref in debian and is_source(debian[ref])}
+        report = {
+            "matched_patterns": [p for p in patterns if p in matched_patterns],
+            "unmatched_patterns": [p for p in patterns if p not in matched_patterns],
+            "matched_packages": [
+                {"name": n, "version": v, "arch": a}
+                for n, v, a in packages
+                if (n, v, a) in matched_packages
+            ],
+            "unmatched_packages": [
+                {"name": n, "version": v, "arch": a}
+                for n, v, a in packages
+                if (n, v, a) not in matched_packages
+            ],
+            "removed_binaries": sorted(removed - removed_sources),
+            "removed_sources": sorted(removed_sources),
+        }
+        if not removed:
+            return report
+
+        document.components = [c for c in document.components if str(c.bom_ref) not in removed]
+        document.dependencies = [d for d in document.dependencies if str(d.ref) not in removed]
+        for dependency in document.dependencies:
+            dependency.dependencies = [
+                d for d in dependency.dependencies if str(d.ref) not in removed
+            ]
+        return report

@@ -23,7 +23,12 @@ try:
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
-    from ..download.resolver import PackageResolverCache, PersistentResolverCache, ResolveError
+    from ..download.resolver import (
+        PackageResolverCache,
+        PersistentResolverCache,
+        ResolveError,
+        Resolver,
+    )
 except ModuleNotFoundError:
     pass
 
@@ -76,7 +81,7 @@ class DownloadInput(SbomInput):
         return rs
 
     @staticmethod
-    def _create_default_resolver(args, session, outdir) -> PackageResolverCache:
+    def _create_default_resolver(args, session, outdir) -> Resolver:
         u_resolver = RESOLVERS[args.resolver](session)
         if type(u_resolver.cache) is PackageResolverCache:
             cachedir = outdir / ".cache"
@@ -88,7 +93,7 @@ class DownloadInput(SbomInput):
     @staticmethod
     def _download_packages(
         downloader: PackageDownloader,
-        resolver_cache: PackageResolverCache,
+        resolver_cache: Resolver,
         pkgs: list[Package],
         progress: bool | None,
         json: bool | None,
