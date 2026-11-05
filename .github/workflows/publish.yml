@@ -14,12 +14,12 @@ permissions:
 
 jobs:
   release-build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.x"
 
@@ -29,13 +29,13 @@ jobs:
           python -m build
 
       - name: Upload distributions
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-dists
           path: dist/
 
   pypi-publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs:
       - release-build
     permissions:
@@ -60,7 +60,7 @@ jobs:
 
   deploy_containers:
     name: Build and deploy container images
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       id-token: write
       packages: write
@@ -79,7 +79,7 @@ jobs:
       - name: Find latest tag
         run: echo "LATEST_TAG=$(git tag | sort --version-sort | tail -n1)" >> $GITHUB_ENV
       - name: Build image
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         id: push
         with:
           context: /home/runner/debsbom-clone
