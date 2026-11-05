@@ -161,7 +161,7 @@ class GenerateInput:
         parser.add_argument(
             "--distro-supplier",
             type=str,
-            help="supplier for the root component",
+            help="supplier for the root component 'name <e-mail|url>'",
             default=None,
         )
         parser.add_argument(
