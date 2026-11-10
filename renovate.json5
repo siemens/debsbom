@@ -22,7 +22,7 @@
       // Currently needed for Python3.11 tests
       matchDepTypes: ["github-runner"],
       matchPackageNames: "ubuntu",
-      allowedVersions: "<= 24.04"
+      enabled: false
     },
   ],
   lockFileMaintenance: {
