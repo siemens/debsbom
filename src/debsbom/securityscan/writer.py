@@ -299,7 +299,7 @@ class ScanResultVexWriter(ScanResultWriter):
     def _vuln_to_vex(self, r: ScanResultItem) -> dict:
         def _get_status(v: CveEntry, affected):
             if not affected:
-                return "not_affected"
+                return "fixed"
             elif v.status == CveStatus.UNDETERMINED:
                 return "under_investigation"
             else:
@@ -357,12 +357,6 @@ class ScanResultVexWriter(ScanResultWriter):
 
         if v.description:
             vex["vulnerability"]["description"] = v.description
-        if status == "not_affected":
-            # The Debian tracker does not distinguish between fixed due to inline mitigations
-            # and not affected because the code is not in use. Once upstream gives more
-            # precise information, we can optimize this.
-            # Ref: https://salsa.debian.org/security-tracker-team/security-tracker/-/issues/38
-            vex["justification"] = "inline_mitigations_already_exist"
         if status == "affected":
             if v.status == CveStatus.RESOLVED:
                 vex["action_statement"] = f"update package to {v.fixed_version}"
