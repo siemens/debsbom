@@ -315,12 +315,15 @@ def spdx_bom(
     namespace: tuple | None = None,  # 6 item tuple representing an URL
     timestamp: datetime | None = None,
     add_meta_data: dict[str, str] | None = None,
-    virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] = {},
+    virtual_packages: dict[str, list[tuple[VirtualPackage, BinaryPackage]]] | None = None,
     recommends_deps: bool = True,
     suggests_deps: bool = False,
     progress_cb: Callable[[int, int, str], None] | None = None,
 ) -> spdx_document.Document:
     "Return a valid SPDX SBOM."
+
+    if virtual_packages is None:
+        virtual_packages = {}
 
     data = []
 
