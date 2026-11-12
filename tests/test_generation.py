@@ -87,7 +87,7 @@ def sbom_generator():
         uuid: UUID | None = None,
         timestamp: datetime | None = None,
         with_licenses: bool = False,
-        sbom_types: list[SBOMType] = list(SBOMType),
+        sbom_types: list[SBOMType] = [SBOMType.CycloneDX, SBOMType.SPDX],
         distro_supplier: str | None = None,
         recommends_deps: bool = True,
         suggests_deps: bool = False,

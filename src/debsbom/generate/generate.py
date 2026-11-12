@@ -389,7 +389,7 @@ class Debsbom:
                 suggests_deps=self.suggests_deps,
                 progress_cb=progress_cb,
             )
-        if sbom_type is SBOMType.SPDX:
+        elif sbom_type is SBOMType.SPDX or sbom_type is SBOMType.SPDX3:
             from .spdx import spdx_bom
 
             return spdx_bom(
@@ -409,3 +409,5 @@ class Debsbom:
                 suggests_deps=self.suggests_deps,
                 progress_cb=progress_cb,
             )
+        else:
+            raise NotImplementedError()
