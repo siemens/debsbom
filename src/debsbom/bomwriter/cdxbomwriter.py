@@ -8,7 +8,7 @@ import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
 
 from .bomwriter import BomWriter, SerializerOpts
-from ..sbom import CDXType
+from ..sbom import SBOMType, CDXType
 
 output_format_map = {
     "json": cdx_schema.OutputFormat.JSON,
@@ -39,11 +39,22 @@ class CdxBomWriter(BomWriter, CDXType):
     @staticmethod
     def write_to_file(bom, outfile: Path, validate: bool, opts: CdxSerializerOpts | None = None):
         opts = opts or CdxSerializerOpts("latest")
+        if opts.output_format is None:
+            opts.output_format = cdx_schema.OutputFormat.JSON
+        for ext, fmt in output_format_map.items():
+            if fmt is opts.output_format:
+                extension = "." + ext
+                break
+        else:
+            raise AssertionError("Can't get here")
+        filename_str = str(outfile)
+        if not filename_str.endswith(extension):
+            filename_str += "." + str(SBOMType.CycloneDX) + extension
         cdx_output.make_outputter(
             bom,
             cdx_schema.OutputFormat.JSON if opts.output_format is None else opts.output_format,
             opts.cdx_schema_version,
-        ).output_to_file(str(outfile), allow_overwrite=True, indent=4)
+        ).output_to_file(filename_str, allow_overwrite=True, indent=4)
 
     @staticmethod
     def write_to_stream(

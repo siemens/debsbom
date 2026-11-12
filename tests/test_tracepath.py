@@ -17,7 +17,7 @@ from debsbom.schema import tracepath as schema_tracepath
 from test_generation import sbom_generator
 
 
-@pytest.mark.parametrize("sbom_type", list(SBOMType))
+@pytest.mark.parametrize("sbom_type", [SBOMType.CycloneDX, SBOMType.SPDX])
 def test_tracepath_path(tmpdir, sbom_generator, sbom_type):
     match sbom_type:
         case SBOMType.SPDX:

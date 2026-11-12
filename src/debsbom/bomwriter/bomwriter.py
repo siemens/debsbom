@@ -25,7 +25,7 @@ class SerializerOpts:
             return CdxSerializerOpts(
                 cdx_schema_version=schema_version or "1.6", output_format=output_format
             )
-        elif bomtype == SBOMType.SPDX:
+        elif bomtype == SBOMType.SPDX or bomtype == SBOMType.SPDX3:
             from .spdxbomwriter import SpdxSerializerOpts
 
             return SpdxSerializerOpts(output_format=output_format)
@@ -43,7 +43,7 @@ class BomWriter:
             from .cdxbomwriter import CdxBomWriter
 
             return CdxBomWriter()
-        elif bomtype == SBOMType.SPDX:
+        elif bomtype == SBOMType.SPDX or bomtype == SBOMType.SPDX3:
             from .spdxbomwriter import SpdxBomWriter
 
             return SpdxBomWriter()

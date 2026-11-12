@@ -38,10 +38,13 @@ class GraphExporter(SbomProcessor):
             from .spdx import SpdxGraphMLExporter
 
             return SpdxGraphMLExporter(reader.read())
-        else:
+        elif reader.sbom_type() == SBOMType.CycloneDX:
             from .cdx import CdxGraphMLExporter
 
             return CdxGraphMLExporter(reader.read())
+
+        else:
+            raise NotImplementedError()
 
     @classmethod
     def create(

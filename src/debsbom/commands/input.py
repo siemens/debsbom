@@ -260,6 +260,8 @@ class SourceBinaryInput:
                     SpdxSbomFilter.source_pkgs(resolver.document)
                 elif binaries:
                     SpdxSbomFilter.binary_pkgs(resolver.document)
+            else:
+                raise NotImplementedError()
 
     @staticmethod
     def _filter_pkg(

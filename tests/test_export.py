@@ -19,7 +19,7 @@ def test_export_format_from_str():
         GraphOutputFormat.from_str("foo")
 
 
-@pytest.mark.parametrize("sbom_type", list(SBOMType))
+@pytest.mark.parametrize("sbom_type", [SBOMType.CycloneDX, SBOMType.SPDX])
 def test_export_graphml(tmpdir, sbom_generator, sbom_type):
     match sbom_type:
         case SBOMType.SPDX:
