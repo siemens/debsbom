@@ -83,10 +83,12 @@ class GraphWalker(SbomProcessor):
             from .spdx import SpdxGraphWalker
 
             return SpdxGraphWalker(document)
-        else:
+        elif sbom_type == SBOMType.CycloneDX:
             from .cdx import CdxGraphWalker
 
             return CdxGraphWalker(document)
+        else:
+            raise NotImplementedError()
 
     @abstractmethod
     def shortest(self, source: PackageURL) -> list[PackageRepr]:

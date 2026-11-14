@@ -110,8 +110,8 @@ jobs:
           ln -s /usr/bin/python3-coverage /usr/local/bin/coverage
       - name: Install debsbom with system packages only
         run: |
-          # Install spdx-tools with pip, as it is currently not available in trixie
-          pip install spdx-tools==0.8.5 --break-system-packages
+          # Install spdx-tools and pyshacl with pip, as they are currently not available in trixie
+          pip install pyshacl==0.40.1 spdx-tools==0.8.5 --break-system-packages
           pip install . --break-system-packages --no-deps
       - uses: ./.github/actions/pytest
         with:

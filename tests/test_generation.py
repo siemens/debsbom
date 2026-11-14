@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from importlib.metadata import version
 import json
 import os
@@ -15,6 +15,9 @@ from urllib.parse import urlparse
 from uuid import UUID, uuid4
 from debian import deb822
 from io import TextIOWrapper
+from packageurl import PackageURL
+from email.utils import parseaddr
+import re
 
 from debsbom.apt.cache import ExtendedStates, Repository
 from debsbom.apt import cache as apt_cache
@@ -46,6 +49,39 @@ class DebsbomLegacyProxy(Debsbom):
             bom = super().generate(t, progress_cb)
             BomWriter.create(t).write_to_file(bom, Path(outfile), validate)
 
+        # smoke test: try all output formats & CDX format versions
+        # intedended to find serialization errors resulting from incorrect
+        # model creation -- the BOM libraries don't do strict type checking
+        for t in self._sbom_types:
+            bom = super().generate(t, progress_cb)
+            outfile = out.rstrip(f",{t}.json")
+            if t == SBOMType.CycloneDX:
+                import debsbom.bomwriter.cdxbomwriter as cdxbomwriter
+                import cyclonedx.schema as cdx_schema
+
+                variations = (
+                    (
+                        ext,
+                        cdxbomwriter.CdxSerializerOpts(
+                            cdx_schema_version=sv.to_version(), output_format=ext
+                        ),
+                    )
+                    for sv in cdx_schema.SchemaVersion
+                    for ext in cdxbomwriter.output_format_map.keys()
+                    if sv > cdx_schema.SchemaVersion.V1_2 or ext != "json"
+                )
+            elif t == SBOMType.SPDX:
+                import debsbom.bomwriter.spdxbomwriter as spdxbomwriter
+
+                variations = (
+                    (ext, spdxbomwriter.SpdxSerializerOpts(output_format=ext))
+                    for ext in spdxbomwriter.output_format_map.keys()
+                )
+            else:
+                variations = ()
+            for ext, so in variations:
+                BomWriter.create(t).write_to_file(bom, Path(outfile + "." + ext), validate, so)
+
 
 @pytest.fixture
 def sbom_generator():
@@ -54,11 +90,12 @@ def sbom_generator():
         uuid: UUID | None = None,
         timestamp: datetime | None = None,
         with_licenses: bool = False,
-        sbom_types: list[SBOMType] = list(SBOMType),
+        sbom_types: list[SBOMType] = [SBOMType.CycloneDX, SBOMType.SPDX],
         distro_supplier: str | None = None,
         recommends_deps: bool = True,
         suggests_deps: bool = False,
         artifact: Path | None = None,
+        bsi_tr_031893: bool = False,
     ) -> Debsbom:
         url = urlparse("http://example.org")
         if uuid is None:
@@ -79,6 +116,7 @@ def sbom_generator():
             recommends_deps=recommends_deps,
             suggests_deps=suggests_deps,
             artifact=artifact,
+            bsi_tr_031893=bsi_tr_031893,
         )
 
     return setup_sbom_generator
@@ -1112,3 +1150,254 @@ def test_apt_archive_cdx(tmpdir, sbom_generator):
                 assert len(component["hashes"]) > 0
                 assert component.get("omniborId")
                 assert component.get("swhid")
+
+
+def _test_bsi_tr_031893_manufacturer(node):
+    assert "manufacturer" in node
+    m = node["manufacturer"]
+    if "url" in m:
+        u = urlparse(m["url"])
+        assert u.netloc != ""
+    else:
+        assert "contact" in m
+        for c in m["contact"]:
+            if "email" in c:
+                assert ("", "") != parseaddr(c["email"])
+                break
+        else:
+            assert False, "No Email found for any contact"
+
+
+def _test_bsi_tr_031893_hashes(hashes):
+    assert len(hashes) > 0
+    for h in hashes:
+        assert "alg" in h
+        assert isinstance(h["alg"], str)
+        assert "content" in h
+        assert isinstance(h["content"], str)
+
+
+def test_bsi_tr_031893(tmpdir, sbom_generator):
+    # to ease manual validation that all BSI requirements are checked,
+    # the rows of the tables of Section 8.2 are handled sequentially
+    _cyclonedx = pytest.importorskip("cyclonedx")
+
+    outdir = Path(tmpdir)
+    test_no = 0
+
+    licences_tested = False
+    external_refs_tested = False
+
+    with os.scandir("tests/root") as it:
+        for entry in it:
+            if not entry.is_dir() or entry.name in [
+                "illformed-sources",
+                "utf8-apt-lists",
+            ]:
+                continue
+
+            dbom = sbom_generator(
+                entry.path,
+                sbom_types=[SBOMType.CycloneDX],
+                distro_supplier=(
+                    "J. Random Hacker <j.random.hacker@example.com>"
+                    if test_no % 2 == 0
+                    else "Example Company <https://www.example.com>"
+                ),
+                with_licenses=True,
+                bsi_tr_031893=True,
+            )
+            test_no += 1
+            dbom.generate(str(outdir / "sbom"), validate=True)
+            with open(outdir / "sbom.cdx.json") as file:
+                cdx_json = json.loads(file.read())
+            components = cdx_json["components"]
+            dependencies = cdx_json["dependencies"]
+
+            # pg. 22, Table 8: Mapping of required data fields for the SBOM itself
+            assert "metadata" in cdx_json
+            assert "component" in cdx_json["metadata"]
+
+            # pg 22, Table 8, Creator of the SBOM
+            _test_bsi_tr_031893_manufacturer(cdx_json["metadata"]["component"])
+
+            # pg 22, Table 8, Timestamp
+            assert "timestamp" in cdx_json["metadata"]
+            # note: RFC 3339 is actually required here, but has a large overlap
+            # with ISO8601
+            assert datetime.fromisoformat(cdx_json["metadata"]["timestamp"]) is not None
+
+            dependency_dict = {d["ref"]: d.get("dependsOn", []) for d in dependencies}
+
+            # pg. 23, Table 9: Mapping of required data fields for each component
+            assert len(components) > 0
+            for c in components:
+
+                prop = {p["name"]: p.get("value", None) for p in c["properties"]}
+
+                if entry.name in [
+                    "apt-sources",
+                    "arch-detect",
+                    "essential-required",
+                    "homepage-lowercase",
+                    "recommends-suggests",
+                    "tree",
+                    "utf8-apt-lists",
+                ]:
+
+                    # pg. 23, Table 9, Component creator
+                    _test_bsi_tr_031893_manufacturer(c)
+
+                # pg. 23, Table 9, Component name
+                assert isinstance(c["name"], str)
+                assert len(c["name"]) > 0
+
+                # pg. 24, Table 9, Component version
+                assert isinstance(c["version"], str)
+                assert len(c["version"]) > 0
+
+                # pg. 24, Table 9, Filename of the component
+                purl_d = PackageURL.from_string(c["purl"]).to_dict()
+                purl_arch = purl_d["qualifiers"]["arch"]
+                assert "bsi:component:filename" in prop
+                version_wo_epoch = purl_d["version"]
+                if (epoch := version_wo_epoch.find(":")) > -1:
+                    version_wo_epoch = version_wo_epoch[epoch + 1 :]
+                assert prop["bsi:component:filename"] == (
+                    purl_d["name"]
+                    + "_"
+                    + version_wo_epoch
+                    + (".dsc" if purl_arch == "source" else "_" + purl_arch + ".deb")
+                )
+
+                # pg. 25, Table 9, Dependencies on other components
+                # Note compositions are missing, because of limitations of CycloneDX
+                assert c["bom-ref"] in dependency_dict
+
+                if entry.name in [
+                    "copyright",
+                ]:
+
+                    if "licenses" in c:
+                        for l in c["licenses"]:
+                            licences_tested = True
+
+                            # pg. 26, Table 9, Distribution licenses
+                            # see also pg. 31, Table 11, Original licenses
+                            assert "expression" in l
+                            assert isinstance(l["expression"], str)
+                            # Note: BSI would like "acknowledgement" to be "concluded", but Debsbom
+                            # can only set this to "declared". An explicit license clearing step
+                            # is needed before this can be set to "concluded".
+                            assert "acknowledgement" in l
+                            acknowledgement = l["acknowledgement"]
+                            assert isinstance(acknowledgement, str)
+                            assert acknowledgement == "concluded" or acknowledgement == "declared"
+
+                if entry.name in [
+                    "apt-archive",
+                ]:
+
+                    # pg. 26, Table 9, Hash value of the deployable component
+                    assert "externalReferences" in c
+                    for er in c["externalReferences"]:
+                        assert "type" in er
+                        if er["type"] == "distribution":
+                            if purl_arch == "source":
+                                # test data does not contain .dsc
+                                break
+                            external_refs_tested = True
+                            _test_bsi_tr_031893_hashes(er["hashes"])
+                            break
+                    else:
+                        assert False, 'no "distribution" external reference found'
+
+                # pg. 27, Table 9, Executable property
+                assert "bsi:component:executable" in prop
+                assert prop["bsi:component:executable"] == "non-executable"
+
+                # pg. 27, Table 9, Archive property
+                assert "bsi:component:archive" in prop
+                assert prop["bsi:component:archive"] == "archive"
+
+                # pg. 28, Table 9, Structured property
+                assert "bsi:component:structured" in prop
+                assert prop["bsi:component:structured"] == "structured"
+
+            # pg. 29, Table 10: Mapping of additional data fields for the SBOM itself
+            # pg. 29, Table 10, SBOM-URI
+            assert "serialNumber" in cdx_json
+            assert (
+                re.search(
+                    r"^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    cdx_json["serialNumber"],
+                )
+                is not None
+            )
+
+            # pg. 29, Table 11: Mapping of additional data fields for each component
+            for c in components:
+                purl_d = PackageURL.from_string(c["purl"]).to_dict()
+                prop = {p["name"]: p.get("value", None) for p in c["properties"]}
+
+                assert "externalReferences" in c
+                if purl_d["qualifiers"]["arch"] != "source":
+                    # pg. 29, Table 11, Source code URI
+                    for er in c["externalReferences"]:
+                        assert "type" in er
+                        if er["type"] == "source-distribution":
+                            assert "url" in er
+                            assert urlparse(er["url"])[0] != ""
+                            assert er["url"] != c["purl"]
+                            break
+                    else:
+                        assert False, 'Exernal reference "source-distribution" not found'
+                # pg. 30, Table 11, URI of the deployable form of the component
+                for er in c["externalReferences"]:
+                    assert "type" in er
+                    if er["type"] == "distribution":
+                        assert "url" in er
+                        assert urlparse(er["url"])[0] != ""
+                        break
+                else:
+                    assert False, 'Exernal reference "distribution" not found'
+
+                # pg. 30, Table 11, Other unique identifiers
+                assert (
+                    "cpe" in c
+                    and c["cpe"].startswith("cpe:/")
+                    or "swid" in c
+                    and "tagId" in c["swid"]
+                    and isinstance(c["swid"]["tagid"], str)
+                    or "purl" in c
+                    and isinstance(c["purl"], str)
+                )
+
+                # pg. 31, Table 11, Original licenses
+                # see above, pg 26, Table 9, Distribution licenses
+
+                # pg. 31, Table 12: Mapping of optional data fields for each component
+                # pg. 31, Table 12, Effective License
+                if "bsi:component:effectiveLicense" in prop:
+                    assert isinstance(prop["bsi:component:effectiveLicense"], "str")
+
+                for er in c["externalReferences"]:
+                    assert "type" in er
+                    match er["type"]:
+
+                        # pg. 32, Table 12, Hash value of the source code of the component
+                        case "source-distribution" if "hashes" in er:
+                            _test_bsi_tr_031893_hashes(er["hashes"])
+
+                        # pg. 32, Table 12, URL of the security.txt
+                        case "rfc-9116":
+                            assert "url" in er
+                            assert urlparse(er["url"])[0] != ""
+
+                        # pg. 33, Table 12, References to another BOM
+                        case "bom":
+                            assert "url" in er
+                            assert urlparse(er["url"])[0] != ""
+
+    assert licences_tested, "Table 9, Distribution licenses was not tested"
+    assert external_refs_tested, "Table 9, Hash value of the deployable component was not tested"

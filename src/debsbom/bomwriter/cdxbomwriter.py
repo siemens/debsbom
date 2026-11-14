@@ -8,7 +8,12 @@ import cyclonedx.output as cdx_output
 import cyclonedx.schema as cdx_schema
 
 from .bomwriter import BomWriter, SerializerOpts
-from ..sbom import CDXType
+from ..sbom import SBOMType, CDXType
+
+output_format_map = {
+    "json": cdx_schema.OutputFormat.JSON,
+    "xml": cdx_schema.OutputFormat.XML,
+}
 
 
 class CdxSerializerOpts(SerializerOpts):
@@ -16,7 +21,7 @@ class CdxSerializerOpts(SerializerOpts):
     Options for the SBOM serializer
     """
 
-    def __init__(self, cdx_schema_version: str):
+    def __init__(self, cdx_schema_version: str, output_format: str | None = None):
         try:
             match cdx_schema_version:
                 case "latest":
@@ -27,15 +32,29 @@ class CdxSerializerOpts(SerializerOpts):
                     )
         except ValueError:
             raise ValueError(f"Invalid CycloneDX schema version: {cdx_schema_version}")
+        self.output_format: cdx_schema.OutputFormat | None = output_format_map.get(output_format)
 
 
 class CdxBomWriter(BomWriter, CDXType):
     @staticmethod
     def write_to_file(bom, outfile: Path, validate: bool, opts: CdxSerializerOpts | None = None):
         opts = opts or CdxSerializerOpts("latest")
+        if opts.output_format is None:
+            opts.output_format = cdx_schema.OutputFormat.JSON
+        for ext, fmt in output_format_map.items():
+            if fmt is opts.output_format:
+                extension = "." + ext
+                break
+        else:
+            raise AssertionError("Can't get here")
+        filename_str = str(outfile)
+        if not filename_str.endswith(extension):
+            filename_str += "." + str(SBOMType.CycloneDX) + extension
         cdx_output.make_outputter(
-            bom, cdx_schema.OutputFormat.JSON, opts.cdx_schema_version
-        ).output_to_file(str(outfile), allow_overwrite=True, indent=4)
+            bom,
+            cdx_schema.OutputFormat.JSON if opts.output_format is None else opts.output_format,
+            opts.cdx_schema_version,
+        ).output_to_file(filename_str, allow_overwrite=True, indent=4)
 
     @staticmethod
     def write_to_stream(
@@ -44,6 +63,8 @@ class CdxBomWriter(BomWriter, CDXType):
         opts = opts or CdxSerializerOpts("latest")
         f.write(
             cdx_output.make_outputter(
-                bom, cdx_schema.OutputFormat.JSON, opts.cdx_schema_version
+                bom,
+                cdx_schema.OutputFormat.JSON if opts.output_format is None else opts.output_format,
+                opts.cdx_schema_version,
             ).output_as_string(indent=4)
         )
