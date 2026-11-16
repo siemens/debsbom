@@ -3,18 +3,24 @@
 # SPDX-License-Identifier: MIT
 
 from collections import namedtuple
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
 import json
 import logging
-import shutil
 from pathlib import Path
 import sys
 import os
 
-from ..util.checksum import check_hash_from_path
+from ..util.checksum import (
+    ChecksumAlgo,
+    ChecksumMismatchError,
+    best_digest,
+    NoMatchingDigestError,
+    calculate_checksums,
+    verify_best_matching_digest,
+)
 from .resolver import RemoteFile
 from ..dpkg import package
 from ..dpkg.package import Package
@@ -24,6 +30,9 @@ import requests
 logger = logging.getLogger(__name__)
 StatisticsType = namedtuple("statistics", "files bytes cfiles cbytes")
 
+#: Read size when streaming a download to disk
+_CHUNK_SIZE = 1024 * 1024
+
 
 class DownloadStatus(str, Enum):
     OK = "ok"
@@ -32,6 +41,18 @@ class DownloadStatus(str, Enum):
 
     def __str__(self) -> str:
         return self.value
+
+
+class VerificationError(ValueError):
+    """A file does not match its expectations."""
+
+
+class InvalidFileError(VerificationError):
+    """The file does not match the remote file."""
+
+
+class PackageMismatchError(VerificationError):
+    """The file is a valid remote file, but does not match the package."""
 
 
 @dataclass
@@ -113,11 +134,82 @@ class PackageDownloader:
         cbytes = reduce(lambda acc, x: acc + x[1].size if x[1].size else 0, cfiles, 0)
         return StatisticsType(len(unique_dl), nbytes, len(cfiles), cbytes)
 
+    @staticmethod
+    def _package_checksums(pkg: package.Package, f: RemoteFile) -> Mapping[ChecksumAlgo, str]:
+        """
+        The checksums of a package identify the .deb file of a binary package and the .dsc
+        file of a source package. All other files of a source package are only identified
+        by the checksums of the remote file (and transitively by the .dsc file).
+        """
+        if pkg.is_source() and not f.filename.endswith(".dsc"):
+            return {}
+        return pkg.checksums
+
+    @classmethod
+    def _algorithms(cls, pkg: package.Package, f: RemoteFile) -> set[ChecksumAlgo]:
+        """Return the algorithms to verify: the strongest one of each expectation."""
+        return {best_digest(c)[0] for c in (f.checksums, cls._package_checksums(pkg, f)) if c}
+
+    @staticmethod
+    def _verify_digest(expected: Mapping[ChecksumAlgo, str], digests: Mapping[ChecksumAlgo, str]):
+        """
+        Verify the strongest expected digest, if any. A mismatch is final: weaker digests
+        are not consulted.
+        """
+        try:
+            verify_best_matching_digest({a: d.lower() for a, d in expected.items()}, digests)
+        except NoMatchingDigestError:
+            pass
+
+    @classmethod
+    def _verify(cls, path: Path, pkg: package.Package, f: RemoteFile, size: int | None = None):
+        """
+        Verify a file against the expectations of the remote file and, if it is valid,
+        against the expectations of the package. ``size`` overrides the on-disk size,
+        e.g. the number of bytes received.
+
+        Raises :py:class:`InvalidFileError` or :py:class:`PackageMismatchError`.
+        """
+        if size is None:
+            size = path.stat().st_size
+        if f.size is not None and size > f.size:
+            raise InvalidFileError(f"size exceeds {f.size} bytes")
+        if f.size is not None and size < f.size:
+            raise InvalidFileError(f"size is {size} bytes, expected {f.size}")
+        digests = calculate_checksums(path, cls._algorithms(pkg, f))
+        try:
+            cls._verify_digest(f.checksums, digests)
+        except ChecksumMismatchError as e:
+            raise InvalidFileError(str(e)) from e
+        try:
+            cls._verify_digest(cls._package_checksums(pkg, f), digests)
+        except ChecksumMismatchError as e:
+            raise PackageMismatchError(str(e)) from e
+
+    def _fetch(self, f: RemoteFile, dst: Path) -> int:
+        """
+        Stream the remote file to ``dst`` and return the number of bytes received.
+        Stops reading as soon as the data exceeds the expected size.
+        """
+        size = 0
+        with self.rs.get(f.downloadurl, stream=True) as r:
+            r.raise_for_status()
+            with open(dst, "wb") as fp:
+                for chunk in r.iter_content(_CHUNK_SIZE):
+                    size += len(chunk)
+                    if f.size is not None and size > f.size:
+                        break
+                    fp.write(chunk)
+        return size
+
     def download(self, progress_cb=None) -> Iterable[DownloadResult]:
         """
         Download all files and yield the file paths to the on-disk
         object. Files that are already there are not downloaded again,
-        but still reported.
+        but still reported. Before a file is reported as available, its size
+        and checksum are verified against the ones of the remote file, if
+        provided. Independently, the checksum of a binary package or of the
+        .dsc file of a source package is verified.
         """
         logger.info("Starting download...")
         for idx, (pkg, f) in enumerate(self.to_download):
@@ -126,10 +218,30 @@ class PackageDownloader:
             target = self._target_path(pkg, f)
             if not target.parent.is_dir():
                 target.parent.mkdir()
-            hashable_file_checksums = frozenset(f.checksums.items())
+            # only files with checksums can be identified by them
+            hashable_file_checksums = frozenset(f.checksums.items()) if f.checksums else None
             # check if we have the file under the exact filename
             if target.is_file():
-                if check_hash_from_path(target, f.checksums):
+                try:
+                    if not f.checksums:
+                        raise InvalidFileError("no checksum to verify it")
+                    self._verify(target, pkg, f)
+                except PackageMismatchError as e:
+                    # keep the file, it is valid but not the one of this package
+                    logger.warning(f"Checksum mismatch on '{target}' for {pkg}: {e}")
+                    yield DownloadResult(
+                        path=None,
+                        status=DownloadStatus.CHECKSUM_MISMATCH,
+                        package=pkg,
+                        filename=f.filename,
+                        source=f.downloadurl,
+                    )
+                    continue
+                except InvalidFileError as e:
+                    logger.warning(f"Existing file '{target}' is invalid: {e}. Download again.")
+                    self.known_hashes.pop(hashable_file_checksums, None)
+                    target.unlink()
+                else:
                     logger.debug(f"File '{target}' already downloaded.")
                     self.known_hashes[hashable_file_checksums] = target
                     yield DownloadResult(
@@ -140,12 +252,21 @@ class PackageDownloader:
                         source=f.downloadurl,
                     )
                     continue
-                logger.warning(f"Checksum mismatch on {f.filename}. Download again.")
-                self.known_hashes.pop(hashable_file_checksums, None)
-                target.unlink()
             # check if we have a file with the same hash and link to it
             o_target = self.known_hashes.get(hashable_file_checksums)
             if o_target:
+                try:
+                    self._verify(o_target, pkg, f)
+                except VerificationError as e:
+                    logger.warning(f"Checksum mismatch on '{o_target}' for {pkg}: {e}")
+                    yield DownloadResult(
+                        path=None,
+                        status=DownloadStatus.CHECKSUM_MISMATCH,
+                        package=pkg,
+                        filename=f.filename,
+                        source=f.downloadurl,
+                    )
+                    continue
                 if sys.version_info < (3, 12):
                     o_target_rel = os.path.relpath(o_target, start=target.parent)
                 else:
@@ -163,30 +284,33 @@ class PackageDownloader:
 
             fdst = target.with_suffix(target.suffix + ".tmp")
             logger.debug(f"Downloading '{f.downloadurl}' to '{target}'...")
-            with self.rs.get(f.downloadurl, stream=True) as r:
-                r.raise_for_status()
-                with open(fdst, "wb") as fp:
-                    shutil.copyfileobj(r.raw, fp)
-            if pkg.checksums:
-                if (
-                    not pkg.is_source() or f.filename.endswith(".dsc")
-                ) and not check_hash_from_path(fdst, pkg.checksums):
-                    logger.warning(f"Checksum mismatch on downloaded file '{fdst}'")
-                    fdst.unlink()
-                    yield DownloadResult(
-                        path=None,
-                        status=DownloadStatus.CHECKSUM_MISMATCH,
-                        package=pkg,
-                        filename=f.filename,
-                        source=f.downloadurl,
-                    )
-                    continue
-            else:
+            try:
+                size = self._fetch(f, fdst)
+            except BaseException:
+                fdst.unlink(missing_ok=True)
+                raise
+            try:
+                self._verify(fdst, pkg, f, size)
+            except VerificationError as e:
+                logger.warning(
+                    f"Checksum mismatch on downloaded file '{f.downloadurl}' for {pkg}: {e}"
+                )
+                fdst.unlink()
+                yield DownloadResult(
+                    path=None,
+                    status=DownloadStatus.CHECKSUM_MISMATCH,
+                    package=pkg,
+                    filename=f.filename,
+                    source=f.downloadurl,
+                )
+                continue
+            if not pkg.checksums:
                 logger.debug(f"No supported checksum on {pkg}")
 
             logger.debug(f"Downloaded '{f.downloadurl}'")
             fdst.rename(target)
-            self.known_hashes[hashable_file_checksums] = target
+            if hashable_file_checksums:
+                self.known_hashes[hashable_file_checksums] = target
             yield DownloadResult(
                 path=target,
                 status=DownloadStatus.OK,
