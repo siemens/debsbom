@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import gzip
 import io
 import json
 from pathlib import Path
@@ -9,6 +10,7 @@ import subprocess
 import sys
 import textwrap
 import jsonschema
+import urllib3
 
 import pytest
 from debsbom.cli import setup_parser
@@ -20,7 +22,7 @@ from debsbom.download import (
     PersistentResolverCache,
 )
 from debsbom.download.download import DownloadResult, DownloadStatus
-from debsbom.download.resolver import NotFoundError
+from debsbom.download.resolver import NotFoundError, RemoteFile
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom import schema
 from debsbom.dpkg.package import (
@@ -32,8 +34,12 @@ from debsbom.dpkg.package import (
 )
 from debsbom.repack.packer import Packer, StandardBomTransformer
 from debsbom.snapshot.client import SnapshotRemoteFile, UpstreamResolver
+from debsbom.util.checksum import calculate_checksums
 import debsbom.snapshot.client as sdlclient
 
+import requests
+from requests.adapters import BaseAdapter
+from requests.structures import CaseInsensitiveDict
 from requests import Session
 
 from unittest import mock
@@ -450,3 +456,200 @@ def test_malicious_path_download(tmpdir, http_session):
     dl.register([test_file2], pkg)
     with pytest.raises(ValueError):
         dl.stat()
+
+
+MD5 = ChecksumAlgo.MD5SUM
+SHA1 = ChecksumAlgo.SHA1SUM
+SHA256 = ChecksumAlgo.SHA256SUM
+DATA = b"package content\n"
+DIGESTS = calculate_checksums(DATA, [MD5, SHA1, SHA256])
+BAD_SHA256 = "0" * 64
+OK = DownloadStatus.OK
+MISMATCH = DownloadStatus.CHECKSUM_MISMATCH
+
+
+@pytest.fixture
+def downloader(tmp_path):
+    with requests.Session() as rs:
+        rs.mount("file:///", LocalFileAdapter())
+        yield PackageDownloader(tmp_path / "dl", session=rs)
+
+
+def _upstream(tmp_path, name, data=DATA) -> Path:
+    path = tmp_path / "upstream" / name
+    path.parent.mkdir(exist_ok=True)
+    path.write_bytes(data)
+    return path
+
+
+def _remote(path: Path, **expect) -> RemoteFile:
+    """RemoteFile for an upstream file, with correct expectations unless overridden."""
+    data = path.read_bytes()
+    return RemoteFile(
+        checksums=expect.get("checksums", calculate_checksums(data, [SHA256])),
+        filename=path.name,
+        archive_name="debian",
+        downloadurl=path.as_uri(),
+        size=expect.get("size", len(data)),
+    )
+
+
+def _binary(checksums=None) -> BinaryPackage:
+    return BinaryPackage("foo", "1.0", architecture="amd64", checksums=checksums)
+
+
+def _stored(dl: PackageDownloader) -> set[str]:
+    return {p.name for p in dl.outdir.rglob("*") if p.is_file()}
+
+
+@pytest.mark.parametrize(
+    "expect,pkg_checksums,ok",
+    [
+        pytest.param({}, None, True, id="valid"),
+        pytest.param({"size": None}, None, True, id="unknown-size"),
+        pytest.param({"size": len(DATA) - 1}, None, False, id="too-large"),
+        pytest.param({"size": len(DATA) + 1}, None, False, id="truncated"),
+        pytest.param({"checksums": {SHA256: BAD_SHA256}}, None, False, id="remote-mismatch"),
+        pytest.param(
+            {"checksums": {MD5: DIGESTS[MD5], SHA256: BAD_SHA256}},
+            None,
+            False,
+            id="remote-strongest-mismatch",
+        ),
+        pytest.param({}, {SHA256: DIGESTS[SHA256]}, True, id="package-match"),
+        pytest.param({}, {SHA256: BAD_SHA256}, False, id="package-mismatch"),
+        pytest.param(
+            {}, {SHA1: DIGESTS[SHA1], SHA256: BAD_SHA256}, False, id="package-strongest-mismatch"
+        ),
+    ],
+)
+def test_download_verifies_file(tmp_path, downloader, expect, pkg_checksums, ok):
+    path = _upstream(tmp_path, "foo_1.0_amd64.deb")
+    downloader.register([_remote(path, **expect)], _binary(pkg_checksums))
+    (result,) = downloader.download()
+
+    if ok:
+        assert result.status == OK
+        assert result.path.read_bytes() == DATA
+        assert _stored(downloader) == {path.name}
+    else:
+        assert result.status == MISMATCH
+        assert result.path is None
+        assert _stored(downloader) == set()
+
+
+def test_download_source_package_checksums(tmp_path, downloader):
+    """The checksums of a source package only refer to its .dsc file."""
+    dsc = _upstream(tmp_path, "foo_1.0-1.dsc", b"dsc\n")
+    orig = _upstream(tmp_path, "foo_1.0.orig.tar.xz", b"orig\n")
+    debian = _upstream(tmp_path, "foo_1.0-1.debian.tar.xz", b"debian\n")
+    pkg = SourcePackage("foo", "1.0-1", checksums=calculate_checksums(dsc, [SHA256]))
+    downloader.register(
+        [_remote(dsc), _remote(orig), _remote(debian, checksums={SHA256: BAD_SHA256})], pkg
+    )
+    assert {r.filename: r.status for r in downloader.download()} == {
+        dsc.name: OK,
+        orig.name: OK,
+        debian.name: MISMATCH,
+    }
+
+
+def test_download_existing_file(tmp_path, downloader):
+    path = _upstream(tmp_path, "foo_1.0_amd64.deb")
+    remote = _remote(path)
+    target = downloader.binaries_dir / "debian" / path.name
+    target.parent.mkdir()
+
+    # invalid existing files are replaced
+    for invalid in [DATA.upper(), DATA[:-1]]:
+        target.write_bytes(invalid)
+        downloader.register([remote], _binary())
+        assert [r.status for r in downloader.download()] == [OK]
+        assert target.read_bytes() == DATA
+
+    # a valid file is kept, even if it does not match another package
+    downloader.register([remote], _binary({SHA256: BAD_SHA256}))
+    assert [r.status for r in downloader.download()] == [MISMATCH]
+    assert target.read_bytes() == DATA
+
+    # a valid file is not downloaded again
+    path.unlink()
+    downloader.register([remote], _binary())
+    assert [r.status for r in downloader.download()] == [OK]
+
+    # a file without checksums cannot be verified and is downloaded again
+    _upstream(tmp_path, path.name, b"new content\n")
+    downloader.register([_remote(path, checksums={}, size=None)], _binary())
+    assert [r.status for r in downloader.download()] == [OK]
+    assert target.read_bytes() == b"new content\n"
+
+
+def test_download_deduplication(tmp_path, downloader):
+    first = _remote(_upstream(tmp_path, "foo_1.0_amd64.deb"))
+    second_path = _upstream(tmp_path, "foo_1.0_arm64.deb")
+    second = _remote(second_path)
+    # files with the same checksums are only downloaded once
+    second_path.unlink()
+
+    downloader.register([first], _binary())
+    downloader.register([second], _binary({SHA256: BAD_SHA256}))
+    downloader.register([second], _binary())
+    downloader.register(
+        [_remote(_upstream(tmp_path, "foo_1.0_i386.deb"), size=len(DATA) + 1)], _binary()
+    )
+    results = list(downloader.download())
+    assert [r.status for r in results] == [OK, MISMATCH, OK, MISMATCH]
+    assert results[2].path.read_bytes() == DATA
+
+    # files without checksums are not deduplicated
+    for name, data in [("bar_1.0_amd64.deb", b"bar\n"), ("baz_1.0_amd64.deb", b"baz\n")]:
+        downloader.register([_remote(_upstream(tmp_path, name, data), checksums={})], _binary())
+    results = list(downloader.download())
+    assert [r.path.read_bytes() for r in results] == [b"bar\n", b"baz\n"]
+
+
+def test_download_failure_leaves_no_files(tmp_path, downloader):
+    path = _upstream(tmp_path, "foo_1.0_amd64.deb")
+    remote = _remote(path)
+    path.unlink()
+    downloader.register([remote], _binary())
+    with pytest.raises(requests.HTTPError):
+        list(downloader.download())
+    assert _stored(downloader) == set()
+
+
+class _GzipAdapter(BaseAdapter):
+    """Serves the given data with gzip content-coding."""
+
+    def __init__(self, data):
+        super().__init__()
+        self.data = data
+
+    def send(self, request, **kwargs):
+        response = requests.Response()
+        response.request = request
+        response.url = request.url
+        response.status_code = 200
+        response.raw = urllib3.HTTPResponse(
+            body=io.BytesIO(gzip.compress(self.data)),
+            headers={"Content-Encoding": "gzip"},
+            preload_content=False,
+            decode_content=False,
+        )
+        response.headers = CaseInsensitiveDict(response.raw.headers)
+        return response
+
+    def close(self):
+        pass
+
+
+def test_download_decodes_content_encoding(tmp_path):
+    remote = _remote(_upstream(tmp_path, "foo_1.0-1.dsc"))
+    remote.downloadurl = "https://mirror.example/foo_1.0-1.dsc"
+    with requests.Session() as rs:
+        rs.mount("https://", _GzipAdapter(DATA))
+        dl = PackageDownloader(tmp_path / "dl", session=rs)
+        dl.register([remote], SourcePackage("foo", "1.0-1"))
+        (result,) = dl.download()
+    assert result.status == OK
+    assert result.path.read_bytes() == DATA
