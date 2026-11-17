@@ -40,7 +40,7 @@ class DownloadResult:
     status: DownloadStatus
     package: Package
     filename: str | None
-    source: str
+    source: str | None
 
     def json(self) -> str:
         result = {
@@ -55,7 +55,8 @@ class DownloadResult:
             result["filename"] = self.filename
         if self.path:
             result["path"] = str(self.path.absolute())
-        result["source"] = self.source
+        if self.source:
+            result["source"] = self.source
         return json.dumps(result)
 
 
