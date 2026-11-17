@@ -112,7 +112,11 @@ class DownloadInput(SbomInput):
                 if json:
                     print(
                         DownloadResult(
-                            path=None, status=DownloadStatus.NOT_FOUND, package=pkg, filename=""
+                            path=None,
+                            status=DownloadStatus.NOT_FOUND,
+                            package=pkg,
+                            filename=None,
+                            source=None,
                         ).json()
                     )
 
