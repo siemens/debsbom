@@ -8,6 +8,9 @@ from pathlib import Path
 import jsonschema
 
 import pytest
+from debsbom.cli import setup_parser
+from debsbom.commands import download
+from debsbom.commands.download import DownloadCmd
 from debsbom.download.adapters import LocalFileAdapter
 from debsbom.download import (
     PackageDownloader,
@@ -344,6 +347,34 @@ def test_download_result_invalid():
     }
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(data, schema=schema.download)
+
+
+def test_download_result_missing_source():
+    data = {
+        "status": "ok",
+        "package": {"name": "foo", "version": "1.0", "purl": "pkg:deb/debian/foo@1.0"},
+    }
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(data, schema=schema.download)
+
+
+def test_download_not_found_json(tmp_path, monkeypatch, capsys):
+    def resolve(pkg):
+        raise NotFoundError(f"{pkg} not found")
+
+    resolver = sdlclient.UpstreamResolver(mock.MagicMock())
+    monkeypatch.setattr(resolver, "resolve", resolve)
+    monkeypatch.setitem(download.RESOLVERS, "debian-snapshot", lambda session: resolver)
+    monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"no-such-package 1.0-1 amd64\n")))
+    args = setup_parser().parse_args(["--json", "download", "--outdir", str(tmp_path)])
+    DownloadCmd.run(args)
+
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 1
+    data = json.loads(lines[0])
+    jsonschema.validate(data, schema=schema.download)
+    assert data["status"] == DownloadStatus.NOT_FOUND
+    assert data["package"]["name"] == "no-such-package"
 
 
 def test_local_file():
