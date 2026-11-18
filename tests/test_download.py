@@ -5,6 +5,9 @@
 import io
 import json
 from pathlib import Path
+import subprocess
+import sys
+import textwrap
 import jsonschema
 
 import pytest
@@ -390,6 +393,28 @@ def test_local_file_404():
     session.mount("file:///", LocalFileAdapter())
     with session.get("file:///does-not-exist") as r:
         assert r.status_code == 404
+
+
+def test_cli_without_download_dependencies():
+    """
+    The CLI, and by that the offline generate command, must work without the optional
+    download dependencies. Before Python 3.14, annotations are evaluated eagerly, so
+    they must not refer to the guarded imports at class definition time.
+    """
+    code = textwrap.dedent("""
+        import sys
+
+        # simulate that the optional download dependencies are not installed
+        for mod in ("requests", "zstandard"):
+            sys.modules[mod] = None
+
+        from debsbom import cli
+
+        assert not cli.HAS_DOWNLOAD_DEPS
+        args = cli.setup_parser().parse_args(["generate", "--root", "does-not-exist"])
+        assert args.cmd == "generate"
+        """)
+    subprocess.run([sys.executable, "-c", code], check=True)
 
 
 @pytest.mark.online
