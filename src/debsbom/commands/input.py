@@ -162,7 +162,7 @@ class GenerateInput(SbomValidationInput):
                 "-o",
                 "--out",
                 type=str,
-                help="filename for output (default: %(default)s). Use '-' to write to stdout",
+                help=("filename for output (default: %(default)s). Use '-' to write to stdout."),
                 default=default_out,
             )
         )
@@ -175,7 +175,7 @@ class GenerateInput(SbomValidationInput):
         parser.add_argument(
             "--distro-supplier",
             type=str,
-            help="supplier for the root component",
+            help="supplier for the root component 'name <e-mail|url>'",
             default=None,
         )
         parser.add_argument(
@@ -269,6 +269,8 @@ class SourceBinaryInput:
                     SpdxSbomFilter.source_pkgs(resolver.document)
                 elif binaries:
                     SpdxSbomFilter.binary_pkgs(resolver.document)
+            else:
+                raise NotImplementedError()
 
     @staticmethod
     def _filter_pkg(

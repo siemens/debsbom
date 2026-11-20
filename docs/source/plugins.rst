@@ -6,7 +6,7 @@ Plugins
 Resolver Plugin
 ---------------
 
-In the ``download`` command ``debsbom`` is downloading packages described by an SBOM. For this it needs to resolve from the package to a download location. What resolver to use can be controlled by the ``--resolver`` flag. ``debsbom`` per default provides a resolver for the Debian snapshot mirror (snapshot.debian.org).
+The ``download`` command of ``debsbom`` downloads packages described by an SBOM. For this it needs to resolve from the package to a download location. What resolver to use can be controlled by the ``--resolver`` flag. ``debsbom`` per default provides a resolver for the Debian snapshot mirror (snapshot.debian.org).
 
 Builders of custom Debian distributions might have different repositories where packages can be downloaded from. Some of these solutions might not be publicly available, or its implementation not relevant for the general public for some other reason. In these cases code for a resolver for these repositories should not land in ``debsbom`` proper, but we still want to give the option to use it as a fully integrated part of ``debsbom``.
 
