@@ -98,13 +98,23 @@ runs:
     shell: bash
     run: |
       export COVERAGE_FILE=".coverage.secscan.${{ inputs.artifact-identifier }}"
-      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --db tests/data/security-tracker.fake.json
+      SECURITY_DB="$(mktemp --suffix=.json.zst)"
+      zstd -q -c tests/data/security-tracker.fake.json > "$SECURITY_DB"
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --db "$SECURITY_DB"
       export COVERAGE_FILE=".coverage.secscan.${{ inputs.artifact-identifier }}"
-      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --with-paths-to-root --db tests/data/security-tracker.fake.json
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v --json sec-scan --with-paths-to-root --db "$SECURITY_DB"
       export COVERAGE_FILE=".coverage.secscan.vex.${{ inputs.artifact-identifier }}"
-      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --author "Test <test@example.com>" --format vex --db tests/data/security-tracker.fake.json
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --author "Test <test@example.com>" --format vex --db "$SECURITY_DB"
       export COVERAGE_FILE=".coverage.secscan.sarif.${{ inputs.artifact-identifier }}"
-      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --format sarif --db tests/data/security-tracker.fake.json
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | coverage run $(which debsbom) -v sec-scan --format sarif --db "$SECURITY_DB"
+      export COVERAGE_FILE=".coverage.secscan.legacy.${{ inputs.artifact-identifier }}"
+      LEGACY_HOME="$(mktemp -d)"
+      mkdir -p "$LEGACY_HOME/.cache/debsbom"
+      cp tests/data/security-tracker.fake.json "$LEGACY_HOME/.cache/debsbom/security-tracker.json"
+      # coverage is in the real ~/.local; keep it importable while HOME points at the legacy cache
+      echo 'pkg:deb/debian/fake-crypto@3.4.0-1?arch=source' | PYTHONUSERBASE="$HOME/.local" HOME="$LEGACY_HOME" coverage run $(which debsbom) -v --json sec-scan
+      test -f "$LEGACY_HOME/.cache/debsbom/security-tracker.json.zst"
+      test ! -f "$LEGACY_HOME/.cache/debsbom/security-tracker.json"
 
   - name: upload smoke test SBOMs
     uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -6,11 +6,14 @@ from collections.abc import Iterable
 import io
 import json
 from pathlib import Path
+from unittest.mock import Mock
+from zstandard import open as zstd_open
 
 from debian.debian_support import Version
 import jsonschema
 import pytest
 
+from debsbom.commands import security_scan as security_scan_cmd
 from debsbom.dpkg.package import BinaryPackage, Dependency, Package, SourcePackage
 
 from debsbom.schema import secscan, tracepath as schema_tracepath
@@ -24,9 +27,65 @@ TRACKER_URL = "https://tracker.example.com"
 BUGS_URL = "https://bugs.example.com"
 
 
+@pytest.fixture(scope="session")
+def compressed_db(tmp_path_factory):
+    db_path = tmp_path_factory.mktemp("security-db") / "security-tracker.fake.json.zst"
+    with zstd_open(db_path, "wb") as f:
+        f.write(DB_PATH.read_bytes())
+    return db_path
+
+
 @pytest.fixture
-def scanner():
-    return SecurityScanner(db=DB_PATH, distro="trixie")
+def scanner(compressed_db):
+    return SecurityScanner(db=compressed_db, distro="trixie")
+
+
+def test_download_db_compresses_on_the_fly(tmp_path, monkeypatch):
+    response = Mock()
+    response.iter_content.return_value = [DB_PATH.read_bytes()]
+    monkeypatch.setattr(security_scan_cmd, "HAS_REQUESTS_DEP", True)
+    monkeypatch.setattr(
+        security_scan_cmd,
+        "requests",
+        Mock(get=Mock(return_value=response)),
+        raising=False,
+    )
+
+    db_path = tmp_path / "security-tracker.json.zst"
+    security_scan_cmd.SecurityScanCmd.download_db(TRACKER_URL, db_path)
+
+    assert db_path.read_bytes().startswith(b"\x28\xb5\x2f\xfd")
+    results = SecurityScanner(db_path, distro="trixie").scan(
+        [SourcePackage(name="fake-shell", version="5.2.37-2")]
+    )
+    assert len(list(results)) == 2
+
+
+def test_upgrade_uncompressed_db(tmp_path):
+    legacy = tmp_path / "security-tracker.json"
+    legacy.write_bytes(DB_PATH.read_bytes())
+
+    db_path = security_scan_cmd.SecurityScanCmd.upgrade_legacy_db(legacy)
+
+    assert db_path == tmp_path / "security-tracker.json.zst"
+    assert db_path.read_bytes().startswith(b"\x28\xb5\x2f\xfd")
+    results = SecurityScanner(db_path, distro="trixie").scan(
+        [SourcePackage(name="fake-shell", version="5.2.37-2")]
+    )
+    assert len(list(results)) == 2
+
+
+def test_scan_uncompressed_custom_db_warns(tmp_path, caplog):
+    db_path = tmp_path / "custom-tracker.json"
+    db_path.write_bytes(DB_PATH.read_bytes())
+
+    results = SecurityScanner(db_path, distro="trixie").scan(
+        [SourcePackage(name="fake-shell", version="5.2.37-2")]
+    )
+
+    assert len(list(results)) == 2
+    assert "uncompressed" in caplog.text
+    assert db_path.read_bytes() == DB_PATH.read_bytes()
 
 
 @pytest.fixture(scope="module")
@@ -166,9 +225,9 @@ def test_scan_name_filter_no_match(scanner):
     assert len(results) == 0
 
 
-def test_scan_distro_bookworm():
+def test_scan_distro_bookworm(compressed_db):
     """bookworm only has fake-crypto CVE-0000-1001."""
-    scanner = SecurityScanner(db=DB_PATH, distro="bookworm")
+    scanner = SecurityScanner(db=compressed_db, distro="bookworm")
     pkgs = [
         SourcePackage(name="fake-shell", version="5.2.37-2"),
         SourcePackage(name="fake-crypto", version="3.0.14-1"),
@@ -179,8 +238,8 @@ def test_scan_distro_bookworm():
     assert results[0].affected
 
 
-def test_scan_distro_no_entries():
-    scanner = SecurityScanner(db=DB_PATH, distro="stretch")
+def test_scan_distro_no_entries(compressed_db):
+    scanner = SecurityScanner(db=compressed_db, distro="stretch")
     pkgs = [SourcePackage(name="fake-shell", version="5.2.37-2")]
     results = list(scanner.scan(pkgs))
     assert len(results) == 0

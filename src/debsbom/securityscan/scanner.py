@@ -8,6 +8,7 @@ import json
 import logging
 from pathlib import Path
 from debian.debian_support import version_compare
+from zstandard import FRAME_HEADER, open as zstd_open
 
 from ..dpkg.package import SourcePackage
 from enum import IntEnum
@@ -101,7 +102,13 @@ class SecurityScanner:
     """
 
     def __init__(self, db: Path, distro: str = "trixie"):
-        with open(db, "r") as f:
+        with db.open("rb") as raw:
+            compressed = raw.read(len(FRAME_HEADER)) == FRAME_HEADER
+        if not compressed:
+            logger.warning(
+                f"Security tracker database {db} is uncompressed, consider compressing it with zstd"
+            )
+        with zstd_open(db, "rb") if compressed else db.open("rb") as f:
             self.ct = CveTriage(json.load(f), distro=distro)
 
     def scan(

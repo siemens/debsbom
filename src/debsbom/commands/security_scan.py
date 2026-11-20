@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import logging
+import shutil
+
 from pathlib import Path
+from zstandard import open as zstd_open
 
 from ..dpkg.package import filter_sources
 from ..commands.input import PkgStreamInput, SbomInput
@@ -31,7 +34,7 @@ DEBIAN_BUGTRACKER_URL = "https://bugs.debian.org/cgi-bin/bugreport.cgi"
 SECURITY_TRACKER_URL = "https://security-tracker.debian.org/tracker"
 SECURITY_DB_URL_PATH = "data/json"
 # delay path expansion to make help message and docs reproducible
-SECURITY_DB_PATH_DEFAULT = Path("~") / ".cache" / "debsbom" / "security-tracker.json"
+SECURITY_DB_PATH_DEFAULT = Path("~") / ".cache" / "debsbom" / "security-tracker.json.zst"
 
 
 logger = logging.getLogger(__name__)
@@ -55,14 +58,30 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         response = requests.get(url, stream=True)
         response.raise_for_status()
 
-        with open(db_path, "wb") as f:
+        with zstd_open(db_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         logger.info(f"Database downloaded to {db_path}")
 
     @classmethod
+    def upgrade_legacy_db(cls, db_path: Path) -> Path:
+        """Compress a plain .json database to .json.zst and return the db path to use."""
+        if db_path.suffix != ".json":
+            return db_path
+        zst_path = db_path.with_name(db_path.name + ".zst")
+        if db_path.is_file() and not zst_path.exists():
+            logger.info(f"Compressing legacy security tracker database {db_path} to {zst_path}")
+            with db_path.open("rb") as src, zstd_open(zst_path, "wb") as dst:
+                shutil.copyfileobj(src, dst)
+        return zst_path
+
+    @classmethod
     def run(cls, args):
         db_path = args.db.expanduser()
+        legacy_path = SECURITY_DB_PATH_DEFAULT.with_suffix("").expanduser()  # pre-zstd default
+        if db_path in (SECURITY_DB_PATH_DEFAULT.expanduser(), legacy_path):
+            db_path = cls.upgrade_legacy_db(legacy_path)
+            legacy_path.unlink(missing_ok=True)
         if args.update_db or not db_path.exists():
             cls.download_db(f"{args.tracker}/{SECURITY_DB_URL_PATH}", db_path)
 
@@ -131,7 +150,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
                 "--db",
                 type=Path,
                 default=SECURITY_DB_PATH_DEFAULT,
-                help="path to Debian security tracker JSON database (default: %(default)s)",
+                help="path to zstd-compressed Debian security tracker JSON database (default: %(default)s)",
             )
         )
         parser.add_argument(

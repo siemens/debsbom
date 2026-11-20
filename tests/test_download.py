@@ -411,7 +411,7 @@ def test_cli_without_download_dependencies():
         import sys
 
         # simulate that the optional download dependencies are not installed
-        for mod in ("requests", "zstandard"):
+        for mod in ("requests",):
             sys.modules[mod] = None
 
         from debsbom import cli
