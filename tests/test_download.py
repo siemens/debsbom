@@ -21,7 +21,11 @@ from debsbom.download import (
     PackageDownloader,
     PersistentResolverCache,
 )
-from debsbom.download.download import DownloadResult, DownloadStatus
+from debsbom.download.download import (
+    DownloadResult,
+    DownloadStatus,
+    UnsafeRedirectError,
+)
 from debsbom.download.resolver import NotFoundError, RemoteFile
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom import schema
@@ -653,3 +657,76 @@ def test_download_decodes_content_encoding(tmp_path):
         (result,) = dl.download()
     assert result.status == OK
     assert result.path.read_bytes() == DATA
+
+
+class _RedirectAdapter(BaseAdapter):
+    """Redirects every request to the given location."""
+
+    def __init__(self, location):
+        super().__init__()
+        self.location = location
+
+    def send(self, request, **kwargs):
+        response = requests.Response()
+        response.request = request
+        response.url = request.url
+        response.status_code = 302
+        response.headers["Location"] = self.location
+        response.raw = io.BytesIO()
+        return response
+
+    def close(self):
+        pass
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "HTTP://cdn.example/foo_1.0_amd64.deb",
+        "/pool/foo_1.0_amd64.deb",
+        "https://next.example/foo_1.0_amd64.deb",
+    ],
+)
+def test_download_follows_http_redirects(tmp_path, downloader, location):
+    """HTTP(S) redirects are followed, including relative ones, chains and downgrades to HTTP."""
+    remote = _remote(_upstream(tmp_path, "foo_1.0_amd64.deb"))
+    remote.downloadurl = "https://mirror.example/foo_1.0_amd64.deb"
+    downloader.rs.mount("https://mirror.example/", _RedirectAdapter(location))
+    downloader.rs.mount("https://mirror.example/pool/", _GzipAdapter(DATA))
+    downloader.rs.mount(
+        "https://next.example/", _RedirectAdapter("http://cdn.example/foo_1.0_amd64.deb")
+    )
+    downloader.rs.mount("http://cdn.example/", _GzipAdapter(DATA))
+    downloader.register([remote], _binary())
+    (result,) = downloader.download()
+    assert result.status == OK
+    assert result.path.read_bytes() == DATA
+
+
+@pytest.mark.parametrize(
+    "location", ["file://{}", "FILE://{}", "ftp://mirror.example{}", "https://next.example{}"]
+)
+def test_download_rejects_redirects_to_other_transports(tmp_path, downloader, location):
+    """Redirects to anything but HTTP(S) are refused before the location is requested."""
+    local = _upstream(tmp_path, "foo_1.0_amd64.deb")
+    remote = _remote(local, checksums={})
+    remote.downloadurl = "https://mirror.example/foo_1.0_amd64.deb"
+    local_files = mock.Mock(wraps=LocalFileAdapter())
+    downloader.rs.mount("file:///", local_files)
+    downloader.rs.mount("https://mirror.example/", _RedirectAdapter(location.format(local)))
+    downloader.rs.mount("https://next.example/", _RedirectAdapter(local.as_uri()))
+    downloader.register([remote], _binary())
+    with pytest.raises(UnsafeRedirectError):
+        list(downloader.download())
+    local_files.send.assert_not_called()
+    assert _stored(downloader) == set()
+
+
+def test_download_applies_session_hooks(tmp_path, downloader):
+    """Response hooks of the session also apply to downloads."""
+    hook = mock.Mock(return_value=None)
+    downloader.rs.hooks["response"].append(hook)
+    downloader.register([_remote(_upstream(tmp_path, "foo_1.0_amd64.deb"))], _binary())
+    (result,) = downloader.download()
+    assert result.status == OK
+    hook.assert_called_once()
