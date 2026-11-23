@@ -155,11 +155,13 @@ class Dependency:
             return other == ours
         elif operator == "<<":
             return other < ours
-        elif operator == "<=":
+        elif operator in ("<=", "<"):
+            # the deprecated "<" still means "earlier or equal" (see footnote to policy 7.1)
             return other <= ours
         elif operator == ">>":
             return other > ours
-        elif operator == ">=":
+        elif operator in (">=", ">"):
+            # the deprecated ">" still means "later or equal" (see footnote to policy 7.1)
             return other >= ours
         else:
             raise ValueError(f"invalid operator '{operator}'")

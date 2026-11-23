@@ -35,6 +35,26 @@ def test_parse_dependency():
     ]
 
 
+@pytest.mark.parametrize(
+    "operator, older, equal, newer",
+    [
+        ("<<", True, False, False),
+        ("<=", True, True, False),
+        ("=", False, True, False),
+        (">=", False, True, True),
+        (">>", False, False, True),
+        # deprecated forms: dpkg treats "<" as "<=" and ">" as ">="
+        ("<", True, True, False),
+        (">", False, True, True),
+    ],
+)
+def test_dependency_version_operators(operator, older, equal, newer):
+    (dep,) = Dependency.parse_depends_line(f"libfoo ({operator} 2.0)")
+    assert dep.is_satisfying_version(Version("1.0")) == older
+    assert dep.is_satisfying_version(Version("2.0")) == equal
+    assert dep.is_satisfying_version(Version("3.0")) == newer
+
+
 @pytest.mark.parametrize("mode", ["file", "stream"])
 def test_parse_minimal_status_file(mode):
     status_file = Path("tests/data/dpkg-status-minimal")
