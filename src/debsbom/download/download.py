@@ -4,6 +4,9 @@
 
 from collections import namedtuple
 from collections.abc import Iterable, Mapping
+from requests.exceptions import RequestException
+from requests import Response
+from urllib.parse import urljoin, urlparse
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
@@ -53,6 +56,27 @@ class InvalidFileError(VerificationError):
 
 class PackageMismatchError(VerificationError):
     """The file is a valid remote file, but does not match the package."""
+
+
+class UnsafeRedirectError(RequestException):
+    """A redirect to a location with an unsupported scheme was refused."""
+
+    def __init__(self, src: str, target: str, response: Response | None = None):
+        message = f"refusing redirect from '{src}' to '{target}'"
+        super().__init__(message, response=response)
+
+
+def redirect_guard(response: Response, *args, **kwargs) -> Response:
+    """
+    Response hook which refuses to follow redirects to anything but HTTP(S) URLs,
+    e.g. to local files.
+    """
+    if response.is_redirect:
+        target = urljoin(response.url, response.headers["Location"])
+        if urlparse(target).scheme not in ("http", "https"):
+            response.close()
+            raise UnsafeRedirectError(response.url, target, response)
+    return response
 
 
 @dataclass
@@ -189,10 +213,13 @@ class PackageDownloader:
     def _fetch(self, f: RemoteFile, dst: Path) -> int:
         """
         Stream the remote file to ``dst`` and return the number of bytes received.
-        Stops reading as soon as the data exceeds the expected size.
+        Stops reading as soon as the data exceeds the expected size. Redirects are
+        only followed to HTTP(S) URLs.
         """
         size = 0
-        with self.rs.get(f.downloadurl, stream=True) as r:
+        # hooks of the request replace the ones of the session
+        hooks = {"response": [*self.rs.hooks["response"], redirect_guard]}
+        with self.rs.get(f.downloadurl, stream=True, hooks=hooks) as r:
             r.raise_for_status()
             with open(dst, "wb") as fp:
                 for chunk in r.iter_content(_CHUNK_SIZE):
