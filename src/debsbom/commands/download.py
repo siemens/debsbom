@@ -108,9 +108,10 @@ class DownloadInput(SbomInput):
                 files = list(resolver_cache._resolve_pkg(pkg))
                 DownloadCmd._check_for_dsc(pkg, files)
                 downloader.register(files, pkg)
-            except ResolveError:
+            except ResolveError as e:
                 pkg_type = "source" if pkg.is_source() else "binary"
-                logger.warning(f"failed to resolve {pkg_type} package: {pkg}")
+                reason = f": {e}" if str(e) else ""
+                logger.warning(f"failed to resolve {pkg_type} package: {pkg}{reason}")
                 if json:
                     print(
                         DownloadResult(
