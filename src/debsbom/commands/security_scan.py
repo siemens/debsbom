@@ -5,7 +5,11 @@
 import logging
 import shutil
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import BinaryIO
 from zstandard import open as zstd_open
 
 from ..dpkg.package import filter_sources
@@ -40,6 +44,16 @@ SECURITY_DB_PATH_DEFAULT = Path("~") / ".cache" / "debsbom" / "security-tracker.
 logger = logging.getLogger(__name__)
 
 
+@contextmanager
+def _atomic_write(path: Path) -> Iterator[BinaryIO]:
+    """Write to a temp file and move it to path on success; nothing is left behind on error."""
+    with TemporaryDirectory(dir=path.parent, prefix=".debsbom-") as tmpdir:
+        tmp_path = Path(tmpdir) / path.name
+        with tmp_path.open("wb") as f:
+            yield f
+        tmp_path.replace(path)
+
+
 class SecurityScanCmd(SbomInput, PkgStreamInput):
     """
     Scans packages from an SBOM for security vulnerabilities.
@@ -58,7 +72,7 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         response = requests.get(url, stream=True)
         response.raise_for_status()
 
-        with zstd_open(db_path, "wb") as f:
+        with _atomic_write(db_path) as raw, zstd_open(raw, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         logger.info(f"Database downloaded to {db_path}")
@@ -71,8 +85,9 @@ class SecurityScanCmd(SbomInput, PkgStreamInput):
         zst_path = db_path.with_name(db_path.name + ".zst")
         if db_path.is_file() and not zst_path.exists():
             logger.info(f"Compressing legacy security tracker database {db_path} to {zst_path}")
-            with db_path.open("rb") as src, zstd_open(zst_path, "wb") as dst:
-                shutil.copyfileobj(src, dst)
+            with db_path.open("rb") as src, _atomic_write(zst_path) as raw:
+                with zstd_open(raw, "wb") as dst:
+                    shutil.copyfileobj(src, dst)
         return zst_path
 
     @classmethod
