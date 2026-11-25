@@ -31,8 +31,10 @@ value is not available, instead of being set to an empty string or ``null``.
     The status of the download operation. This field will contain one of the
     following predefined values from the :py:class:`DownloadStatus` enum:
 
-    *   ``"ok"``: The file was either successfully downloaded or found in the cache, and the checksum was verified.
-    *   ``"checksum_mismatch"``: The downloaded file's checksum did not match the expected value.
+    *   ``"ok"``: The file was either successfully downloaded or found in the cache.
+        Its size and checksum were verified if the expected values were known.
+    *   ``"checksum_mismatch"``: The downloaded file's size or checksum did not match
+        the expected value.
     *   ``"not_found"``: The requested file or package could not be located.
 
 *   **package**:
