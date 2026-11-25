@@ -39,6 +39,31 @@ jobs:
         shell: bash
         run: pytest
 
+  test-minimal-deps-oldest-python:
+    # Python 3.11.2 as shipped by Debian bookworm. Before Python 3.14,
+    # annotations are evaluated eagerly and must not need optional
+    # dependencies. A matrix value keeps Renovate from bumping the version.
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        sbom-type: ["cdx", "spdx"]
+        python-version: ["3.11.2"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install required dependencies for ${{ matrix.sbom-type }}
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[${{ matrix.sbom-type }}]"
+
+      - name: Test the generate command with minimal dependencies for ${{ matrix.sbom-type }}
+        shell: bash
+        run: $(which debsbom) -v generate -t ${{ matrix.sbom-type }} -o sbom --root tests/root/tree --validate
+
   test:
     runs-on: ubuntu-24.04
     strategy:
