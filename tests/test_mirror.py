@@ -3,17 +3,27 @@
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
+import io
+import json
+from unittest import mock
 
+import jsonschema
 import pytest
 import requests
 from debian import deb822
+from requests.adapters import BaseAdapter
 
+from debsbom import schema
 from debsbom.apt.remote import (
     RemoteRepository,
     RepositoryAccessError,
     RepositoryConfigurationError,
     RepositoryMetadataError,
 )
+from debsbom.cli import setup_parser
+from debsbom.commands import download
+from debsbom.commands.download import MIRROR_OPTIONS, DownloadCmd, DownloadInput
+from debsbom.commands.enrich import EnrichCmd
 from debsbom.download.download import DownloadStatus, PackageDownloader
 from debsbom.download.mirror import (
     MirrorIntegrityError,
@@ -22,13 +32,22 @@ from debsbom.download.mirror import (
     MirrorResolver,
     archive_label,
 )
-from debsbom.download.resolver import NotFoundError, PackageResolverCache
+from debsbom.download.resolver import (
+    FallbackResolver,
+    NotFoundError,
+    PackageResolverCache,
+    PersistentResolverCache,
+    RemoteFile,
+    Resolver,
+)
 from debsbom.dpkg.package import BinaryPackage, SourcePackage
+import debsbom.snapshot.client as sdlclient
 from debsbom.util.checksum import ChecksumAlgo, calculate_checksums
 from test_apt_remote import (
     LISTS,
     PACKAGES,
     ROOT,
+    HTTPResponses,
     LocalRepository,
     binary,
     file_list,
@@ -481,3 +500,343 @@ def test_download_verifies_independently(mirror, tmp_path):
     (result,) = downloader.download()
     assert result.status == DownloadStatus.CHECKSUM_MISMATCH
     assert result.path is None
+
+
+class Snapshot:
+    """
+    Stands in for the resolution on snapshot.debian.org, without network access: serves
+    the packages of a local directory and records the lookups.
+    """
+
+    def __init__(self, root):
+        self.root = root
+        self.packages = {}
+        self.lookups = []
+
+    def publish(self, pkg, files: dict[str, bytes]) -> None:
+        self.packages[str(pkg.purl())] = []
+        for name, data in files.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+            remote = RemoteFile(digest(data), name, "debian", path.as_uri(), len(data))
+            self.packages[str(pkg.purl())].append(remote)
+
+    def resolve(self, p) -> list[RemoteFile]:
+        self.lookups.append(str(p.purl()))
+        if str(p.purl()) not in self.packages:
+            # like the real resolver, without a message
+            raise sdlclient.SnapshotNotFoundError(sdlclient.NotFoundOnSnapshotError())
+        return self.packages[str(p.purl())]
+
+
+@pytest.fixture
+def snapshot(tmp_path, monkeypatch):
+    fake = Snapshot(tmp_path / "snapshot")
+    monkeypatch.setattr(sdlclient.UpstreamResolver, "resolve", lambda _, p: fake.resolve(p))
+    return fake
+
+
+@pytest.fixture
+def session(mirror, monkeypatch):
+    """Let the commands use the session of the mirror, which fails on network access."""
+    network = mock.Mock(spec=BaseAdapter, send=mock.Mock(side_effect=AssertionError("network")))
+    for prefix in ("http://", "https://"):
+        mirror.session.mount(prefix, network)
+    monkeypatch.setattr(
+        DownloadInput, "_create_default_session", staticmethod(lambda: mirror.session)
+    )
+    yield mirror.session
+    network.send.assert_not_called()
+
+
+def mirror_args(url: str, *args) -> list[str]:
+    return [
+        *("--resolver", "debian-mirror", "--mirror-url", url),
+        *("--mirror-suite", "trixie", "--mirror-component", "main"),
+        *args,
+    ]
+
+
+def run_download(tmp_path, monkeypatch, capsys, pkglist: str, *args) -> list[dict]:
+    """Download the packages of a package list and return the results."""
+    monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(pkglist.encode())))
+    outdir = str(tmp_path / "downloads")
+    DownloadCmd.run(setup_parser().parse_args(["--json", "download", "--outdir", outdir, *args]))
+    results = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
+    for result in results:
+        jsonschema.validate(result, schema=schema.download)
+    return results
+
+
+BINARY = "pkg:deb/debian/foo@1.0?arch=amd64"
+SOURCE = "pkg:deb/debian/foo@1.0-1?arch=source"
+
+
+@pytest.mark.parametrize("command", ["download", "enrich"])
+def test_parser(command):
+    parser = setup_parser()
+    args = parser.parse_args([command, "sbom.cdx.json"])
+    assert args.resolver == "debian-snapshot"
+    assert [getattr(args, option) for option in MIRROR_OPTIONS] == [None] * 5
+
+    args = parser.parse_args(
+        [
+            *(command, *mirror_args(ROOT, "--mirror-suite", "trixie-updates")),
+            *("--mirror-component", "contrib", "--mirror-architecture", "all"),
+            *("--snapshot-fallback", "sbom.cdx.json"),
+        ]
+    )
+    assert args.resolver == "debian-mirror"
+    assert args.mirror_url == ROOT
+    assert args.mirror_suite == ["trixie", "trixie-updates"]
+    assert args.mirror_component == ["main", "contrib"]
+    assert args.mirror_architecture == ["all"]
+    assert args.snapshot_fallback is True
+    args = parser.parse_args([command, "--no-snapshot-fallback", "sbom.cdx.json"])
+    assert args.snapshot_fallback is False
+
+
+@pytest.mark.parametrize("command", [DownloadCmd, EnrichCmd])
+@pytest.mark.parametrize(
+    "args, match",
+    [
+        (["--resolver", "debian-mirror"], "requires --mirror-url"),
+        (["--resolver", "debian-mirror", "--mirror-url", ROOT], "requires --mirror-suite"),
+        (mirror_args("ftp://mirror.example/debian"), "must use http, https or file"),
+        (mirror_args(ROOT)[:-2], "at least one component"),
+        (mirror_args(ROOT, "--mirror-suite", "./"), "cannot be combined"),
+        (["--mirror-url", ROOT], "^--mirror-url can only be used with the built-in"),
+        (["--mirror-suite", "trixie", "--mirror-component", "main"], "^--mirror-suite, --mir"),
+        (["--mirror-architecture", "amd64"], "^--mirror-architecture can only"),
+        (["--snapshot-fallback"], "^--snapshot-fallback can only"),
+        (["--no-snapshot-fallback"], "^--no-snapshot-fallback can only"),
+    ],
+)
+def test_invalid_configuration(mirror, session, tmp_path, command, args, match):
+    """The configuration is checked before any input is read or request is made."""
+    name = "download" if command is DownloadCmd else "enrich"
+    outdir = str(tmp_path / "downloads")
+    missing = str(tmp_path / "missing.cdx.json")
+    with pytest.raises(ValueError, match=match):
+        command.run(setup_parser().parse_args([name, "--outdir", outdir, *args, missing]))
+    assert not mirror.requested
+
+
+def test_download_command(mirror, session, snapshot, tmp_path, monkeypatch, capsys):
+    mirror.packages(mirror.publish_binary())
+    mirror.sources(mirror.publish_source())
+    results = run_download(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "foo 1.0 amd64\nfoo 1.0-1 source\n",
+        *mirror_args(mirror.url, "--snapshot-fallback"),
+    )
+    label = archive_label(mirror.url)
+    assert [(r["status"], r["source"], r["path"]) for r in results] == [
+        (
+            DownloadStatus.OK,
+            f"{mirror.url}/pool/main/f/foo/{name}",
+            str(tmp_path.resolve() / "downloads" / kind / label / name),
+        )
+        for kind, name in [
+            ("binaries", "foo_1.0_amd64.deb"),
+            ("sources", "foo_1.0-1.dsc"),
+            *(("sources", name) for name in FILES),
+        ]
+    ]
+    assert not snapshot.lookups
+    # the results of the mirror are not cached
+    assert not (tmp_path / "downloads" / ".cache" / "debian-mirror").exists()
+
+
+@pytest.mark.parametrize("fallback", [None, False, True])
+@pytest.mark.parametrize("mirrored, on_snapshot", [(True, True), (False, True), (False, False)])
+def test_snapshot_fallback(
+    mirror, session, snapshot, tmp_path, monkeypatch, capsys, fallback, mirrored, on_snapshot
+):
+    """Only packages which are not in the mirror are resolved on snapshot.debian.org."""
+    mirror.packages(mirror.publish_binary() if mirrored else binary("bar"))
+    if on_snapshot:
+        snapshot.publish(BinaryPackage("foo", "1.0", architecture="amd64"), {"foo.deb": b"foo\n"})
+    flags = {None: [], False: ["--no-snapshot-fallback"], True: ["--snapshot-fallback"]}
+    (result,) = run_download(
+        tmp_path, monkeypatch, capsys, "foo 1.0 amd64\n", *mirror_args(mirror.url, *flags[fallback])
+    )
+    if mirrored:
+        assert result["source"] == f"{mirror.url}/pool/main/f/foo/foo_1.0_amd64.deb"
+    elif fallback and on_snapshot:
+        assert result["source"] == (snapshot.root / "foo.deb").as_uri()
+    else:
+        assert result["status"] == DownloadStatus.NOT_FOUND
+        assert "source" not in result
+    assert snapshot.lookups == ([BINARY] if fallback and not mirrored else [])
+
+
+@pytest.mark.parametrize(
+    "pkglist",
+    [
+        pytest.param("foo 1.0 amd64\n", id="invalid-index"),
+        pytest.param("foo 1.0 arm64\n", id="error-page"),
+        pytest.param("foo 1.0-1 source\n", id="tampered-dsc"),
+    ],
+)
+def test_mirror_errors_are_not_resolved_on_snapshot(
+    mirror, session, snapshot, tmp_path, monkeypatch, capsys, pkglist
+):
+    mirror.write(PACKAGES + ".xz", b"not xz")
+    mirror.packages("<html>Service unavailable</html>", arch="arm64", variant="")
+    mirror.sources(mirror.publish_source())
+    (mirror.root / "pool/main/f/foo/foo_1.0-1.dsc").write_bytes(b"tampered")
+    snapshot.publish(BinaryPackage("foo", "1.0", architecture="amd64"), {"foo.deb": b"foo\n"})
+    snapshot.publish(SourcePackage("foo", "1.0-1"), {"foo_1.0-1.dsc": b"dsc\n"})
+    (result,) = run_download(
+        tmp_path, monkeypatch, capsys, pkglist, *mirror_args(mirror.url, "--snapshot-fallback")
+    )
+    assert result["status"] == DownloadStatus.NOT_FOUND
+    assert not snapshot.lookups
+
+
+@pytest.mark.parametrize("status", [403, 500])
+def test_access_errors_are_not_resolved_on_snapshot(
+    session, snapshot, tmp_path, monkeypatch, capsys, status
+):
+    responses = HTTPResponses()
+    responses.add(PACKAGES + ".xz", status=status)
+    session.mount(f"{ROOT}/", responses)
+    snapshot.publish(BinaryPackage("foo", "1.0", architecture="amd64"), {"foo.deb": b"foo\n"})
+    (result,) = run_download(
+        tmp_path, monkeypatch, capsys, "foo 1.0 amd64\n", *mirror_args(ROOT, "--snapshot-fallback")
+    )
+    assert result["status"] == DownloadStatus.NOT_FOUND
+    assert not snapshot.lookups
+
+
+def test_checksum_mismatch_is_resolved_on_snapshot(mirror, snapshot):
+    """A package whose checksum differs from the one in the mirror is not found there."""
+    mirror.packages(mirror.publish_binary())
+    pkg = BinaryPackage("foo", "1.0", architecture="amd64", checksums=digest(b"foo\n"))
+    snapshot.publish(pkg, {"foo.deb": b"foo\n"})
+    sdl = sdlclient.SnapshotDataLake(session=mirror.session)
+    resolver = FallbackResolver(mirror.resolver(), sdlclient.UpstreamResolver(sdl))
+    (f,) = resolver._resolve_pkg(pkg)
+    assert f.downloadurl == (snapshot.root / "foo.deb").as_uri()
+
+
+def test_download_errors_are_not_resolved_on_snapshot(
+    mirror, session, snapshot, tmp_path, monkeypatch, capsys
+):
+    """Only the resolution falls back, not the download of the files."""
+    mirror.sources(mirror.publish_source())
+    (mirror.root / "pool/main/f/foo/foo_1.0.orig.tar.xz").unlink()
+    snapshot.publish(SourcePackage("foo", "1.0-1"), {"foo_1.0-1.dsc": b"dsc\n"})
+    with pytest.raises(requests.HTTPError, match="404"):
+        run_download(
+            tmp_path,
+            monkeypatch,
+            capsys,
+            "foo 1.0-1 source\n",
+            *mirror_args(mirror.url, "--snapshot-fallback"),
+        )
+    assert not snapshot.lookups
+
+
+@pytest.mark.parametrize(
+    "args, pkglist",
+    [
+        (["--sources"], "foo 1.0 amd64\n"),
+        (["--binaries"], "foo 1.0-1 source\n"),
+        (["--skip-pkgs", "foo 1.0 amd64"], "foo 1.0 amd64\n"),
+    ],
+)
+def test_skipped_packages_are_not_resolved(
+    mirror, session, snapshot, tmp_path, monkeypatch, capsys, args, pkglist
+):
+    fallback = mirror_args(mirror.url, "--snapshot-fallback")
+    assert not run_download(tmp_path, monkeypatch, capsys, pkglist, *fallback, *args)
+    assert not mirror.requested
+    assert not snapshot.lookups
+
+
+def test_snapshot_cache(mirror, session, snapshot, tmp_path, monkeypatch, capsys):
+    """
+    The results of snapshot.debian.org are cached like the ones of the debian-snapshot
+    resolver, but do not hide packages of the mirror.
+    """
+    snapshot.publish(BinaryPackage("foo", "1.0", architecture="amd64"), {"foo.deb": b"foo\n"})
+    on_snapshot = (snapshot.root / "foo.deb").as_uri()
+    for args in [mirror_args(mirror.url, "--snapshot-fallback")] * 2 + [[]]:
+        (result,) = run_download(tmp_path, monkeypatch, capsys, "foo 1.0 amd64\n", *args)
+        assert result["source"] == on_snapshot
+    assert snapshot.lookups == [BINARY]
+
+    mirror.packages(mirror.publish_binary())
+    (result,) = run_download(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "foo 1.0 amd64\n",
+        *mirror_args(mirror.url, "--snapshot-fallback"),
+    )
+    assert result["source"] == f"{mirror.url}/pool/main/f/foo/foo_1.0_amd64.deb"
+
+
+def test_fallback_with_replaced_snapshot_resolver(
+    mirror, session, snapshot, tmp_path, monkeypatch, capsys
+):
+    """The fallback is the built-in resolver, without the cache of a plugin replacing it."""
+    pkg = BinaryPackage("foo", "1.0", architecture="amd64")
+    snapshot.publish(pkg, {"foo.deb": b"foo\n"})
+    plugin = mock.Mock(side_effect=AssertionError("plugin used"))
+    monkeypatch.setitem(download.RESOLVERS, "debian-snapshot", plugin)
+    cachedir = tmp_path / "downloads" / ".cache" / "debian-snapshot"
+    cachedir.parent.mkdir(parents=True)
+    plugin_file = RemoteFile({}, "foo.deb", "plugin", "https://plugin.example/foo.deb")
+    PersistentResolverCache(cachedir).insert(pkg, [plugin_file])
+    entries = {p: p.read_bytes() for p in cachedir.iterdir()}
+
+    (result,) = run_download(
+        tmp_path,
+        monkeypatch,
+        capsys,
+        "foo 1.0 amd64\n",
+        *mirror_args(mirror.url, "--snapshot-fallback"),
+    )
+    assert result["source"] == (snapshot.root / "foo.deb").as_uri()
+    assert snapshot.lookups == [BINARY]
+    plugin.assert_not_called()
+    assert {p: p.read_bytes() for p in cachedir.iterdir()} == entries
+
+
+def test_replaced_mirror_resolver(mirror, session, tmp_path, monkeypatch, capsys):
+    """A plugin replacing the debian-mirror resolver is used like other plugins."""
+
+    class Plugin(Resolver):
+        def resolve(self, p):
+            raise NotFoundError("not found by the plugin")
+
+    plugin = Plugin()
+    factory = mock.Mock(return_value=plugin)
+    monkeypatch.setitem(download.RESOLVERS, "debian-mirror", factory)
+    pkglist = "foo 1.0 amd64\n"
+    (result,) = run_download(tmp_path, monkeypatch, capsys, pkglist, "--resolver", "debian-mirror")
+    assert result["status"] == DownloadStatus.NOT_FOUND
+    factory.assert_called_once_with(session)
+    assert plugin.cache.cachedir == tmp_path / "downloads" / ".cache" / "debian-mirror"
+
+    factory.reset_mock()
+    with pytest.raises(ValueError, match="^--mirror-url, --mirror-suite, --mirror-component can"):
+        run_download(tmp_path, monkeypatch, capsys, pkglist, *mirror_args(mirror.url))
+    factory.assert_not_called()
+
+
+def test_results_are_delivered_lazily(mirror, tmp_path):
+    mirror.packages(mirror.publish_binary("foo"), mirror.publish_binary("bar"))
+    downloader = PackageDownloader(tmp_path / "downloads", mirror.session)
+    pkgs = [BinaryPackage(name, "1.0", architecture="amd64") for name in ("foo", "bar")]
+    results = DownloadInput._download_packages(downloader, mirror.resolver(), pkgs, False, True)
+    first = next(results)
+    assert first.package.name == "foo"
+    assert not (first.path.parent / "bar_1.0_amd64.deb").exists()
+    assert [r.package.name for r in results] == ["bar"]

@@ -178,3 +178,38 @@ class Resolver(ABC):
         Resolve a package to a list of remote files to download.
         """
         raise NotImplementedError
+
+
+class FallbackResolver(Resolver):
+    """
+    Resolve packages with a primary resolver and only the ones it does not find (it raises
+    a :py:class:`NotFoundError` or returns no files) with a fallback resolver. Other errors
+    of the primary resolver are raised. The files of a package are taken from one resolver.
+
+    Each resolver uses its own cache. The combined results should not be cached, as this
+    would bypass the primary resolver.
+    """
+
+    def __init__(self, primary: Resolver, fallback: Resolver):
+        super().__init__()
+        self.primary = primary
+        self.fallback = fallback
+
+    @staticmethod
+    def _resolve_with(resolver: Resolver, p: package.Package) -> list[RemoteFile]:
+        files = resolver._resolve_pkg(p)
+        if not files:
+            raise NotFoundError("no files found")
+        return files
+
+    def resolve(self, p: package.Package) -> list[RemoteFile]:
+        try:
+            return self._resolve_with(self.primary, p)
+        except NotFoundError as e:
+            reason = str(e) or "not found"
+        logger.info(f"Resolving '{p}' with the fallback resolver: {reason}")
+        try:
+            return self._resolve_with(self.fallback, p)
+        except NotFoundError as e:
+            detail = f": {e}" if str(e) else ""
+            raise NotFoundError(f"{reason}, and not by the fallback resolver{detail}") from e

@@ -76,11 +76,10 @@ class EnrichCmd(DownloadInput, SbomOutput, SbomValidationInput):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
 
-        pkg_resolver = PackageResolver.create(Path(args.bomin))
-        sbom_type = pkg_resolver.sbom_type()
-
         rs = cls._create_default_session()
         cache = cls._create_default_resolver(args, rs, outdir)
+        pkg_resolver = PackageResolver.create(Path(args.bomin))
+        sbom_type = pkg_resolver.sbom_type()
         downloader = PackageDownloader(args.outdir, session=rs)
 
         enricher = Enricher.create_from_reader(
@@ -100,7 +99,7 @@ class EnrichCmd(DownloadInput, SbomOutput, SbomValidationInput):
         )
         pkg_paths = defaultdict(list)
         download_results = cls._download_packages(
-            downloader, cache, pkgs.keys(), args.progress, args.json
+            downloader, cache, list(pkgs), args.progress, args.json
         )
         for res in download_results:
             pkg_paths[res.package].append((res.path, res.source))

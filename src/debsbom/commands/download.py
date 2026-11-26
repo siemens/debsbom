@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 from importlib.metadata import entry_points, version
 
 from collections import deque
@@ -22,10 +23,13 @@ try:
     # If it is missing, dependent modules are skipped to prevent import errors.
     from zstandard import ZstdCompressor, ZstdDecompressor
     import requests
+    from ..apt.remote import RemoteRepository
     from ..snapshot import client as sdlclient
     from ..download.adapters import LocalFileAdapter
     from ..download.download import PackageDownloader, DownloadStatus, DownloadResult
+    from ..download.mirror import MirrorResolver
     from ..download.resolver import (
+        FallbackResolver,
         PackageResolverCache,
         PersistentResolverCache,
         ResolveError,
@@ -43,7 +47,31 @@ def setup_snapshot_resolver(session):
     return sdlclient.UpstreamResolver(sdl)
 
 
-RESOLVERS = {"debian-snapshot": setup_snapshot_resolver}
+def setup_mirror_resolver(session, url=None, suites=(), components=(), architectures=()):
+    """
+    Create the resolver of an APT repository. Unlike the other resolvers, it needs a
+    configuration, see :py:class:`debsbom.apt.remote.RemoteRepository`.
+    """
+    if not url:
+        raise ValueError("the debian-mirror resolver requires --mirror-url")
+    if not suites:
+        raise ValueError("the debian-mirror resolver requires --mirror-suite")
+    return MirrorResolver(RemoteRepository(session, url, suites, components, architectures))
+
+
+RESOLVERS = {
+    "debian-snapshot": setup_snapshot_resolver,
+    "debian-mirror": setup_mirror_resolver,
+}
+
+#: options of the built-in debian-mirror resolver
+MIRROR_OPTIONS = (
+    "mirror_url",
+    "mirror_suite",
+    "mirror_component",
+    "mirror_architecture",
+    "snapshot_fallback",
+)
 
 resolver_endpoints = entry_points(group="debsbom.download.resolver")
 for ep in resolver_endpoints:
@@ -83,14 +111,58 @@ class DownloadInput(SbomInput):
         return rs
 
     @staticmethod
+    def _resolver_cache(outdir: Path, name: str) -> PersistentResolverCache:
+        cachedir = outdir / ".cache"
+        cachedir.mkdir(exist_ok=True)
+        return PersistentResolverCache(cachedir / name)
+
+    @staticmethod
     def _create_default_resolver(args, session, outdir) -> Resolver:
-        u_resolver = RESOLVERS[args.resolver](session)
+        """
+        Create the configured resolver. It does not make any request, so that its
+        configuration is validated before the input is read.
+        """
+        setup = RESOLVERS[args.resolver]
+        if setup is setup_mirror_resolver:
+            return DownloadInput._create_mirror_resolver(args, session, outdir)
+        options = [
+            f"--{'no-' if value is False else ''}{name.replace('_', '-')}"
+            for name in MIRROR_OPTIONS
+            if (value := getattr(args, name, None)) is not None
+        ]
+        if options:
+            raise ValueError(
+                f"{', '.join(options)} can only be used with the built-in debian-mirror resolver"
+            )
+        u_resolver = setup(session)
         if type(u_resolver.cache) is PackageResolverCache:
-            cachedir = outdir / ".cache"
-            cachedir.mkdir(exist_ok=True)
-            cache = PersistentResolverCache(cachedir / args.resolver)
-            u_resolver.cache = cache
+            u_resolver.cache = DownloadInput._resolver_cache(outdir, args.resolver)
         return u_resolver
+
+    @staticmethod
+    def _create_mirror_resolver(args, session, outdir) -> Resolver:
+        """
+        The results of the mirror are not cached, as it can change. Packages which are not
+        found are only resolved on snapshot.debian.org if requested, as this discloses
+        their names and versions.
+        """
+        mirror = setup_mirror_resolver(
+            session,
+            args.mirror_url,
+            args.mirror_suite or (),
+            args.mirror_component or (),
+            args.mirror_architecture or (),
+        )
+        if not args.snapshot_fallback:
+            return mirror
+        snapshot = setup_snapshot_resolver(session)
+        # use the cache of the built-in resolver only, not the one of a plugin replacing it
+        if RESOLVERS.get("debian-snapshot") is setup_snapshot_resolver:
+            snapshot.cache = DownloadInput._resolver_cache(outdir, "debian-snapshot")
+        logger.info(
+            f"Packages not found in '{mirror.repository.url}' are resolved on snapshot.debian.org"
+        )
+        return FallbackResolver(mirror, snapshot)
 
     @staticmethod
     def _download_packages(
@@ -154,6 +226,43 @@ class DownloadInput(SbomInput):
             default="debian-snapshot",
             help="resolver to use to find upstream packages (default: %(default)s)",
         )
+        mirror = parser.add_argument_group(
+            "debian-mirror resolver",
+            "resolve packages from an APT repository, like a Debian mirror",
+        )
+        mirror.add_argument(
+            "--mirror-url",
+            metavar="URL",
+            help="URL of the archive root (http, https or file), e.g. https://deb.debian.org/debian",
+        )
+        mirror.add_argument(
+            "--mirror-suite",
+            action="append",
+            metavar="SUITE",
+            help="suite to search, can be repeated (in order of priority). A path ending "
+            "with '/' (e.g. './') is the exact path of the indexes of a flat repository",
+        )
+        mirror.add_argument(
+            "--mirror-component",
+            action="append",
+            metavar="COMPONENT",
+            help="component to search in each suite, can be repeated (in order of priority). "
+            "Required, except for flat repositories",
+        )
+        mirror.add_argument(
+            "--mirror-architecture",
+            action="append",
+            metavar="ARCH",
+            help="architecture whose indexes are searched for 'Architecture: all' packages, "
+            "can be repeated (default: the ones of the Release file). 'all' selects the "
+            "binary-all indexes",
+        )
+        mirror.add_argument(
+            "--snapshot-fallback",
+            action=argparse.BooleanOptionalAction,
+            help="resolve packages which are not found in the mirror on snapshot.debian.org, "
+            "which receives their names and versions (default: no)",
+        )
 
 
 class DownloadCmd(DownloadInput, SourceBinaryInput, PkgStreamInput):
@@ -167,12 +276,12 @@ class DownloadCmd(DownloadInput, SourceBinaryInput, PkgStreamInput):
     def run(cls, args):
         outdir = Path(args.outdir)
         outdir.mkdir(exist_ok=True)
+        rs = DownloadCmd._create_default_session()
+        u_resolver = cls._create_default_resolver(args, rs, outdir)
         if cls.has_bomin(args):
             resolvers = cls.get_sbom_resolvers(args)
         else:
             resolvers = [cls.get_pkgstream_resolver()]
-        rs = DownloadCmd._create_default_session()
-        u_resolver = cls._create_default_resolver(args, rs, outdir)
         downloader = PackageDownloader(args.outdir, session=rs)
 
         if args.skip_pkgs:

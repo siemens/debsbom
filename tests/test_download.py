@@ -26,7 +26,14 @@ from debsbom.download.download import (
     DownloadStatus,
     UnsafeRedirectError,
 )
-from debsbom.download.resolver import NotFoundError, RemoteFile
+from debsbom.download.resolver import (
+    FallbackResolver,
+    NotFoundError,
+    PackageResolverCache,
+    RemoteFile,
+    ResolveError,
+    Resolver,
+)
 from debsbom.resolver import PackageResolver, PackageStreamResolver
 from debsbom import schema
 from debsbom.dpkg.package import (
@@ -730,3 +737,85 @@ def test_download_applies_session_hooks(tmp_path, downloader):
     (result,) = downloader.download()
     assert result.status == OK
     hook.assert_called_once()
+
+
+class _StaticResolver(Resolver):
+    """Yields fixed files and raises the exceptions among them."""
+
+    def __init__(self, result, cache=None):
+        super().__init__(cache)
+        self.result = result
+        self.calls = 0
+
+    def resolve(self, p):
+        self.calls += 1
+        for item in self.result:
+            if isinstance(item, Exception):
+                raise item
+            yield item
+
+
+PRIMARY = RemoteFile(
+    {}, "foo_1.0_amd64.deb", "primary", "https://primary.example/foo_1.0_amd64.deb"
+)
+FALLBACK = RemoteFile(
+    {}, "foo_1.0_amd64.deb", "debian", "https://fallback.example/foo_1.0_amd64.deb"
+)
+
+
+@pytest.mark.parametrize(
+    "primary, fallback, expected",
+    [
+        ([PRIMARY], [FALLBACK], [PRIMARY]),
+        # only packages which are not found are resolved by the fallback
+        ([NotFoundError("gone")], [FALLBACK], [FALLBACK]),
+        ([], [FALLBACK], [FALLBACK]),
+        ([ResolveError("boom")], [FALLBACK], ResolveError),
+        # the files of a resolver are used completely or not at all
+        ([PRIMARY, NotFoundError("gone")], [FALLBACK], [FALLBACK]),
+        ([PRIMARY, ResolveError("boom")], [FALLBACK], ResolveError),
+        ([NotFoundError("gone")], [FALLBACK, NotFoundError("gone")], NotFoundError),
+        ([NotFoundError("gone")], [], NotFoundError),
+        ([NotFoundError("gone")], [ResolveError("boom")], ResolveError),
+    ],
+)
+def test_fallback_resolver(primary, fallback, expected):
+    resolvers = _StaticResolver(primary), _StaticResolver(fallback)
+    resolver = FallbackResolver(*resolvers)
+    if isinstance(expected, list):
+        assert resolver._resolve_pkg(_binary()) == expected
+    else:
+        with pytest.raises(expected) as e:
+            resolver._resolve_pkg(_binary())
+        assert type(e.value) is expected
+    fallback_used = any(isinstance(i, NotFoundError) for i in primary) or not primary
+    assert [r.calls for r in resolvers] == [1, int(fallback_used)]
+
+
+def test_fallback_resolver_reasons():
+    resolver = FallbackResolver(
+        _StaticResolver([NotFoundError("not in the mirror")]),
+        _StaticResolver([sdlclient.SnapshotNotFoundError(sdlclient.NotFoundOnSnapshotError())]),
+    )
+    with pytest.raises(
+        NotFoundError, match="^not in the mirror, and not by the fallback resolver$"
+    ):
+        resolver._resolve_pkg(_binary())
+
+
+def test_fallback_resolver_caches(tmp_path):
+    """
+    The resolvers use their own caches, the combined results are not cached. Packages are
+    always resolved by the primary resolver first.
+    """
+    primary = _StaticResolver([NotFoundError("gone")])
+    fallback = _StaticResolver([FALLBACK], PersistentResolverCache(tmp_path / "cache"))
+    resolver = FallbackResolver(primary, fallback)
+    assert type(resolver.cache) is PackageResolverCache
+    for _ in range(2):
+        assert resolver._resolve_pkg(_binary()) == [FALLBACK]
+    assert (primary.calls, fallback.calls) == (2, 1)
+
+    primary.result = [PRIMARY]
+    assert resolver._resolve_pkg(_binary()) == [PRIMARY]
+    assert (primary.calls, fallback.calls) == (3, 1)
