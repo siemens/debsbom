@@ -106,6 +106,25 @@ It is also possible to download multiple packages by name, version and architect
     guestfs-tools 1.52.3-1 source
     EOF
 
+Packages can also be looked up in an APT repository, like a Debian mirror, instead of ``snapshot.debian.org``.
+Optionally, packages that are not available there, e.g. older versions, are looked up on ``snapshot.debian.org``,
+which then receives their names and versions (see :doc:`/commands/download`):
+
+.. code-block:: bash
+
+    debsbom download --resolver debian-mirror \
+        --mirror-url https://deb.debian.org/debian \
+        --mirror-suite trixie --mirror-component main \
+        --snapshot-fallback --sources --binaries sbom.cdx.json
+
+The indexes of a flat repository are located in a single directory, which is given as a suite ending with ``/``:
+
+.. code-block:: bash
+
+    debsbom download --resolver debian-mirror \
+        --mirror-url file:///srv/repository --mirror-suite ./ \
+        --sources --binaries sbom.cdx.json
+
 Alternatively, the download can be executed from the container image:
 
 .. code-block:: bash
@@ -130,6 +149,15 @@ Downloading of additional data only occurs if information is actually missing on
     debsbom --progress enrich --no-omnibor-id --no-swh-id sbom.cdx.json enriched.cdx.json
 
 This will not download anything if only Omnibor ID and swh ID are missing, and also not add this information to the SBOM.
+
+The packages can also be retrieved from an APT repository, with the same resolver options as for downloading:
+
+.. code-block:: bash
+
+    debsbom --progress enrich --resolver debian-mirror \
+        --mirror-url https://deb.debian.org/debian \
+        --mirror-suite trixie --mirror-component main \
+        sbom.cdx.json enriched.cdx.json
 
 Merge Source Packages
 ~~~~~~~~~~~~~~~~~~~~~
