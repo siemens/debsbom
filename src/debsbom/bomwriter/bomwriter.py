@@ -15,15 +15,20 @@ class SerializerOpts:
     """
 
     @staticmethod
-    def create(bomtype: SBOMType, schema_version: str | None = None) -> "SerializerOpts":
+    def create(
+        bomtype: SBOMType, schema_version: str | None = None, output_format: str | None = None
+    ) -> "SerializerOpts":
         bomtype.validate_dependency_availability()
         if bomtype == SBOMType.CycloneDX:
             from .cdxbomwriter import CdxSerializerOpts
 
-            return CdxSerializerOpts(cdx_schema_version=schema_version or "1.6")
-        elif bomtype == SBOMType.SPDX:
-            # no options yet
-            return SerializerOpts()
+            return CdxSerializerOpts(
+                cdx_schema_version=schema_version or "1.6", output_format=output_format
+            )
+        elif bomtype == SBOMType.SPDX or bomtype == SBOMType.SPDX3:
+            from .spdxbomwriter import SpdxSerializerOpts
+
+            return SpdxSerializerOpts(output_format=output_format)
         raise NotImplementedError()
 
 
@@ -38,7 +43,7 @@ class BomWriter:
             from .cdxbomwriter import CdxBomWriter
 
             return CdxBomWriter()
-        elif bomtype == SBOMType.SPDX:
+        elif bomtype == SBOMType.SPDX or bomtype == SBOMType.SPDX3:
             from .spdxbomwriter import SpdxBomWriter
 
             return SpdxBomWriter()

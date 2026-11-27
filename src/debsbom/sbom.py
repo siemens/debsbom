@@ -47,6 +47,8 @@ class SBOMType(Enum):
     """CycloneDX"""
     SPDX = (1,)
     """SPDX"""
+    SPDX3 = (2,)
+    """SPDX3"""
 
     @classmethod
     def from_str(cls, bomtype: str):
@@ -55,6 +57,8 @@ class SBOMType(Enum):
                 return cls.CycloneDX
             case "spdx":
                 return cls.SPDX
+            case "spdx3":
+                return cls.SPDX3
             case _:
                 raise RuntimeError(f"Unknown SBOM type '{bomtype}'")
 
@@ -64,6 +68,8 @@ class SBOMType(Enum):
                 return "cdx"
             case self.SPDX:
                 return "spdx"
+            case self.SPDX3:
+                return "spdx3"
             case _:
                 assert False, "unreachable"
 
@@ -80,7 +86,7 @@ class SBOMType(Enum):
                     "Missing dependency: cyclonedx-python-lib; install it by enabling the"
                     "dependency extra `cdx`: `pip install debsbom[cdx]`"
                 )
-        elif self == SBOMType.SPDX:
+        elif self == SBOMType.SPDX or self == SBOMType.SPDX3:
             try:
                 import spdx_tools.spdx.model.package
             except ModuleNotFoundError as e:
@@ -88,6 +94,8 @@ class SBOMType(Enum):
                     "Missing dependency: spdx-tools; install it by enabling the"
                     "dependency extra `spdx`: `pip install debsbom[spdx]`"
                 )
+        else:
+            raise NotImplementedError()
 
 
 class BOM_Standard(Enum):
@@ -108,8 +116,10 @@ class Reference:
         """Return a string representation for the given SBOM type."""
         if sbom_type == SBOMType.CycloneDX:
             s = CDX_REF_PREFIX + self.target
-        elif sbom_type == SBOMType.SPDX:
+        elif sbom_type == SBOMType.SPDX or sbom_type == SBOMType.SPDX3:
             s = SPDX_REF_PREFIX + re.sub(SPDX_ID_RE, ".", self.target)
+        else:
+            raise NotImplementedError()
 
         if self.is_source:
             s += "-srcpkg"

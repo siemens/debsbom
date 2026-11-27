@@ -15,7 +15,7 @@ Offline SBOM Generation
 
 What this also means is that some information that would theoretically be available by a simple lookup on e.g. snapshot.debian.org is not available in the generated SBOM.
 
-This restriction does not go for other commands, e.g. the ``download`` command requires Internet access of course.
+This restriction does not go for commands other than ``generate``, e.g. the ``download`` command requires Internet access of course.
 
 Information Sources
 -------------------
@@ -141,7 +141,7 @@ Relationships of Recommended and Suggested Packages
 
 Additional to proper dependencies binary packages can also specify recommended and suggested packages. As packages that are recommended or suggested by other packages are not automatically removed by ``apt autoremove`` they can show up as disconnected isles in the dependency graph. To prevent this an edge between the package that recommended/suggested them is required. Unfortunately ``apt`` does not allow us to exactly reconstruct who actually pulled the package in, so these dependencies might not always be fully accurate.
 
-The generation of these edges in the graph is controlled by the ``--recommends-deps`` and ``--suggests-deps`` flags for the ``generate`` command. By default ``debsbom`` only considers recommended package-dependencies as ``apt`` does install recommended packages in the default configuration. The relationship itself is modeled as a binary dependency. For SPDX SBOMs an additional comment is added: ``recommends`` or ``suggests`` for the respective relationship type.
+The generation of these edges in the graph is controlled by the ``--recommends-deps`` and ``--suggests-deps`` flags for the ``generate`` command. By default ``debsbom`` only considers recommended package-dependencies as ``apt`` installs recommended packages in its default configuration. The relationship itself is modeled as a binary dependency. For SPDX SBOMs an additional comment is added: ``recommends`` or ``suggests`` for the respective relationship type.
 
 Classification of Components/Packages
 -------------------------------------
@@ -204,7 +204,7 @@ When scanning a rootfs, ``debsbom`` resolves the distribution architecture in th
 
 The ``dpkg`` post-installation script writes ``DPKG_MAINTSCRIPT_ARCH`` to ``arch-native``. This is the same architecture recorded for the installed ``dpkg`` package, so deriving it from the status file does not introduce a guess. If the ``dpkg`` package is absent, generation fails and ``--distro-arch`` must be specified.
 
-Status-file derivation applies only when scanning a rootfs. Package data passed with ``--from-pkglist`` is assumed to be unrelated to the rootfs and is not used for this purpose. ``debsbom`` also does not use ``/var/lib/dpkg/arch``, which can list both native and foreign architectures, inspect architecture-specific filesystem paths, or execute the rootfs's ``dpkg`` command.
+Status-file derivation applies only when scanning a rootfs. Package data passed with ``--from-pkglist`` is assumed to be unrelated to the rootfs and is not used for this purpose. ``debsbom`` also does not use ``/var/lib/dpkg/arch`` (which can list both native and foreign architectures), inspect architecture-specific filesystem paths, or execute the rootfs's ``dpkg`` command.
 
 Universal Ingress and Apt-Cache
 -------------------------------

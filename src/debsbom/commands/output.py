@@ -31,7 +31,10 @@ class SbomOutput:
             logger.info("Emit SBOM on stdout")
             writer.write_to_stream(bom, sys.stdout, validate=validate, opts=opts)
         else:
-            if not out.endswith(f".{bomtype}.json"):
-                out += f".{bomtype}.json"
+            if opts is None:
+                opts = SerializerOpts.create(bomtype)
+            suffix = f".{bomtype}.{opts.ext}"
+            if not out.endswith(suffix):
+                out += suffix
             logger.info(f"Write SBOM to file {out}")
             writer.write_to_file(bom, Path(out), validate=validate, opts=opts)
