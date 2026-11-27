@@ -6,6 +6,7 @@ from datetime import datetime
 from email.utils import parsedate_to_datetime
 import io
 from pathlib import Path
+import shutil
 import tarfile
 from debian import deb822
 import pytest
@@ -13,12 +14,14 @@ import requests
 import zstandard
 import lz4.frame
 from debsbom.download import PackageDownloader
+from debsbom.download.download import DownloadStatus
 from debsbom.repack import SourceArchiveMerger
 import debsbom.dpkg.package as dpkg
 from debsbom.repack.merger import CorruptedFileError, DscFileNotFoundError
 import debsbom.snapshot.client as sdlclient
 from debsbom.util import Compression
-from debsbom.util.checksum import ChecksumAlgo
+from debsbom.util.checksum import ChecksumAlgo, calculate_checksums, verify_dsc_files
+from test_mirror import dsc_file, mirror
 
 
 def test_compressor_from_tool():
@@ -168,3 +171,65 @@ def test_merger_bad_checksum(tmpdir, some_packages, dldir):
     # one of the binary and we get the corrupted file error
     with pytest.raises(CorruptedFileError):
         sam.merge(pkg)
+
+
+CHANGELOG = b"""foo (1.0-1) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Debian Developer <developer@example.com>  Wed, 01 Oct 2025 12:34:56 +0100
+"""
+
+
+def tar_xz(files: dict[str, bytes]) -> bytes:
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:xz") as tar:
+        for name, data in files.items():
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+    return buffer.getvalue()
+
+
+@pytest.fixture
+def mirrored_sources(mirror, tmp_path):
+    """Download a source package of format 3.0 (quilt) from a local mirror."""
+    files = {
+        "foo_1.0.orig.tar.xz": tar_xz({"foo-1.0/README": b"upstream\n"}),
+        "foo_1.0-1.debian.tar.xz": tar_xz(
+            {"debian/changelog": CHANGELOG, "debian/source/format": b"3.0 (quilt)\n"}
+        ),
+    }
+    dsc = dsc_file(
+        files=files,
+        Binary="foo",
+        Architecture="any",
+        Maintainer="Debian Developer <developer@example.com>",
+    )
+    mirror.sources(mirror.publish_source(files=files, dsc=dsc))
+    pkg = dpkg.SourcePackage(
+        "foo", "1.0-1", checksums=calculate_checksums(dsc, [ChecksumAlgo.SHA256SUM])
+    )
+    downloader = PackageDownloader(tmp_path / "downloads", mirror.session)
+    downloader.register(mirror.resolver().resolve(pkg), pkg)
+    assert [r.status for r in downloader.download()] == [DownloadStatus.OK] * 3
+    return pkg, tmp_path / "downloads" / "sources"
+
+
+def test_mirror_sources_layout(mirror, mirrored_sources):
+    """The files of a source package of a mirror are stored together."""
+    pkg, sources = mirrored_sources
+    dsc = SourceArchiveMerger.locate_artifact(pkg, sources)
+    assert dsc.parent.name == mirror.resolver().archive_name
+    with open(dsc) as f:
+        assert verify_dsc_files(deb822.Dsc(f), dsc.parent)
+
+
+@pytest.mark.skipif(not shutil.which("dpkg-source"), reason="requires dpkg-source")
+def test_merge_mirror_sources(mirrored_sources, tmp_path):
+    pkg, sources = mirrored_sources
+    merged = SourceArchiveMerger(sources, tmp_path / "merged").merge(pkg)
+    with tarfile.open(merged) as tar:
+        names = tar.getnames()
+    assert "foo-1.0/README" in names
+    assert "foo-1.0/debian/changelog" in names

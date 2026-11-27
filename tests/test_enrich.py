@@ -2,16 +2,25 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 import pytest
 from collections import defaultdict
+from debsbom.bomwriter.bomwriter import BomWriter
+from debsbom.cli import setup_parser
 from debsbom.commands.enrich import EnrichCmd
 from debsbom.download.download import PackageDownloader
 from debsbom.download.resolver import PersistentResolverCache
+from debsbom.dpkg.package import BinaryPackage, SourcePackage
 from debsbom.enrich import Enricher
 from debsbom.resolver.resolver import PackageResolver
 from debsbom.sbom import SBOMType
 from debsbom.snapshot.client import SnapshotDataLake, UpstreamResolver
+from debsbom.util.checksum import calculate_checksums
+from debsbom.util.omnibor import artifact_id
+from debsbom.util.swh import swh_id
 from pathlib import Path
+from test_apt_remote import PACKAGES, source
+from test_mirror import BINARY, SOURCE, mirror, mirror_args, session, snapshot
 
 
 @pytest.fixture
@@ -177,3 +186,129 @@ def test_enrich_source(tmpdir, http_session, sbom_type, enrich_sbom):
                 for ref in component.external_references
             ]
         )
+
+
+def write_sbom(path: Path, sbom_type: SBOMType, packages) -> Path:
+    if sbom_type == SBOMType.SPDX:
+        pytest.importorskip("spdx_tools")
+        from debsbom.generate.spdx import spdx_bom as make_bom
+    else:
+        pytest.importorskip("cyclonedx")
+        from debsbom.generate.cdx import cyclonedx_bom as make_bom
+    BomWriter.create(sbom_type).write_to_file(
+        make_bom(set(packages), "debian", "amd64"), path, validate=False
+    )
+    return path
+
+
+def enriched_packages(path: Path, sbom_type: SBOMType) -> dict[str, dict]:
+    """The checksums, download locations and persistent IDs of the packages by PURL."""
+    document = json.loads(path.read_text())
+    packages = {}
+    if sbom_type == SBOMType.CycloneDX:
+        for c in document["components"]:
+            packages[c["purl"]] = {
+                "checksums": sorted(h["content"] for h in c.get("hashes", [])),
+                "locations": [
+                    r["url"] for r in c.get("externalReferences", []) if r["type"] == "distribution"
+                ],
+                "ids": sorted(c.get("omniborId", []) + c.get("swhid", [])),
+            }
+        return packages
+    for p in document["packages"]:
+        refs = p.get("externalRefs", [])
+        for purl in (r["referenceLocator"] for r in refs if r["referenceType"] == "purl"):
+            location = p["downloadLocation"]
+            packages[purl] = {
+                "checksums": sorted(c["checksumValue"] for c in p.get("checksums", [])),
+                "locations": [location] if location != "NOASSERTION" else [],
+                "ids": sorted(
+                    r["referenceLocator"] for r in refs if r["referenceType"] in ("gitoid", "swh")
+                ),
+            }
+    return packages
+
+
+def enriched_from(path: Path, url: str) -> dict:
+    return {
+        "checksums": sorted(calculate_checksums(path).values()),
+        "locations": [url],
+        "ids": sorted([artifact_id(path), swh_id(path)]),
+    }
+
+
+NOT_ENRICHED = {"checksums": [], "locations": [], "ids": []}
+
+
+def run_enrich(tmp_path, sbom_type: SBOMType, *args) -> dict[str, dict]:
+    """Enrich an SBOM with a binary and a source package and return the packages."""
+    packages = [BinaryPackage("foo", "1.0", architecture="amd64"), SourcePackage("foo", "1.0-1")]
+    bomin = write_sbom(tmp_path / f"input.{sbom_type}.json", sbom_type, packages)
+    outdir = str(tmp_path / "downloads")
+    bomout = str(tmp_path / "enriched")
+    EnrichCmd.run(
+        setup_parser().parse_args(["enrich", "--outdir", outdir, *args, str(bomin), bomout])
+    )
+    return enriched_packages(tmp_path / f"enriched.{sbom_type}.json", sbom_type)
+
+
+@pytest.mark.parametrize("sbom_type", list(SBOMType))
+def test_enrich_from_mirror(mirror, session, snapshot, tmp_path, sbom_type):
+    mirror.packages(mirror.publish_binary())
+    mirror.sources(mirror.publish_source())
+    packages = run_enrich(tmp_path, sbom_type, *mirror_args(mirror.url, "--snapshot-fallback"))
+    pool = "pool/main/f/foo"
+    assert packages[BINARY] == enriched_from(
+        mirror.root / pool / "foo_1.0_amd64.deb", f"{mirror.url}/{pool}/foo_1.0_amd64.deb"
+    )
+    assert packages[SOURCE] == enriched_from(
+        mirror.root / pool / "foo_1.0-1.dsc", f"{mirror.url}/{pool}/foo_1.0-1.dsc"
+    )
+    assert not snapshot.lookups
+
+
+@pytest.mark.parametrize("fallback", [None, False, True])
+@pytest.mark.parametrize("sbom_type", list(SBOMType))
+def test_enrich_with_snapshot_fallback(mirror, session, snapshot, tmp_path, sbom_type, fallback):
+    """Only packages which are not in the mirror are resolved on snapshot.debian.org."""
+    mirror.packages(mirror.publish_binary())
+    mirror.sources(source("bar"))
+    dsc = snapshot.root / "foo_1.0-1.dsc"
+    snapshot.publish(SourcePackage("foo", "1.0-1"), {dsc.name: b"dsc\n"})
+    flags = {None: [], False: ["--no-snapshot-fallback"], True: ["--snapshot-fallback"]}
+    packages = run_enrich(tmp_path, sbom_type, *mirror_args(mirror.url, *flags[fallback]))
+    pool = "pool/main/f/foo"
+    assert packages[BINARY] == enriched_from(
+        mirror.root / pool / "foo_1.0_amd64.deb", f"{mirror.url}/{pool}/foo_1.0_amd64.deb"
+    )
+    if fallback:
+        assert packages[SOURCE] == enriched_from(dsc, dsc.as_uri())
+        assert snapshot.lookups == [SOURCE]
+    else:
+        assert packages[SOURCE] == NOT_ENRICHED
+        assert not snapshot.lookups
+
+
+@pytest.mark.parametrize("sbom_type", list(SBOMType))
+def test_enrich_mirror_errors_are_not_resolved_on_snapshot(
+    mirror, session, snapshot, tmp_path, sbom_type
+):
+    mirror.write(PACKAGES + ".xz", b"not xz")
+    mirror.sources(mirror.publish_source())
+    (mirror.root / "pool/main/f/foo/foo_1.0-1.dsc").write_bytes(b"tampered")
+    snapshot.publish(BinaryPackage("foo", "1.0", architecture="amd64"), {"foo.deb": b"foo\n"})
+    snapshot.publish(SourcePackage("foo", "1.0-1"), {"foo_1.0-1.dsc": b"dsc\n"})
+    packages = run_enrich(tmp_path, sbom_type, *mirror_args(mirror.url, "--snapshot-fallback"))
+    assert packages[BINARY] == packages[SOURCE] == NOT_ENRICHED
+    assert not snapshot.lookups
+
+
+@pytest.mark.parametrize("sbom_type", list(SBOMType))
+def test_enrich_without_work(mirror, session, snapshot, tmp_path, sbom_type):
+    """Without anything to enrich, no package is resolved."""
+    disabled = ["--no-checksums", "--no-download-location", "--no-omnibor-id", "--no-swh-id"]
+    args = mirror_args(mirror.url, "--snapshot-fallback", *disabled)
+    packages = run_enrich(tmp_path, sbom_type, *args)
+    assert packages[BINARY] == packages[SOURCE] == NOT_ENRICHED
+    assert not mirror.requested
+    assert not snapshot.lookups

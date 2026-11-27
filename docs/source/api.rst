@@ -37,6 +37,12 @@ APT Cache Retrieval
 .. automodule:: debsbom.apt.copyright
    :members:
 
+APT Repository Client
+---------------------
+
+.. automodule:: debsbom.apt.remote
+   :members:
+
 .. _package-resolving-label:
 
 Package Downloader
@@ -46,6 +52,9 @@ Package Downloader
    :members:
 
 .. automodule:: debsbom.download.resolver
+   :members:
+
+.. automodule:: debsbom.download.mirror
    :members:
 
 .. automodule:: debsbom.download.plugin

@@ -157,7 +157,7 @@ Checksums
 
 The situation is more complex for source packages, as these consist of multiple files and there is no checksum given for the collection of them. ``debsbom`` uses the checksum of the ``.dsc`` file in each source package, as this file describes the whole source package and its contents, together with checksums for all other included files. This makes it possible to verify that every file in a source package is as expected.
 
-When there are multiple checksums of different algorithms available ``debsbom`` checks them in a specific internal order. The first algorithm that is supported is checked. The result of this check is final. The order from highest to lowest is ``SHA256``, ``SHA1``, ``MD5``.
+When there are multiple checksums of different algorithms available ``debsbom`` checks them in a specific internal order. The first algorithm that is supported is checked. The result of this check is final. The order from highest to lowest is ``SHA512``, ``SHA256``, ``SHA1``, ``MD5``.
 
 Uniqueness of a Debian Package
 ------------------------------
@@ -168,7 +168,7 @@ For source packages the situation should also be simple: a tuple of package name
 
 ``debsbom`` generally uses the simple assumption that package name, version and architecture (for binary packages) uniquely describes the package. If a checksum is available, this checksum is always verified to make sure this assumption actually holds. Where no checksum is available there is no way to be certain that the package is correctly identified.
 
-There is a unique case for source packages: even if the checksum does not match it could still be content-equal, as is the case with the above example on the mailing list. There, only the signature date changed, which leads to the different checksums. In theory one could verify the content of a source package, as all checksums referenced in the ``.dsc`` would still be the same, but that is not done for the sake of simplicity.
+There is a unique case for source packages: even if the checksum does not match it could still be content-equal, as is the case with the above example on the mailing list. There, only the signature date changed, which leads to the different checksums. In theory one could verify the content of a source package, as all checksums referenced in the ``.dsc`` would still be the same, but that is not done for the sake of simplicity. This also applies to the ``debian-mirror`` resolver, which does not accept a ``.dsc`` file with a different checksum, even if only its signature differs.
 
 There is also the problem of package identification. This is relevant for the ``merge`` command, as there components or packages from two different SBOMs need to be merged, if they are identical. The identification of packages, as we have just learned, is complicated and ``debsbom`` simply uses the PURL for identification purposes there, additionally checksums are checked if they are available. This is consistent with the general approach of package identification, as the PURL contains the package name, version and architecture.
 
@@ -252,3 +252,18 @@ For some commands artifacts can be associated for an SBOM with the ``--artifact`
     Omnibor ID, ``externalRefs`` with type ``gitoid``, ``omniborId``
     SWHID, ``externalRefs`` with type ``swh``, ``swhid``
     Checksums, ``checksums``, ``hashes``
+
+Resolving Packages from APT Repositories
+----------------------------------------
+
+With the ``debian-mirror`` resolver, the ``download`` and ``enrich`` commands resolve packages from an APT repository instead of snapshot.debian.org, e.g. from a Debian mirror or from the repository of a custom distribution. Following the "We don't guess" philosophy, the repository is configured explicitly: its archive root, its suites and components, and if needed the architectures of the indexes of ``Architecture: all`` packages. They are not derived from the SBOM (e.g. from the distribution of a package), from the apt configuration of a rootfs, or from the host. A package is only resolved to its exact version, never to a newer or similar one. SBOM generation stays offline, the ``generate`` command never accesses a repository. With a local repository, also the ``download`` command works without Internet access.
+
+The repository metadata is parsed and checked for consistency: the identities, paths, sizes and checksums in the indexes must be well-formed and consistent, also with the ``.dsc`` file of a source package, and downloaded files must match them. But the repository is not authenticated: the signatures of its ``Release`` and ``InRelease`` files are not verified, and neither are the checksums of the indexes listed there. Reading an ``InRelease`` file does not imply that it is trusted. Authenticating repositories requires trusted keys and the chain of verification of apt, which is tracked in `issue #282 <https://github.com/siemens/debsbom/issues/282>`__. Until then, only the checksums in the SBOM ensure that a package of a repository is the one described by the SBOM.
+
+The fallback to snapshot.debian.org is opt-in, as it sends the names and versions of packages to a public service, and these may be confidential for packages of custom distributions. Only packages that are not found in the repository fall back. Errors of the repository, e.g. of authentication, of the network or of its metadata, are reported instead, as a fallback would hide them, and would send information about packages that might be available in the repository. All files of a package come from the same resolver, as the files of a source package are only consistent as a whole.
+
+The fallback is applied when resolving packages, not when downloading them: all packages are resolved before they are downloaded, so a file that cannot be downloaded from the repository afterwards is not retried on snapshot.debian.org. That would require to resolve and download each package separately, to retry whole source packages and to clean up partial downloads.
+
+The results of the ``debian-mirror`` resolver are not cached across runs, as the persistent cache of resolvers is keyed by the package only, not by the repository configuration, and the content of a repository changes over time. Caching the combination with the Snapshot fallback could also bypass the repository for packages that were found on snapshot.debian.org before. Instead, each index is retrieved at most once per run.
+
+The location a file is downloaded from does not change what the package is: the PURL and other information about the origin of a package are not changed because a mirror provides it, and the URL of a mirror is not a permanent location, as mirrors remove old versions.

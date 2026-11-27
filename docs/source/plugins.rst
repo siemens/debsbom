@@ -6,7 +6,7 @@ Plugins
 Resolver Plugin
 ---------------
 
-In the ``download`` command ``debsbom`` is downloading packages described by an SBOM. For this it needs to resolve from the package to a download location. What resolver to use can be controlled by the ``--resolver`` flag. ``debsbom`` per default provides a resolver for the Debian snapshot mirror (snapshot.debian.org).
+In the ``download`` and ``enrich`` commands ``debsbom`` is downloading packages described by an SBOM. For this it needs to resolve from the package to a download location. What resolver to use can be controlled by the ``--resolver`` flag. ``debsbom`` provides the ``debian-snapshot`` resolver for the Debian snapshot mirror (snapshot.debian.org), which is used per default, and the ``debian-mirror`` resolver for APT repositories, see :doc:`/commands/download`.
 
 Builders of custom Debian distributions might have different repositories where packages can be downloaded from. Some of these solutions might not be publicly available, or its implementation not relevant for the general public for some other reason. In these cases code for a resolver for these repositories should not land in ``debsbom`` proper, but we still want to give the option to use it as a fully integrated part of ``debsbom``.
 
@@ -26,6 +26,10 @@ Plugin discovery happens by entry points. ``debsbom`` specifically looks for the
         pass
 
 The passed in ``request.Session`` is later used by ``debsbom`` to download the packages. It is not required to use it, but consider reusing it instead of opening a new session.
+
+The setup function is only called with the session. The options of the built-in ``debian-mirror`` resolver (``--mirror-*`` and ``--snapshot-fallback``) are not passed to plugins, and they are rejected for other resolvers. A plugin can replace a built-in resolver by using its name, then the options of the ``debian-mirror`` resolver are rejected as well. The Snapshot fallback of the ``debian-mirror`` resolver always uses the built-in Snapshot resolver, which only shares the cache of the ``debian-snapshot`` resolver if no plugin replaces it.
+
+If a resolver keeps its default cache, ``debsbom`` attaches a persistent cache to it, which is stored in ``<outdir>/.cache/<resolver name>`` and keyed by the PURL and the checksums of a package. This also applies to a plugin that replaces the ``debian-mirror`` resolver, while the results of the built-in one are never stored.
 
 The resolver itself needs to inherit from the ``Resolver`` class. See the documentation here: :ref:`package-resolving-label`. The important part here is implementing the ``resolve`` function, which takes a package representation and returns a list of ``RemoteFile``, the locations from where files associated with the package can be downloaded. A minimal implementation could look like this:
 
