@@ -132,9 +132,9 @@ def cdx_package_repr(
         raise RuntimeError(f"The package {package} is neither a source nor a binary package")
 
     if package.omnibor_id:
-        entry.omnibor_ids = [package.omnibor_id]
+        entry.omnibor_ids = [cdx_component.OmniborId(package.omnibor_id)]
     if package.swh_id:
-        entry.swhids = [package.swh_id]
+        entry.swhids = [cdx_component.Swhid(package.swh_id)]
 
     entry.external_references = external_refs
     return entry
@@ -173,7 +173,7 @@ def make_distro_component(
         sha1_digest, sha256_digest = gitoid_hashes(artifact, hashers=[sha1(), sha256()])
 
         omnibor_id = artifact_id_from_digest(sha256_digest)
-        distro_component.omnibor_ids = [omnibor_id]
+        distro_component.omnibor_ids = [cdx_component.OmniborId(omnibor_id)]
 
         distro_component.hashes = [
             cdx_hashtype(alg=checksum_to_cdx(alg), content=dig)
@@ -181,7 +181,7 @@ def make_distro_component(
         ]
 
         swhid = swh_id_from_digest(sha1_digest)
-        distro_component.swhids = [swhid]
+        distro_component.swhids = [cdx_component.Swhid(swhid)]
 
     return distro_component
 
